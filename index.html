@@ -9,6 +9,7 @@
             --primary-color: #e44d26;
             --mother-dairy: #006eb5;
             --london-dairy: #b38b4d;
+            --baskin-robbins: #ff69b4;
             --bg-color: #f8f9fa;
         }
 
@@ -20,7 +21,7 @@
             border-bottom: 5px solid var(--primary-color);
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
-        header h1 { margin: 0; font-size: 2em; color: #222; text-transform: uppercase; }
+        header h1 { margin: 0; font-size: 2.2em; color: #222; text-transform: uppercase; font-weight: 800; }
         header p { margin: 5px 0 0; color: #666; font-style: italic; }
 
         /* Premium Filters */
@@ -32,7 +33,7 @@
         }
         .filter-btn.active { background: var(--primary-color); color: white; transform: scale(1.05); }
 
-        .menu-container { display: flex; flex-wrap: wrap; justify-content: center; padding: 10px; gap: 25px; }
+        .menu-container { display: flex; flex-wrap: wrap; justify-content: center; padding: 10px; gap: 25px; min-height: 200px; }
         
         /* Premium Card Design */
         .menu-card { 
@@ -42,7 +43,9 @@
             position: relative;
         }
         .menu-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
-        .menu-card img { width: 100%; height: 220px; object-fit: cover; }
+        
+        /* Fixed Image Issue with Referrer Policy */
+        .menu-card img { width: 100%; height: 220px; object-fit: cover; background: #eee; }
         
         .info { padding: 20px; text-align: left; }
         .brand-badge { 
@@ -51,15 +54,17 @@
             text-transform: uppercase;
         }
         
-        /* ब्रांड के अनुसार अलग-अलग कलर्स */
+        /* Brand Colors */
         .badge-mother-dairy { background: var(--mother-dairy); }
         .badge-london-dairy { background: var(--london-dairy); }
+        .badge-baskin-robbins { background: var(--baskin-robbins); }
         .badge-default { background: #666; }
 
-        .item-name { font-size: 1.3em; font-weight: 700; color: #222; margin: 0; }
+        .item-name { font-size: 1.25em; font-weight: 700; color: #222; margin: 0; min-height: 50px; }
         .price { color: var(--primary-color); font-weight: 800; font-size: 1.5em; margin-top: 10px; display: block; }
         
-        #status-msg { margin-top: 50px; font-weight: 500; color: #888; }
+        #status-msg { margin-top: 50px; font-weight: 500; color: #888; font-size: 1.2em; }
+        .refresh-btn { background: #eee; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; margin-bottom: 10px; font-size: 0.9em; }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -67,7 +72,7 @@
 
     <header>
         <h1>Exclusive Ice Cream Menu</h1>
-        <p>Premium flavors at your fingertips</p>
+        <p>Your Favorite Brands, Real-Time Stock</p>
     </header>
 
     <div class="filter-container" id="filter-box">
@@ -78,22 +83,32 @@
     <div class="menu-container" id="menu-box"></div>
 
     <script>
+        // Updated with your new Apps Script URL
         const googleSheetUrl = "https://script.google.com/macros/s/AKfycbwS8NLxa9SP6KP0IFqUyzMztpcO6q0BzvtDXA0_MasxkeKPPKSbUK8O0iEQdHDZXIE/exec"; 
         let allItems = [];
 
         async function loadData() {
+            const statusMsg = document.getElementById('status-msg');
             try {
                 const response = await fetch(googleSheetUrl);
                 allItems = await response.json();
+                
+                if(!allItems || allItems.length === 0) {
+                    statusMsg.innerText = "No items found in your Google Sheet.";
+                    return;
+                }
+
                 createFilterButtons();
                 renderMenu('All');
             } catch (error) {
-                document.getElementById('status-msg').innerText = "Unable to connect. Check internet.";
+                statusMsg.innerText = "Error connecting to server. Please refresh.";
+                console.error(error);
             }
         }
 
         function createFilterButtons() {
             const filterBox = document.getElementById('filter-box');
+            // Extract unique brands from data
             const brands = [...new Set(allItems.map(item => item.brand).filter(b => b))];
             
             brands.forEach(brand => {
@@ -118,25 +133,31 @@
             statusMsg.style.display = 'none';
 
             const filteredItems = allItems.filter(item => {
-                const isAvailable = String(item.available).toLowerCase() === 'yes';
+                const isAvailable = String(item.available).toLowerCase() === 'yes' || item.available === true;
                 return isAvailable && (filter === 'All' || item.brand === filter);
             });
 
             if (filteredItems.length === 0) {
                 statusMsg.style.display = 'block';
-                statusMsg.innerText = "Current selection is unavailable.";
+                statusMsg.innerText = "Currently out of stock for this selection.";
                 return;
             }
 
             filteredItems.forEach(item => {
-                // ब्रांड के हिसाब से क्लास चुनना
+                // Set Brand Badge Color
                 let badgeClass = 'badge-default';
-                if(item.brand.toLowerCase().includes('mother')) badgeClass = 'badge-mother-dairy';
-                if(item.brand.toLowerCase().includes('london')) badgeClass = 'badge-london-dairy';
+                const b = item.brand.toLowerCase();
+                if(b.includes('mother')) badgeClass = 'badge-mother-dairy';
+                else if(b.includes('london')) badgeClass = 'badge-london-dairy';
+                else if(b.includes('baskin')) badgeClass = 'badge-baskin-robbins';
 
                 menuBox.innerHTML += `
                     <div class="menu-card">
-                        <img src="${item.img || 'https://via.placeholder.com/300x220'}" onerror="this.src='https://via.placeholder.com/300x220?text=Premium+Ice+Cream'">
+                        <img 
+                            src="${item.img}" 
+                            referrerpolicy="no-referrer" 
+                            alt="${item.name}" 
+                            onerror="this.src='https://via.placeholder.com/300x220?text=Ice+Cream+Menu'">
                         <div class="info">
                             <span class="brand-badge ${badgeClass}">${item.brand}</span>
                             <h3 class="item-name">${item.name}</h3>
