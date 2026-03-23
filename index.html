@@ -323,19 +323,24 @@
                 window.print();
             } 
             else if (method === 'whatsapp') {
-                let message = "Hello Glacier Ice Cream!🍦%0A%0A*New Order:*%0A";
+                // \n का मतलब अगली लाइन (New Line) होता है
+                let message = "Hello Glacier Ice Cream!🍦\n\n*New Order:*\n";
                 let total = 0;
                 
                 for (const [name, data] of Object.entries(cart)) {
-                    message += `- ${data.qty}x ${name} (₹${data.price * data.qty})%0A`;
+                    message += `- ${data.qty}x ${name} (₹${data.price * data.qty})\n`;
                     total += (data.price * data.qty);
                 }
                 
-                message += `%0A*Total Amount: ₹${total}*%0A%0A_Please confirm my order._`;
+                message += `\n*Total Amount: ₹${total}*\n\n_Please confirm my order._`;
+                
+                // encodeURIComponent() जादुई कोड है जो & और + जैसे निशानों को WhatsApp के लिए सुरक्षित बना देता है
+                const finalEncodedMessage = encodeURIComponent(message);
                 
                 // Open WhatsApp
-                window.open(`https://wa.me/$919829610570?text=${message}`, '_blank');
+                window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${finalEncodedMessage}`, '_blank');
             }
+        }
             
             // Optional: Cart clear karna ho to niche wali lines uncomment karein
             // cart = {};
