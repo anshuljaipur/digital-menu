@@ -18,6 +18,19 @@
 
         body { font-family: 'Poppins', sans-serif; margin: 0; background-color: var(--bg-color); text-align: center; color: #333; }
         
+        /* NEW: Top Animated Loading Bar */
+        #loading-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 5px;
+            background-color: var(--primary-color);
+            width: 0%;
+            z-index: 9999;
+            transition: width 0.4s ease, opacity 0.5s ease;
+            box-shadow: 0 2px 5px rgba(228, 77, 38, 0.5);
+        }
+
         header { background: #fff; padding: 40px 10px; border-bottom: 6px solid var(--primary-color); box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
         header h1 { margin: 0; font-family: 'Montserrat', sans-serif; font-size: 2.8em; color: var(--glacier-blue); text-transform: uppercase; letter-spacing: 2px; }
         header p { margin: 8px 0 0; color: #777; font-size: 1.1em; font-weight: 500; }
@@ -80,12 +93,12 @@
         .checkout-btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 1.1em; font-weight: bold; color: white; cursor: pointer; margin-top: 15px; }
         .btn-wa { background: #25D366; } .btn-print { background: var(--glacier-blue); } .btn-clear { background: #ff9f43; color: white; } .close-cart { background: #ff4757; }
 
-        /* --- SMART PDF & PRINT LAYOUT MAGIC (IPHONE SAFE DESIGN) --- */
+        /* SMART PDF & PRINT LAYOUT MAGIC (IPHONE SAFE DESIGN) */
         @media print {
             @page { margin: 5mm; size: A4 portrait; }
             body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: #fff; }
             
-            #filter-box, .search-sort-container, #floating-cart, .add-btn, #status-msg, .qty-btn { display: none !important; }
+            #loading-bar, #filter-box, .search-sort-container, #floating-cart, .add-btn, #status-msg, .qty-btn { display: none !important; }
 
             body.print-menu header { box-shadow: none; border-bottom: 3px solid var(--primary-color); padding: 5px 0 10px 0; text-align: center; margin-bottom: 10px; }
             body.print-menu header h1 { font-size: 24pt; margin: 0; color: var(--glacier-blue); }
@@ -94,10 +107,7 @@
             body.print-menu .category-section { margin-bottom: 15px; page-break-inside: avoid; clear: both; }
             body.print-menu .category-title { font-size: 16pt !important; margin: 5px 0 10px 0 !important; padding-bottom: 2px !important; border-bottom: 2px solid var(--primary-color) !important; color: var(--glacier-blue) !important; display: block; }
             
-            /* IPHONE FIX: Changed from Grid to Flexbox for stable printing */
             body.print-menu .menu-container { display: flex !important; flex-wrap: wrap !important; justify-content: flex-start !important; gap: 0 !important; padding: 0 !important; }
-            
-            /* 4 Items per row mathematically fixed */
             body.print-menu .menu-card { width: 23% !important; margin: 0 1% 10px 1% !important; box-shadow: none !important; border: 1px solid #ddd !important; border-radius: 8px !important; background: #fff !important; box-sizing: border-box !important; page-break-inside: avoid; }
             body.print-menu .menu-card img { height: 85px !important; padding: 4px !important; border-bottom: none !important; width: 100% !important; object-fit: contain !important; }
             
@@ -106,7 +116,6 @@
             body.print-menu .item-name { font-size: 9pt !important; line-height: 1.1 !important; margin-bottom: 2px !important; min-height: 25px !important; }
             body.print-menu .price { font-size: 11pt !important; margin-top: 2px !important; }
 
-            /* Cart Print Styling */
             body.print-cart header, body.print-cart .menu-wrapper { display: none !important; }
             body.print-cart #cart-modal { display: block !important; position: static; background: none; }
             body.print-cart .cart-content { width: 100%; box-shadow: none; max-width: none; padding: 0; }
@@ -121,6 +130,8 @@
     </style>
 </head>
 <body>
+
+    <div id="loading-bar"></div>
 
     <header>
         <h1>Glacier Ice Cream</h1>
@@ -163,7 +174,7 @@
         // Apps Script URL
         const googleSheetUrl = "https://script.google.com/macros/s/AKfycbyZ6aCMNqwXN2CuSbcIDWDSkbgQ3ZMW6EVfux8fMVkApWpDVREnkKdtWrKj0YgSBSw/exec"; 
         
-        // आपका WhatsApp Number (India code 91 के साथ)
+        // WhatsApp Number
         const WHATSAPP_NUMBER = "919829610570"; 
         
         let allItems = [];
@@ -172,19 +183,40 @@
 
         async function loadData() {
             const statusMsg = document.getElementById('status-msg');
+            const loadingBar = document.getElementById('loading-bar');
+            
+            // Progress bar start
+            loadingBar.style.width = '30%'; 
+
             try {
                 const response = await fetch(googleSheetUrl);
+                
+                // Progress bar midway
+                loadingBar.style.width = '70%'; 
+                
                 allItems = await response.json();
                 
                 if(!allItems || allItems.length === 0) {
                     statusMsg.innerText = "No items found in the menu.";
+                    loadingBar.style.width = '100%';
+                    loadingBar.style.backgroundColor = '#ff4757'; // Error red
                     return;
                 }
+                
                 createFilterButtons();
                 applyFilters();
                 setupSmartCheckout(); 
+
+                // Progress bar complete
+                loadingBar.style.width = '100%';
+                setTimeout(() => {
+                    loadingBar.style.opacity = '0'; // Hide smoothly after loading
+                }, 500);
+
             } catch (error) {
                 statusMsg.innerText = "Error fetching data. Check internet or Web App URL.";
+                loadingBar.style.width = '100%';
+                loadingBar.style.backgroundColor = '#ff4757'; // Error red
             }
         }
 
@@ -213,7 +245,6 @@
             const searchTerm = document.getElementById('search-bar').value.toLowerCase();
             const sortValue = document.getElementById('sort-dropdown').value;
 
-            // 1. Filter Items
             let filteredItems = allItems.filter(item => {
                 const isAvailable = String(item.available).toLowerCase() === 'yes' || item.available === true;
                 const matchesBrand = (currentBrand === 'All' || item.brand === currentBrand);
@@ -221,7 +252,6 @@
                 return isAvailable && matchesBrand && matchesSearch;
             });
 
-            // 2. Sort Items
             if (sortValue === 'low-high') filteredItems.sort((a, b) => a.price - b.price);
             else if (sortValue === 'high-low') filteredItems.sort((a, b) => b.price - a.price);
 
@@ -234,7 +264,6 @@
 
             statusMsg.style.display = 'none';
 
-            // 3. GROUP ITEMS BY CATEGORY
             const groupedItems = {};
             filteredItems.forEach(item => {
                 const cat = item.category || 'More Favorites';
@@ -242,7 +271,6 @@
                 groupedItems[cat].push(item);
             });
 
-            // 4. Render HTML
             let newHTML = '';
             for (const [category, items] of Object.entries(groupedItems)) {
                 newHTML += `
@@ -341,17 +369,12 @@
             else document.getElementById('checkout-wa').style.display = 'none';
         }
 
-        // --- IPHONE FIX: Better Print Cleanup ---
-        window.addEventListener('afterprint', () => {
-            document.body.className = '';
-        });
+        window.addEventListener('afterprint', () => { document.body.className = ''; });
 
         function downloadMenuPDF() {
             document.body.className = 'print-menu';
-            document.body.offsetHeight; // Force reflow
-            setTimeout(() => {
-                window.print();
-            }, 500);
+            document.body.offsetHeight; 
+            setTimeout(() => { window.print(); }, 500);
         }
 
         function checkout(method) {
@@ -359,10 +382,8 @@
             
             if(method === 'print') {
                 document.body.className = 'print-cart';
-                document.body.offsetHeight; // Force reflow
-                setTimeout(() => {
-                    window.print();
-                }, 500);
+                document.body.offsetHeight; 
+                setTimeout(() => { window.print(); }, 500);
             } 
             else if (method === 'whatsapp') {
                 let message = "Hello Glacier Ice Cream!🍦\n\n*New Order:*\n";
