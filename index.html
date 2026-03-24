@@ -14,7 +14,6 @@
             --london-dairy: #b38b4d;
             --baskin-robbins: #ff0080;
             --bg-color: #f4f6f9;
-            --sidebar-bg: #ffffff;
             --card-bg: #ffffff;
         }
 
@@ -23,36 +22,36 @@
         #loading-bar { position: fixed; top: 0; left: 0; height: 4px; background-color: var(--primary-color); width: 0%; z-index: 9999; transition: width 0.3s ease, opacity 0.5s ease; box-shadow: 0 2px 5px rgba(228, 77, 38, 0.5); }
 
         /* --- APP HEADER --- */
-        header { background: #fff; padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        header { background: #fff; padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.02); flex-shrink: 0;}
         .header-left h1 { margin: 0; font-family: 'Montserrat', sans-serif; font-size: 1.5em; color: var(--glacier-blue); text-transform: uppercase; letter-spacing: 1px; }
         .header-left p { margin: 2px 0 0; color: #777; font-size: 0.75em; font-weight: 500; }
         
         .share-btn { background: #f0f4ff; color: var(--glacier-blue); border: 1px solid #d9e2fc; padding: 8px 14px; border-radius: 50px; font-weight: 700; font-size: 0.85em; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
         .share-btn:hover { background: var(--glacier-blue); color: white; }
 
-        /* --- MAIN APP LAYOUT --- */
-        .app-container { display: flex; flex: 1; overflow: hidden; background: #fff; }
+        /* --- MAIN APP LAYOUT (MOBILE FIRST) --- */
+        .app-container { display: flex; flex-direction: column; flex: 1; overflow: hidden; background: #fff; }
         
-        /* 1. Category Sidebar */
-        .sidebar { width: 85px; background: var(--sidebar-bg); border-right: 1px solid #f0f0f0; overflow-y: auto; padding-bottom: 80px; scrollbar-width: none; scroll-behavior: smooth; }
+        /* 1. Blinkit Style Top Category Bar */
+        .sidebar { width: 100%; background: #fff; border-bottom: 1px solid #f0f0f0; display: flex; overflow-x: auto; padding: 15px 10px 0 10px; scrollbar-width: none; scroll-behavior: smooth; flex-shrink: 0; z-index: 10; }
         .sidebar::-webkit-scrollbar { display: none; }
-        .cat-item { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px 5px; cursor: pointer; border-left: 4px solid transparent; transition: 0.2s; text-align: center; border-bottom: 1px solid #f9f9f9; }
         
-        /* Filter Selected State (Blue) */
-        .cat-item.active { background: #eff3fa; border-left-color: var(--glacier-blue); }
-        .cat-item.active .cat-name { color: var(--glacier-blue); font-weight: 700; }
+        .cat-item { display: flex; flex-direction: column; align-items: center; padding: 0 8px; cursor: pointer; transition: 0.2s; min-width: 65px; }
+        .cat-icon { font-size: 2em; margin-bottom: 8px; background: #f8f9fa; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid transparent; box-shadow: 0 2px 6px rgba(0,0,0,0.04); transition: 0.2s; }
+        .cat-name { font-size: 0.65em; font-weight: 500; color: #666; text-align: center; padding-bottom: 8px; border-bottom: 3px solid transparent; line-height: 1.1; transition: 0.2s; }
 
-        /* ScrollSpy Highlight State (Orange - Takes Priority) */
-        .cat-item.scroll-active { background: #fff0ec !important; border-left-color: var(--primary-color) !important; }
-        .cat-item.scroll-active .cat-name { color: var(--primary-color) !important; font-weight: 800; }
+        /* Active Filter State */
+        .cat-item.active .cat-icon { border-color: var(--glacier-blue); background: #eef3ff; }
+        .cat-item.active .cat-name { color: var(--glacier-blue); font-weight: 700; border-bottom-color: var(--glacier-blue); }
 
-        .cat-icon { font-size: 1.8em; margin-bottom: 5px; }
-        .cat-name { font-size: 0.65em; font-weight: 600; color: #555; line-height: 1.2; }
+        /* ScrollSpy Auto-Highlight State */
+        .cat-item.scroll-active .cat-icon { border-color: var(--primary-color) !important; background: #fff0ec !important; }
+        .cat-item.scroll-active .cat-name { color: var(--primary-color) !important; font-weight: 800; border-bottom-color: var(--primary-color) !important; }
 
         /* 2. Main Content Area */
         .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #f4f6f9; }
         
-        /* Scrollable Filter Chips */
+        /* Horizontal Scrollable Filter Chips */
         .chips-container { display: flex; overflow-x: auto; gap: 10px; padding: 12px 15px; background: #fff; border-bottom: 1px solid #eee; scrollbar-width: none; white-space: nowrap; flex-shrink: 0; }
         .chips-container::-webkit-scrollbar { display: none; }
         .chip { padding: 8px 16px; border: 1px solid #e0e0e0; border-radius: 50px; background: #fff; font-size: 0.8em; font-weight: 600; color: #444; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
@@ -61,18 +60,19 @@
         .chip-select { border: none; outline: none; background: transparent; font-family: inherit; font-size: 1em; font-weight: 600; color: #444; cursor: pointer; }
         .chip.pdf-chip { background: #8e44ad; color: white; border-color: #8e44ad; }
 
-        /* Products Grid Area */
+        /* Products Scrolling Area */
         .products-area { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 120px; scroll-behavior: smooth; }
+        
         .section-header { font-size: 1.1em; font-weight: 700; color: #222; margin: 0 0 15px 0; display: flex; justify-content: space-between; align-items: center; }
         .section-count { font-size: 0.8em; font-weight: 500; color: #888; }
         
-        /* ScrollSpy Categories */
         .category-section { margin-bottom: 40px; }
-        .category-title { font-family: 'Montserrat', sans-serif; font-size: 1.6em; color: var(--glacier-blue); text-transform: uppercase; border-bottom: 2px solid var(--primary-color); display: inline-block; padding-bottom: 5px; margin: 10px 0 20px 0; letter-spacing: 1px; }
+        .category-title { font-family: 'Montserrat', sans-serif; font-size: 1.5em; color: var(--glacier-blue); text-transform: uppercase; border-bottom: 2px solid var(--primary-color); display: inline-block; padding-bottom: 5px; margin: 10px 0 20px 0; letter-spacing: 1px; }
 
-        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+        /* STRICT 2-COLUMN GRID FOR MOBILE */
+        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         
-        /* --- PRODUCT CARD --- */
+        /* --- BLINKIT STYLE PRODUCT CARD --- */
         .menu-card { background: var(--card-bg); border-radius: 12px; border: 1px solid #ebebeb; overflow: hidden; display: flex; flex-direction: column; position: relative; padding: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: 0.2s; }
         .menu-card:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
         
@@ -113,6 +113,18 @@
         .checkout-btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 1em; font-weight: bold; color: white; cursor: pointer; margin-top: 12px; }
         .btn-wa { background: #25D366; } .btn-print { background: var(--glacier-blue); } .btn-clear { background: #ff9f43; color: white; } .close-cart { background: #ff4757; }
 
+        /* Desktop specific tweaks */
+        @media (min-width: 601px) {
+            .sidebar { justify-content: center; } /* Centers top categories on PC */
+            .cat-item { min-width: 90px; }
+            .cat-icon { width: 80px; height: 80px; font-size: 2.5em; }
+            .cat-name { font-size: 0.8em; }
+            .menu-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+            .menu-card { padding: 12px; }
+            .card-img-wrapper { height: 140px; }
+            .item-name { font-size: 1em; }
+        }
+
         /* --- PDF & PRINT LAYOUT MAGIC --- */
         @media print {
             @page { margin: 5mm; size: A4 portrait; }
@@ -152,16 +164,6 @@
             body.print-cart .cart-content { width: 100% !important; box-shadow: none !important; max-width: none !important; padding: 0 !important; }
             body.print-cart .checkout-btn { display: none !important; }
         }
-
-        @media (min-width: 601px) {
-            .sidebar { width: 120px; }
-            .cat-icon { font-size: 2.2em; }
-            .cat-name { font-size: 0.8em; }
-            .menu-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
-            .menu-card { padding: 12px; }
-            .card-img-wrapper { height: 140px; }
-            .item-name { font-size: 1em; }
-        }
     </style>
 </head>
 <body>
@@ -179,6 +181,7 @@
     </header>
 
     <div class="app-container">
+        
         <aside class="sidebar" id="category-sidebar">
             </aside>
 
@@ -259,7 +262,7 @@
                 
                 setupAppUI();
                 applyFilters();
-                setupScrollSpy(); // NEW: Trigger ScrollSpy Setup
+                setupScrollSpy(); // HORIZONTAL SCROLL SPY INIT
 
                 loadingBar.style.width = '100%';
                 setTimeout(() => { loadingBar.style.opacity = '0'; }, 500);
@@ -290,7 +293,7 @@
                 
                 const div = document.createElement('div');
                 div.className = `cat-item ${cat === 'All' ? 'active' : ''}`;
-                if(cat === 'All') div.id = 'btn-cat-all'; // Crucial for Logic
+                if(cat === 'All') div.id = 'btn-cat-all'; 
                 
                 div.onclick = () => setCategory(cat, div);
                 div.innerHTML = `
@@ -331,7 +334,7 @@
                     allBtn.classList.add('active');
                 }
             }
-            document.getElementById('products-area').scrollTop = 0; // Reset scroll on filter
+            document.getElementById('products-area').scrollTop = 0; 
             applyFilters();
         }
 
@@ -395,7 +398,6 @@
 
             statusMsg.style.display = 'none';
 
-            // Group by Category to create sections for ScrollSpy
             const groupedItems = {};
             filteredItems.forEach(item => {
                 const cat = item.category || 'More Favorites';
@@ -441,11 +443,10 @@
             wrapper.innerHTML = newHTML;
             updateAddButtons();
             
-            // Trigger scroll event to instantly calculate new ScrollSpy state
             document.getElementById('products-area').dispatchEvent(new Event('scroll'));
         }
 
-        // --- NEW: THE SCROLL SPY LOGIC ---
+        // --- NEW: HORIZONTAL SCROLL SPY LOGIC ---
         function setupScrollSpy() {
             const productsArea = document.getElementById('products-area');
             const sidebar = document.getElementById('category-sidebar');
@@ -454,23 +455,21 @@
                 const sections = document.querySelectorAll('.category-section');
                 let currentCatName = '';
                 
-                // Track which section is near the top
                 sections.forEach(sec => {
                     const rect = sec.getBoundingClientRect();
-                    // 180px matches header height + chips bar + padding roughly
-                    if (rect.top <= 180) {
+                    // Detect which section is near top of products area
+                    if (rect.top <= 250) { 
                         currentCatName = sec.querySelector('.category-title').innerText;
                     }
                 });
 
-                // Top fallback
                 if (productsArea.scrollTop < 20) {
                     currentCatName = 'All'; 
                 } else if (!currentCatName && sections.length > 0) {
                     currentCatName = sections[0].querySelector('.category-title').innerText;
                 }
 
-                // Apply dynamic highlight to Sidebar
+                // Highlight and Auto-scroll Top Horizontal Slider
                 document.querySelectorAll('.cat-item').forEach(el => {
                     const nameDiv = el.querySelector('.cat-name');
                     if (!nameDiv) return;
@@ -484,10 +483,11 @@
 
                     if (isMatch) {
                         el.classList.add('scroll-active');
-                        // Auto scroll the sidebar gracefully
-                        const elTop = el.offsetTop;
-                        if (elTop < sidebar.scrollTop || elTop > sidebar.scrollTop + sidebar.clientHeight - 80) {
-                            sidebar.scrollTo({ top: elTop - 20, behavior: 'smooth' });
+                        
+                        // MAGIC: Auto scroll the horizontal category bar gracefully
+                        const elLeft = el.offsetLeft;
+                        if (elLeft < sidebar.scrollLeft || elLeft > sidebar.scrollLeft + sidebar.clientWidth - 100) {
+                            sidebar.scrollTo({ left: elLeft - 30, behavior: 'smooth' });
                         }
                     } else {
                         el.classList.remove('scroll-active');
