@@ -80,23 +80,37 @@
         .checkout-btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 1.1em; font-weight: bold; color: white; cursor: pointer; margin-top: 15px; }
         .btn-wa { background: #25D366; } .btn-print { background: var(--glacier-blue); } .btn-clear { background: #ff9f43; color: white; } .close-cart { background: #ff4757; }
 
-        /* POSTER-STYLE PDF PRINTING */
+        /* --- SMART PDF & PRINT LAYOUT MAGIC (SINGLE A4 PAGE DESIGN) --- */
         @media print {
-            @page { margin: 10mm; size: A4; }
+            /* 1. Page Settings (A4 Portrait, Minimum Margins) */
+            @page { margin: 5mm; size: A4 portrait; }
             body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: #fff; }
+            
+            /* Hide UI Elements */
             #filter-box, .search-sort-container, #floating-cart, .add-btn, #status-msg, .qty-btn { display: none !important; }
 
-            body.print-menu header { box-shadow: none; border-bottom: 4px solid var(--primary-color); padding: 10px 0 20px 0; text-align: center; margin-bottom: 20px; }
-            body.print-menu header h1 { font-size: 32pt; color: var(--glacier-blue); }
-            body.print-menu .category-title { font-size: 24pt !important; margin: 20px 0 !important; border-bottom: 2px solid var(--primary-color) !important; color: var(--glacier-blue) !important;}
-            body.print-menu .menu-container { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 15px !important; padding: 0 !important; }
-            body.print-menu .menu-card { width: auto !important; margin: 0 !important; box-shadow: none !important; border: 2px solid #eee !important; border-radius: 15px !important; page-break-inside: avoid; background: #fff !important; }
-            body.print-menu .menu-card img { height: 140px !important; padding: 5px !important; border-bottom: none !important;}
-            body.print-menu .info { padding: 10px !important; text-align: center !important; align-items: center; }
-            body.print-menu .item-name { font-size: 11pt !important; min-height: auto !important; margin-bottom: 5px !important; }
-            body.print-menu .price { font-size: 14pt !important; margin-top: 5px !important; }
-            body.print-menu .brand-badge { font-size: 7pt !important; margin-bottom: 5px !important; }
+            /* 2. Compact Header */
+            body.print-menu header { box-shadow: none; border-bottom: 3px solid var(--primary-color); padding: 5px 0 10px 0; text-align: center; margin-bottom: 10px; }
+            body.print-menu header h1 { font-size: 24pt; margin: 0; color: var(--glacier-blue); }
+            body.print-menu header p { font-size: 10pt; margin: 2px 0 0; }
+            
+            /* 3. Category Headings (Smaller & Tighter) */
+            body.print-menu .category-section { margin-bottom: 15px; page-break-inside: avoid; }
+            body.print-menu .category-title { font-size: 16pt !important; margin: 5px 0 10px 0 !important; padding-bottom: 2px !important; border-bottom: 2px solid var(--primary-color) !important; color: var(--glacier-blue) !important; }
+            
+            /* 4. Ultra Compact 4-Column Grid */
+            body.print-menu .menu-container { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 8px !important; padding: 0 !important; }
+            
+            /* 5. Mini Cards to fit everything on one page */
+            body.print-menu .menu-card { width: auto !important; margin: 0 !important; box-shadow: none !important; border: 1px solid #ddd !important; border-radius: 8px !important; background: #fff !important; }
+            body.print-menu .menu-card img { height: 85px !important; padding: 4px !important; border-bottom: none !important; }
+            
+            body.print-menu .info { padding: 6px !important; text-align: center !important; }
+            body.print-menu .brand-badge { font-size: 6pt !important; padding: 2px 6px !important; margin-bottom: 4px !important; }
+            body.print-menu .item-name { font-size: 9pt !important; line-height: 1.1 !important; margin-bottom: 2px !important; min-height: 25px !important; }
+            body.print-menu .price { font-size: 11pt !important; margin-top: 2px !important; }
 
+            /* 6. Cart Bill Design (Receipt Style) */
             body.print-cart header, body.print-cart .menu-wrapper { display: none !important; }
             body.print-cart #cart-modal { display: block !important; position: static; background: none; }
             body.print-cart .cart-content { width: 100%; box-shadow: none; max-width: none; padding: 0; }
@@ -150,11 +164,10 @@
     </div>
 
     <script>
-        // आपका नया Apps Script URL
+        // Apps Script URL
         const googleSheetUrl = "https://script.google.com/macros/s/AKfycbyZ6aCMNqwXN2CuSbcIDWDSkbgQ3ZMW6EVfux8fMVkApWpDVREnkKdtWrKj0YgSBSw/exec"; 
         
-        // 🚨 अपना WhatsApp Number यहाँ डालें 🚨
-        const WHATSAPP_NUMBER = "91XXXXXXXXXX"; 
+        const WHATSAPP_NUMBER = "919829610570"; 
         
         let allItems = [];
         let currentBrand = 'All';
@@ -357,7 +370,7 @@
                 }
                 message += `\n*Total Amount: ₹${total}*\n\n_Please confirm my order._`;
                 const finalEncodedMessage = encodeURIComponent(message);
-                window.open(`https://wa.me/$919829610570?text=${finalEncodedMessage}`, '_blank');
+                window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${finalEncodedMessage}`, '_blank');
             }
         }
 
