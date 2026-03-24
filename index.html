@@ -68,9 +68,9 @@
         
         /* --- IN-APP PROMO BANNERS --- */
         .promo-banner { 
-            grid-column: 1 / -1; /* Spans full width of grid */
+            grid-column: 1 / -1; 
             background: linear-gradient(135deg, #1f51c6, #3a7bd5); 
-            border-radius: 12px; padding: 15px 20px; color: white; display: flex; align-items: center; justify-content: space-between; margin: 5px 0; box-shadow: 0 4px 15px rgba(31, 81, 198, 0.2); position: relative; overflow: hidden; 
+            border-radius: 12px; padding: 15px 20px; color: white; display: flex; align-items: center; justify-content: space-between; margin: 5px 0; box-shadow: 0 4px 15px rgba(31, 81, 198, 0.2); position: relative; overflow: hidden; cursor: pointer;
         }
         .promo-banner::after { content: ''; position: absolute; right: -20px; top: -20px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; }
         .promo-text { flex: 1; z-index: 2; }
@@ -109,7 +109,7 @@
 
         #status-msg { margin-top: 50px; text-align: center; font-weight: 500; color: #888; font-size: 1em; }
 
-        /* --- BOTTOM CART BANNER --- */
+        /* --- STICKY BOTTOM CART BANNER --- */
         #bottom-cart-banner { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); width: calc(100% - 30px); max-width: 500px; background: var(--glacier-blue); color: white; padding: 14px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; box-shadow: 0 5px 20px rgba(31, 81, 198, 0.4); z-index: 1000; cursor: pointer; transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-sizing: border-box; }
         #bottom-cart-banner.visible { bottom: 15px; }
         .banner-left { display: flex; flex-direction: column; }
@@ -146,7 +146,7 @@
             #cart-modal .modal-content-box { border-radius: 20px 20px 0 0; width: 100%; margin-bottom: 0; }
         }
 
-        /* 📱 TABLET: 3 ITEMS GRID */
+        /* 📱 TABLET: 3 ITEMS GRID & HIDE PROMO BANNERS */
         @media (min-width: 601px) and (max-width: 1023px) {
             .menu-grid { grid-template-columns: repeat(3, 1fr); gap: 15px; }
             .sidebar { justify-content: center; } 
@@ -156,9 +156,11 @@
             .menu-card { padding: 12px; }
             .card-img-wrapper { height: 130px; }
             .item-name { font-size: 0.9em; }
+            /* Hide Promo Banners on non-mobile screens */
+            .promo-banner { display: none !important; }
         }
 
-        /* 💻 DESKTOP: STRICTLY 5 ITEMS GRID */
+        /* 💻 DESKTOP: STRICTLY 5 ITEMS GRID & HIDE PROMO BANNERS */
         @media (min-width: 1024px) {
             .sidebar { justify-content: center; } 
             .cat-item { min-width: 100px; }
@@ -168,11 +170,8 @@
             .menu-card { padding: 12px; }
             .card-img-wrapper { height: 150px; }
             .item-name { font-size: 1em; }
-            /* Adjust Promo Banners for PC */
-            .promo-banner { padding: 20px 30px; }
-            .promo-img { width: 100px; height: 100px; }
-            .promo-text h3 { font-size: 1.5em; }
-            .promo-text p { font-size: 1em; }
+            /* Hide Promo Banners on Desktop screens */
+            .promo-banner { display: none !important; }
         }
 
         /* --- PDF & PRINT LAYOUT --- */
@@ -346,10 +345,28 @@
                     iconHTML = '🍨'; name = 'All Items';
                 } else {
                     const lCat = cat.toLowerCase();
+                    
+                    // --- NEW: CUSTOM VECTOR CLIPARTS ---
+                    
                     if(lCat.includes('family') || lCat.includes('pack')) {
-                        iconHTML = `<img src="https://i.postimg.cc/kG8QycWy/hm-pp-vanilla-700.jpg" style="width:100%; height:100%; object-fit:cover;">`;
+                        // Ice Cream Brick Box Vector
+                        iconHTML = `
+                        <svg viewBox="0 0 100 100" style="width:75%; height:75%;">
+                            <polygon points="15,40 35,20 85,20 65,40" fill="#74b9ff"/>
+                            <rect x="15" y="40" width="50" height="40" rx="3" fill="#0984e3"/>
+                            <polygon points="65,40 85,20 85,60 65,80" fill="#005b9f"/>
+                            <rect x="25" y="55" width="30" height="15" rx="2" fill="#ffffff"/>
+                            <circle cx="40" cy="62.5" r="4" fill="#ff7675"/>
+                        </svg>`;
                     } else if(lCat.includes('tub')) {
-                        iconHTML = `<img src="https://i.postimg.cc/xdWm3qP3/md_tub_french_vanilla.png" style="width:100%; height:100%; object-fit:cover;">`;
+                        // Ice Cream Tub Vector
+                        iconHTML = `
+                        <svg viewBox="0 0 100 100" style="width:80%; height:80%;">
+                            <path d="M25 35 L30 85 Q50 95 70 85 L75 35 Z" fill="#ffeaa7"/>
+                            <path d="M20 25 Q50 15 80 25 L78 35 Q50 45 22 35 Z" fill="#ff7675"/>
+                            <ellipse cx="50" cy="25" rx="30" ry="10" fill="#d63031"/>
+                            <rect x="35" y="50" width="30" height="15" rx="3" fill="#ff7675"/>
+                        </svg>`;
                     } else if(lCat.includes('cone')) { iconHTML = '🍦'; } 
                     else if(lCat.includes('stick') || lCat.includes('bar') || lCat.includes('candy')) { iconHTML = '🍡'; } 
                     else if(lCat.includes('cake') || lCat.includes('slice') || lCat.includes('roll')) { iconHTML = '🍰'; } 
@@ -489,6 +506,7 @@
             statusMsg.style.display = 'none';
 
             let newHTML = '';
+            
             filteredItems.forEach((item, index) => {
                 const safeName = item.name.replace(/[^a-zA-Z0-9]/g, '_');
                 const volText = extractVolumeText(item.name);
@@ -542,25 +560,29 @@
                 if (!isPrintingPDF) {
                     if (index === 5) { // After 6 items
                         newHTML += `
-                        <div class="promo-banner" onclick="setCategory('Family Packs', document.querySelectorAll('.cat-item')[3] || this)">
+                        <div class="promo-banner" onclick="document.querySelectorAll('.cat-item')[2].click()">
                             <div class="promo-text">
                                 <h3>Family Time? 🍨</h3>
                                 <p>Get the best deals on Party Packs today!</p>
                             </div>
-                            <img src="https://i.postimg.cc/kG8QycWy/hm-pp-vanilla-700.jpg" class="promo-img" alt="Promo">
+                            <svg viewBox="0 0 100 100" class="promo-img">
+                                <polygon points="15,40 35,20 85,20 65,40" fill="#74b9ff"/><rect x="15" y="40" width="50" height="40" rx="3" fill="#ffffff"/><polygon points="65,40 85,20 85,60 65,80" fill="#005b9f"/><rect x="25" y="55" width="30" height="15" rx="2" fill="#0984e3"/><circle cx="40" cy="62.5" r="4" fill="#ff7675"/>
+                            </svg>
                         </div>`;
                     } else if (index === 15) { // After 16 items
                         newHTML += `
-                        <div class="promo-banner" style="background: linear-gradient(135deg, #ff0080, #ff6b6b);" onclick="setCategory('Tubs', document.querySelectorAll('.cat-item')[2] || this)">
+                        <div class="promo-banner" style="background: linear-gradient(135deg, #ff0080, #ff6b6b);" onclick="document.querySelectorAll('.cat-item')[3].click()">
                             <div class="promo-text">
                                 <h3>Premium Tubs 🪣</h3>
                                 <p>Perfect for your late-night cravings.</p>
                             </div>
-                            <img src="https://i.postimg.cc/xdWm3qP3/md_tub_french_vanilla.png" class="promo-img" alt="Promo">
+                            <svg viewBox="0 0 100 100" class="promo-img">
+                                <path d="M25 35 L30 85 Q50 95 70 85 L75 35 Z" fill="#ffeaa7"/><path d="M20 25 Q50 15 80 25 L78 35 Q50 45 22 35 Z" fill="#ffffff"/><ellipse cx="50" cy="25" rx="30" ry="10" fill="#d63031"/><rect x="35" y="50" width="30" height="15" rx="3" fill="#ff7675"/>
+                            </svg>
                         </div>`;
                     } else if (index === 29) { // After 30 items
                         newHTML += `
-                        <div class="promo-banner" style="background: linear-gradient(135deg, #8e44ad, #9b59b6);" onclick="setCategory('Cones', this)">
+                        <div class="promo-banner" style="background: linear-gradient(135deg, #8e44ad, #9b59b6);" onclick="document.querySelectorAll('.cat-item')[4].click()">
                             <div class="promo-text">
                                 <h3>Delicious Cones 🍦</h3>
                                 <p>Grab a quick crunchy bite on the go!</p>
