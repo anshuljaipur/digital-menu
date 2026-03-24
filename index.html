@@ -28,7 +28,7 @@
         .header-left h1 { margin: 0; font-family: 'Montserrat', sans-serif; font-size: 1.3em; color: var(--glacier-blue); text-transform: uppercase; letter-spacing: 1px; }
         .header-left p { margin: 2px 0 0; color: #777; font-size: 0.7em; font-weight: 500; }
         
-        /* HEADER BUTTONS (PDF & Share) */
+        /* HEADER BUTTONS */
         .header-actions { display: flex; gap: 8px; align-items: center; }
         .action-btn { font-family: 'Poppins', sans-serif; border: 1px solid #d9e2fc; padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 0.75em; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 4px; }
         .btn-share { background: #f0f4ff; color: var(--glacier-blue); }
@@ -61,8 +61,6 @@
         .chip { padding: 8px 16px; border: 1px solid #e0e0e0; border-radius: 50px; background: #fff; font-size: 0.8em; font-weight: 600; color: #444; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .chip-input { border: none; outline: none; background: transparent; font-family: inherit; font-size: 1em; width: 120px; color: #333; }
         .chip-select { border: none; outline: none; background: transparent; font-family: inherit; font-size: 1em; font-weight: 600; color: #444; cursor: pointer; }
-        
-        /* Active Brand Chip highlight */
         .brand-dropdown-chip.active { background: #eef3ff; border-color: var(--glacier-blue); color: var(--glacier-blue); }
 
         /* Products Scrolling Area */
@@ -73,6 +71,7 @@
         .category-section { margin-bottom: 40px; }
         .category-title { font-family: 'Montserrat', sans-serif; font-size: 1.5em; color: var(--glacier-blue); text-transform: uppercase; border-bottom: 2px solid var(--primary-color); display: inline-block; padding-bottom: 5px; margin: 10px 0 20px 0; letter-spacing: 1px; }
 
+        /* 📱 MOBILE: 2 ITEMS GRID */
         .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         
         /* --- PRODUCT CARD --- */
@@ -84,8 +83,6 @@
         
         /* BADGES */
         .bestseller-badge { position: absolute; top: 0; left: 0; background: linear-gradient(135deg, #1f51c6, #3a7bd5); color: white; font-size: 0.55em; font-weight: 800; padding: 4px 8px; border-radius: 8px 0 8px 0; z-index: 3; display: flex; align-items: center; gap: 3px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); text-transform: uppercase; letter-spacing: 0.5px; }
-        
-        /* EXTRA RED DISCOUNT ICON */
         .red-discount-icon { position: absolute; top: 0; right: 0; background: var(--discount-red); color: white; font-size: 0.6em; font-weight: 800; padding: 4px 6px; border-radius: 0 8px 0 8px; z-index: 3; display: flex; align-items: center; gap: 2px; box-shadow: -2px 2px 5px rgba(0,0,0,0.1); }
 
         .btn-container { position: absolute; right: 5px; bottom: -14px; z-index: 4; display: flex; justify-content: flex-end; }
@@ -114,12 +111,11 @@
         .banner-price { font-size: 1.2em; font-weight: 800; }
         .banner-right { font-size: 1em; display: flex; align-items: center; gap: 5px; }
 
-        /* --- CART MODAL --- */
+        /* --- MODALS --- */
         .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: flex-end; backdrop-filter: blur(3px); }
         .modal-content-box { background: white; padding: 25px; border-radius: 20px 20px 0 0; width: 100%; max-width: 500px; max-height: 80vh; overflow-y: auto; box-sizing: border-box; animation: slideUp 0.3s ease-out; display: flex; flex-direction: column; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         
-        /* BRAND MODAL SPECIFIC */
         .brand-list { display: flex; flex-direction: column; gap: 12px; margin: 15px 0 25px 0; overflow-y: auto; }
         .brand-label { display: flex; align-items: center; gap: 12px; font-size: 1.05em; font-weight: 500; cursor: pointer; padding: 5px 0; border-bottom: 1px solid #f4f4f4;}
         .brand-label input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--glacier-blue); }
@@ -128,9 +124,8 @@
         .close-modal-icon { font-size: 1.5em; color: #888; cursor: pointer; font-weight: bold; }
         .btn-apply { background: var(--glacier-blue); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 1.1em; cursor: pointer; width: 100%; }
 
-        /* CART MODAL SPECIFIC */
-        #cart-modal { align-items: center; } /* Override flex-end for cart to keep it centered on PC, or let it be bottom sheet on mobile */
-        #cart-modal .modal-content-box { border-radius: 20px; width: 90%; margin-bottom: 20px; } /* Centered style */
+        #cart-modal { align-items: center; } 
+        #cart-modal .modal-content-box { border-radius: 20px; width: 90%; margin-bottom: 20px; } 
         .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-weight: 500; border-bottom: 1px dashed #eee; padding-bottom: 15px; }
         .cart-item-details { flex: 2; font-size: 0.9em; }
         .cart-item-controls { flex: 1; display: flex; justify-content: center; align-items: center; gap: 10px; }
@@ -138,12 +133,38 @@
         .qty-btn { background: #f0f0f0; border: none; width: 28px; height: 28px; border-radius: 6px; font-weight: bold; cursor: pointer; color: #333; }
         .cart-total { font-size: 1.3em; font-weight: 800; color: #222; text-align: right; margin-top: 20px; }
         .checkout-btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-size: 1em; font-weight: bold; color: white; cursor: pointer; margin-top: 12px; }
-        .btn-wa { background: #25D366; } .btn-print { background: var(--glacier-blue); } .btn-clear { background: #ff9f43; color: white; }
+        .btn-wa { background: #25D366; } .btn-clear { background: #ff9f43; color: white; } 
 
         @media (max-width: 600px) {
-            /* Make cart bottom sheet on mobile */
             #cart-modal { align-items: flex-end; }
             #cart-modal .modal-content-box { border-radius: 20px 20px 0 0; width: 100%; margin-bottom: 0; }
+        }
+
+        /* 📱 TABLET: 3 ITEMS GRID */
+        @media (min-width: 601px) and (max-width: 1023px) {
+            .menu-grid { grid-template-columns: repeat(3, 1fr); gap: 15px; }
+            .sidebar { justify-content: center; } 
+            .cat-item { min-width: 90px; }
+            .cat-icon { width: 70px; height: 70px; font-size: 2.2em; }
+            .cat-name { font-size: 0.75em; }
+            .menu-card { padding: 12px; }
+            .card-img-wrapper { height: 130px; }
+            .item-name { font-size: 0.9em; }
+        }
+
+        /* 💻 DESKTOP: STRICTLY 5 ITEMS GRID */
+        @media (min-width: 1024px) {
+            .sidebar { justify-content: center; } 
+            .cat-item { min-width: 100px; }
+            .cat-icon { width: 80px; height: 80px; font-size: 2.5em; }
+            .cat-name { font-size: 0.8em; }
+            
+            /* THIS IS THE 5-COLUMN MAGIC */
+            .menu-grid { grid-template-columns: repeat(5, 1fr); gap: 18px; }
+            
+            .menu-card { padding: 12px; }
+            .card-img-wrapper { height: 150px; }
+            .item-name { font-size: 1em; }
         }
 
         /* --- PDF & PRINT LAYOUT --- */
@@ -263,7 +284,7 @@
             <div id="cart-items-list"></div>
             <div class="cart-total">Total: ₹<span id="cart-total-price">0</span></div>
             <button id="checkout-wa" class="checkout-btn btn-wa" onclick="checkout('whatsapp')">📱 Order on WhatsApp</button>
-            <button id="checkout-print" class="checkout-btn btn-print" onclick="checkout('print')">🖨️ Print Bill</button>
+            <button id="checkout-print" class="checkout-btn btn-pdf" onclick="checkout('print')">🖨️ Print Bill</button>
             <button class="checkout-btn btn-clear" onclick="clearCart()">🗑️ Clear Cart</button>
         </div>
     </div>
@@ -273,10 +294,8 @@
         const WHATSAPP_NUMBER = "919829610570"; 
         
         let allItems = [];
-        
-        // State variables
-        let currentCategory = 'All Items'; // DEFAULT TAB
-        let selectedBrands = []; // Array for multi-select brands
+        let currentCategory = 'All Items'; // DEFAULT TAB IS NOW ALL ITEMS
+        let selectedBrands = []; 
         let cart = {}; 
         let isPrintingPDF = false; 
 
@@ -310,7 +329,6 @@
         function setupAppUI() {
             const sidebar = document.getElementById('category-sidebar');
             
-            // ORDER: Bestsellers -> All Items -> Rest of categories
             const uniqueCats = [...new Set(allItems.map(item => item.category || 'More Favorites').filter(c => c))];
             const categories = ['Bestsellers', 'All Items', ...uniqueCats];
             
@@ -337,7 +355,6 @@
                 }
                 
                 const div = document.createElement('div');
-                // Default Active is "All Items"
                 div.className = `cat-item ${cat === 'All Items' ? 'active' : ''}`;
                 if(cat === 'All Items') div.id = 'btn-cat-all'; 
                 
@@ -346,7 +363,6 @@
                 sidebar.appendChild(div);
             });
 
-            // Populate Brands Multi-Select Modal
             const brandList = document.getElementById('brand-checkbox-list');
             const brands = [...new Set(allItems.map(item => item.brand).filter(b => b))];
             brands.forEach(brand => {
@@ -359,10 +375,10 @@
             });
         }
 
-        // --- CATEGORY & BRAND LOGIC ---
         function setCategory(category, element) {
             document.querySelectorAll('.cat-item').forEach(btn => btn.classList.remove('active'));
             element.classList.add('active');
+            
             currentCategory = category;
             document.getElementById('products-area').scrollTop = 0; 
             applyFilters();
@@ -372,8 +388,6 @@
         
         function closeBrandModal() { 
             document.getElementById('brand-modal').style.display = 'none'; 
-            
-            // Update Chip UI state
             const chip = document.getElementById('brand-chip-btn');
             if(selectedBrands.length > 0) {
                 chip.classList.add('active');
@@ -391,7 +405,6 @@
             else selectedBrands.push(brand);
         }
 
-        // --- CALCULATION HELPERS ---
         function getVolume(name) {
             let total = 0;
             const regex = /(\d+)\s*(ml|l|ltr|gm|g|kg)/gi;
@@ -418,7 +431,6 @@
             return match ? match[0] : '1 Unit';
         }
 
-        // --- FILTER & RENDER ---
         function applyFilters() {
             const wrapper = document.getElementById('menu-grid-wrapper');
             const statusMsg = document.getElementById('status-msg');
@@ -430,8 +442,6 @@
 
             let filteredItems = allItems.filter(item => {
                 const isAvailable = String(item.available).toLowerCase() === 'yes' || item.available === true;
-                
-                // Multi-Brand Filter Check
                 const matchesBrand = (selectedBrands.length === 0 || selectedBrands.includes(item.brand));
                 
                 let matchesCategory = false;
@@ -447,20 +457,17 @@
                 }
 
                 if (searchTerm.trim() !== '') matchesCategory = true; 
-                
                 const matchesSearch = item.name.toLowerCase().includes(searchTerm);
                 
                 return isAvailable && matchesBrand && matchesCategory && matchesSearch;
             });
 
-            // Sorting (Added Discount Sort)
             if (sortValue === 'low-high') filteredItems.sort((a, b) => a.price - b.price);
             else if (sortValue === 'high-low') filteredItems.sort((a, b) => b.price - a.price);
             else if (sortValue === 'vol-low-high') filteredItems.sort((a, b) => getVolume(a.name) - getVolume(b.name));
             else if (sortValue === 'vol-high-low') filteredItems.sort((a, b) => getVolume(b.name) - getVolume(a.name));
             else if (sortValue === 'disc-high-low') filteredItems.sort((a, b) => getDiscount(b) - getDiscount(a));
 
-            // Setup Header Title
             let displayTitle = currentCategory;
             if (currentCategory === 'Bestsellers') displayTitle = 'Best Sellers';
             if (searchTerm.trim() !== '') displayTitle = 'Search Results';
@@ -477,11 +484,9 @@
 
             statusMsg.style.display = 'none';
 
-            // Grouping logic for rendering sections
             const groupedItems = {};
             filteredItems.forEach(item => {
                 let cat = item.category || 'More Favorites';
-                // If user selected "Bestsellers" specifically (and not searching/printing), put them in one block
                 if (currentCategory === 'Bestsellers' && !isPrintingPDF && searchTerm === '') cat = 'Top Picks';
                 if (!groupedItems[cat]) groupedItems[cat] = [];
                 groupedItems[cat].push(item);
@@ -513,8 +518,6 @@
                     
                     if (discountNum > 0) {
                         let discount = Math.round(discountNum);
-                        
-                        // NEW: EXTRA RED ARROW ICON ON TOP RIGHT OF IMAGE
                         redDiscountIcon = `<div class="red-discount-icon">⬇ ${discount}%</div>`;
                         
                         priceHTML = `
@@ -527,7 +530,9 @@
                     } else {
                         priceHTML = `
                             <div class="discount-tag" style="visibility: hidden;">0% OFF</div>
-                            <div class="price-row"><span class="item-price">₹${item.price}</span></div>
+                            <div class="price-row">
+                                <span class="item-price">₹${item.price}</span>
+                            </div>
                         `;
                     }
 
@@ -559,13 +564,11 @@
             document.getElementById('products-area').dispatchEvent(new Event('scroll'));
         }
 
-        // --- SCROLL SPY ---
         function setupScrollSpy() {
             const productsArea = document.getElementById('products-area');
             const sidebar = document.getElementById('category-sidebar');
 
             productsArea.addEventListener('scroll', () => {
-                // If user is inside a specific category (not 'All Items'), no need to spy multiple sections
                 if (currentCategory !== 'All Items' && currentCategory !== 'Bestsellers') return;
 
                 const sections = document.querySelectorAll('.category-section');
@@ -630,7 +633,6 @@
             });
         }
 
-        // --- CART OPERATIONS ---
         function addToCart(name, price, brand) {
             if(cart[name]) { cart[name].qty += 1; } 
             else { cart[name] = { price: price, qty: 1, brand: brand }; }
@@ -711,13 +713,10 @@
             }
         }
 
-        // --- PDF & CHECKOUT ---
         window.addEventListener('afterprint', () => { document.body.className = ''; });
 
         function downloadMenuPDF() {
             isPrintingPDF = true;
-            
-            // PDF print karte time "All Items" pe reset karein
             currentCategory = 'All Items'; 
             selectedBrands = [];
             
