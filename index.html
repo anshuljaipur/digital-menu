@@ -91,24 +91,24 @@
         }
         .cart-content {
             background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px;
-            max-height: 80vh; overflow-y: auto; text-align: left; position: relative;
+            max-height: 85vh; overflow-y: auto; text-align: left; position: relative;
         }
         .cart-content h2 { margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; color: var(--glacier-blue); }
         .cart-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: 500; border-bottom: 1px dashed #eee; padding-bottom: 10px; }
         .cart-total { font-size: 1.5em; font-weight: bold; color: var(--primary-color); text-align: right; margin-top: 20px; }
         
-        .checkout-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; font-size: 1.1em; font-weight: bold; color: white; cursor: pointer; margin-top: 20px; }
-        .btn-wa { background: #25D366; } /* WhatsApp Green */
+        .checkout-btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 1.1em; font-weight: bold; color: white; cursor: pointer; margin-top: 15px; }
+        .btn-wa { background: #25D366; } 
         .btn-print { background: var(--glacier-blue); }
-        .close-cart { background: #ff4757; margin-top: 10px; }
+        .btn-clear { background: #ff9f43; color: white; } /* Orange color for clear cart */
+        .close-cart { background: #ff4757; }
         
-        /* Print Styles - Hides everything except the cart for a clean bill */
         @media print {
             body * { visibility: hidden; }
             #cart-modal, #cart-modal * { visibility: visible; }
             #cart-modal { background: none; position: absolute; left: 0; top: 0; align-items: flex-start; }
-            .cart-content { width: 100%; box-shadow: none; border: none; }
-            .checkout-btn { display: none; } /* Don't print the buttons */
+            .cart-content { width: 100%; box-shadow: none; border: none; padding: 0; }
+            .checkout-btn { display: none; } 
         }
 
         @media (max-width: 600px) {
@@ -152,19 +152,18 @@
             
             <button id="checkout-wa" class="checkout-btn btn-wa" onclick="checkout('whatsapp')">📱 Order on WhatsApp</button>
             <button id="checkout-print" class="checkout-btn btn-print" onclick="checkout('print')">🖨️ Print Bill</button>
+            <button class="checkout-btn btn-clear" onclick="clearCart()">🗑️ Clear Cart</button>
             <button class="checkout-btn close-cart" onclick="toggleCart()">❌ Close</button>
         </div>
     </div>
 
     <script>
         const googleSheetUrl = "https://script.google.com/macros/s/AKfycbwS8NLxa9SP6KP0IFqUyzMztpcO6q0BzvtDXA0_MasxkeKPPKSbUK8O0iEQdHDZXIE/exec"; 
-        
-        // --- APNA WHATSAPP NUMBER YAHAN DALEN (e.g., 919876543210) ---
-        const WHATSAPP_NUMBER = "91XXXXXXXXXX"; 
+        const WHATSAPP_NUMBER = "91XXXXXXXXXX"; // Apna WhatsApp number yahan set karein
         
         let allItems = [];
         let currentBrand = 'All';
-        let cart = {}; // Cart object to store quantities
+        let cart = {}; 
 
         async function loadData() {
             const statusMsg = document.getElementById('status-msg');
@@ -178,7 +177,7 @@
                 }
                 createFilterButtons();
                 applyFilters();
-                setupSmartCheckout(); // Detect mobile vs PC
+                setupSmartCheckout(); 
             } catch (error) {
                 statusMsg.innerText = "Error fetching data. Check internet.";
             }
@@ -244,7 +243,7 @@
                             </div>
                             <div class="price-cart-row">
                                 <span class="price">₹${item.price}</span>
-                                <button class="add-btn" onclick="addToCart('${item.name}', ${item.price})">Add +</button>
+                                <button class="add-btn" onclick="addToCart('${item.name.replace(/'/g, "\\'")}', ${item.price})">Add +</button>
                             </div>
                         </div>
                     </div>
@@ -263,7 +262,6 @@
             }
             updateCartUI();
             
-            // Visual feedback on floating button
             const floatBtn = document.getElementById('floating-cart');
             floatBtn.style.transform = 'scale(1.2)';
             setTimeout(() => floatBtn.style.transform = 'scale(1)', 200);
@@ -301,11 +299,24 @@
             modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
         }
 
+        // --- NEW: CLEAR CART FUNCTION ---
+        function clearCart() {
+            if(Object.keys(cart).length === 0) {
+                alert("Cart is already empty!");
+                return;
+            }
+            
+            // Confirm before clearing
+            if(confirm("Are you sure you want to clear your cart?")) {
+                cart = {}; // Empty the cart object
+                updateCartUI(); // Refresh UI
+            }
+        }
+
         // --- SMART CHECKOUT LOGIC ---
         function setupSmartCheckout() {
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
-            // Mobile pe Print chhupao, PC pe WhatsApp chhupao
             if(isMobile) {
                 document.getElementById('checkout-print').style.display = 'none';
             } else {
@@ -323,7 +334,6 @@
                 window.print();
             } 
             else if (method === 'whatsapp') {
-                // \n का मतलब अगली लाइन (New Line) होता है
                 let message = "Hello Glacier Ice Cream!🍦\n\n*New Order:*\n";
                 let total = 0;
                 
@@ -334,18 +344,9 @@
                 
                 message += `\n*Total Amount: ₹${total}*\n\n_Please confirm my order._`;
                 
-                // encodeURIComponent() जादुई कोड है जो & और + जैसे निशानों को WhatsApp के लिए सुरक्षित बना देता है
                 const finalEncodedMessage = encodeURIComponent(message);
-                
-                // Open WhatsApp
                 window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${finalEncodedMessage}`, '_blank');
             }
-        }
-            
-            // Optional: Cart clear karna ho to niche wali lines uncomment karein
-            // cart = {};
-            // updateCartUI();
-            // toggleCart();
         }
 
         window.onload = loadData;
