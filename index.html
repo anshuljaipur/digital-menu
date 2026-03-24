@@ -18,29 +18,22 @@
 
         body { font-family: 'Poppins', sans-serif; margin: 0; background-color: var(--bg-color); text-align: center; color: #333; }
         
-        /* NEW: Top Animated Loading Bar */
-        #loading-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 5px;
-            background-color: var(--primary-color);
-            width: 0%;
-            z-index: 9999;
-            transition: width 0.4s ease, opacity 0.5s ease;
-            box-shadow: 0 2px 5px rgba(228, 77, 38, 0.5);
-        }
+        /* Animated Loading Bar */
+        #loading-bar { position: fixed; top: 0; left: 0; height: 5px; background-color: var(--primary-color); width: 0%; z-index: 9999; transition: width 0.4s ease, opacity 0.5s ease; box-shadow: 0 2px 5px rgba(228, 77, 38, 0.5); }
 
         header { background: #fff; padding: 40px 10px; border-bottom: 6px solid var(--primary-color); box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
         header h1 { margin: 0; font-family: 'Montserrat', sans-serif; font-size: 2.8em; color: var(--glacier-blue); text-transform: uppercase; letter-spacing: 2px; }
         header p { margin: 8px 0 0; color: #777; font-size: 1.1em; font-weight: 500; }
 
-        .filter-container { margin: 30px 0 15px; display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; padding: 0 20px; }
-        .filter-btn { padding: 12px 24px; border: 1px solid #ddd; background: #fff; color: #444; border-radius: 50px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .filter-container { margin: 25px 0 10px; display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; padding: 0 20px; }
+        .filter-btn { padding: 10px 20px; border: 1px solid #ddd; background: #fff; color: #444; border-radius: 50px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-size: 0.9em; }
         .filter-btn:hover { transform: translateY(-2px); }
-        .filter-btn.active { background: var(--glacier-blue); color: white; border-color: var(--glacier-blue); }
+        
+        /* Brand vs Category Active Colors */
+        .brand-btn.active { background: var(--glacier-blue); color: white; border-color: var(--glacier-blue); }
+        .category-btn.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
 
-        .search-sort-container { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 30px; padding: 0 20px; flex-wrap: wrap; }
+        .search-sort-container { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 30px; padding: 0 20px; flex-wrap: wrap; margin-top: 20px; }
         .search-input, .sort-select { padding: 12px 20px; border: 1px solid #ddd; border-radius: 50px; font-size: 1em; outline: none; transition: all 0.3s; }
         .search-input { width: 250px; }
         .search-input:focus, .sort-select:focus { border-color: var(--primary-color); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
@@ -51,11 +44,7 @@
         /* POSTER STYLE CATEGORY HEADINGS */
         .menu-wrapper { padding-bottom: 100px; }
         .category-section { margin-bottom: 50px; }
-        .category-title { 
-            font-family: 'Montserrat', sans-serif; font-size: 2.2em; color: var(--glacier-blue); 
-            text-transform: uppercase; border-bottom: 3px solid var(--primary-color); 
-            display: inline-block; padding-bottom: 5px; margin: 20px 0 30px 0; letter-spacing: 1px;
-        }
+        .category-title { font-family: 'Montserrat', sans-serif; font-size: 2.2em; color: var(--glacier-blue); text-transform: uppercase; border-bottom: 3px solid var(--primary-color); display: inline-block; padding-bottom: 5px; margin: 20px 0 30px 0; letter-spacing: 1px; }
         
         .menu-container { display: flex; flex-wrap: wrap; justify-content: center; padding: 10px; gap: 30px; }
         .menu-card { background: white; border-radius: 20px; width: 300px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); overflow: hidden; transition: all 0.4s ease; display: flex; flex-direction: column; }
@@ -90,7 +79,7 @@
         .qty-btn { background: #f0f0f0; border: none; width: 28px; height: 28px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 1.1em; color: #333; transition: 0.2s; }
         .qty-btn:hover { background: var(--primary-color); color: white; }
         .cart-total { font-size: 1.5em; font-weight: bold; color: var(--glacier-blue); text-align: right; margin-top: 20px; }
-        .checkout-btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 1.1em; font-weight: bold; color: white; cursor: pointer; margin-top: 15px; }
+        .checkout-btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 1.1em; font-weight: bold; color: white; cursor: margin-top: 15px; }
         .btn-wa { background: #25D366; } .btn-print { background: var(--glacier-blue); } .btn-clear { background: #ff9f43; color: white; } .close-cart { background: #ff4757; }
 
         /* SMART PDF & PRINT LAYOUT MAGIC (IPHONE SAFE DESIGN) */
@@ -98,7 +87,7 @@
             @page { margin: 5mm; size: A4 portrait; }
             body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: #fff; }
             
-            #loading-bar, #filter-box, .search-sort-container, #floating-cart, .add-btn, #status-msg, .qty-btn { display: none !important; }
+            #loading-bar, #brand-filter-box, #category-filter-box, .search-sort-container, #floating-cart, .add-btn, #status-msg, .qty-btn { display: none !important; }
 
             body.print-menu header { box-shadow: none; border-bottom: 3px solid var(--primary-color); padding: 5px 0 10px 0; text-align: center; margin-bottom: 10px; }
             body.print-menu header h1 { font-size: 24pt; margin: 0; color: var(--glacier-blue); }
@@ -138,8 +127,12 @@
         <p>Premium Brands • Fresh Flavors • Live Inventory</p>
     </header>
 
-    <div class="filter-container" id="filter-box">
-        <button class="filter-btn active" onclick="setBrand('All', this)">All Brands</button>
+    <div class="filter-container" id="brand-filter-box">
+        <button class="filter-btn brand-btn active" onclick="setBrand('All', this)">All Brands</button>
+    </div>
+
+    <div class="filter-container" id="category-filter-box" style="margin-top: -10px;">
+        <button class="filter-btn category-btn active" onclick="setCategory('All', this)">All Categories</button>
     </div>
 
     <div class="search-sort-container">
@@ -171,27 +164,22 @@
     </div>
 
     <script>
-        // Apps Script URL
         const googleSheetUrl = "https://script.google.com/macros/s/AKfycbyZ6aCMNqwXN2CuSbcIDWDSkbgQ3ZMW6EVfux8fMVkApWpDVREnkKdtWrKj0YgSBSw/exec"; 
-        
-        // WhatsApp Number
         const WHATSAPP_NUMBER = "919829610570"; 
         
         let allItems = [];
         let currentBrand = 'All';
+        let currentCategory = 'All'; // New variable for category filtering
         let cart = {}; 
 
         async function loadData() {
             const statusMsg = document.getElementById('status-msg');
             const loadingBar = document.getElementById('loading-bar');
             
-            // Progress bar start
             loadingBar.style.width = '30%'; 
 
             try {
                 const response = await fetch(googleSheetUrl);
-                
-                // Progress bar midway
                 loadingBar.style.width = '70%'; 
                 
                 allItems = await response.json();
@@ -199,7 +187,7 @@
                 if(!allItems || allItems.length === 0) {
                     statusMsg.innerText = "No items found in the menu.";
                     loadingBar.style.width = '100%';
-                    loadingBar.style.backgroundColor = '#ff4757'; // Error red
+                    loadingBar.style.backgroundColor = '#ff4757'; 
                     return;
                 }
                 
@@ -207,35 +195,51 @@
                 applyFilters();
                 setupSmartCheckout(); 
 
-                // Progress bar complete
                 loadingBar.style.width = '100%';
-                setTimeout(() => {
-                    loadingBar.style.opacity = '0'; // Hide smoothly after loading
-                }, 500);
+                setTimeout(() => { loadingBar.style.opacity = '0'; }, 500);
 
             } catch (error) {
                 statusMsg.innerText = "Error fetching data. Check internet or Web App URL.";
                 loadingBar.style.width = '100%';
-                loadingBar.style.backgroundColor = '#ff4757'; // Error red
+                loadingBar.style.backgroundColor = '#ff4757'; 
             }
         }
 
         function createFilterButtons() {
-            const filterBox = document.getElementById('filter-box');
+            // Setup Brand Buttons
+            const brandBox = document.getElementById('brand-filter-box');
             const brands = [...new Set(allItems.map(item => item.brand).filter(b => b))];
             brands.forEach(brand => {
                 const btn = document.createElement('button');
-                btn.className = 'filter-btn';
+                btn.className = 'filter-btn brand-btn';
                 btn.innerText = brand;
                 btn.onclick = (e) => setBrand(brand, e.target);
-                filterBox.appendChild(btn);
+                brandBox.appendChild(btn);
+            });
+
+            // Setup Category Buttons
+            const categoryBox = document.getElementById('category-filter-box');
+            const categories = [...new Set(allItems.map(item => item.category || 'More Favorites').filter(c => c))];
+            categories.forEach(category => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn category-btn';
+                btn.innerText = category;
+                btn.onclick = (e) => setCategory(category, e.target);
+                categoryBox.appendChild(btn);
             });
         }
 
         function setBrand(brand, btnElement) {
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.brand-btn').forEach(btn => btn.classList.remove('active'));
             btnElement.classList.add('active');
             currentBrand = brand;
+            applyFilters();
+        }
+
+        function setCategory(category, btnElement) {
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+            currentCategory = category;
             applyFilters();
         }
 
@@ -245,25 +249,31 @@
             const searchTerm = document.getElementById('search-bar').value.toLowerCase();
             const sortValue = document.getElementById('sort-dropdown').value;
 
+            // 1. Filter Items (Brand + Category + Search)
             let filteredItems = allItems.filter(item => {
                 const isAvailable = String(item.available).toLowerCase() === 'yes' || item.available === true;
                 const matchesBrand = (currentBrand === 'All' || item.brand === currentBrand);
+                const itemCat = item.category || 'More Favorites';
+                const matchesCategory = (currentCategory === 'All' || itemCat === currentCategory);
                 const matchesSearch = item.name.toLowerCase().includes(searchTerm);
-                return isAvailable && matchesBrand && matchesSearch;
+                
+                return isAvailable && matchesBrand && matchesCategory && matchesSearch;
             });
 
+            // 2. Sort Items
             if (sortValue === 'low-high') filteredItems.sort((a, b) => a.price - b.price);
             else if (sortValue === 'high-low') filteredItems.sort((a, b) => b.price - a.price);
 
             if (filteredItems.length === 0) {
                 statusMsg.style.display = 'block';
-                statusMsg.innerText = "No ice creams found matching your search.";
+                statusMsg.innerText = "No ice creams found matching your filters.";
                 menuWrapper.innerHTML = '';
                 return;
             }
 
             statusMsg.style.display = 'none';
 
+            // 3. GROUP ITEMS BY CATEGORY
             const groupedItems = {};
             filteredItems.forEach(item => {
                 const cat = item.category || 'More Favorites';
@@ -271,6 +281,7 @@
                 groupedItems[cat].push(item);
             });
 
+            // 4. Render HTML
             let newHTML = '';
             for (const [category, items] of Object.entries(groupedItems)) {
                 newHTML += `
