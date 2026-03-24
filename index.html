@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Glacier Ice Cream - Digital Menu</title>
+    
+    <link rel="icon" type="image/png" href="favicon.ico"> 
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Poppins:wght@400;500;600;700;800&display=swap');
 
@@ -23,10 +26,13 @@
         
         #loading-bar { position: fixed; top: 0; left: 0; height: 4px; background-color: var(--primary-color); width: 0%; z-index: 9999; transition: width 0.3s ease, opacity 0.5s ease; box-shadow: 0 2px 5px rgba(228, 77, 38, 0.5); }
 
-        /* --- APP HEADER --- */
+        /* --- APP HEADER (NEW LOGO STYLES) --- */
         header { background: #fff; padding: 12px 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.02); flex-shrink: 0;}
-        .header-left h1 { margin: 0; font-family: 'Montserrat', sans-serif; font-size: 1.3em; color: var(--glacier-blue); text-transform: uppercase; letter-spacing: 1px; }
-        .header-left p { margin: 2px 0 0; color: #777; font-size: 0.7em; font-weight: 500; }
+        
+        .header-left { display: flex; align-items: center; gap: 10px; }
+        .header-logo { width: 42px; height: 42px; object-fit: contain; border-radius: 8px; }
+        .header-text h1 { margin: 0; font-family: 'Montserrat', sans-serif; font-size: 1.3em; color: var(--glacier-blue); text-transform: uppercase; letter-spacing: 1px; line-height: 1.1; }
+        .header-text p { margin: 2px 0 0; color: #777; font-size: 0.65em; font-weight: 500; }
         
         .header-actions { display: flex; gap: 8px; align-items: center; }
         .action-btn { font-family: 'Poppins', sans-serif; border: 1px solid #d9e2fc; padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 0.75em; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 4px; }
@@ -63,7 +69,7 @@
         .section-header { font-size: 1.1em; font-weight: 700; color: #222; margin: 0 0 15px 0; display: flex; justify-content: space-between; align-items: center; }
         .section-count { font-size: 0.8em; font-weight: 500; color: #888; }
         
-        /* 📱 FLUID AUTO-GRID MAGIC (Mobile Default) */
+        /* 📱 FLUID AUTO-GRID MAGIC */
         .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
         
         /* --- IN-APP PROMO BANNERS --- */
@@ -89,7 +95,6 @@
         /* BADGES */
         .bestseller-badge { position: absolute; top: 0; left: 0; background: linear-gradient(135deg, #1f51c6, #3a7bd5); color: white; font-size: 0.55em; font-weight: 800; padding: 4px 8px; border-radius: 8px 0 8px 0; z-index: 3; display: flex; align-items: center; gap: 3px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); text-transform: uppercase; letter-spacing: 0.5px; }
         
-        /* --- REVISED RED DOWN ARROW (Strictly Icon Only) --- */
         .red-discount-icon { position: absolute; top: 0; right: 0; background: var(--discount-red); color: white; font-size: 0.8em; font-weight: 800; padding: 4px 6px; border-radius: 0 8px 0 8px; z-index: 3; display: flex; align-items: center; justify-content: center; box-shadow: -2px 2px 5px rgba(0,0,0,0.1); width: 20px; height: 20px;}
 
         .btn-container { position: absolute; right: 5px; bottom: -14px; z-index: 4; display: flex; justify-content: flex-end; }
@@ -166,7 +171,9 @@
             .cat-item { min-width: 100px; }
             .cat-icon { width: 80px; height: 80px; font-size: 2.5em; }
             .cat-name { font-size: 0.8em; }
+            
             .menu-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px; }
+            
             .menu-card { padding: 12px; }
             .card-img-wrapper { height: 150px; }
             .item-name { font-size: 1em; }
@@ -181,9 +188,13 @@
             .app-container { display: block !important; overflow: visible !important; }
             .main-content { overflow: visible !important; padding: 0 !important; background: #fff !important; }
             .products-area { padding: 0 !important; overflow: visible !important; }
+            
+            /* Print Header with Logo */
             body.print-menu header { box-shadow: none !important; border-bottom: 2px solid var(--primary-color) !important; padding: 0 0 5px 0 !important; justify-content: center !important; margin-bottom: 10px !important; }
-            body.print-menu .header-left { text-align: center; }
-            body.print-menu .header-left h1 { font-size: 20pt !important; color: var(--glacier-blue) !important; }
+            body.print-menu .header-left { text-align: center; display: flex; align-items: center; justify-content: center; gap: 10px; }
+            body.print-menu .header-logo { width: 50px; height: 50px; }
+            body.print-menu .header-text h1 { font-size: 20pt !important; color: var(--glacier-blue) !important; }
+            
             body.print-menu .section-header, body.print-menu #status-msg { display: none !important; }
             body.print-menu .menu-grid { display: flex !important; flex-wrap: wrap !important; justify-content: flex-start !important; gap: 0 !important; }
             body.print-menu .menu-card { width: 23% !important; margin: 0 1% 10px 1% !important; box-shadow: none !important; border: 1px solid #ddd !important; border-radius: 6px !important; box-sizing: border-box !important; page-break-inside: avoid !important; padding: 4px !important; }
@@ -196,6 +207,7 @@
             body.print-menu .price-row { display: block !important; text-align: center !important; }
             body.print-menu .item-price { font-size: 11pt !important; text-align: center !important; display: inline-block !important; margin-top: 2px !important; }
             body.print-menu .item-mrp { font-size: 8pt !important; }
+            
             body.print-cart header, body.print-cart .app-container { display: none !important; }
             body.print-cart #cart-modal { display: block !important; position: static !important; background: none !important; }
             body.print-cart .modal-content-box { width: 100% !important; box-shadow: none !important; max-width: none !important; padding: 0 !important; }
@@ -209,8 +221,12 @@
 
     <header>
         <div class="header-left">
-            <h1>Glacier Ice Cream</h1>
-            <p>Premium Brands • Real-Time Menu</p>
+            <img src="logo_glacier.png" alt="Glacier Logo" class="header-logo">
+            
+            <div class="header-text">
+                <h1>Glacier Ice Cream</h1>
+                <p>Premium Brands • Real-Time Menu</p>
+            </div>
         </div>
         <div class="header-actions">
             <button class="action-btn btn-pdf" onclick="downloadMenuPDF()">📄 PDF</button>
@@ -512,9 +528,7 @@
                 let discountNum = getDiscount(item);
                 
                 if (discountNum > 0) {
-                    // NEW: ONLY RED ARROW (STRICTLY ICON ONLY)
                     redDiscountIcon = `<div class="red-discount-icon">⬇</div>`;
-                    
                     priceHTML = `
                         <div class="price-row">
                             <span class="item-price">₹${item.price}</span>
