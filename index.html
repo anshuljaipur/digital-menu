@@ -54,20 +54,20 @@
         .app-container { display: flex; flex-direction: column; flex: 1; overflow: hidden; background: #fff; }
         
         /* 1. CATEGORIES ROW */
-        .sidebar { width: 100%; background: #fff; display: flex; overflow-x: auto; padding: 15px 10px 5px 10px; scrollbar-width: none; scroll-behavior: smooth; flex-shrink: 0; z-index: 10; }
+        .sidebar { width: 100%; background: #fff; display: flex; overflow-x: auto; padding: 15px 15px 5px 15px; gap: 10px; scrollbar-width: none; scroll-behavior: smooth; flex-shrink: 0; z-index: 10; }
         .sidebar::-webkit-scrollbar { display: none; }
-        .cat-item { display: flex; flex-direction: column; align-items: center; padding: 0 8px; cursor: pointer; transition: 0.2s; min-width: 65px; }
+        .cat-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; min-width: 70px; }
         .cat-icon { font-size: 2em; margin-bottom: 8px; background: #f8f9fa; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid transparent; box-shadow: 0 2px 6px rgba(0,0,0,0.04); transition: 0.2s; overflow: hidden; }
         .cat-name { font-size: 0.65em; font-weight: 500; color: #666; text-align: center; padding-bottom: 8px; border-bottom: 3px solid transparent; line-height: 1.1; transition: 0.2s; white-space: nowrap; }
         .cat-item.active .cat-icon { border-color: var(--glacier-blue); background: #eef3ff; }
         .cat-item.active .cat-name { color: var(--glacier-blue); font-weight: 700; border-bottom-color: var(--glacier-blue); }
 
-        /* 2. BRANDS ROW (LOGO UPDATED) */
-        .brands-row { width: 100%; background: #fff; border-bottom: 1px solid #f0f0f0; display: flex; overflow-x: auto; padding: 5px 10px 10px 10px; scrollbar-width: none; scroll-behavior: smooth; flex-shrink: 0; z-index: 9; }
+        /* 2. BRANDS ROW (FIXED SPACING FOR BIG NAMES) */
+        .brands-row { width: 100%; background: #fff; border-bottom: 1px solid #f0f0f0; display: flex; overflow-x: auto; padding: 10px 15px 15px 15px; gap: 15px; scrollbar-width: none; scroll-behavior: smooth; flex-shrink: 0; z-index: 9; }
         .brands-row::-webkit-scrollbar { display: none; }
-        .brand-item { display: flex; flex-direction: column; align-items: center; padding: 0 8px; cursor: pointer; transition: 0.2s; min-width: 60px; }
-        .brand-icon { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid transparent; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s; overflow: hidden; padding: 2px; background: #fff; }
-        .brand-icon img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; } /* Added for image logos */
+        .brand-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; min-width: 75px; } /* min-width badhaya gaya */
+        .brand-icon { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid transparent; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s; overflow: hidden; padding: 2px; background: #fff; }
+        .brand-icon img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; } 
         .brand-name { font-size: 0.55em; font-weight: 600; color: #777; text-align: center; margin-top: 6px; white-space: nowrap; transition: 0.2s; text-transform: uppercase; }
         .brand-item.active .brand-icon { border-color: var(--primary-color); box-shadow: 0 4px 8px rgba(228, 77, 38, 0.2); transform: scale(1.05); }
         .brand-item.active .brand-name { color: var(--primary-color); font-weight: 800; }
@@ -80,7 +80,6 @@
         .chip { padding: 8px 16px; border: 1px solid #e0e0e0; border-radius: 50px; background: #fff; font-size: 0.8em; font-weight: 600; color: #444; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .chip-input { border: none; outline: none; background: transparent; font-family: inherit; font-size: 1em; width: 140px; color: #333; }
         .chip-select { border: none; outline: none; background: transparent; font-family: inherit; font-size: 1em; font-weight: 600; color: #444; cursor: pointer; }
-        .brand-dropdown-chip.active { background: #eef3ff; border-color: var(--glacier-blue); color: var(--glacier-blue); }
 
         /* Products Scrolling Area */
         .products-area { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 120px; scroll-behavior: smooth; }
@@ -262,15 +261,14 @@
         let currentBrand = 'All Brands'; 
         let cart = {}; 
 
-        // 🟢🟢 BRAND LOGO IMAGE LINKS 🟢🟢
-        // यहाँ आप अपने ब्रांड्स के असली लोगो का लिंक डाल सकते हैं। 
-        // अगर लिंक नहीं होगा, तो यह खुद-ब-खुद एक डमी लोगो बना लेगा।
+        // 🟢🟢 BRAND LOGO IMAGE LINKS (UPDATED) 🟢🟢
         const brandImageLinks = {
             "baskin robbins": "https://i.postimg.cc/j5FTdyfz/brlogo.png", 
             "london dairy": "https://i.postimg.cc/jdtSC4nV/LD-logo.png",
             "mother dairy": "https://i.postimg.cc/4dSGNpcB/md_logo.png",
             "amul": "https://via.placeholder.com/100/e44d26/ffffff?text=Amul",
             "kwality": "https://i.postimg.cc/ncGM1PfV/kw_logo.png",
+            "walls": "https://i.postimg.cc/ncGM1PfV/kw_logo.png", // Added for Kwality Walls
             "gianis": "https://i.postimg.cc/L6kw6Gr2/lgo-gianis.png",
             "havmor": "https://i.postimg.cc/KvD45HhZ/logo_havmor.png",
             "hocco": "https://i.postimg.cc/CLsd4Qph/hocco_logo.png"
@@ -680,7 +678,6 @@
 
         function checkout(method) {
             if(Object.keys(cart).length === 0) return;
-            
             if (method === 'whatsapp') {
                 let message = "Hello Glacier Ice Cream!🍦\n\n*New Order:*\n";
                 let total = 0;
