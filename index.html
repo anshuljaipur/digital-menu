@@ -28,7 +28,7 @@
         img { -webkit-user-drag: none; -khtml-user-drag: none; -moz-user-drag: none; -o-user-drag: none; user-drag: none; -webkit-touch-callout: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; pointer-events: none; }
         .promo-img { pointer-events: none; -webkit-user-select: none; user-select: none; }
 
-        /* --- ✨ NEW: SKELETON SHIMMER LOADING EFFECT ✨ --- */
+        /* --- ✨ SKELETON SHIMMER LOADING EFFECT ✨ --- */
         .skeleton-bg {
             background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%) !important;
             background-size: 200% 100% !important;
@@ -94,7 +94,8 @@
         .menu-card { background: var(--card-bg); border-radius: 12px; border: 1px solid #ebebeb; overflow: hidden; display: flex; flex-direction: column; position: relative; padding: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: 0.2s; }
         .menu-card:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
         
-        .card-img-wrapper { position: relative; background: #f9f9f9; border-radius: 8px; height: 110px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; overflow: hidden; }
+        /* 🚨 FIX: overflow changed to visible so Add button doesn't get cut 🚨 */
+        .card-img-wrapper { position: relative; background: #f9f9f9; border-radius: 8px; height: 110px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; overflow: visible; }
         .card-img-wrapper img { width: 85%; height: 85%; object-fit: contain; mix-blend-mode: multiply; z-index: 2; position: relative;}
         
         /* BADGES */
@@ -195,7 +196,7 @@
             body.print-menu .section-header, body.print-menu #status-msg { display: none !important; }
             body.print-menu .menu-grid { display: flex !important; flex-wrap: wrap !important; justify-content: flex-start !important; gap: 0 !important; }
             body.print-menu .menu-card { width: 23% !important; margin: 0 1% 10px 1% !important; box-shadow: none !important; border: 1px solid #ddd !important; border-radius: 6px !important; box-sizing: border-box !important; page-break-inside: avoid !important; padding: 4px !important; }
-            body.print-menu .card-img-wrapper { height: 75px !important; margin-bottom: 5px !important; background: transparent !important; }
+            body.print-menu .card-img-wrapper { height: 75px !important; margin-bottom: 5px !important; background: transparent !important; overflow: visible !important;}
             body.print-menu .card-img-wrapper img { width: 100% !important; height: 100% !important; object-fit: contain !important; opacity: 1 !important;}
             body.print-menu .brand-tag { font-size: 5.5pt !important; text-align: center !important; margin-bottom: 2px !important; display: block !important; }
             body.print-menu .item-name { font-size: 8.5pt !important; text-align: center !important; min-height: 0 !important; margin-bottom: 2px !important; }
@@ -308,7 +309,6 @@
         let cart = {}; 
         let isPrintingPDF = false; 
 
-        // ANTI-COPY JS FALLBACK
         function protectImages(e) {
             if (e.target.tagName === 'IMG') {
                 e.preventDefault();
@@ -334,6 +334,7 @@
                 
                 setupAppUI();
                 applyFilters();
+                setupScrollSpy(); 
 
                 loadingBar.style.width = '100%';
                 setTimeout(() => { loadingBar.style.opacity = '0'; }, 500);
@@ -568,6 +569,53 @@
             
             gridWrapper.innerHTML = newHTML;
             updateAddButtons();
+        }
+
+        function setupScrollSpy() {
+            const productsArea = document.getElementById('products-area');
+            const sidebar = document.getElementById('category-sidebar');
+
+            productsArea.addEventListener('scroll', () => {
+                if (currentCategory !== 'All Items' && currentCategory !== 'Bestsellers') return;
+
+                const sections = document.querySelectorAll('.category-section');
+                let currentCatName = '';
+                
+                sections.forEach(sec => {
+                    const rect = sec.getBoundingClientRect();
+                    if (rect.top <= 250) { 
+                        currentCatName = sec.querySelector('.category-title').innerText;
+                    }
+                });
+
+                if (productsArea.scrollTop < 20) {
+                    currentCatName = currentCategory; 
+                } else if (!currentCatName && sections.length > 0) {
+                    currentCatName = sections[0].querySelector('.category-title').innerText;
+                }
+
+                document.querySelectorAll('.cat-item').forEach(el => {
+                    const nameDiv = el.querySelector('.cat-name');
+                    if (!nameDiv) return;
+                    
+                    let isMatch = false;
+                    if (currentCatName === 'All Items' || currentCatName === 'Bestsellers' || currentCatName === 'Top Picks') {
+                        isMatch = el.classList.contains('active'); 
+                    } else {
+                        isMatch = nameDiv.innerText.trim().toUpperCase() === currentCatName.toUpperCase();
+                    }
+
+                    if (isMatch) {
+                        el.classList.add('scroll-active');
+                        const elLeft = el.offsetLeft;
+                        if (elLeft < sidebar.scrollLeft || elLeft > sidebar.scrollLeft + sidebar.clientWidth - 100) {
+                            sidebar.scrollTo({ left: elLeft - 30, behavior: 'smooth' });
+                        }
+                    } else {
+                        el.classList.remove('scroll-active');
+                    }
+                });
+            });
         }
 
         function updateAddButtons() {
