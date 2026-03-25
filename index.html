@@ -54,22 +54,22 @@
         .app-container { display: flex; flex-direction: column; flex: 1; overflow: hidden; background: #fff; }
         
         /* 1. CATEGORIES ROW */
-        .sidebar { width: 100%; background: #fff; display: flex; overflow-x: auto; padding: 15px 10px 5px 10px; scrollbar-width: none; scroll-behavior: smooth; flex-shrink: 0; z-index: 10; }
+        .sidebar { width: 100%; background: #fff; display: flex; overflow-x: auto; padding: 15px 15px 5px 15px; gap: 10px; scrollbar-width: none; scroll-behavior: smooth; flex-shrink: 0; z-index: 10; }
         .sidebar::-webkit-scrollbar { display: none; }
-        .cat-item { display: flex; flex-direction: column; align-items: center; padding: 0 8px; cursor: pointer; transition: 0.2s; min-width: 65px; }
+        .cat-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; min-width: 70px; }
         .cat-icon { font-size: 2em; margin-bottom: 8px; background: #f8f9fa; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid transparent; box-shadow: 0 2px 6px rgba(0,0,0,0.04); transition: 0.2s; overflow: hidden; }
         .cat-name { font-size: 0.65em; font-weight: 500; color: #666; text-align: center; padding-bottom: 8px; border-bottom: 3px solid transparent; line-height: 1.1; transition: 0.2s; white-space: nowrap; }
         .cat-item.active .cat-icon { border-color: var(--glacier-blue); background: #eef3ff; }
         .cat-item.active .cat-name { color: var(--glacier-blue); font-weight: 700; border-bottom-color: var(--glacier-blue); }
 
         /* 2. BRANDS ROW */
-        .brands-row { width: 100%; background: #fff; border-bottom: 1px solid #f0f0f0; display: flex; overflow-x: auto; padding: 5px 10px 10px 10px; scrollbar-width: none; scroll-behavior: smooth; flex-shrink: 0; z-index: 9; }
+        .brands-row { width: 100%; background: #fff; border-bottom: 1px solid #f0f0f0; display: flex; overflow-x: auto; padding: 10px 15px 15px 15px; gap: 12px; scrollbar-width: none; scroll-behavior: smooth; flex-shrink: 0; z-index: 9; }
         .brands-row::-webkit-scrollbar { display: none; }
-        .brand-item { display: flex; flex-direction: column; align-items: center; padding: 0 8px; cursor: pointer; transition: 0.2s; min-width: 60px; }
-        .brand-icon { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid transparent; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s; overflow: hidden; padding: 2px; background: #fff; }
+        .brand-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; padding: 0 5px; } 
+        .brand-icon { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid transparent; box-shadow: 0 2px 5px rgba(0,0,0,0.06); transition: 0.2s; background: #fff; padding: 4px; box-sizing: border-box; }
         .brand-icon img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; transform: scale(0.85); transition: 0.2s; } 
-        .brand-name { font-size: 0.55em; font-weight: 600; color: #777; text-align: center; margin-top: 6px; white-space: nowrap; transition: 0.2s; text-transform: uppercase; }
-        .brand-item.active .brand-icon { border-color: var(--primary-color); box-shadow: 0 4px 8px rgba(228, 77, 38, 0.2); transform: scale(1.05); }
+        .brand-name { font-size: 0.55em; font-weight: 600; color: #777; text-align: center; margin-top: 6px; white-space: nowrap; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .brand-item.active .brand-icon { border-color: var(--primary-color); transform: scale(1.05); box-shadow: 0 4px 10px rgba(228, 77, 38, 0.2); }
         .brand-item.active .brand-name { color: var(--primary-color); font-weight: 800; }
 
         .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #f4f6f9; }
@@ -80,18 +80,9 @@
         .chip { padding: 8px 16px; border: 1px solid #e0e0e0; border-radius: 50px; background: #fff; font-size: 0.8em; font-weight: 600; color: #444; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .chip-input { border: none; outline: none; background: transparent; font-family: inherit; font-size: 1em; width: 140px; color: #333; }
         .chip-select { border: none; outline: none; background: transparent; font-family: inherit; font-size: 1em; font-weight: 600; color: #444; cursor: pointer; }
-        .brand-dropdown-chip.active { background: #eef3ff; border-color: var(--glacier-blue); color: var(--glacier-blue); }
 
-        /* 🚨 NEW: SCROLLBAR JUMP FIX & CUSTOM SCROLLBAR 🚨 */
-        .products-area { 
-            flex: 1; 
-            overflow-y: auto; 
-            scrollbar-gutter: stable; /* Magic fix that prevents the layout from shifting */
-            padding: 15px; 
-            padding-bottom: 120px; 
-            scroll-behavior: smooth; 
-        }
-        
+        /* Products Scrolling Area */
+        .products-area { flex: 1; overflow-y: auto; scrollbar-gutter: stable; padding: 15px; padding-bottom: 120px; scroll-behavior: smooth; }
         .products-area::-webkit-scrollbar { width: 6px; }
         .products-area::-webkit-scrollbar-track { background: transparent; }
         .products-area::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
@@ -104,11 +95,7 @@
         .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; align-items: start; }
         
         /* --- IN-APP PROMO BANNERS --- */
-        .promo-banner { 
-            grid-column: 1 / -1; 
-            background: linear-gradient(135deg, #1f51c6, #3a7bd5); 
-            border-radius: 12px; padding: 15px 20px; color: white; display: flex; align-items: center; justify-content: space-between; margin: 5px 0; box-shadow: 0 4px 15px rgba(31, 81, 198, 0.2); position: relative; overflow: hidden; cursor: pointer;
-        }
+        .promo-banner { grid-column: 1 / -1; background: linear-gradient(135deg, #1f51c6, #3a7bd5); border-radius: 12px; padding: 15px 20px; color: white; display: flex; align-items: center; justify-content: space-between; margin: 5px 0; box-shadow: 0 4px 15px rgba(31, 81, 198, 0.2); position: relative; overflow: hidden; cursor: pointer; }
         .promo-banner::after { content: ''; position: absolute; right: -20px; top: -20px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; }
         .promo-text { flex: 1; z-index: 2; }
         .promo-text h3 { margin: 0; font-size: 1.15em; font-weight: 800; line-height: 1.2; }
@@ -202,6 +189,34 @@
             .card-img-wrapper { height: 150px; }
             .mobile-only { display: none !important; }
         }
+
+        /* --- PDF & PRINT LAYOUT --- */
+        @media print {
+            @page { margin: 5mm; size: A4 portrait; }
+            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: #fff !important; height: auto !important; overflow: auto !important; display: block !important; }
+            .sidebar, .chips-container, #bottom-cart-banner, #loading-bar, .btn-container, .header-actions, .bestseller-badge, .red-discount-icon, .promo-banner { display: none !important; }
+            .app-container { display: block !important; overflow: visible !important; }
+            .main-content { overflow: visible !important; padding: 0 !important; background: #fff !important; }
+            .products-area { padding: 0 !important; overflow: visible !important; }
+            body.print-menu header { box-shadow: none !important; border-bottom: 2px solid var(--primary-color) !important; padding: 0 0 5px 0 !important; justify-content: center !important; margin-bottom: 10px !important; position: static !important; }
+            body.print-menu .header-logo { height: 60px !important; margin: 0 auto !important; display: block !important; }
+            body.print-menu .section-header, body.print-menu #status-msg { display: none !important; }
+            body.print-menu .menu-grid { display: flex !important; flex-wrap: wrap !important; justify-content: flex-start !important; gap: 0 !important; }
+            body.print-menu .menu-card { width: 23% !important; margin: 0 1% 10px 1% !important; box-shadow: none !important; border: 1px solid #ddd !important; border-radius: 6px !important; box-sizing: border-box !important; page-break-inside: avoid !important; padding: 4px !important; }
+            body.print-menu .card-img-wrapper { height: 75px !important; margin-bottom: 5px !important; background: transparent !important; overflow: visible !important;}
+            body.print-menu .card-img-wrapper img { width: 100% !important; height: 100% !important; object-fit: contain !important; opacity: 1 !important;}
+            body.print-menu .brand-tag { font-size: 5.5pt !important; text-align: center !important; margin-bottom: 2px !important; display: block !important; }
+            body.print-menu .item-name { font-size: 8.5pt !important; text-align: center !important; min-height: 0 !important; margin-bottom: 2px !important; }
+            body.print-menu .item-volume { display: none !important; }
+            body.print-menu .price-section { display: block !important; text-align: center !important; margin-top: 0 !important;}
+            body.print-menu .price-row { display: block !important; text-align: center !important; justify-content: center !important; }
+            body.print-menu .item-price { font-size: 11pt !important; text-align: center !important; display: inline-block !important; margin-top: 2px !important; }
+            body.print-menu .item-mrp { font-size: 8pt !important; }
+            body.print-cart header, body.print-cart .app-container { display: none !important; }
+            body.print-cart #cart-modal { display: block !important; position: static !important; background: none !important; }
+            body.print-cart .modal-content-box { width: 100% !important; box-shadow: none !important; max-width: none !important; padding: 0 !important; }
+            body.print-cart .checkout-btn, body.print-cart .close-modal-icon { display: none !important; }
+        }
     </style>
 </head>
 <body oncontextmenu="return protectImages(event)">
@@ -281,12 +296,12 @@
         let cart = {}; 
 
         const brandImageLinks = {
-            "baskin robbins": "https://i.postimg.cc/j5FTdyfz/brlogo.png",
+            "baskin robbins": "https://i.postimg.cc/j5FTdyfz/brlogo.png", 
             "london dairy": "https://i.postimg.cc/jdtSC4nV/LD-logo.png",
             "mother dairy": "https://i.postimg.cc/4dSGNpcB/md_logo.png",
             "amul": "https://via.placeholder.com/100/e44d26/ffffff?text=Amul",
             "kwality": "https://i.postimg.cc/ncGM1PfV/kw_logo.png",
-            "walls": "https://i.postimg.cc/ncGM1PfV/kw_logo.png",
+            "walls": "https://i.postimg.cc/ncGM1PfV/kw_logo.png", 
             "gianis": "https://i.postimg.cc/L6kw6Gr2/lgo-gianis.png",
             "havmor": "https://i.postimg.cc/KvD45HhZ/logo_havmor.png",
             "hocco": "https://i.postimg.cc/CLsd4Qph/hocco_logo.png"
@@ -345,6 +360,7 @@
         }
 
         function setupAppUI() {
+            // 1. SETUP CATEGORIES
             const sidebar = document.getElementById('category-sidebar');
             const uniqueCats = [...new Set(allItems.map(item => item.category || 'More Favorites').filter(c => c))];
             const categories = ['Bestsellers', 'All Items', ...uniqueCats];
@@ -374,6 +390,7 @@
                 sidebar.appendChild(div);
             });
 
+            // 2. SETUP BRANDS ROW
             const brandSidebar = document.getElementById('brands-sidebar');
             const brands = ['All Brands', ...new Set(allItems.map(item => item.brand).filter(b => b))];
             
@@ -399,7 +416,10 @@
                 const name = btn.querySelector('.cat-name').innerText.trim();
                 if (name.toLowerCase() === categoryName.toLowerCase() || (categoryName==='Bestsellers' && name==='Best Sellers')) {
                     btn.classList.add('active');
-                    btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                    // 🚨 FIX: ONLY SCROLL INTO VIEW ON MOBILE SCREENS 🚨
+                    if (window.innerWidth <= 600) {
+                        btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                    }
                 } else { btn.classList.remove('active'); }
             });
             document.getElementById('products-area').scrollTop = 0; 
@@ -413,9 +433,22 @@
                 let matchName = brandName === 'All Brands' ? 'ALL' : brandName.toUpperCase();
                 if (name === matchName) {
                     btn.classList.add('active');
-                    btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                    // 🚨 FIX: ONLY SCROLL INTO VIEW ON MOBILE SCREENS 🚨
+                    if (window.innerWidth <= 600) {
+                        btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                    }
                 } else { btn.classList.remove('active'); }
             });
+
+            // 🚀 SMART AUTO-SWITCH LOGIC 🚀
+            if (currentCategory === 'Bestsellers' && brandName !== 'All Brands') {
+                const brandHasBestsellers = allItems.some(i => i.brand === brandName && i.bestseller && String(i.bestseller).toLowerCase() === 'yes');
+                if (!brandHasBestsellers) {
+                    setCategory('All Items'); 
+                    return; 
+                }
+            }
+
             document.getElementById('products-area').scrollTop = 0; 
             applyFilters();
         }
@@ -491,6 +524,7 @@
             document.getElementById('current-category-title').firstElementChild.innerText = displayTitle;
             itemCountStr.innerText = `${filteredItems.length} items`;
 
+            // 🚨 FAIL-SAFE EMPTY MESSAGE 🚨
             if (filteredItems.length === 0) {
                 statusMsg.innerHTML = `
                     <div style="padding: 30px 10px; text-align: center;">
@@ -556,6 +590,7 @@
                     </div>
                 `;
 
+                // PROMO BANNERS INJECTION
                 if (currentCategory === 'All Items' && currentBrand === 'All Brands' && searchTerm === '') {
                     if (index === 5) { 
                         newHTML += `
