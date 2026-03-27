@@ -684,14 +684,19 @@
                 
                 if (window.globalUser && window.globalUserData && window.globalUserData.address) {
                     message += `\n*Delivery Details:*\nName: ${window.globalUserData.name}\nAddress: ${window.globalUserData.address}\nPhone: ${window.globalUser.phoneNumber}\n`;
-                    try {
-                        await addDoc(collection(db, "orders"), { userId: window.globalUser.uid, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() });
+                    
+                    // 🔥 FIX: Remove 'await' so mobile browser doesn't block the popup delay
+                    addDoc(collection(db, "orders"), { userId: window.globalUser.uid, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() }).then(() => {
                         loadPastOrders(window.globalUser.uid);
-                    } catch(e) {}
-                } else if (window.globalUser) { alert("Tip: Save your address in 'My Profile' for faster checkout next time!"); }
+                    });
+                } else if (window.globalUser) { 
+                    alert("Tip: Save your address in 'My Profile' for faster checkout next time!"); 
+                }
 
                 message += `\n*Total Amount: ₹${total}*\n\n_Please confirm my order._`;
-                window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
+                
+                // 🔥 FIX: Use location.href instead of window.open for 100% mobile compatibility
+                window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
             }
         };
     </script>
