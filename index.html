@@ -120,7 +120,7 @@
         .modal-content-box { background: white; padding: 30px; border-radius: 24px; width: 90%; max-width: 450px; max-height: 85vh; overflow-y: auto; box-sizing: border-box; animation: scaleUp 0.3s ease-out; display: flex; flex-direction: column; position: relative;}
         @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
-        .modal-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 20px;}
+        .modal-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 0px;}
         .modal-header-row h2 { margin: 0; color: #1e293b; font-size: 1.4em; font-weight: 800;}
         .close-modal-icon { font-size: 1.5em; color: #94a3b8; cursor: pointer; font-weight: bold; transition: 0.2s;}
         .close-modal-icon:hover { color: #e74c3c; }
@@ -159,6 +159,16 @@
         
         .order-history-items { color: #475569; font-size: 0.85em; line-height: 1.6; margin: 0; }
         .order-item-line { display: flex; gap: 8px; margin-bottom: 4px; align-items: flex-start; }
+
+        /* 🟢 NEW TABS UI FOR PROFILE/ORDERS 🟢 */
+        #modal-tab-bar { display: flex; width: 100%; border-bottom: 2px solid #f1f5f9; margin-bottom: 20px; flex-shrink: 0;}
+        .modal-tab { flex: 1; text-align: center; padding: 12px; font-weight: 700; font-size: 0.95em; color: #64748b; cursor: pointer; transition: 0.2s; position: relative;}
+        .modal-tab:hover { color: var(--glacier-blue); background: #f8faff; border-radius: 10px 10px 0 0;}
+        .modal-tab.active { color: var(--glacier-blue); }
+        .modal-tab.active::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 2px; background: var(--glacier-blue); border-radius: 2px;}
+
+        .modal-tab-content { display: none; }
+        .modal-tab-content.active { display: flex; flex-direction: column; }
 
         /* 📱 MOBILE RESPONSIVENESS */
         @media (max-width: 800px) {
@@ -281,28 +291,37 @@
 
     <div id="profile-modal" class="custom-modal">
         <div class="modal-content-box">
-            <div class="modal-header-row">
+            <div class="modal-header-row" style="border-bottom:none; margin-bottom:0; padding-bottom:5px;">
                 <h2>My Account</h2>
                 <div class="close-modal-icon" onclick="closeProfileModal()">×</div>
             </div>
+
+            <div id="modal-tab-bar">
+                <div class="modal-tab active" onclick="switchModalTab('profile')" id="tab-profile-btn">👤 Profile</div>
+                <div class="modal-tab" onclick="switchModalTab('orders')" id="tab-orders-btn">🛍️ Past Orders</div>
+            </div>
             
-            <div style="margin-bottom: 25px;">
-                <label class="auth-label">Full Name</label>
-                <input type="text" id="profile-name" class="auth-input" placeholder="e.g. Rahul Sharma">
-                
-                <label class="auth-label">Delivery Address</label>
-                <textarea id="profile-address" class="auth-input" rows="3" placeholder="Flat No, Building, Street, Landmark..."></textarea>
-                
-                <button class="auth-btn" id="save-profile-btn" onclick="saveProfile()">Save Details</button>
-                <div id="profile-msg" style="color: #10b981; font-size: 0.85em; margin-top: 8px; text-align: center; font-weight: 700;"></div>
+            <div id="tab-profile-content" class="modal-tab-content active">
+                <div style="margin-bottom: 25px;">
+                    <label class="auth-label">Full Name</label>
+                    <input type="text" id="profile-name" class="auth-input" placeholder="e.g. Rahul Sharma">
+                    
+                    <label class="auth-label">Delivery Address</label>
+                    <textarea id="profile-address" class="auth-input" rows="3" placeholder="Flat No, Building, Street, Landmark..."></textarea>
+                    
+                    <button class="auth-btn" id="save-profile-btn" onclick="saveProfile()">Save Details</button>
+                    <div id="profile-msg" style="color: #10b981; font-size: 0.85em; margin-top: 8px; text-align: center; font-weight: 700;"></div>
+                </div>
+                <button class="checkout-btn btn-clear" style="margin-top:auto;" onclick="logout()">🚪 Logout</button>
             </div>
 
-            <h3 style="font-size: 1.1em; color: #1e293b; font-weight: 800; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px;">Past Orders</h3>
-            <div id="order-history-list">
-                <p style="font-size: 0.85em; color: #94a3b8; text-align: center;">Loading orders...</p>
+            <div id="tab-orders-content" class="modal-tab-content">
+                <div id="order-history-list">
+                    <p style="font-size: 0.85em; color: #94a3b8; text-align: center;">Loading orders...</p>
+                </div>
+                <p style="font-size:0.8em; color:#94a3b8; text-align:center; margin-top:15px; border-top:1px solid #f1f5f9; padding-top:10px;">Only last 10 orders are shown locally.</p>
             </div>
 
-            <button class="checkout-btn btn-clear" onclick="logout()">🚪 Logout</button>
         </div>
     </div>
 
@@ -322,7 +341,7 @@
             "gianis": "https://i.postimg.cc/L6kw6Gr2/lgo-gianis.png",
             "havmor": "https://i.postimg.cc/KvD45HhZ/logo_havmor.png",
             "hocco": "https://i.postimg.cc/CLsd4Qph/hocco_logo.png",
-            "frubon": "https://via.placeholder.com/100/333/fff?text=FR"
+            "frubon": "https://i.postimg.cc/0y5Q0rM3/logo_fb.png"
         };
 
         function getBrandLogo(brandName) {
@@ -537,9 +556,29 @@
         }
 
         window.handleProfileClick = () => {
-            if (window.globalUser) { document.getElementById('profile-modal').style.display = 'flex'; document.getElementById('profile-msg').innerText = ''; } 
-            else { document.getElementById('auth-modal').style.display = 'flex'; document.getElementById('auth-error').innerText = ''; setupRecaptcha(); }
+            if (window.globalUser) { 
+                document.getElementById('profile-modal').style.display = 'flex'; 
+                document.getElementById('profile-msg').innerText = ''; 
+                // Reset to profile tab when opening
+                switchModalTab('profile');
+            } 
+            else { 
+                document.getElementById('auth-modal').style.display = 'flex'; 
+                document.getElementById('auth-error').innerText = ''; 
+                setupRecaptcha(); 
+            }
         };
+
+        // 🟢 NEW: TAB SWITCHING LOGIC 🟢
+        window.switchModalTab = (tabName) => {
+            // Hide all contents
+            document.querySelectorAll('.modal-tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.modal-tab').forEach(el => el.classList.remove('active'));
+
+            // Show target content
+            document.getElementById(`tab-${tabName}-content`).classList.add('active');
+            document.getElementById(`tab-${tabName}-btn`).classList.add('active');
+        }
 
         function setupRecaptcha() {
             if(!window.recaptchaVerifier) { window.recaptchaVerifier = new RecaptchaVerifier(auth, 'send-otp-btn', { 'size': 'invisible' }); }
@@ -548,7 +587,7 @@
         window.sendOTP = () => {
             const phoneNumber = "+91" + document.getElementById('phone-number').value.trim();
             const btn = document.getElementById('send-otp-btn'); const errorDiv = document.getElementById('auth-error');
-            if(phoneNumber.length < 10) { errorDiv.innerText = "Please enter a valid 10-digit mobile number."; return; }
+            if(phoneNumber.length < 13) { errorDiv.innerText = "Please enter a valid 10-digit mobile number."; return; }
             
             btn.disabled = true; btn.innerText = "Sending OTP..."; errorDiv.innerText = "";
             signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier).then((result) => {
@@ -578,6 +617,7 @@
         window.loadPastOrders = async (uid) => {
             const listDiv = document.getElementById('order-history-list');
             try {
+                // Modified query to limit to last 10 for better mobile performance
                 const querySnapshot = await getDocs(query(collection(db, "orders"), where("userId", "==", uid), orderBy("timestamp", "desc")));
                 
                 if (querySnapshot.empty) { 
@@ -586,7 +626,10 @@
                 }
                 
                 let html = '';
+                // Limit locally to 10 for safety, although index handles ordering
+                let count = 0;
                 querySnapshot.forEach((doc) => {
+                    if (count >= 10) return;
                     const data = doc.data(); 
                     
                     // Date Format
@@ -594,7 +637,7 @@
                     const dateStr = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
                     const timeStr = dateObj.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
                     
-                    // Items List Format
+                    // Items List Format (New Line for each item)
                     let itemsHtml = '';
                     if(data.itemsSummary) {
                         const itemsArray = data.itemsSummary.split(', ');
@@ -614,10 +657,11 @@
                             </div>
                         </div>
                     `;
+                    count++;
                 });
                 listDiv.innerHTML = html;
             } catch(e) { 
-                listDiv.innerHTML = '<p style="font-size: 0.85em; color: #e74c3c; text-align: center;">Failed to load orders. Please check connection.</p>'; 
+                listDiv.innerHTML = '<p style="font-size: 0.85em; color: #e74c3c; text-align: center; padding:15px;">Failed to load orders. Index may be building in Firebase.</p>'; 
                 console.error(e); 
             }
         };
