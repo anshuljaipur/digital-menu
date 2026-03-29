@@ -209,15 +209,22 @@
         }
         @media print { body { display: none !important; } }
 
-        /* 🔴 HEADER MARQUEE NOTICE 🔴 */
-        .header-notice {
-            flex: 1;
-            margin: 0 20px;
-            color: var(--active-brand-red);
-            font-size: 0.8em;
+   /* 📢 PREMIUM ANNOUNCEMENT BAR 📢 */
+        .top-announcement {
+            background: #f1f5f9;
+            color: #475569;
+            text-align: center;
+            padding: 6px 15px;
+            font-size: 0.7em;
             font-weight: 600;
-            text-transform: uppercase;
             letter-spacing: 0.5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            border-bottom: 1px solid #e2e8f0;
+            width: 100%;
+            box-sizing: border-box;
         }
         /* ⚖️ LEGAL FOOTER ⚖️ */
         .legal-footer { 
@@ -235,11 +242,8 @@
 
     <div id="loading-bar"></div>
 
-   <header>
+      <header>
         <img src="https://i.postimg.cc/pV8FwNvw/logo_glacier.png" alt="Glacier Ice Cream Logo" class="header-logo">
-        
-        <marquee class="header-notice" scrollamount="5">Volume / MRP subject to change. For the final MRP, please refer to the actual product packaging.</marquee>
-
         <div class="header-actions">
             <button class="action-btn btn-profile" onclick="handleProfileClick()" id="nav-profile-btn">
                 👤 <span class="hide-mobile-text" id="nav-profile-text">Login</span>
@@ -247,6 +251,7 @@
             <button class="action-btn" onclick="shareWebsite()">📤 <span class="hide-mobile-text">Share</span></button>
         </div>
     </header>
+    
 
     <div class="brands-row" id="brands-sidebar"></div>
 
