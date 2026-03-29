@@ -330,7 +330,8 @@
     </div>
 
     <script>
-        const googleSheetUrl = "https://script.google.com/macros/s/AKfycbxik9kgy4xQjzxO5RCTnn5x2TmgxEfbAFVkrnz5vc6n15ksulHd9PS-poUq3S6Pz98/exec"; 
+        // 🔥 PERFECT NEW GOOGLE SHEET URL 🔥
+        const googleSheetUrl = "https://script.google.com/macros/s/AKfycbx_GAKTYoxRJlahbPicoHlRDEZeQfB1bn2vve_L1l4-GvJ9H1YwtHV_S9kDMTJpt9g/exec"; 
         const WHATSAPP_NUMBER = "919829610570"; 
         
         let allItems = []; let currentCategory = 'All Items'; let currentBrand = 'All Brands'; let cart = {}; 
@@ -358,7 +359,6 @@
 
         function protectImages(e) { if (e.target.tagName === 'IMG' || e.target.tagName === 'svg') { e.preventDefault(); return false; } return true; }
 
-        // 🟢 SUPER ROBUST DATE PARSER (NO REGEX FAILURE)
         function getLaunchDate(item) {
             let dateStr = null;
             for (let key in item) {
@@ -372,15 +372,11 @@
             }
             if (!dateStr) return null;
             
-            // Try standard parsing
             let d = new Date(dateStr);
             
-            // If Safari fails (e.g. "February 2026"), force add "01 " to start
             if (isNaN(d.getTime())) {
                 d = new Date("01 " + dateStr);
             }
-            
-            // If still fails, last resort check
             if (isNaN(d.getTime())) {
                 d = new Date(dateStr.replace(/-/g, '/'));
             }
@@ -400,7 +396,6 @@
             const statusMsg = document.getElementById('status-msg'); const loadingBar = document.getElementById('loading-bar');
             loadingBar.style.width = '30%'; statusMsg.style.display = 'block';
             try {
-                // 🟢 ANTI-CACHE FIX: Forces browser to pull fresh data
                 const noCacheUrl = googleSheetUrl + "?t=" + new Date().getTime();
                 const response = await fetch(noCacheUrl); 
                 loadingBar.style.width = '70%'; 
