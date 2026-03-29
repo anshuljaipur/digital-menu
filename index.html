@@ -29,6 +29,9 @@
 
         #loading-bar { position: fixed; top: 0; left: 0; height: 4px; background-color: var(--glacier-blue); width: 0%; z-index: 9999; transition: width 0.3s ease, opacity 0.5s ease; box-shadow: 0 2px 5px rgba(31,81,198, 0.5); }
 
+        /* 📢 PREMIUM ANNOUNCEMENT BAR 📢 */
+        .top-announcement { background: #f1f5f9; color: #475569; text-align: center; padding: 6px 15px; font-size: 0.7em; font-weight: 600; letter-spacing: 0.5px; display: flex; justify-content: center; align-items: center; gap: 6px; border-bottom: 1px solid #e2e8f0; width: 100%; box-sizing: border-box; }
+
         /* --- 1. HEADER --- */
         header { background: #fff; padding: 12px 25px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; z-index: 100; flex-shrink: 0; height: 65px; box-sizing: border-box;}
         .header-logo { height: 45px; width: auto; object-fit: contain; }
@@ -48,17 +51,12 @@
         .brand-item.active .brand-icon { border-color: var(--active-brand-red); border-width: 2px; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.15); }
         .brand-item.active .brand-name { color: var(--active-brand-red); }
 
-        /* 🟢 FULL WIDTH SEARCH & SORT BAR (NEW) 🟢 */
-        .controls-bar { 
-            width: 100%; background: #fff; border-bottom: 1px solid #e2e8f0; 
-            display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; 
-            padding: 12px 25px; z-index: 10; flex-shrink: 0; box-sizing: border-box; 
-        }
+        /* 🟢 FULL WIDTH SEARCH & SORT BAR (DESKTOP) 🟢 */
+        .controls-bar { width: 100%; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; padding: 12px 25px; z-index: 10; flex-shrink: 0; box-sizing: border-box; }
         .control-chip { display: flex; align-items: center; background: #f8f9fc; border: 1px solid #e2e8f0; border-radius: 50px; padding: 10px 20px; flex: 1; min-width: 250px; max-width: 450px; transition: 0.2s;}
         .control-chip:focus-within { border-color: var(--glacier-blue); background: #fff; box-shadow: 0 4px 12px rgba(31,81,198,0.08);}
         .control-chip input { border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.9em; width: 100%; color: #333; margin-left: 8px;}
         .control-chip select { border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.9em; font-weight: 600; color: #444; cursor: pointer; width: 100%; margin-left: 8px;}
-
 
         /* --- 3. MAIN DESKTOP LAYOUT --- */
         .main-layout { display: flex; flex: 1; overflow: hidden; background: var(--main-bg); width: 100%; }
@@ -66,7 +64,7 @@
         /* LEFT SIDEBAR (CATEGORIES) */
         .sidebar { width: 240px; background: #fff; display: flex; flex-direction: column; overflow-y: auto; padding: 20px 15px; gap: 8px; scrollbar-width: none; border-right: 1px solid #e2e8f0; flex-shrink: 0; box-sizing: border-box; }
         .sidebar::-webkit-scrollbar { display: none; }
-        .cat-item { display: flex; align-items: center; cursor: pointer; transition: 0.2s; padding: 10px 15px; border-radius: 50px; gap: 12px; }
+        .cat-item { display: flex; align-items: center; cursor: pointer; transition: 0.2s; padding: 10px 15px; border-radius: 50px; gap: 12px; flex-shrink: 0;}
         .cat-icon { font-size: 1.4em; display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; }
         .cat-name { font-size: 0.85em; font-weight: 500; color: #555; white-space: nowrap; }
         .cat-item:hover { background: #f8f9fa; }
@@ -85,7 +83,7 @@
         .section-count { font-size: 0.9em; font-weight: 500; color: #94a3b8; }
 
         /* PRODUCT GRID */
-        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; align-items: start; padding-bottom: 100px; }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; align-items: start; padding-bottom: 40px; }
         
         .menu-card { background: var(--card-bg); border-radius: 16px; border: 1px solid #f1f5f9; display: flex; flex-direction: column; position: relative; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s; height: 100%; box-sizing: border-box;}
         .menu-card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.08); transform: translateY(-3px); }
@@ -93,7 +91,6 @@
         .card-img-wrapper { position: relative; background: transparent; border-radius: 12px; height: 160px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
         .card-img-wrapper img { width: 90%; height: 90%; object-fit: contain; mix-blend-mode: multiply; }
         
-        /* ✨ NEW ARRIVAL BADGE ✨ */
         .new-badge { position: absolute; top: -5px; left: -5px; background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; font-size: 0.6em; font-weight: 800; padding: 4px 10px; border-radius: 8px; z-index: 3; box-shadow: 0 2px 6px rgba(142,68,173,0.3); text-transform: uppercase; letter-spacing: 0.5px; }
         .red-discount-icon { position: absolute; top: -5px; right: -5px; background: var(--active-brand-red); color: white; font-size: 0.7em; font-weight: 800; padding: 4px 8px; border-radius: 8px; z-index: 3; }
 
@@ -114,8 +111,11 @@
 
         #status-msg { margin-top: 50px; text-align: center; font-weight: 500; color: #888; font-size: 1.1em; width: 100%; padding: 0 20px; box-sizing: border-box;}
 
+        /* ⚖️ LEGAL FOOTER ⚖️ */
+        .legal-footer { text-align: center; font-size: 0.7em; color: #94a3b8; padding: 30px 15px 40px 15px; margin-top: auto; font-weight: 500; border-top: 1px dashed #e2e8f0; }
+
         /* --- STICKY CART BANNER --- */
-        #bottom-cart-banner { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 600px; background: #1e293b; color: white; padding: 16px 25px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 1000; cursor: pointer; transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-sizing: border-box; }
+        #bottom-cart-banner { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 600px; background: #1e293b; color: white; padding: 16px 25px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 1000; cursor: pointer; transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-sizing: border-box; }
         #bottom-cart-banner.visible { bottom: 20px; }
         .banner-left { display: flex; flex-direction: column; }
         .banner-items { font-size: 0.8em; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
@@ -143,7 +143,6 @@
         .btn-wa { background: #10b981; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);} .btn-wa:hover { background: #059669; transform: translateY(-2px);}
         .btn-clear { background: #fff; color: #e74c3c; border: 2px solid #fee2e2; margin-top: 10px;} .btn-clear:hover { background: #fee2e2; }
 
-        /* AUTH & PROFILE UI */
         .auth-input { width: 100%; padding: 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1em; margin-bottom: 15px; box-sizing: border-box; font-family: 'Poppins', sans-serif; transition: 0.2s; outline: none; color: #334155;}
         .auth-input:focus { border-color: var(--glacier-blue); }
         .auth-label { font-size: 0.85em; font-weight: 700; color: #64748b; margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.5px;}
@@ -151,7 +150,6 @@
         .auth-btn:hover { background: #1a42a4; transform: translateY(-2px);}
         .auth-btn:disabled { background: #94a3b8; cursor: not-allowed; box-shadow: none; transform: none;}
 
-        /* PREMIUM PAST ORDERS UI */
         #order-history-list { max-height: 280px; overflow-y: auto; padding: 5px; scrollbar-width: thin; }
         #order-history-list::-webkit-scrollbar { width: 6px; }
         #order-history-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -164,7 +162,6 @@
         .order-history-items { color: #475569; font-size: 0.85em; line-height: 1.6; margin: 0; }
         .order-item-line { display: flex; gap: 8px; margin-bottom: 4px; align-items: flex-start; }
 
-        /* TABS UI FOR PROFILE/ORDERS */
         #modal-tab-bar { display: flex; width: 100%; border-bottom: 2px solid #f1f5f9; margin-bottom: 20px; flex-shrink: 0;}
         .modal-tab { flex: 1; text-align: center; padding: 12px; font-weight: 700; font-size: 0.95em; color: #64748b; cursor: pointer; transition: 0.2s; position: relative;}
         .modal-tab:hover { color: var(--glacier-blue); background: #f8faff; border-radius: 10px 10px 0 0;}
@@ -173,29 +170,95 @@
         .modal-tab-content { display: none; }
         .modal-tab-content.active { display: flex; flex-direction: column; }
 
-        /* 📱 MOBILE RESPONSIVENESS WITH iOS FIX */
+
+        /* 📱 🔥 ULTIMATE MOBILE UI FIXES 🔥 📱 */
         @media (max-width: 800px) {
-            header { padding: 10px 15px; height: 60px; }
-            .header-logo { height: 40px; }
-            .header-notice { font-size: 0.6em; margin: 0 8px; }
+            .top-announcement { font-size: 0.65em; padding: 6px 10px; }
+            header { padding: 10px 15px; height: 55px; }
+            .header-logo { height: 35px; }
             .hide-mobile-text { display: none; }
+            .action-btn { padding: 6px 12px; font-size: 0.8em; }
+
+            .brands-row { padding: 12px 15px; gap: 15px; -webkit-overflow-scrolling: touch; }
+            .brand-icon { width: 55px; height: 55px; }
+            .brand-name { font-size: 0.55em; }
+
+            /* 🌟 Premium Sticky Glass Search Bar 🌟 */
+            .controls-bar { 
+                padding: 10px 15px; 
+                gap: 10px; 
+                flex-wrap: nowrap; /* Side-by-side alignment */
+                position: sticky; 
+                top: 0; 
+                z-index: 100; 
+                background: rgba(255, 255, 255, 0.92);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border-bottom: 1px solid #f1f5f9;
+            }
+            .control-chip { padding: 8px 12px; min-width: 0; border-radius: 12px;}
+            .control-chip:first-child { flex: 1.8; } /* Search takes more space */
+            .control-chip:last-child { flex: 1; padding: 8px; } /* Sort takes less */
+            .control-chip input { font-size: 0.85em; }
+            .control-chip select { font-size: 0.8em; padding: 0; }
+
             .main-layout { flex-direction: column; }
-            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid #f0f0f0; flex-direction: row; padding: 12px 15px; align-items: center; }
-            .cat-item { flex-direction: column; gap: 5px; padding: 8px; border-radius: 12px; min-width: 75px;}
-            .cat-icon { font-size: 1.8em; height: 40px; }
+            
+            /* 🌟 Sleek Horizontal Categories 🌟 */
+            .sidebar { 
+                width: 100%; 
+                flex-direction: row; 
+                padding: 10px 15px; 
+                align-items: flex-start;
+                border-right: none; 
+                border-bottom: 1px solid #f1f5f9;
+                background: #fff;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+            .cat-item { 
+                flex-direction: column; 
+                gap: 6px; 
+                padding: 8px 5px; 
+                border-radius: 12px; 
+                min-width: 70px;
+                background: transparent;
+            }
+            .cat-item.active { background: #f0f4ff; }
+            .cat-icon { font-size: 1.6em; height: 35px; width: 35px; }
             .cat-name { font-size: 0.65em; }
-            .content-area { padding: 15px; padding-bottom: 80px; }
+
+            .content-area { padding: 15px; padding-bottom: 90px; }
+            .section-header { margin-bottom: 15px; padding-bottom: 8px; }
+            .section-header h2 { font-size: 1.2em; }
             
-            /* ADJUST MOBILE SEARCH BAR */
-            .controls-bar { padding: 12px 15px; }
-            .control-chip { min-width: 100%; max-width: 100%; }
+            /* 🌟 Perfect 2-Column Grid 🌟 */
+            .menu-grid { 
+                grid-template-columns: repeat(2, 1fr); 
+                gap: 12px; 
+                padding-bottom: 20px;
+            }
             
-            .menu-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; padding-bottom: 30px;}
-            .menu-card { padding: 12px; }
-            .card-img-wrapper { height: 120px; }
-            .item-name { font-size: 0.9em; min-height: 35px;}
-            .item-price { font-size: 1.1em; }
+            /* 🌟 Compact Mobile Cards 🌟 */
+            .menu-card { padding: 10px; border-radius: 14px; }
+            .card-img-wrapper { height: 100px; margin-bottom: 10px; border-radius: 10px; }
+            .new-badge { font-size: 0.55em; padding: 3px 8px; top: -4px; left: -4px; }
+            .red-discount-icon { font-size: 0.6em; padding: 3px 6px; top: -4px; right: -4px; }
             
+            .brand-tag { font-size: 0.55em; margin-bottom: 4px; }
+            .item-name { font-size: 0.85em; min-height: 32px; margin-bottom: 4px; line-height: 1.25;}
+            .item-volume { font-size: 0.75em; margin-bottom: 12px; }
+            
+            .price-row { gap: 5px; }
+            .item-price { font-size: 1.05em; }
+            .item-mrp { font-size: 0.75em; }
+
+            .btn-container { right: 10px; bottom: 10px; }
+            .app-add-btn { width: 32px; height: 32px; font-size: 1.4em; }
+            .app-qty-control { height: 32px; width: 75px; font-size: 0.9em; padding: 0 5px;}
+            .app-qty-control button { font-size: 1.1em; padding: 0 4px; }
+
             .custom-modal { align-items: flex-end; }
             .modal-content-box { 
                 border-radius: 24px 24px 0 0; width: 100%; max-width: 100%; margin: 0; 
@@ -206,36 +269,24 @@
             .auth-input { padding: 12px; margin-bottom: 12px; }
             .auth-btn, .checkout-btn { margin-bottom: 10px; }
             @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        }
-        @media print { body { display: none !important; } }
 
-   /* 📢 PREMIUM ANNOUNCEMENT BAR 📢 */
-        .top-announcement {
-            background: #f1f5f9;
-            color: #475569;
-            text-align: center;
-            padding: 6px 15px;
-            font-size: 0.7em;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 6px;
-            border-bottom: 1px solid #e2e8f0;
-            width: 100%;
-            box-sizing: border-box;
+            #bottom-cart-banner { width: calc(100% - 30px); padding: 14px 20px; bottom: -100px; border-radius: 14px;}
+            #bottom-cart-banner.visible { bottom: calc(15px + env(safe-area-inset-bottom)); }
+            .banner-items { font-size: 0.75em; }
+            .banner-price { font-size: 1.2em; }
+            .banner-right { font-size: 1em; }
         }
-        /* ⚖️ LEGAL FOOTER ⚖️ */
-        .legal-footer { 
-            text-align: center; 
-            font-size: 0.7em; 
-            color: #94a3b8; 
-            padding: 30px 15px 40px 15px; 
-            margin-top: auto; 
-            font-weight: 500; 
-            border-top: 1px dashed #e2e8f0;
+
+        /* Adjustments for very small phones (e.g. iPhone SE) */
+        @media (max-width: 360px) {
+            .menu-grid { gap: 8px; }
+            .menu-card { padding: 8px; }
+            .app-qty-control { width: 68px; }
+            .item-name { font-size: 0.8em; }
+            .control-chip { padding: 6px 10px; }
         }
+
+        @media print { body { display: none !important; } }
     </style>
 </head>
 <body oncontextmenu="return protectImages(event)">
@@ -255,7 +306,6 @@
             <button class="action-btn" onclick="shareWebsite()">📤 <span class="hide-mobile-text">Share</span></button>
         </div>
     </header>
-    
 
     <div class="brands-row" id="brands-sidebar"></div>
 
@@ -287,11 +337,10 @@
             <div id="status-msg" style="display:none;">Stocking our freezer... Please wait!</div>
             
             <div class="menu-grid" id="main-menu-grid"></div>
-                       
+
             <div class="legal-footer">
                 © 2026 Glacier Ice Cream. All brand logos, names, and trademarks displayed on this menu are the property of their respective owners.
             </div>
-        </main>
         </main>
     </div>
 
@@ -422,14 +471,8 @@
             if (!dateStr) return null;
             
             let d = new Date(dateStr);
-            
-            if (isNaN(d.getTime())) {
-                d = new Date("01 " + dateStr);
-            }
-            if (isNaN(d.getTime())) {
-                d = new Date(dateStr.replace(/-/g, '/'));
-            }
-
+            if (isNaN(d.getTime())) d = new Date("01 " + dateStr);
+            if (isNaN(d.getTime())) d = new Date(dateStr.replace(/-/g, '/'));
             return isNaN(d.getTime()) ? null : d;
         }
 
@@ -441,7 +484,6 @@
             return monthsDiff >= -2 && monthsDiff <= 3; 
         }
 
-        // 🔥 SMART ERROR CATCHER LOAD DATA 🔥
         async function loadData() {
             const statusMsg = document.getElementById('status-msg'); const loadingBar = document.getElementById('loading-bar');
             loadingBar.style.width = '30%'; statusMsg.style.display = 'block';
@@ -451,18 +493,11 @@
                 loadingBar.style.width = '70%'; 
                 
                 if (!response.ok) throw new Error("Network response failed");
-                
                 const textData = await response.text();
-                try {
-                    allItems = JSON.parse(textData);
-                } catch(e) {
-                    throw new Error("Sheet returned Error Page instead of JSON data. Check Apps Script code and 'Anyone' permission!");
-                }
+                try { allItems = JSON.parse(textData); } 
+                catch(e) { throw new Error("Sheet returned Error Page instead of JSON data."); }
 
-                if(!Array.isArray(allItems) && allItems.error) {
-                    throw new Error("Apps Script Error: " + allItems.error);
-                }
-                
+                if(!Array.isArray(allItems) && allItems.error) throw new Error("Apps Script Error: " + allItems.error);
                 if(!allItems || allItems.length === 0) { statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: #64748b; margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:#94a3b8;">Your Google Sheet is empty or loading failed.</p></div>`; loadingBar.style.width = '100%'; return; }
                 
                 setupAppUI(); applyFilters();
@@ -470,15 +505,13 @@
             } catch (error) { 
                 console.error(error);
                 statusMsg.innerHTML = `<div style="padding:20px; text-align:center; color:#e74c3c;"><b>⚠️ Error:</b><br>${error.message}</div>`; 
-                loadingBar.style.width = '100%'; 
-                loadingBar.style.backgroundColor = '#e74c3c';
+                loadingBar.style.width = '100%'; loadingBar.style.backgroundColor = '#e74c3c';
             }
         }
 
         function setupAppUI() {
             const sidebar = document.getElementById('category-sidebar');
             const uniqueCats = [...new Set(allItems.map(item => item.category || 'More Favorites').filter(c => c))];
-            
             const categories = ['New Arrivals', 'All Items', ...uniqueCats];
             
             categories.forEach(cat => {
@@ -488,7 +521,6 @@
                 else if (lCat === 'all items') { iconHTML = '🍨'; name = 'All Items'; } 
                 else {
                     if(lCat.includes('family')||lCat.includes('pack')) iconHTML = '📦';
-                    // 🔥 CUSTOM TUB IMAGE 🔥
                     else if(lCat.includes('tub')) iconHTML = '<img src="https://i.postimg.cc/ydZk4TbJ/1012418_1.png" style="width: 24px; height: 24px; object-fit: contain;">';
                     else if(lCat.includes('cone')) iconHTML = '🍦'; 
                     else if(lCat.includes('stick')||lCat.includes('bar')) iconHTML = '🍡'; 
@@ -544,12 +576,12 @@
         function getDiscount(item) { let m = parseFloat(item.mrp); let p = parseFloat(item.price); if (m && !isNaN(m) && m > p) return ((m - p) / m) * 100; return 0; }
         function extractVolumeText(name) { const match = name.match(/(\d+\s*(ml|l|ltr|gm|g|kg))/i); return match ? match[0] : ''; }
 
+        // 🔥 SMART SEARCH & FILTERS 🔥
         function applyFilters() {
             const gridWrapper = document.getElementById('main-menu-grid'); const statusMsg = document.getElementById('status-msg');
             const searchTerm = document.getElementById('search-bar').value.toLowerCase().trim(); 
             const sortValue = document.getElementById('sort-dropdown').value;
             
-            // 🔥 SMART SEARCH: Type kiye hue text ko alag-alag words mein todna 🔥
             const searchWords = searchTerm.split(/\s+/).filter(w => w.length > 0);
 
             let filteredItems = allItems.filter(item => {
@@ -562,11 +594,9 @@
                                       
                 if (searchTerm !== '') matchesCategory = true;
                 
-                // 🔥 SMART SEARCH LOGIC: Check karna ki saare words item ke naam mein hain ya nahi 🔥
                 let matchesSearch = true;
                 if (searchWords.length > 0) {
                     let textToSearch = (item.name || '').toLowerCase();
-                    // Har ek word search text mein hona chahiye, chahe kisi bhi order mein ho
                     matchesSearch = searchWords.every(word => textToSearch.includes(word));
                 }
 
@@ -814,7 +844,6 @@
                 if (window.globalUser && window.globalUserData && window.globalUserData.address) {
                     message += `\n*Delivery Details:*\nName: ${window.globalUserData.name}\nAddress: ${window.globalUserData.address}\nPhone: ${window.globalUser.phoneNumber}\n`;
                     
-                    // Fixed logic: send to DB but do NOT wait, so mobile Safari doesn't block WhatsApp
                     addDoc(collection(db, "orders"), { userId: window.globalUser.uid, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() }).then(() => {
                         loadPastOrders(window.globalUser.uid);
                     });
@@ -824,7 +853,6 @@
 
                 message += `\n*Total Amount: ₹${total}*\n\n_Please confirm my order._`;
                 
-                // Fixed redirect for Mobile WhatsApp
                 window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
             }
         };
