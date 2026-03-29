@@ -358,10 +358,9 @@
 
         function protectImages(e) { if (e.target.tagName === 'IMG' || e.target.tagName === 'svg') { e.preventDefault(); return false; } return true; }
 
-   // 🟢 HELPER: Get Launch Date from Data (SAFARI PROOF)
+        // 🟢 HELPER: Get Launch Date from Data (SAFARI PROOF)
         function getLaunchDate(item) {
             let dateStr = null;
-            // कॉलम ढूँढने का सबसे पक्का तरीका
             for (let key in item) {
                 let cleanKey = String(key).toLowerCase().replace(/[^a-z0-9]/g, '');
                 if (cleanKey.includes('launch') || cleanKey.includes('year') || cleanKey.includes('date')) {
@@ -371,7 +370,7 @@
             if (!dateStr || String(dateStr).trim() === '') return null;
             
             let cleanDateStr = String(dateStr).trim();
-            // 🔥 iPhone/Safari Fix: "February 2026" को "01 February 2026" में बदलना
+            // iPhone/Safari Fix: "February 2026" to "01 February 2026"
             if (/^[a-zA-Z]+\s+\d{4}$/.test(cleanDateStr)) {
                 cleanDateStr = "01 " + cleanDateStr; 
             }
@@ -394,7 +393,7 @@
             const statusMsg = document.getElementById('status-msg'); const loadingBar = document.getElementById('loading-bar');
             loadingBar.style.width = '30%'; statusMsg.style.display = 'block';
             try {
-                // 🔥 Anti-Cache Fix: हर बार ताज़ा डेटा लाने के लिए URL में Time जोड़ दिया
+                // Anti-Cache Fix: fetch fresh data every time
                 const noCacheUrl = googleSheetUrl + "?t=" + new Date().getTime();
                 const response = await fetch(noCacheUrl); 
                 loadingBar.style.width = '70%'; 
@@ -405,22 +404,11 @@
                 loadingBar.style.width = '100%'; setTimeout(() => { loadingBar.style.opacity = '0'; statusMsg.style.display='none'; }, 500);
             } catch (error) { statusMsg.innerText = "Error fetching menu data."; loadingBar.style.width = '100%'; }
         }
-        async function loadData() {
-            const statusMsg = document.getElementById('status-msg'); const loadingBar = document.getElementById('loading-bar');
-            loadingBar.style.width = '30%'; statusMsg.style.display = 'block';
-            try {
-                const response = await fetch(googleSheetUrl); loadingBar.style.width = '70%'; allItems = await response.json();
-                if(!allItems || allItems.length === 0) { statusMsg.innerText = "No items found."; loadingBar.style.width = '100%'; return; }
-                setupAppUI(); applyFilters();
-                loadingBar.style.width = '100%'; setTimeout(() => { loadingBar.style.opacity = '0'; statusMsg.style.display='none'; }, 500);
-            } catch (error) { statusMsg.innerText = "Error fetching menu data."; loadingBar.style.width = '100%'; }
-        }
 
         function setupAppUI() {
             const sidebar = document.getElementById('category-sidebar');
             const uniqueCats = [...new Set(allItems.map(item => item.category || 'More Favorites').filter(c => c))];
             
-            // 🔥 Replace Bestseller with New Arrivals
             const categories = ['New Arrivals', 'All Items', ...uniqueCats];
             
             categories.forEach(cat => {
@@ -456,7 +444,6 @@
             currentCategory = categoryName; const container = document.getElementById('category-sidebar');
             document.querySelectorAll('.cat-item').forEach(btn => {
                 const name = btn.querySelector('.cat-name').innerText.trim();
-                // Match New Arrivals or exact category
                 if (name.toLowerCase() === categoryName.toLowerCase() || (categoryName.includes('New') && name.includes('New'))) {
                     btn.classList.add('active');
                     if (window.innerWidth <= 800) { const scrollPos = btn.offsetLeft - (container.clientWidth / 2) + (btn.clientWidth / 2); container.scrollTo({ left: scrollPos, behavior: 'smooth' }); }
@@ -476,7 +463,6 @@
                 } else btn.classList.remove('active');
             });
             
-            // Redirect to All Items if filtering by brand in New Arrivals and none exist
             if (currentCategory.includes('New') && brandName !== 'All Brands') {
                 if (!allItems.some(i => i.brand === brandName && isNewArrival(i))) { setCategory('All Items'); return; }
             }
@@ -491,7 +477,6 @@
             const gridWrapper = document.getElementById('main-menu-grid'); const statusMsg = document.getElementById('status-msg');
             const searchTerm = document.getElementById('search-bar').value.toLowerCase(); const sortValue = document.getElementById('sort-dropdown').value;
 
-            // 🔥 Filter Logic: Inject New Arrivals rules
             let filteredItems = allItems.filter(item => {
                 const isAvailable = String(item.available).toLowerCase() === 'yes' || item.available === true;
                 const matchesBrand = currentBrand === 'All Brands' || item.brand === currentBrand;
@@ -504,15 +489,13 @@
                 return isAvailable && matchesBrand && matchesCategory && item.name.toLowerCase().includes(searchTerm);
             });
 
-            // 🔥 Custom Sort for New Arrivals (Newest to Oldest)
             if (currentCategory === 'New Arrivals' && sortValue === 'default') {
                 filteredItems.sort((a, b) => {
                     let dateA = getLaunchDate(a) || new Date(0);
                     let dateB = getLaunchDate(b) || new Date(0);
-                    return dateB - dateA; // Descending Date
+                    return dateB - dateA;
                 });
             } else {
-                // Regular Sorting
                 if (sortValue === 'low-high') filteredItems.sort((a, b) => a.price - b.price); 
                 else if (sortValue === 'high-low') filteredItems.sort((a, b) => b.price - a.price); 
                 else if (sortValue === 'vol-low-high') filteredItems.sort((a, b) => getVolume(a.name) - getVolume(b.name)); 
@@ -534,7 +517,6 @@
                 let discountNum = getDiscount(item);
                 let priceHTML = discountNum > 0 ? `<div class="price-row"><span class="item-price">₹${item.price}</span><span class="item-mrp">₹${item.mrp}</span></div>` : `<div class="price-row"><span class="item-price">₹${item.price}</span></div>`;
                 
-                // 🔥 Inject New Arrival Badge instead of Bestseller
                 newHTML += `
                     <div class="menu-card">
                         <div class="card-img-wrapper skeleton-bg">
@@ -746,7 +728,6 @@
                 if (window.globalUser && window.globalUserData && window.globalUserData.address) {
                     message += `\n*Delivery Details:*\nName: ${window.globalUserData.name}\nAddress: ${window.globalUserData.address}\nPhone: ${window.globalUser.phoneNumber}\n`;
                     
-                    // Fixed logic: send to DB but do NOT wait, so mobile Safari doesn't block WhatsApp
                     addDoc(collection(db, "orders"), { userId: window.globalUser.uid, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() }).then(() => {
                         loadPastOrders(window.globalUser.uid);
                     });
@@ -756,7 +737,6 @@
 
                 message += `\n*Total Amount: ₹${total}*\n\n_Please confirm my order._`;
                 
-                // Fixed redirect for Mobile WhatsApp
                 window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
             }
         };
