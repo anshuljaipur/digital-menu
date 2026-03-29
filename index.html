@@ -330,6 +330,7 @@
     </div>
 
     <script>
+        // 🔥 PERFECT NEW GOOGLE SHEET URL 🔥
         const googleSheetUrl = "https://script.google.com/macros/s/AKfycbyD7MonnbDvCURuKWTJ7D0gZlx-JPYVQ6XpL_8tW1i_I1MEFve_ioTumGy5TbaDYig/exec"; 
         const WHATSAPP_NUMBER = "919829610570"; 
         
@@ -345,7 +346,7 @@
             "gianis": "https://i.postimg.cc/L6kw6Gr2/lgo-gianis.png",
             "havmor": "https://i.postimg.cc/KvD45HhZ/logo_havmor.png",
             "hocco": "https://i.postimg.cc/CLsd4Qph/hocco_logo.png",
-            "frubon": "https://via.placeholder.com/100/333/fff?text=FR"
+            "frubon": "https://i.postimg.cc/0y5Q0rM3/logo_fb.png"
         };
 
         function getBrandLogo(brandName) {
@@ -358,30 +359,48 @@
 
         function protectImages(e) { if (e.target.tagName === 'IMG' || e.target.tagName === 'svg') { e.preventDefault(); return false; } return true; }
 
-        // 🟢 HELPER: Get Launch Date from Data
         function getLaunchDate(item) {
-            let dateStr = item['launching year'] || item.launchingYear || item.launching_year || item.launchDate || item['launch date'];
+            let dateStr = null;
+            for (let key in item) {
+                let cleanKey = String(key).toLowerCase().replace(/[^a-z0-9]/g, '');
+                if (cleanKey.includes('launch') || cleanKey.includes('year') || cleanKey.includes('date')) {
+                    if (item[key] && String(item[key]).trim() !== '') { 
+                        dateStr = String(item[key]).trim(); 
+                        break; 
+                    }
+                }
+            }
             if (!dateStr) return null;
+            
             let d = new Date(dateStr);
-            return isNaN(d) ? null : d;
+            
+            if (isNaN(d.getTime())) {
+                d = new Date("01 " + dateStr);
+            }
+            if (isNaN(d.getTime())) {
+                d = new Date(dateStr.replace(/-/g, '/'));
+            }
+
+            return isNaN(d.getTime()) ? null : d;
         }
 
-        // 🟢 HELPER: Check if item is launched in last 3 months
         function isNewArrival(item) {
             let launchDate = getLaunchDate(item);
             if (!launchDate) return false;
             let now = new Date();
-            // Calculate difference in months
             let monthsDiff = (now.getFullYear() - launchDate.getFullYear()) * 12 + (now.getMonth() - launchDate.getMonth());
-            // Included if launched in the current month (0) or up to 3 months ago (1, 2, 3)
-            return monthsDiff >= 0 && monthsDiff <= 3; 
+            return monthsDiff >= -2 && monthsDiff <= 3; 
         }
 
         async function loadData() {
             const statusMsg = document.getElementById('status-msg'); const loadingBar = document.getElementById('loading-bar');
             loadingBar.style.width = '30%'; statusMsg.style.display = 'block';
             try {
-                const response = await fetch(googleSheetUrl); loadingBar.style.width = '70%'; allItems = await response.json();
+                const noCacheUrl = googleSheetUrl + "?t=" + new Date().getTime();
+                const response = await fetch(noCacheUrl); 
+                loadingBar.style.width = '70%'; 
+                allItems = await response.json();
+                
                 if(!allItems || allItems.length === 0) { statusMsg.innerText = "No items found."; loadingBar.style.width = '100%'; return; }
                 setupAppUI(); applyFilters();
                 loadingBar.style.width = '100%'; setTimeout(() => { loadingBar.style.opacity = '0'; statusMsg.style.display='none'; }, 500);
@@ -392,7 +411,6 @@
             const sidebar = document.getElementById('category-sidebar');
             const uniqueCats = [...new Set(allItems.map(item => item.category || 'More Favorites').filter(c => c))];
             
-            // 🔥 Replace Bestseller with New Arrivals
             const categories = ['New Arrivals', 'All Items', ...uniqueCats];
             
             categories.forEach(cat => {
@@ -428,7 +446,6 @@
             currentCategory = categoryName; const container = document.getElementById('category-sidebar');
             document.querySelectorAll('.cat-item').forEach(btn => {
                 const name = btn.querySelector('.cat-name').innerText.trim();
-                // Match New Arrivals or exact category
                 if (name.toLowerCase() === categoryName.toLowerCase() || (categoryName.includes('New') && name.includes('New'))) {
                     btn.classList.add('active');
                     if (window.innerWidth <= 800) { const scrollPos = btn.offsetLeft - (container.clientWidth / 2) + (btn.clientWidth / 2); container.scrollTo({ left: scrollPos, behavior: 'smooth' }); }
@@ -448,7 +465,6 @@
                 } else btn.classList.remove('active');
             });
             
-            // Redirect to All Items if filtering by brand in New Arrivals and none exist
             if (currentCategory.includes('New') && brandName !== 'All Brands') {
                 if (!allItems.some(i => i.brand === brandName && isNewArrival(i))) { setCategory('All Items'); return; }
             }
@@ -463,7 +479,6 @@
             const gridWrapper = document.getElementById('main-menu-grid'); const statusMsg = document.getElementById('status-msg');
             const searchTerm = document.getElementById('search-bar').value.toLowerCase(); const sortValue = document.getElementById('sort-dropdown').value;
 
-            // 🔥 Filter Logic: Inject New Arrivals rules
             let filteredItems = allItems.filter(item => {
                 const isAvailable = String(item.available).toLowerCase() === 'yes' || item.available === true;
                 const matchesBrand = currentBrand === 'All Brands' || item.brand === currentBrand;
@@ -476,15 +491,13 @@
                 return isAvailable && matchesBrand && matchesCategory && item.name.toLowerCase().includes(searchTerm);
             });
 
-            // 🔥 Custom Sort for New Arrivals (Newest to Oldest)
             if (currentCategory === 'New Arrivals' && sortValue === 'default') {
                 filteredItems.sort((a, b) => {
                     let dateA = getLaunchDate(a) || new Date(0);
                     let dateB = getLaunchDate(b) || new Date(0);
-                    return dateB - dateA; // Descending Date
+                    return dateB - dateA;
                 });
             } else {
-                // Regular Sorting
                 if (sortValue === 'low-high') filteredItems.sort((a, b) => a.price - b.price); 
                 else if (sortValue === 'high-low') filteredItems.sort((a, b) => b.price - a.price); 
                 else if (sortValue === 'vol-low-high') filteredItems.sort((a, b) => getVolume(a.name) - getVolume(b.name)); 
@@ -506,7 +519,6 @@
                 let discountNum = getDiscount(item);
                 let priceHTML = discountNum > 0 ? `<div class="price-row"><span class="item-price">₹${item.price}</span><span class="item-mrp">₹${item.mrp}</span></div>` : `<div class="price-row"><span class="item-price">₹${item.price}</span></div>`;
                 
-                // 🔥 Inject New Arrival Badge instead of Bestseller
                 newHTML += `
                     <div class="menu-card">
                         <div class="card-img-wrapper skeleton-bg">
@@ -718,7 +730,6 @@
                 if (window.globalUser && window.globalUserData && window.globalUserData.address) {
                     message += `\n*Delivery Details:*\nName: ${window.globalUserData.name}\nAddress: ${window.globalUserData.address}\nPhone: ${window.globalUser.phoneNumber}\n`;
                     
-                    // Fixed logic: send to DB but do NOT wait, so mobile Safari doesn't block WhatsApp
                     addDoc(collection(db, "orders"), { userId: window.globalUser.uid, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() }).then(() => {
                         loadPastOrders(window.globalUser.uid);
                     });
@@ -728,7 +739,6 @@
 
                 message += `\n*Total Amount: ₹${total}*\n\n_Please confirm my order._`;
                 
-                // Fixed redirect for Mobile WhatsApp
                 window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
             }
         };
