@@ -177,6 +177,7 @@
         @media (max-width: 800px) {
             header { padding: 10px 15px; height: 60px; }
             .header-logo { height: 40px; }
+            .header-notice { font-size: 0.6em; margin: 0 8px; }
             .hide-mobile-text { display: none; }
             .main-layout { flex-direction: column; }
             .sidebar { width: 100%; border-right: none; border-bottom: 1px solid #f0f0f0; flex-direction: row; padding: 12px 15px; align-items: center; }
@@ -207,14 +208,28 @@
             @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         }
         @media print { body { display: none !important; } }
+
+        /* 🔴 HEADER MARQUEE NOTICE 🔴 */
+        .header-notice {
+            flex: 1;
+            margin: 0 20px;
+            color: var(--active-brand-red);
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
     </style>
 </head>
 <body oncontextmenu="return protectImages(event)">
 
     <div id="loading-bar"></div>
 
-    <header>
+   <header>
         <img src="https://i.postimg.cc/pV8FwNvw/logo_glacier.png" alt="Glacier Ice Cream Logo" class="header-logo">
+        
+        <marquee class="header-notice" scrollamount="5">Volume / MRP subject to change. For the final MRP, please refer to the actual product packaging.</marquee>
+
         <div class="header-actions">
             <button class="action-btn btn-profile" onclick="handleProfileClick()" id="nav-profile-btn">
                 👤 <span class="hide-mobile-text" id="nav-profile-text">Login</span>
