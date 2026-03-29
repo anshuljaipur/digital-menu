@@ -330,13 +330,11 @@
     </div>
 
     <script>
-        // 🔥 NEW GOOGLE SHEET URL 🔥
         const googleSheetUrl = "https://script.google.com/macros/s/AKfycbxik9kgy4xQjzxO5RCTnn5x2TmgxEfbAFVkrnz5vc6n15ksulHd9PS-poUq3S6Pz98/exec"; 
         const WHATSAPP_NUMBER = "919829610570"; 
         
         let allItems = []; let currentCategory = 'All Items'; let currentBrand = 'All Brands'; let cart = {}; 
 
-        // 🔥 BRAND LOGOS WITH FRUBON 🔥
         const brandImageLinks = {
             "baskin robbins": "https://i.postimg.cc/j5FTdyfz/brlogo.png",
             "london dairy": "https://i.postimg.cc/jdtSC4nV/LD-logo.png",
@@ -360,28 +358,36 @@
 
         function protectImages(e) { if (e.target.tagName === 'IMG' || e.target.tagName === 'svg') { e.preventDefault(); return false; } return true; }
 
-        // 🟢 HELPER: Get Launch Date from Data (SAFARI PROOF)
+        // 🟢 SUPER ROBUST DATE PARSER (NO REGEX FAILURE)
         function getLaunchDate(item) {
             let dateStr = null;
             for (let key in item) {
                 let cleanKey = String(key).toLowerCase().replace(/[^a-z0-9]/g, '');
                 if (cleanKey.includes('launch') || cleanKey.includes('year') || cleanKey.includes('date')) {
-                    if (item[key]) { dateStr = item[key]; break; }
+                    if (item[key] && String(item[key]).trim() !== '') { 
+                        dateStr = String(item[key]).trim(); 
+                        break; 
+                    }
                 }
             }
-            if (!dateStr || String(dateStr).trim() === '') return null;
+            if (!dateStr) return null;
             
-            let cleanDateStr = String(dateStr).trim();
-            // iPhone/Safari Fix: "February 2026" to "01 February 2026"
-            if (/^[a-zA-Z]+\s+\d{4}$/.test(cleanDateStr)) {
-                cleanDateStr = "01 " + cleanDateStr; 
+            // Try standard parsing
+            let d = new Date(dateStr);
+            
+            // If Safari fails (e.g. "February 2026"), force add "01 " to start
+            if (isNaN(d.getTime())) {
+                d = new Date("01 " + dateStr);
             }
             
-            let d = new Date(cleanDateStr);
+            // If still fails, last resort check
+            if (isNaN(d.getTime())) {
+                d = new Date(dateStr.replace(/-/g, '/'));
+            }
+
             return isNaN(d.getTime()) ? null : d;
         }
 
-        // 🟢 HELPER: Check if item is launched in last 3 months
         function isNewArrival(item) {
             let launchDate = getLaunchDate(item);
             if (!launchDate) return false;
@@ -390,12 +396,11 @@
             return monthsDiff >= -2 && monthsDiff <= 3; 
         }
 
-        // 🟢 HELPER: Load Data (CACHE PROOF)
         async function loadData() {
             const statusMsg = document.getElementById('status-msg'); const loadingBar = document.getElementById('loading-bar');
             loadingBar.style.width = '30%'; statusMsg.style.display = 'block';
             try {
-                // Anti-Cache Fix: fetch fresh data every time
+                // 🟢 ANTI-CACHE FIX: Forces browser to pull fresh data
                 const noCacheUrl = googleSheetUrl + "?t=" + new Date().getTime();
                 const response = await fetch(noCacheUrl); 
                 loadingBar.style.width = '70%'; 
