@@ -102,7 +102,7 @@
         .menu-card { background: var(--card-bg); border-radius: 16px; border: 1px solid #f1f5f9; display: flex; flex-direction: column; position: relative; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s; height: 100%; box-sizing: border-box;}
         .menu-card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.08); transform: translateY(-3px); }
         
-        .card-img-wrapper { position: relative; background: transparent; border-radius: 12px; height: 160px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; flex-shrink: 0;}
+        .card-img-wrapper { position: relative; background: transparent; border-radius: 12px; height: 160px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; flex-shrink: 0; cursor: pointer;}
         .card-img-wrapper img { width: 90%; height: 90%; object-fit: contain; mix-blend-mode: multiply; }
         
         .new-badge { position: absolute; top: -5px; left: -5px; background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; font-size: 0.6em; font-weight: 800; padding: 4px 10px; border-radius: 8px; z-index: 3; box-shadow: 0 2px 6px rgba(142,68,173,0.3); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -193,6 +193,15 @@
         .modal-tab-content { display: none; }
         .modal-tab-content.active { display: flex; flex-direction: column; }
 
+        /* 🌟 PRODUCT DETAIL MODAL CSS 🌟 */
+        #pd-modal-img { width: 100%; height: 220px; object-fit: contain; mix-blend-mode: multiply; margin-bottom: 20px; }
+        .pd-modal-brand-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .pd-brand-icon { width: 40px; height: 40px; border-radius: 50%; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .pd-brand-icon img, .pd-brand-icon svg { width: 100%; height: 100%; object-fit: cover; }
+        .pd-brand-name { font-weight: 700; color: #64748b; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; }
+        #pd-modal-name { font-size: 1.4em; font-weight: 800; color: #1e293b; margin: 0 0 8px 0; line-height: 1.3; }
+        #pd-modal-volume { font-size: 0.9em; color: #64748b; font-weight: 500; margin-bottom: 20px; }
+        .pd-bottom-row { display: flex; justify-content: space-between; align-items: center; border-top: 2px solid #f1f5f9; padding-top: 20px; margin-top: auto; }
 
         /* 📱 🔥 MOBILE UI FIXES (NO HORIZONTAL DRAG) 🔥 📱 */
         @media (max-width: 800px) {
@@ -280,6 +289,9 @@
             .banner-items { font-size: 0.75em; }
             .banner-price { font-size: 1.2em; }
             .banner-right { font-size: 1em; }
+
+            #pd-modal-img { height: 180px; }
+            #pd-modal-name { font-size: 1.2em; }
         }
 
         /* Adjustments for very small phones (e.g. iPhone SE) */
@@ -357,6 +369,28 @@
             <span class="banner-price">₹<span id="banner-total">0</span></span>
         </div>
         <div class="banner-right">View Cart ➔</div>
+    </div>
+
+    <div id="product-detail-modal" class="custom-modal">
+        <div class="modal-content-box" style="padding-bottom: 25px;">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: -10px;">
+                <div class="close-modal-icon" onclick="closeProductDetailModal()">×</div>
+            </div>
+            <img id="pd-modal-img" src="" alt="Ice Cream">
+            
+            <div class="pd-modal-brand-row">
+                <div class="pd-brand-icon" id="pd-modal-brand-logo"></div>
+                <div class="pd-brand-name" id="pd-modal-brand-name"></div>
+            </div>
+            
+            <h2 id="pd-modal-name">Product Name</h2>
+            <div id="pd-modal-volume">500ml</div>
+            
+            <div class="pd-bottom-row">
+                <div id="pd-modal-price-wrap" class="price-row"></div>
+                <div id="pd-modal-btn-wrap"></div>
+            </div>
+        </div>
     </div>
 
     <div id="cart-modal" class="custom-modal">
@@ -442,36 +476,19 @@
         let allItems = []; let currentCategory = 'All Items'; let currentBrand = 'All Brands'; let currentTagFilter = 'All'; let cart = {}; 
 
         // 🌟 Auto-Hide Search Bar Logic Updated (Hides completely) 🌟
-
         let lastScrollY = 0;
-        let scrollUpStart = 0; // यह ट्रैक करेगा कि कस्टमर ने ऊपर स्क्रॉल करना कहाँ से शुरू किया
-
         document.getElementById('products-area').addEventListener('scroll', function() {
             const controlsBar = document.querySelector('.controls-bar');
-            
             if (window.innerWidth <= 800) {
                 let currentScrollY = this.scrollTop;
-
-                if (currentScrollY > lastScrollY) {
-                    // ⬇️ जब कस्टमर नीचे (DOWN) स्क्रॉल कर रहा हो
-                    if (currentScrollY > 60) {
-                        controlsBar.style.top = '-160px'; // सर्च बार छुपा दें
-                    }
-                    // जैसे ही नीचे स्क्रॉल हो, ऊपर स्क्रॉल नापने वाले मीटर को रीसेट कर दें
-                    scrollUpStart = currentScrollY; 
+                if (currentScrollY > lastScrollY && currentScrollY > 60) {
+                    controlsBar.style.top = '-160px'; 
                 } else {
-                    // ⬆️ जब कस्टमर वापस ऊपर (UP) स्क्रॉल कर रहा हो
-                    let scrolledUpAmount = scrollUpStart - currentScrollY;
-                    
-                    // 1 Mobile Row लगभग 170px की है। 2 Row = ~340px
-                    // सर्च बार केवल तभी दिखेगा जब कस्टमर 350px ऊपर आ चुका हो, या फिर वो एकदम टॉप पर पहुँच गया हो
-                    if (scrolledUpAmount > 350 || currentScrollY < 60) {
-                        controlsBar.style.top = '0'; // सर्च बार वापस दिखा दें
-                    }
+                    controlsBar.style.top = '0'; 
                 }
                 lastScrollY = currentScrollY;
             } else {
-                controlsBar.style.top = '0'; // डेस्कटॉप पर हमेशा दिखेगा
+                controlsBar.style.top = '0'; 
             }
         });
 
@@ -722,7 +739,7 @@
 
                 newHTML += `
                     <div class="menu-card">
-                        <div class="card-img-wrapper skeleton-bg">
+                        <div class="card-img-wrapper skeleton-bg" onclick="openProductDetail('${item.name.replace(/'/g, "\\'")}')">
                             ${isNewArrival(item) ? `<div class="new-badge">✨ NEW</div>` : ''}
                             ${discountNum > 0 ? `<div class="red-discount-icon">⬇</div>` : ''}
                             <img src="${item.img}" referrerpolicy="no-referrer" loading="lazy" style="opacity: 0; transition: opacity 0.4s ease;" onload="this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';" onerror="this.onerror=null; this.src='https://placehold.co/300x220/f4f6f9/a0a0a0?text=No+Image'; this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';">
@@ -739,6 +756,39 @@
             gridWrapper.innerHTML = newHTML; updateAddButtons();
         }
 
+        // 🌟 PRODUCT DETAIL MODAL FUNCTIONS 🌟
+        window.openProductDetail = (itemName) => {
+            const item = allItems.find(i => i.name === itemName);
+            if(!item) return;
+
+            const volText = extractVolumeText(item.name);
+            const displayName = item.name.replace(volText, '').trim() || item.name;
+            const discountNum = getDiscount(item);
+
+            document.getElementById('pd-modal-img').src = item.img;
+            document.getElementById('pd-modal-brand-logo').innerHTML = getBrandLogo(item.brand);
+            document.getElementById('pd-modal-brand-name').innerText = item.brand;
+            document.getElementById('pd-modal-name').innerText = item.name; // Full Name un-cut
+            document.getElementById('pd-modal-volume').innerText = volText || '';
+
+            let priceHTML = discountNum > 0 ? `<span class="item-price">₹${item.price}</span> <span class="item-mrp" style="text-decoration:line-through; color:#94a3b8; font-size:0.8em; margin-left:5px;">₹${item.mrp}</span>` : `<span class="item-price">₹${item.price}</span>`;
+            document.getElementById('pd-modal-price-wrap').innerHTML = priceHTML;
+
+            const safeName = item.name.replace(/[^a-zA-Z0-9]/g, '_');
+            const btnWrap = document.getElementById('pd-modal-btn-wrap');
+            if (cart[item.name]) {
+                btnWrap.innerHTML = `<div class="app-qty-control" style="height:40px; width:100px; font-size:1.1em;"><button onclick="changeQty('${item.name.replace(/'/g, "\\'")}', -1)">−</button><span>${cart[item.name].qty}</span><button onclick="changeQty('${item.name.replace(/'/g, "\\'")}', 1)">+</button></div>`;
+            } else {
+                btnWrap.innerHTML = `<div class="app-add-btn" style="height:40px; border-radius:10px; width:auto; padding:0 20px; font-size:1em; font-weight:bold;" onclick="addToCart('${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.brand ? item.brand.replace(/'/g, "\\'") : ''}')">+ ADD</div>`;
+            }
+
+            document.getElementById('product-detail-modal').style.display = 'flex';
+        }
+
+        window.closeProductDetailModal = () => {
+            document.getElementById('product-detail-modal').style.display = 'none';
+        }
+
         function updateAddButtons() {
             allItems.forEach(item => {
                 if(!item.name) return;
@@ -750,8 +800,21 @@
             });
         }
 
-        function addToCart(name, price, brand) { if(cart[name]) cart[name].qty += 1; else cart[name] = { price: price, qty: 1, brand: brand }; updateCartUI(); }
-        function changeQty(name, delta) { if(cart[name]) { cart[name].qty += delta; if(cart[name].qty <= 0) delete cart[name]; updateCartUI(); } }
+        function addToCart(name, price, brand) { 
+            if(cart[name]) cart[name].qty += 1; 
+            else cart[name] = { price: price, qty: 1, brand: brand }; 
+            updateCartUI(); 
+            if(document.getElementById('product-detail-modal').style.display === 'flex') openProductDetail(name);
+        }
+
+        function changeQty(name, delta) { 
+            if(cart[name]) { 
+                cart[name].qty += delta; 
+                if(cart[name].qty <= 0) delete cart[name]; 
+                updateCartUI(); 
+                if(document.getElementById('product-detail-modal').style.display === 'flex') openProductDetail(name);
+            } 
+        }
 
         function updateCartUI() {
             const cartList = document.getElementById('cart-items-list'); const cartBanner = document.getElementById('bottom-cart-banner');
