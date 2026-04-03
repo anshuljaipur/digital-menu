@@ -29,9 +29,6 @@
 
         #loading-bar { position: fixed; top: 0; left: 0; height: 4px; background-color: var(--glacier-blue); width: 0%; z-index: 9999; transition: width 0.3s ease, opacity 0.5s ease; box-shadow: 0 2px 5px rgba(31,81,198, 0.5); }
 
-        /* 📢 PREMIUM ANNOUNCEMENT BAR 📢 */
-        .top-announcement { background: #f1f5f9; color: #475569; text-align: center; padding: 6px 15px; font-size: 0.7em; font-weight: 600; letter-spacing: 0.5px; display: flex; justify-content: center; align-items: center; gap: 6px; border-bottom: 1px solid #e2e8f0; width: 100%; box-sizing: border-box; }
-
         /* --- 1. HEADER --- */
         header { background: #fff; padding: 12px 25px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; z-index: 100; flex-shrink: 0; height: 65px; box-sizing: border-box;}
         .header-logo { height: 45px; width: auto; object-fit: contain; }
@@ -51,13 +48,6 @@
         .brand-item.active .brand-icon { border-color: var(--active-brand-red); border-width: 2px; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.15); }
         .brand-item.active .brand-name { color: var(--active-brand-red); }
 
-        /* 🟢 FULL WIDTH SEARCH & SORT BAR (DESKTOP) 🟢 */
-        .controls-bar { width: 100%; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; padding: 12px 25px; z-index: 10; flex-shrink: 0; box-sizing: border-box; }
-        .control-chip { display: flex; align-items: center; background: #f8f9fc; border: 1px solid #e2e8f0; border-radius: 50px; padding: 10px 20px; flex: 1; min-width: 250px; max-width: 450px; transition: 0.2s;}
-        .control-chip:focus-within { border-color: var(--glacier-blue); background: #fff; box-shadow: 0 4px 12px rgba(31,81,198,0.08);}
-        .control-chip input { border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.9em; width: 100%; color: #333; margin-left: 8px;}
-        .control-chip select { border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.9em; font-weight: 600; color: #444; cursor: pointer; width: 100%; margin-left: 8px;}
-
         /* --- 3. MAIN DESKTOP LAYOUT --- */
         .main-layout { display: flex; flex: 1; overflow: hidden; background: var(--main-bg); width: 100%; }
         
@@ -76,6 +66,19 @@
         .content-area::-webkit-scrollbar { width: 8px; }
         .content-area::-webkit-scrollbar-track { background: transparent; }
         .content-area::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        /* 🟢 FULL WIDTH SEARCH & SORT BAR (STICKY & AUTO-HIDE) 🟢 */
+        .controls-bar { 
+            position: sticky; top: 0; z-index: 50;
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e2e8f0; display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; 
+            margin: -20px -30px 20px -30px; padding: 15px 30px; transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .control-chip { display: flex; align-items: center; background: #f8f9fc; border: 1px solid #e2e8f0; border-radius: 50px; padding: 10px 20px; flex: 1; min-width: 250px; max-width: 450px; transition: 0.2s;}
+        .control-chip:focus-within { border-color: var(--glacier-blue); background: #fff; box-shadow: 0 4px 12px rgba(31,81,198,0.08);}
+        .control-chip input { border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.9em; width: 100%; color: #333; margin-left: 8px;}
+        .control-chip select { border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.9em; font-weight: 600; color: #444; cursor: pointer; width: 100%; margin-left: 8px;}
+
 
         /* SECTION HEADER */
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
@@ -111,8 +114,10 @@
 
         #status-msg { margin-top: 50px; text-align: center; font-weight: 500; color: #888; font-size: 1.1em; width: 100%; padding: 0 20px; box-sizing: border-box;}
 
-        /* ⚖️ LEGAL FOOTER ⚖️ */
+        /* ⚖️ LEGAL FOOTER (UPDATED) ⚖️ */
         .legal-footer { text-align: center; font-size: 0.7em; color: #94a3b8; padding: 30px 15px 40px 15px; margin-top: auto; font-weight: 500; border-top: 1px dashed #e2e8f0; }
+        .legal-footer p { margin: 5px 0; }
+        .legal-notice-vol { color: var(--active-brand-red); font-size: 1.1em; font-weight: 700; margin-bottom: 12px !important;}
 
         /* --- STICKY CART BANNER --- */
         #bottom-cart-banner { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 600px; background: #1e293b; color: white; padding: 16px 25px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 1000; cursor: pointer; transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-sizing: border-box; }
@@ -171,9 +176,8 @@
         .modal-tab-content.active { display: flex; flex-direction: column; }
 
 
-        /* 📱 🔥 ULTIMATE MOBILE UI FIXES 🔥 📱 */
+        /* 📱 🔥 ULTIMATE MOBILE APP-LIKE UI 🔥 📱 */
         @media (max-width: 800px) {
-            .top-announcement { font-size: 0.65em; padding: 6px 10px; }
             header { padding: 10px 15px; height: 55px; }
             .header-logo { height: 35px; }
             .hide-mobile-text { display: none; }
@@ -183,80 +187,77 @@
             .brand-icon { width: 55px; height: 55px; }
             .brand-name { font-size: 0.55em; }
 
-            /* 🌟 Premium Sticky Glass Search Bar 🌟 */
-            .controls-bar { 
-                padding: 10px 15px; 
-                gap: 10px; 
-                flex-wrap: nowrap; /* Side-by-side alignment */
-                position: sticky; 
-                top: 0; 
-                z-index: 100; 
-                background: rgba(255, 255, 255, 0.92);
-                backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px);
-                border-bottom: 1px solid #f1f5f9;
-            }
-            .control-chip { padding: 8px 12px; min-width: 0; border-radius: 12px;}
-            .control-chip:first-child { flex: 1.8; } /* Search takes more space */
-            .control-chip:last-child { flex: 1; padding: 8px; } /* Sort takes less */
-            .control-chip input { font-size: 0.85em; }
-            .control-chip select { font-size: 0.8em; padding: 0; }
-
-            .main-layout { flex-direction: column; }
+            .main-layout { flex-direction: row; } /* Keep Side-by-Side */
             
-            /* 🌟 Sleek Horizontal Categories 🌟 */
+            /* 🌟 Left Vertical Narrow Sidebar (Like Swiggy Instamart) 🌟 */
             .sidebar { 
-                width: 100%; 
-                flex-direction: row; 
-                padding: 10px 15px; 
-                align-items: flex-start;
-                border-right: none; 
-                border-bottom: 1px solid #f1f5f9;
+                width: 75px; 
+                flex-direction: column; 
+                padding: 10px 5px; 
+                align-items: center;
+                border-right: 1px solid #f1f5f9; 
+                border-bottom: none;
                 background: #fff;
-                overflow-x: auto;
-                white-space: nowrap;
+                overflow-y: auto;
+                overflow-x: hidden;
+                white-space: normal;
                 -webkit-overflow-scrolling: touch;
             }
             .cat-item { 
                 flex-direction: column; 
-                gap: 6px; 
-                padding: 8px 5px; 
+                gap: 4px; 
+                padding: 10px 2px; 
                 border-radius: 12px; 
-                min-width: 70px;
+                min-width: 0;
+                width: 100%;
                 background: transparent;
             }
             .cat-item.active { background: #f0f4ff; }
-            .cat-icon { font-size: 1.6em; height: 35px; width: 35px; }
-            .cat-name { font-size: 0.65em; }
+            .cat-icon { font-size: 1.5em; height: 30px; width: 30px; }
+            .cat-name { font-size: 0.55em; text-align: center; white-space: normal; line-height: 1.2; word-wrap: break-word; padding: 0 2px;}
 
-            .content-area { padding: 15px; padding-bottom: 90px; }
-            .section-header { margin-bottom: 15px; padding-bottom: 8px; }
-            .section-header h2 { font-size: 1.2em; }
+            .content-area { padding: 10px; padding-bottom: 90px; }
+            
+            /* 🌟 Premium Auto-hide Top Search Bar 🌟 */
+            .controls-bar { 
+                padding: 10px 12px; 
+                gap: 8px; 
+                flex-wrap: nowrap; 
+                margin: -10px -10px 15px -10px; /* Pull into padding */
+            }
+            .control-chip { padding: 8px 10px; min-width: 0; border-radius: 12px;}
+            .control-chip:first-child { flex: 1.8; } 
+            .control-chip:last-child { flex: 1; padding: 8px; } 
+            .control-chip input { font-size: 0.85em; }
+            .control-chip select { font-size: 0.8em; padding: 0; }
+
+            .section-header { margin-bottom: 12px; padding-bottom: 8px; }
+            .section-header h2 { font-size: 1.1em; }
             
             /* 🌟 Perfect 2-Column Grid 🌟 */
             .menu-grid { 
                 grid-template-columns: repeat(2, 1fr); 
-                gap: 12px; 
+                gap: 10px; 
                 padding-bottom: 20px;
             }
             
             /* 🌟 Compact Mobile Cards 🌟 */
-            .menu-card { padding: 10px; border-radius: 14px; }
-            .card-img-wrapper { height: 100px; margin-bottom: 10px; border-radius: 10px; }
-            .new-badge { font-size: 0.55em; padding: 3px 8px; top: -4px; left: -4px; }
-            .red-discount-icon { font-size: 0.6em; padding: 3px 6px; top: -4px; right: -4px; }
+            .menu-card { padding: 8px; border-radius: 12px; }
+            .card-img-wrapper { height: 90px; margin-bottom: 8px; border-radius: 8px; }
+            .new-badge { font-size: 0.5em; padding: 3px 6px; top: -4px; left: -4px; }
+            .red-discount-icon { font-size: 0.55em; padding: 3px 6px; top: -4px; right: -4px; }
             
-            .brand-tag { font-size: 0.55em; margin-bottom: 4px; }
-            .item-name { font-size: 0.85em; min-height: 32px; margin-bottom: 4px; line-height: 1.25;}
-            .item-volume { font-size: 0.75em; margin-bottom: 12px; }
+            .brand-tag { font-size: 0.5em; margin-bottom: 3px; }
+            .item-name { font-size: 0.8em; min-height: 28px; margin-bottom: 4px; line-height: 1.2;}
+            .item-volume { font-size: 0.7em; margin-bottom: 10px; }
             
-            .price-row { gap: 5px; }
-            .item-price { font-size: 1.05em; }
-            .item-mrp { font-size: 0.75em; }
+            .price-row { gap: 4px; }
+            .item-price { font-size: 1em; }
+            .item-mrp { font-size: 0.7em; }
 
-            .btn-container { right: 10px; bottom: 10px; }
-            .app-add-btn { width: 32px; height: 32px; font-size: 1.4em; }
-            .app-qty-control { height: 32px; width: 75px; font-size: 0.9em; padding: 0 5px;}
+            .btn-container { right: 8px; bottom: 8px; }
+            .app-add-btn { width: 30px; height: 30px; font-size: 1.2em; }
+            .app-qty-control { height: 30px; width: 70px; font-size: 0.85em; padding: 0 4px;}
             .app-qty-control button { font-size: 1.1em; padding: 0 4px; }
 
             .custom-modal { align-items: flex-end; }
@@ -279,11 +280,11 @@
 
         /* Adjustments for very small phones (e.g. iPhone SE) */
         @media (max-width: 360px) {
-            .menu-grid { gap: 8px; }
-            .menu-card { padding: 8px; }
-            .app-qty-control { width: 68px; }
-            .item-name { font-size: 0.8em; }
-            .control-chip { padding: 6px 10px; }
+            .menu-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+            .menu-card { padding: 6px; }
+            .app-qty-control { width: 65px; }
+            .item-name { font-size: 0.75em; }
+            .control-chip { padding: 6px 8px; }
         }
 
         @media print { body { display: none !important; } }
@@ -292,10 +293,6 @@
 <body oncontextmenu="return protectImages(event)">
 
     <div id="loading-bar"></div>
-
-    <div class="top-announcement">
-        ℹ️ Volume & MRP subject to change. Please refer to actual packaging for final details.
-    </div>
 
     <header>
         <img src="https://i.postimg.cc/pV8FwNvw/logo_glacier.png" alt="Glacier Ice Cream Logo" class="header-logo">
@@ -309,26 +306,27 @@
 
     <div class="brands-row" id="brands-sidebar"></div>
 
-    <div class="controls-bar">
-        <div class="control-chip">
-            🔍 <input type="text" id="search-bar" placeholder="Search ice creams..." onkeyup="applyFilters()">
-        </div>
-        <div class="control-chip">
-            ↕️ <select id="sort-dropdown" onchange="applyFilters()">
-                <option value="default">Sort by relevance</option>
-                <option value="disc-high-low">Discount: High - Low</option>
-                <option value="low-high">Price: Low - High</option>
-                <option value="high-low">Price: High - Low</option>
-                <option value="vol-low-high">Size: Small - Large</option>
-                <option value="vol-high-low">Size: Large - Small</option>
-            </select>
-        </div>
-    </div>
-
     <div class="main-layout">
         <aside class="sidebar" id="category-sidebar"></aside>
 
         <main class="content-area" id="products-area">
+            
+            <div class="controls-bar">
+                <div class="control-chip">
+                    🔍 <input type="text" id="search-bar" placeholder="Search ice creams..." onkeyup="applyFilters()">
+                </div>
+                <div class="control-chip">
+                    ↕️ <select id="sort-dropdown" onchange="applyFilters()">
+                        <option value="default">Sort by relevance</option>
+                        <option value="disc-high-low">Discount: High - Low</option>
+                        <option value="low-high">Price: Low - High</option>
+                        <option value="high-low">Price: High - Low</option>
+                        <option value="vol-low-high">Size: Small - Large</option>
+                        <option value="vol-high-low">Size: Large - Small</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="section-header">
                 <h2 id="current-category-title">All Items</h2>
                 <span class="section-count" id="item-count">0 items</span>
@@ -339,7 +337,8 @@
             <div class="menu-grid" id="main-menu-grid"></div>
 
             <div class="legal-footer">
-                © 2026 Glacier Ice Cream. All brand logos, names, and trademarks displayed on this menu are the property of their respective owners.
+                <p class="legal-notice-vol">ℹ️ Volume & MRP subject to change. Please refer to actual packaging for final details.</p>
+                <p>© 2026 Glacier Ice Cream. All brand logos, names, and trademarks displayed on this menu are the property of their respective owners.</p>
             </div>
         </main>
     </div>
@@ -433,6 +432,23 @@
         const WHATSAPP_NUMBER = "919829610570"; 
         
         let allItems = []; let currentCategory = 'All Items'; let currentBrand = 'All Brands'; let cart = {}; 
+
+        // 🌟 Auto-Hide Search Bar Logic 🌟
+        let lastScrollY = 0;
+        document.getElementById('products-area').addEventListener('scroll', function() {
+            const controlsBar = document.querySelector('.controls-bar');
+            if (window.innerWidth <= 800) {
+                let currentScrollY = this.scrollTop;
+                if (currentScrollY > lastScrollY && currentScrollY > 60) {
+                    controlsBar.style.top = '-100px'; // Hide on scroll down
+                } else {
+                    controlsBar.style.top = '0'; // Show on scroll up
+                }
+                lastScrollY = currentScrollY;
+            } else {
+                controlsBar.style.top = '0'; // Always show on desktop
+            }
+        });
 
         const brandImageLinks = {
             "baskin robbins": "https://i.postimg.cc/j5FTdyfz/brlogo.png",
@@ -549,7 +565,9 @@
                 const name = btn.querySelector('.cat-name').innerText.trim();
                 if (name.toLowerCase() === categoryName.toLowerCase() || (categoryName.includes('New') && name.includes('New'))) {
                     btn.classList.add('active');
-                    if (window.innerWidth <= 800) { const scrollPos = btn.offsetLeft - (container.clientWidth / 2) + (btn.clientWidth / 2); container.scrollTo({ left: scrollPos, behavior: 'smooth' }); }
+                    // Perfect vertical scrolling logic for both mobile and desktop
+                    const scrollPos = btn.offsetTop - (container.clientHeight / 2) + (btn.clientHeight / 2); 
+                    container.scrollTo({ top: scrollPos, behavior: 'smooth' });
                 } else btn.classList.remove('active');
             });
             document.getElementById('products-area').scrollTop = 0; applyFilters();
