@@ -442,19 +442,36 @@
         let allItems = []; let currentCategory = 'All Items'; let currentBrand = 'All Brands'; let currentTagFilter = 'All'; let cart = {}; 
 
         // 🌟 Auto-Hide Search Bar Logic Updated (Hides completely) 🌟
+
         let lastScrollY = 0;
+        let scrollUpStart = 0; // यह ट्रैक करेगा कि कस्टमर ने ऊपर स्क्रॉल करना कहाँ से शुरू किया
+
         document.getElementById('products-area').addEventListener('scroll', function() {
             const controlsBar = document.querySelector('.controls-bar');
+            
             if (window.innerWidth <= 800) {
                 let currentScrollY = this.scrollTop;
-                if (currentScrollY > lastScrollY && currentScrollY > 60) {
-                    controlsBar.style.top = '-160px'; 
+
+                if (currentScrollY > lastScrollY) {
+                    // ⬇️ जब कस्टमर नीचे (DOWN) स्क्रॉल कर रहा हो
+                    if (currentScrollY > 60) {
+                        controlsBar.style.top = '-160px'; // सर्च बार छुपा दें
+                    }
+                    // जैसे ही नीचे स्क्रॉल हो, ऊपर स्क्रॉल नापने वाले मीटर को रीसेट कर दें
+                    scrollUpStart = currentScrollY; 
                 } else {
-                    controlsBar.style.top = '0'; 
+                    // ⬆️ जब कस्टमर वापस ऊपर (UP) स्क्रॉल कर रहा हो
+                    let scrolledUpAmount = scrollUpStart - currentScrollY;
+                    
+                    // 1 Mobile Row लगभग 170px की है। 2 Row = ~340px
+                    // सर्च बार केवल तभी दिखेगा जब कस्टमर 350px ऊपर आ चुका हो, या फिर वो एकदम टॉप पर पहुँच गया हो
+                    if (scrolledUpAmount > 350 || currentScrollY < 60) {
+                        controlsBar.style.top = '0'; // सर्च बार वापस दिखा दें
+                    }
                 }
                 lastScrollY = currentScrollY;
             } else {
-                controlsBar.style.top = '0'; 
+                controlsBar.style.top = '0'; // डेस्कटॉप पर हमेशा दिखेगा
             }
         });
 
