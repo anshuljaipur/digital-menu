@@ -19,9 +19,27 @@
             --main-bg: #f8f9fc;
         }
 
-        /* 🚨 GLOBAL RESET & LOCK (WITH iOS FIX) 🚨 */
-        html { overflow-x: hidden; width: 100vw; height: -webkit-fill-available; }
-        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: var(--bg-color); color: #333; overflow-x: hidden; width: 100vw; max-width: 100%; height: 100dvh; min-height: -webkit-fill-available; display: flex; flex-direction: column; position: relative; }
+               /* 🚨 GLOBAL RESET & LOCK (ULTIMATE iOS FIX) 🚨 */
+        html, body { 
+            margin: 0; padding: 0; 
+            width: 100vw; max-width: 100%; 
+            height: 100%; height: 100dvh; 
+            overflow: hidden !important; /* 👈 पूरी स्क्रीन को हिलने से रोकेगा */
+            overscroll-behavior: none; /* 👈 iOS Bounce/Pull-down को बंद करेगा */
+            background-color: var(--bg-color); color: #333; 
+            font-family: 'Poppins', sans-serif; 
+            display: flex; flex-direction: column; 
+            position: fixed; /* 👈 Safari के लिए Ultimate Lock */
+            top: 0; left: 0; right: 0; bottom: 0;
+        }
+        img { -webkit-user-drag: none; -khtml-user-drag: none; -moz-user-drag: none; -o-user-drag: none; user-drag: none; -webkit-touch-callout: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; pointer-events: none; }
+        
+        /* 🟢 स्क्रॉलिंग को सिर्फ कंटेंट के अंदर लॉक रखने के लिए 🟢 */
+        .content-area, .sidebar {
+            overscroll-behavior-y: contain; /* अंदर का स्क्रॉल बाहर पूरी स्क्रीन पर नहीं जाने देगा */
+            -webkit-overflow-scrolling: touch; /* iPhone में मक्खन जैसी स्मूथ स्क्रॉलिंग के लिए */
+        }
+
         img { -webkit-user-drag: none; -khtml-user-drag: none; -moz-user-drag: none; -o-user-drag: none; user-drag: none; -webkit-touch-callout: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; pointer-events: none; }
         
         .skeleton-bg { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%) !important; background-size: 200% 100% !important; animation: shimmer 1.5s infinite linear !important; }
