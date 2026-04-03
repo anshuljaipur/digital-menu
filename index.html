@@ -39,7 +39,7 @@
         .btn-profile:hover { background: var(--primary-color); color: white; }
 
         /* --- 2. TOP BRANDS ROW --- */
-        .brands-row { width: 100%; background: #fff; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: center; overflow-x: auto; padding: 15px 20px; gap: 25px; scrollbar-width: none; flex-shrink: 0; z-index: 9; box-sizing: border-box; }
+        .brands-row { width: 100%; background: #fff; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: flex-start; overflow-x: auto; padding: 15px 20px; gap: 25px; scrollbar-width: none; flex-shrink: 0; z-index: 9; box-sizing: border-box; }
         .brands-row::-webkit-scrollbar { display: none; }
         .brand-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; } 
         .brand-icon { width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #eaeaea; transition: 0.2s; background: #fff; padding: 5px; box-sizing: border-box; }
@@ -49,7 +49,7 @@
         .brand-item.active .brand-name { color: var(--active-brand-red); }
 
         /* --- 3. MAIN DESKTOP LAYOUT --- */
-        .main-layout { display: flex; flex: 1; overflow: hidden; background: var(--main-bg); width: 100%; }
+        .main-layout { display: flex; flex: 1; overflow: hidden; background: var(--main-bg); width: 100%; box-sizing: border-box;}
         
         /* LEFT SIDEBAR (CATEGORIES) */
         .sidebar { width: 240px; background: #fff; display: flex; flex-direction: column; overflow-y: auto; padding: 20px 15px; gap: 8px; scrollbar-width: none; border-right: 1px solid #e2e8f0; flex-shrink: 0; box-sizing: border-box; }
@@ -67,18 +67,28 @@
         .content-area::-webkit-scrollbar-track { background: transparent; }
         .content-area::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* 🟢 FULL WIDTH SEARCH & SORT BAR (STICKY & AUTO-HIDE) 🟢 */
+        /* 🟢 AUTO-HIDE SEARCH & SORT BAR 🟢 */
         .controls-bar { 
             position: sticky; top: 0; z-index: 50;
             background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             border-bottom: 1px solid #e2e8f0; display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; 
-            margin: -20px -30px 20px -30px; padding: 15px 30px; transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin: -20px -30px 10px -30px; padding: 15px 30px; transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .control-chip { display: flex; align-items: center; background: #f8f9fc; border: 1px solid #e2e8f0; border-radius: 50px; padding: 10px 20px; flex: 1; min-width: 250px; max-width: 450px; transition: 0.2s;}
         .control-chip:focus-within { border-color: var(--glacier-blue); background: #fff; box-shadow: 0 4px 12px rgba(31,81,198,0.08);}
         .control-chip input { border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.9em; width: 100%; color: #333; margin-left: 8px;}
         .control-chip select { border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.9em; font-weight: 600; color: #444; cursor: pointer; width: 100%; margin-left: 8px;}
 
+        /* 🏷️ NEW SMART TAGS FILTER BAR 🏷️ */
+        .tags-container {
+            display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 15px 0; margin-bottom: 5px; scrollbar-width: none; -webkit-overflow-scrolling: touch; width: 100%; box-sizing: border-box;
+        }
+        .tags-container::-webkit-scrollbar { display: none; }
+        .filter-tag-chip {
+            padding: 8px 16px; background: #fff; border: 1px solid #cbd5e1; border-radius: 50px; font-size: 0.75em; font-weight: 600; color: #475569; cursor: pointer; white-space: nowrap; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex-shrink: 0;
+        }
+        .filter-tag-chip:hover { border-color: var(--glacier-blue); }
+        .filter-tag-chip.active { background: var(--glacier-blue); color: #fff; border-color: var(--glacier-blue); box-shadow: 0 4px 8px rgba(31,81,198,0.2); }
 
         /* SECTION HEADER */
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
@@ -86,16 +96,24 @@
         .section-count { font-size: 0.9em; font-weight: 500; color: #94a3b8; }
 
         /* PRODUCT GRID */
-        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; align-items: start; padding-bottom: 40px; }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; align-items: start; padding-bottom: 40px; box-sizing: border-box;}
         
         .menu-card { background: var(--card-bg); border-radius: 16px; border: 1px solid #f1f5f9; display: flex; flex-direction: column; position: relative; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s; height: 100%; box-sizing: border-box;}
         .menu-card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.08); transform: translateY(-3px); }
         
-        .card-img-wrapper { position: relative; background: transparent; border-radius: 12px; height: 160px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
+        .card-img-wrapper { position: relative; background: transparent; border-radius: 12px; height: 160px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; flex-shrink: 0;}
         .card-img-wrapper img { width: 90%; height: 90%; object-fit: contain; mix-blend-mode: multiply; }
         
         .new-badge { position: absolute; top: -5px; left: -5px; background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; font-size: 0.6em; font-weight: 800; padding: 4px 10px; border-radius: 8px; z-index: 3; box-shadow: 0 2px 6px rgba(142,68,173,0.3); text-transform: uppercase; letter-spacing: 0.5px; }
         .red-discount-icon { position: absolute; top: -5px; right: -5px; background: var(--active-brand-red); color: white; font-size: 0.7em; font-weight: 800; padding: 4px 8px; border-radius: 8px; z-index: 3; }
+
+        /* 🏷️ TAGS ON CARD 🏷️ */
+        .card-tags-row { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+        .card-tag { font-size: 0.55em; font-weight: 800; padding: 3px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tag-style-vegan { background: #dcfce7; color: #059669; border: 1px solid #bbf7d0;}
+        .tag-style-sugarfree { background: #fee2e2; color: #e11d48; border: 1px solid #fecdd3;}
+        .tag-style-fastfriendly { background: #fef3c7; color: #d97706; border: 1px solid #fde68a;}
+        .tag-style-default { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;}
 
         .brand-tag { font-size: 0.6em; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
         .item-name { font-size: 1em; font-weight: 700; color: #1e293b; margin: 0 0 6px 0; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 40px; }
@@ -105,7 +123,6 @@
         .item-price { font-size: 1.2em; font-weight: 800; color: #0f172a; }
         .item-mrp { font-size: 0.85em; font-weight: 500; color: #94a3b8; text-decoration: line-through; }
 
-        /* FLOATING '+' BUTTON */
         .btn-container { position: absolute; right: 15px; bottom: 15px; z-index: 4; }
         .app-add-btn { width: 36px; height: 36px; border-radius: 50%; background: #fff; color: var(--glacier-blue); border: 1px solid #e2e8f0; font-size: 1.5em; font-weight: 500; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: 0.2s; line-height: 1; padding-bottom: 2px;}
         .app-add-btn:hover { border-color: var(--glacier-blue); color: var(--glacier-blue); background: #f8faff; transform: scale(1.05);}
@@ -114,7 +131,7 @@
 
         #status-msg { margin-top: 50px; text-align: center; font-weight: 500; color: #888; font-size: 1.1em; width: 100%; padding: 0 20px; box-sizing: border-box;}
 
-        /* ⚖️ LEGAL FOOTER (UPDATED) ⚖️ */
+        /* ⚖️ LEGAL FOOTER ⚖️ */
         .legal-footer { text-align: center; font-size: 0.7em; color: #94a3b8; padding: 30px 15px 40px 15px; margin-top: auto; font-weight: 500; border-top: 1px dashed #e2e8f0; }
         .legal-footer p { margin: 5px 0; }
         .legal-notice-vol { color: var(--active-brand-red); font-size: 1.1em; font-weight: 700; margin-bottom: 12px !important;}
@@ -176,7 +193,7 @@
         .modal-tab-content.active { display: flex; flex-direction: column; }
 
 
-        /* 📱 🔥 ULTIMATE MOBILE APP-LIKE UI 🔥 📱 */
+        /* 📱 🔥 MOBILE UI FIXES (NO HORIZONTAL DRAG) 🔥 📱 */
         @media (max-width: 800px) {
             header { padding: 10px 15px; height: 55px; }
             .header-logo { height: 35px; }
@@ -187,92 +204,37 @@
             .brand-icon { width: 55px; height: 55px; }
             .brand-name { font-size: 0.55em; }
 
-          /* 🌟 Layout ko horizontal hilne se rokne ke liye 🌟 */
-            .main-layout { 
-                flex-direction: row; 
-                width: 100vw; 
-                overflow-x: hidden; /* Bilkul lock */
-                position: relative;
-            }
+            .main-layout { flex-direction: row; width: 100vw; overflow-x: hidden; position: relative; } 
             
-            /* 🌟 Left Vertical Narrow Sidebar (Like Swiggy Instamart) 🌟 */
             .sidebar { 
-                width: 75px; 
-                flex-shrink: 0; /* Yeh dabega nahi */
-                padding: 10px 5px; 
-                align-items: center;
-                border-right: 1px solid #f1f5f9; 
-                border-bottom: none;
-                background: #fff;
-                overflow-y: auto;
-                overflow-x: hidden;
-                white-space: normal;
-                -webkit-overflow-scrolling: touch;
+                width: 75px; flex-shrink: 0; padding: 10px 5px; 
+                border-right: 1px solid #f1f5f9; background: #fff;
             }
-            /* 🌟 Content Area ko calculate karke lock kar diya 🌟 */
-            .content-area { 
-                width: calc(100vw - 75px); 
-                padding: 10px; 
-                padding-bottom: 90px; 
-                overflow-x: hidden; /* No left-right scroll */
-                box-sizing: border-box; 
-            }
-            
-            /* 🌟 Search bar ko bhi width ke andar rakha 🌟 */
-            .controls-bar { 
-                width: 100%;
-                margin: -10px 0 15px 0; /* Side margin hata diye */
-                padding: 10px 5px; 
-                box-sizing: border-box;
-            }
-
-            /* 🌟 Grid ko lock kiya 🌟 */
-            .menu-grid { 
-                width: 100%;
-                grid-template-columns: repeat(2, 1fr); 
-                gap: 8px; 
-                margin: 0;
-                box-sizing: border-box;
-            }
-            .cat-item { 
-                flex-direction: column; 
-                gap: 4px; 
-                padding: 10px 2px; 
-                border-radius: 12px; 
-                min-width: 0;
-                width: 100%;
-                background: transparent;
-            }
-            .cat-item.active { background: #f0f4ff; }
+            .cat-item { width: 100%; gap: 4px; padding: 10px 2px; flex-direction: column; border-radius: 12px;}
             .cat-icon { font-size: 1.5em; height: 30px; width: 30px; }
             .cat-name { font-size: 0.55em; text-align: center; white-space: normal; line-height: 1.2; word-wrap: break-word; padding: 0 2px;}
 
-            .content-area { padding: 10px; padding-bottom: 90px; }
+            .content-area { 
+                width: calc(100vw - 75px); padding: 10px; 
+                overflow-x: hidden; box-sizing: border-box;
+            }
             
-            /* 🌟 Premium Auto-hide Top Search Bar 🌟 */
             .controls-bar { 
-                padding: 10px 12px; 
-                gap: 8px; 
-                flex-wrap: nowrap; 
-                margin: -10px -10px 15px -10px; /* Pull into padding */
+                padding: 10px 12px; flex-wrap: nowrap; gap: 8px; 
+                margin: -10px -10px 10px -10px; width: calc(100% + 20px);
             }
             .control-chip { padding: 8px 10px; min-width: 0; border-radius: 12px;}
-            .control-chip:first-child { flex: 1.8; } 
-            .control-chip:last-child { flex: 1; padding: 8px; } 
-            .control-chip input { font-size: 0.85em; }
-            .control-chip select { font-size: 0.8em; padding: 0; }
+            .control-chip:first-child { flex: 1.8; }
+            .control-chip select { font-size: 0.8em; }
 
             .section-header { margin-bottom: 12px; padding-bottom: 8px; }
             .section-header h2 { font-size: 1.1em; }
             
-            /* 🌟 Perfect 2-Column Grid 🌟 */
             .menu-grid { 
                 grid-template-columns: repeat(2, 1fr); 
-                gap: 10px; 
-                padding-bottom: 20px;
+                gap: 10px; width: 100%; margin: 0; padding-bottom: 20px;
             }
             
-            /* 🌟 Compact Mobile Cards 🌟 */
             .menu-card { padding: 8px; border-radius: 12px; }
             .card-img-wrapper { height: 90px; margin-bottom: 8px; border-radius: 8px; }
             .new-badge { font-size: 0.5em; padding: 3px 6px; top: -4px; left: -4px; }
@@ -357,6 +319,8 @@
                     </select>
                 </div>
             </div>
+
+            <div class="tags-container" id="tags-container"></div>
 
             <div class="section-header">
                 <h2 id="current-category-title">All Items</h2>
@@ -459,10 +423,10 @@
     </div>
 
     <script>
-        const googleSheetUrl = "https://script.google.com/macros/s/AKfycbyD7MonnbDvCURuKWTJ7D0gZlx-JPYVQ6XpL_8tW1i_I1MEFve_ioTumGy5TbaDYig/exec"; 
+        const googleSheetUrl = "https://script.google.com/macros/s/AKfycbxLEYahwJrmwJbV6knlnytQgo1xeFc1HICfiMDIqXa4s3PZWU7I2X2i9wZe1tqZMjI/exec"; 
         const WHATSAPP_NUMBER = "919829610570"; 
         
-        let allItems = []; let currentCategory = 'All Items'; let currentBrand = 'All Brands'; let cart = {}; 
+        let allItems = []; let currentCategory = 'All Items'; let currentBrand = 'All Brands'; let currentTagFilter = 'All'; let cart = {}; 
 
         // 🌟 Auto-Hide Search Bar Logic 🌟
         let lastScrollY = 0;
@@ -471,13 +435,13 @@
             if (window.innerWidth <= 800) {
                 let currentScrollY = this.scrollTop;
                 if (currentScrollY > lastScrollY && currentScrollY > 60) {
-                    controlsBar.style.top = '-100px'; // Hide on scroll down
+                    controlsBar.style.top = '-100px'; 
                 } else {
-                    controlsBar.style.top = '0'; // Show on scroll up
+                    controlsBar.style.top = '0'; 
                 }
                 lastScrollY = currentScrollY;
             } else {
-                controlsBar.style.top = '0'; // Always show on desktop
+                controlsBar.style.top = '0'; 
             }
         });
 
@@ -509,14 +473,10 @@
             for (let key in item) {
                 let cleanKey = String(key).toLowerCase().replace(/[^a-z0-9]/g, '');
                 if (cleanKey.includes('launch') || cleanKey.includes('year') || cleanKey.includes('date')) {
-                    if (item[key] && String(item[key]).trim() !== '') { 
-                        dateStr = String(item[key]).trim(); 
-                        break; 
-                    }
+                    if (item[key] && String(item[key]).trim() !== '') { dateStr = String(item[key]).trim(); break; }
                 }
             }
             if (!dateStr) return null;
-            
             let d = new Date(dateStr);
             if (isNaN(d.getTime())) d = new Date("01 " + dateStr);
             if (isNaN(d.getTime())) d = new Date(dateStr.replace(/-/g, '/'));
@@ -529,6 +489,21 @@
             let now = new Date();
             let monthsDiff = (now.getFullYear() - launchDate.getFullYear()) * 12 + (now.getMonth() - launchDate.getMonth());
             return monthsDiff >= -2 && monthsDiff <= 3; 
+        }
+
+        // 🏷️ TAGS LOGIC 🏷️
+        function getItemTags(item) {
+            let tagString = item.tags || item.Tags || item.TAGS || '';
+            if (!tagString) return [];
+            return String(tagString).split(',').map(t => t.trim()).filter(t => t.length > 0);
+        }
+
+        function getTagStyle(tag) {
+            let t = tag.toLowerCase();
+            if(t.includes('vegan')) return 'tag-style-vegan';
+            if(t.includes('sugar')) return 'tag-style-sugarfree';
+            if(t.includes('fast') || t.includes('vrat') || t.includes('guilt')) return 'tag-style-fastfriendly';
+            return 'tag-style-default';
         }
 
         async function loadData() {
@@ -545,7 +520,7 @@
                 catch(e) { throw new Error("Sheet returned Error Page instead of JSON data."); }
 
                 if(!Array.isArray(allItems) && allItems.error) throw new Error("Apps Script Error: " + allItems.error);
-                if(!allItems || allItems.length === 0) { statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: #64748b; margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:#94a3b8;">Your Google Sheet is empty or loading failed.</p></div>`; loadingBar.style.width = '100%'; return; }
+                if(!allItems || allItems.length === 0) { statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: #64748b; margin: 10px 0 5px 0;">No items found</h3></div>`; loadingBar.style.width = '100%'; return; }
                 
                 setupAppUI(); applyFilters();
                 loadingBar.style.width = '100%'; setTimeout(() => { loadingBar.style.opacity = '0'; statusMsg.style.display='none'; }, 500);
@@ -588,6 +563,22 @@
                 div.onclick = () => setBrand(brand); div.innerHTML = `<div class="brand-icon">${iconHTML}</div><div class="brand-name">${brand === 'All Brands' ? 'All' : brand}</div>`;
                 brandSidebar.appendChild(div);
             });
+
+            // 🏷️ INITIALIZE TAGS 🏷️
+            let allTags = new Set();
+            allItems.forEach(item => {
+                getItemTags(item).forEach(t => allTags.add(t));
+            });
+            const tagsContainer = document.getElementById('tags-container');
+            if(allTags.size > 0) {
+                let tagsHTML = `<div class="filter-tag-chip active" onclick="setTagFilter('All', this)">All</div>`;
+                Array.from(allTags).sort().forEach(tag => {
+                    tagsHTML += `<div class="filter-tag-chip" onclick="setTagFilter('${tag.replace(/'/g, "\\'")}', this)">${tag}</div>`;
+                });
+                tagsContainer.innerHTML = tagsHTML;
+            } else {
+                tagsContainer.style.display = 'none';
+            }
         }
 
         function setCategory(categoryName) {
@@ -596,7 +587,6 @@
                 const name = btn.querySelector('.cat-name').innerText.trim();
                 if (name.toLowerCase() === categoryName.toLowerCase() || (categoryName.includes('New') && name.includes('New'))) {
                     btn.classList.add('active');
-                    // Perfect vertical scrolling logic for both mobile and desktop
                     const scrollPos = btn.offsetTop - (container.clientHeight / 2) + (btn.clientHeight / 2); 
                     container.scrollTo({ top: scrollPos, behavior: 'smooth' });
                 } else btn.classList.remove('active');
@@ -621,22 +611,26 @@
             document.getElementById('products-area').scrollTop = 0; applyFilters();
         }
 
+        function setTagFilter(tag, el) {
+            currentTagFilter = tag;
+            document.querySelectorAll('.filter-tag-chip').forEach(btn => btn.classList.remove('active'));
+            el.classList.add('active');
+            applyFilters();
+        }
+
         function getVolume(name) { let total = 0; let match; const regex = /(\d+)\s*(ml|l|ltr|gm|g|kg)/gi; while ((match = regex.exec(name)) !== null) { let val = parseFloat(match[1]); let unit = match[2].toLowerCase(); if (unit === 'l' || unit === 'ltr' || unit === 'kg') val *= 1000; total += val; } return total; }
         function getDiscount(item) { let m = parseFloat(item.mrp); let p = parseFloat(item.price); if (m && !isNaN(m) && m > p) return ((m - p) / m) * 100; return 0; }
         function extractVolumeText(name) { const match = name.match(/(\d+\s*(ml|l|ltr|gm|g|kg))/i); return match ? match[0] : ''; }
 
-        // 🔥 SMART SEARCH & FILTERS 🔥
         function applyFilters() {
             const gridWrapper = document.getElementById('main-menu-grid'); const statusMsg = document.getElementById('status-msg');
             const searchTerm = document.getElementById('search-bar').value.toLowerCase().trim(); 
             const sortValue = document.getElementById('sort-dropdown').value;
-            
             const searchWords = searchTerm.split(/\s+/).filter(w => w.length > 0);
 
             let filteredItems = allItems.filter(item => {
                 const isAvailable = String(item.available).toLowerCase() === 'yes' || item.available === true;
                 const matchesBrand = currentBrand === 'All Brands' || item.brand === currentBrand;
-                
                 let matchesCategory = currentCategory === 'All Items' ? true : 
                                       (currentCategory === 'New Arrivals' ? isNewArrival(item) : 
                                       (item.category || 'More Favorites') === currentCategory);
@@ -649,7 +643,11 @@
                     matchesSearch = searchWords.every(word => textToSearch.includes(word));
                 }
 
-                return isAvailable && matchesBrand && matchesCategory && matchesSearch;
+                // 🏷️ APPLY TAG FILTER 🏷️
+                const itemTags = getItemTags(item);
+                const matchesTagFilter = currentTagFilter === 'All' ? true : itemTags.includes(currentTagFilter);
+
+                return isAvailable && matchesBrand && matchesCategory && matchesSearch && matchesTagFilter;
             });
 
             if (currentCategory === 'New Arrivals' && sortValue === 'default') {
@@ -668,10 +666,12 @@
 
             let titlePrefix = currentBrand !== 'All Brands' ? currentBrand + ' ' : '';
             let titleText = searchTerm !== '' ? 'Search Results' : (currentCategory === 'New Arrivals' ? 'New Arrivals' : (currentCategory === 'All Items' ? 'Menu' : currentCategory));
+            if (currentTagFilter !== 'All') titleText += ` (${currentTagFilter})`;
+            
             document.getElementById('current-category-title').innerText = titlePrefix + titleText;
             document.getElementById('item-count').innerText = `${filteredItems.length} items`;
 
-            if (filteredItems.length === 0) { statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: #64748b; margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:#94a3b8;">Try changing your filters.</p><button onclick="setCategory('All Items'); setBrand('All Brands'); document.getElementById('search-bar').value=''; applyFilters();" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; statusMsg.style.display = 'block'; gridWrapper.innerHTML = ''; return; }
+            if (filteredItems.length === 0) { statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: #64748b; margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:#94a3b8;">Try changing your filters.</p><button onclick="setCategory('All Items'); setBrand('All Brands'); setTagFilter('All', document.querySelector('.filter-tag-chip')); document.getElementById('search-bar').value='';" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; statusMsg.style.display = 'block'; gridWrapper.innerHTML = ''; return; }
 
             statusMsg.style.display = 'none'; let newHTML = '';
             filteredItems.forEach((item, index) => {
@@ -681,6 +681,15 @@
                 let discountNum = getDiscount(item);
                 let priceHTML = discountNum > 0 ? `<div class="price-row"><span class="item-price">₹${item.price}</span><span class="item-mrp">₹${item.mrp}</span></div>` : `<div class="price-row"><span class="item-price">₹${item.price}</span></div>`;
                 
+                // 🏷️ RENDER ITEM TAGS 🏷️
+                let tagsHTML = '';
+                const itemTagsArray = getItemTags(item);
+                if(itemTagsArray.length > 0) {
+                    tagsHTML = `<div class="card-tags-row">` + 
+                               itemTagsArray.map(t => `<span class="card-tag ${getTagStyle(t)}">${t}</span>`).join('') + 
+                               `</div>`;
+                }
+
                 newHTML += `
                     <div class="menu-card">
                         <div class="card-img-wrapper skeleton-bg">
@@ -689,6 +698,7 @@
                             <img src="${item.img}" referrerpolicy="no-referrer" loading="lazy" style="opacity: 0; transition: opacity 0.4s ease;" onload="this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';" onerror="this.onerror=null; this.src='https://placehold.co/300x220/f4f6f9/a0a0a0?text=No+Image'; this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';">
                         </div>
                         <div class="brand-tag">${item.brand}</div>
+                        ${tagsHTML}
                         <div class="item-name">${displayName}</div>
                         <div class="item-volume">${volText || '&nbsp;'}</div>
                         <div class="price-section">${priceHTML}</div>
