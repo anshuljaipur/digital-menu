@@ -67,21 +67,22 @@
         .content-area::-webkit-scrollbar-track { background: transparent; }
         .content-area::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* 🟢 AUTO-HIDE SEARCH & SORT BAR 🟢 */
+        /* 🟢 SOLID WHITE AUTO-HIDE SEARCH & TAGS BAR 🟢 */
         .controls-bar { 
             position: sticky; top: 0; z-index: 50;
-            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            border-bottom: 1px solid #e2e8f0; display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; 
-            margin: -20px -30px 10px -30px; padding: 15px 30px; transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #ffffff; /* Solid White - No items will show from back */
+            border-bottom: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 10px; 
+            margin: -20px -30px 20px -30px; padding: 15px 30px 5px 30px; transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        .search-sort-wrapper { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; width: 100%; }
         .control-chip { display: flex; align-items: center; background: #f8f9fc; border: 1px solid #e2e8f0; border-radius: 50px; padding: 10px 20px; flex: 1; min-width: 250px; max-width: 450px; transition: 0.2s;}
         .control-chip:focus-within { border-color: var(--glacier-blue); background: #fff; box-shadow: 0 4px 12px rgba(31,81,198,0.08);}
         .control-chip input { border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.9em; width: 100%; color: #333; margin-left: 8px;}
         .control-chip select { border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.9em; font-weight: 600; color: #444; cursor: pointer; width: 100%; margin-left: 8px;}
 
-        /* 🏷️ NEW SMART TAGS FILTER BAR 🏷️ */
+        /* 🏷️ SMART TAGS FILTER BAR (INSIDE CONTROLS BAR) 🏷️ */
         .tags-container {
-            display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 15px 0; margin-bottom: 5px; scrollbar-width: none; -webkit-overflow-scrolling: touch; width: 100%; box-sizing: border-box;
+            display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 10px 0; scrollbar-width: none; -webkit-overflow-scrolling: touch; width: 100%; box-sizing: border-box;
         }
         .tags-container::-webkit-scrollbar { display: none; }
         .filter-tag-chip {
@@ -219,10 +220,12 @@
                 overflow-x: hidden; box-sizing: border-box;
             }
             
+            /* 🟢 SOLID WHITE AUTO-HIDE MOBILE SEARCH BAR 🟢 */
             .controls-bar { 
-                padding: 10px 12px; flex-wrap: nowrap; gap: 8px; 
+                padding: 12px 12px 5px 12px; gap: 10px; 
                 margin: -10px -10px 10px -10px; width: calc(100% + 20px);
             }
+            .search-sort-wrapper { flex-wrap: nowrap; gap: 8px; }
             .control-chip { padding: 8px 10px; min-width: 0; border-radius: 12px;}
             .control-chip:first-child { flex: 1.8; }
             .control-chip select { font-size: 0.8em; }
@@ -305,22 +308,24 @@
         <main class="content-area" id="products-area">
             
             <div class="controls-bar">
-                <div class="control-chip">
-                    🔍 <input type="text" id="search-bar" placeholder="Search ice creams..." onkeyup="applyFilters()">
+                <div class="search-sort-wrapper">
+                    <div class="control-chip">
+                        🔍 <input type="text" id="search-bar" placeholder="Search ice creams..." onkeyup="applyFilters()">
+                    </div>
+                    <div class="control-chip">
+                        ↕️ <select id="sort-dropdown" onchange="applyFilters()">
+                            <option value="default">Sort by relevance</option>
+                            <option value="disc-high-low">Discount: High - Low</option>
+                            <option value="low-high">Price: Low - High</option>
+                            <option value="high-low">Price: High - Low</option>
+                            <option value="vol-low-high">Size: Small - Large</option>
+                            <option value="vol-high-low">Size: Large - Small</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="control-chip">
-                    ↕️ <select id="sort-dropdown" onchange="applyFilters()">
-                        <option value="default">Sort by relevance</option>
-                        <option value="disc-high-low">Discount: High - Low</option>
-                        <option value="low-high">Price: Low - High</option>
-                        <option value="high-low">Price: High - Low</option>
-                        <option value="vol-low-high">Size: Small - Large</option>
-                        <option value="vol-high-low">Size: Large - Small</option>
-                    </select>
-                </div>
-            </div>
 
-            <div class="tags-container" id="tags-container"></div>
+                <div class="tags-container" id="tags-container"></div>
+            </div>
 
             <div class="section-header">
                 <h2 id="current-category-title">All Items</h2>
@@ -428,14 +433,14 @@
         
         let allItems = []; let currentCategory = 'All Items'; let currentBrand = 'All Brands'; let currentTagFilter = 'All'; let cart = {}; 
 
-        // 🌟 Auto-Hide Search Bar Logic 🌟
+        // 🌟 Auto-Hide Search Bar Logic Updated (Hides completely) 🌟
         let lastScrollY = 0;
         document.getElementById('products-area').addEventListener('scroll', function() {
             const controlsBar = document.querySelector('.controls-bar');
             if (window.innerWidth <= 800) {
                 let currentScrollY = this.scrollTop;
                 if (currentScrollY > lastScrollY && currentScrollY > 60) {
-                    controlsBar.style.top = '-100px'; 
+                    controlsBar.style.top = '-160px'; 
                 } else {
                     controlsBar.style.top = '0'; 
                 }
