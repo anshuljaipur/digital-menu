@@ -19,11 +19,11 @@
             --main-bg: #f8f9fc;
         }
 
-        /* 🚨 GLOBAL RESET & LOCK (WITH iOS FIX) 🚨 */
-        html { overflow-x: hidden; width: 100vw; height: -webkit-fill-available; }
+        /* 🚨 GLOBAL RESET & LOCK 🚨 */
+        html { overflow: hidden; width: 100vw; height: -webkit-fill-available; }
         body { 
             font-family: 'Poppins', sans-serif; margin: 0; background-color: var(--bg-color); 
-            color: #333; overflow-x: hidden; width: 100vw; max-width: 100%; 
+            color: #333; overflow: hidden; width: 100vw; max-width: 100%; 
             height: 100dvh; min-height: -webkit-fill-available; display: flex; 
             flex-direction: column; position: relative; 
         }
@@ -82,8 +82,8 @@
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
         .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; align-items: start; padding-bottom: 40px; box-sizing: border-box; }
         
-        .menu-card { background: var(--card-bg); border-radius: 16px; border: 1px solid #f1f5f9; position: relative; padding: 15px; transition: 0.2s; height: 100%; box-sizing: border-box;}
-        .card-img-wrapper { position: relative; height: 160px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
+        .menu-card { background: var(--card-bg); border-radius: 16px; border: 1px solid #f1f5f9; position: relative; padding: 15px; transition: 0.2s; height: 100%; box-sizing: border-box; display: flex; flex-direction: column;}
+        .card-img-wrapper { position: relative; height: 160px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; flex-shrink: 0;}
         .card-img-wrapper img { width: 90%; height: 90%; object-fit: contain; mix-blend-mode: multiply; }
         
         .new-badge { position: absolute; top: -5px; left: -5px; background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; font-size: 0.6em; font-weight: 800; padding: 4px 10px; border-radius: 8px; z-index: 3; }
@@ -94,20 +94,20 @@
         .item-volume { font-size: 0.8em; color: #64748b; margin-bottom: 15px; font-weight: 500; }
         
         .price-row { display: flex; align-items: baseline; gap: 8px; margin-top: auto; }
-        .item-price { font-size: 1.2em; font-weight: 800; }
+        .item-price { font-size: 1.2em; font-weight: 800; color: #0f172a; }
         .item-mrp { font-size: 0.85em; font-weight: 500; color: #94a3b8; text-decoration: line-through; }
 
         .btn-container { position: absolute; right: 15px; bottom: 15px; z-index: 4; }
-        .app-add-btn { width: 36px; height: 36px; border-radius: 50%; background: #fff; color: var(--glacier-blue); border: 1px solid #e2e8f0; font-size: 1.5em; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .app-qty-control { height: 36px; width: 90px; background: #fff; color: var(--glacier-blue); border-radius: 50px; border: 1px solid var(--glacier-blue); display: flex; align-items: center; justify-content: space-between; padding: 0 8px; font-weight: 700; }
-        .app-qty-control button { background: none; border: none; color: var(--glacier-blue); font-weight: bold; cursor: pointer; }
+        .app-add-btn { width: 36px; height: 36px; border-radius: 50%; background: #fff; color: var(--glacier-blue); border: 1px solid #e2e8f0; font-size: 1.5em; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .app-qty-control { height: 36px; width: 90px; background: #fff; color: var(--glacier-blue); border-radius: 50px; border: 1px solid var(--glacier-blue); display: flex; align-items: center; justify-content: space-between; padding: 0 8px; font-weight: 700; box-shadow: 0 2px 8px rgba(31,81,198,0.15);}
+        .app-qty-control button { background: none; border: none; color: var(--glacier-blue); font-weight: bold; cursor: pointer; font-size: 1.2em; }
 
         /* LEGAL FOOTER */
         .legal-footer { text-align: center; font-size: 0.7em; color: #94a3b8; padding: 30px 15px 40px 15px; margin-top: auto; border-top: 1px dashed #e2e8f0; }
         .legal-notice-vol { color: var(--active-brand-red); font-size: 1.1em; font-weight: 700; margin-bottom: 12px;}
 
         /* --- CART BANNER & MODALS --- */
-        #bottom-cart-banner { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 600px; background: #1e293b; color: white; padding: 16px 25px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; z-index: 1000; transition: 0.4s; }
+        #bottom-cart-banner { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 600px; background: #1e293b; color: white; padding: 16px 25px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; z-index: 1000; transition: 0.4s; box-shadow: 0 10px 25px rgba(0,0,0,0.3);}
         #bottom-cart-banner.visible { bottom: 20px; }
         .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(15, 23, 42, 0.7); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
         .modal-content-box { background: white; padding: 30px; border-radius: 24px; width: 90%; max-width: 450px; max-height: 90dvh; overflow-y: auto; box-sizing: border-box; display: flex; flex-direction: column; }
@@ -119,19 +119,16 @@
             .hide-mobile-text { display: none; }
             .action-btn { padding: 6px 12px; font-size: 0.8em; }
 
-            /* Lock main-layout for horizontal scroll */
             .main-layout { flex-direction: row; width: 100vw; overflow-x: hidden; position: relative; } 
             
-            /* Sidebar Fix */
             .sidebar { 
                 width: 75px; flex-shrink: 0; padding: 10px 5px; 
                 border-right: 1px solid #f1f5f9; background: #fff;
             }
-            .cat-item { width: 100%; gap: 4px; padding: 10px 2px; }
+            .cat-item { width: 100%; gap: 4px; padding: 10px 2px; flex-direction: column; border-radius: 12px;}
             .cat-icon { font-size: 1.5em; height: 30px; width: 30px; }
-            .cat-name { font-size: 0.55em; text-align: center; white-space: normal; line-height: 1.2; }
+            .cat-name { font-size: 0.55em; text-align: center; white-space: normal; line-height: 1.2; word-wrap: break-word; }
 
-            /* Content Area Fix (Crucial for Dragging) */
             .content-area { 
                 width: calc(100vw - 75px); padding: 10px; 
                 overflow-x: hidden; box-sizing: border-box;
@@ -153,7 +150,7 @@
             .card-img-wrapper { height: 90px; margin-bottom: 8px; }
             .item-name { font-size: 0.8em; min-height: 28px; }
             .btn-container { right: 8px; bottom: 8px; }
-            .app-add-btn { width: 30px; height: 30px; }
+            .app-add-btn { width: 30px; height: 30px; font-size: 1.2em;}
             .app-qty-control { height: 30px; width: 70px; font-size: 0.85em; }
 
             .modal-content-box { border-radius: 24px 24px 0 0; width: 100%; max-width: 100%; position: absolute; bottom: 0; }
@@ -215,8 +212,10 @@
     </div>
 
     <div id="bottom-cart-banner" onclick="toggleCart()">
-        <div><span id="banner-qty">0 ITEMS</span> | ₹<span id="banner-total">0</span></div>
-        <div>View Cart ➔</div>
+        <div id="banner-left">
+            <span id="banner-qty">0 ITEMS</span> | ₹<span id="banner-total">0</span>
+        </div>
+        <div id="banner-right">View Cart ➔</div>
     </div>
 
     <div id="cart-modal" class="custom-modal">
@@ -228,9 +227,6 @@
             <button onclick="toggleCart()" style="background:#f1f5f9; padding:10px; border:none; border-radius:12px; margin-top:10px; cursor:pointer">Close</button>
         </div>
     </div>
-
-    <div id="auth-modal" class="custom-modal"><div class="modal-content-box"><h2>Login</h2><p>Mobile Login coming soon...</p><button onclick="document.getElementById('auth-modal').style.display='none'">Close</button></div></div>
-    <div id="profile-modal" class="custom-modal"><div class="modal-content-box"><h2>Account</h2><p>Past orders showing here...</p><button onclick="document.getElementById('profile-modal').style.display='none'">Close</button></div></div>
 
     <script>
         const googleSheetUrl = "https://script.google.com/macros/s/AKfycbyD7MonnbDvCURuKWTJ7D0gZlx-JPYVQ6XpL_8tW1i_I1MEFve_ioTumGy5TbaDYig/exec"; 
@@ -263,6 +259,7 @@
         function setupUI() {
             const sidebar = document.getElementById('category-sidebar');
             const uniqueCats = ['New Arrivals', 'All Items', ...new Set(allItems.map(i => i.category || 'More Favorites'))];
+            sidebar.innerHTML = '';
             uniqueCats.forEach(cat => {
                 const div = document.createElement('div'); div.className = `cat-item ${cat === 'All Items' ? 'active' : ''}`;
                 div.onclick = () => setCategory(cat);
@@ -273,6 +270,7 @@
 
             const brandRow = document.getElementById('brands-sidebar');
             const uniqueBrands = ['All Brands', ...new Set(allItems.map(i => i.brand))];
+            brandRow.innerHTML = '';
             uniqueBrands.forEach(b => {
                 const div = document.createElement('div'); div.className = `brand-item ${b === 'All Brands' ? 'active' : ''}`;
                 div.onclick = () => setBrand(b);
@@ -293,44 +291,65 @@
             applyFilters(); 
         }
 
+        function getDiscount(item) { let m = parseFloat(item.mrp), p = parseFloat(item.price); return (m > p) ? ((m - p) / m) * 100 : 0; }
+
         function applyFilters() {
             const grid = document.getElementById('main-menu-grid'), searchTerm = document.getElementById('search-bar').value.toLowerCase();
             const searchWords = searchTerm.split(/\s+/).filter(w => w.length > 0);
 
             let filtered = allItems.filter(item => {
-                if (String(item.available).toLowerCase() !== 'yes') return false;
-                if (currentBrand !== 'All Brands' && item.brand !== currentBrand) return false;
-                if (currentCategory !== 'All Items' && item.category !== currentCategory) return false;
-                if (searchWords.length > 0) return searchWords.every(w => item.name.toLowerCase().includes(w));
-                return true;
+                const isAvailable = String(item.available).toLowerCase() === 'yes';
+                const matchesBrand = currentBrand === 'All Brands' || item.brand === currentBrand;
+                const matchesCat = currentCategory === 'All Items' ? true : (item.category || 'More Favorites') === currentCategory;
+                const matchesSearch = searchWords.length === 0 || searchWords.every(w => item.name.toLowerCase().includes(w));
+                return isAvailable && matchesBrand && matchesCat && matchesSearch;
             });
 
             document.getElementById('item-count').innerText = `${filtered.length} items`;
-            grid.innerHTML = filtered.map(item => `
+            grid.innerHTML = filtered.map(item => {
+                const disc = getDiscount(item);
+                return `
                 <div class="menu-card">
                     <div class="card-img-wrapper skeleton-bg">
+                        ${disc > 0 ? `<div class="red-discount-icon">⬇</div>` : ''}
                         <img src="${item.img}" onload="this.parentElement.classList.remove('skeleton-bg')" onerror="this.src='https://placehold.co/200'">
                     </div>
                     <div class="brand-tag">${item.brand}</div>
                     <div class="item-name">${item.name}</div>
-                    <div class="price-row"><span class="item-price">₹${item.price}</span></div>
-                    <div class="btn-container">
-                        <div class="app-add-btn" onclick="addToCart('${item.name}', ${item.price})">+</div>
+                    <div class="price-row">
+                        <span class="item-price">₹${item.price}</span>
+                        ${disc > 0 ? `<span class="item-mrp">₹${item.mrp}</span>` : ''}
+                    </div>
+                    <div class="btn-container" id="btn-wrap-${item.name.replace(/[^a-z0-9]/gi, '')}">
+                        ${cart[item.name] ? 
+                            `<div class="app-qty-control"><button onclick="changeQty('${item.name}', -1)">-</button><span>${cart[item.name].qty}</span><button onclick="changeQty('${item.name}', 1)">+</button></div>` : 
+                            `<div class="app-add-btn" onclick="addToCart('${item.name}', ${item.price}, '${item.brand}')">+</div>`
+                        }
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
-        function addToCart(name, price) { cart[name] = (cart[name] || 0) + 1; updateCartUI(); }
+        function addToCart(name, price, brand) { cart[name] = { price, brand, qty: 1 }; updateCartUI(); applyFilters(); }
+        function changeQty(name, delta) { if(cart[name]) { cart[name].qty += delta; if(cart[name].qty <= 0) delete cart[name]; updateCartUI(); applyFilters(); } }
+        
         function updateCartUI() {
-            let qty = Object.values(cart).reduce((a, b) => a + b, 0), total = 0;
+            let qty = 0, total = 0;
+            const list = document.getElementById('cart-items-list');
+            list.innerHTML = '';
+            for (const [name, data] of Object.entries(cart)) {
+                qty += data.qty; total += (data.price * data.qty);
+                list.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:10px"><span>${data.qty}x ${name}</span><b>₹${data.price * data.qty}</b></div>`;
+            }
             document.getElementById('banner-qty').innerText = `${qty} ITEMS`;
+            document.getElementById('banner-total').innerText = total;
+            document.getElementById('cart-total-price').innerText = total;
             document.getElementById('bottom-cart-banner').classList.toggle('visible', qty > 0);
         }
 
         function toggleCart() { document.getElementById('cart-modal').style.display = (document.getElementById('cart-modal').style.display === 'flex' ? 'none' : 'flex'); }
         function shareWebsite() { if(navigator.share) navigator.share({url: window.location.href}); }
-        function handleProfileClick() { alert("Profile system active soon!"); }
+        function handleProfileClick() { alert("Firebase logic will be merged back if you save your previous config!"); }
 
         window.onload = loadData;
     </script>
