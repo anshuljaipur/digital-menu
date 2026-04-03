@@ -208,12 +208,20 @@
             .main-layout { flex-direction: row; width: 100vw; overflow-x: hidden; position: relative; } 
             
             .sidebar { 
-                width: 75px; flex-shrink: 0; padding: 10px 5px; 
+                width: 75px; min-width: 75px; flex-shrink: 0; padding: 10px 5px; 
                 border-right: 1px solid #f1f5f9; background: #fff;
+                overflow-x: hidden !important; touch-action: pan-y; box-sizing: border-box;
             }
-            .cat-item { width: 100%; gap: 4px; padding: 10px 2px; flex-direction: column; border-radius: 12px;}
+            .cat-item { 
+                width: 100%; gap: 4px; padding: 10px 2px; flex-direction: column; 
+                border-radius: 12px; box-sizing: border-box; overflow: hidden;
+            }
             .cat-icon { font-size: 1.5em; height: 30px; width: 30px; }
-            .cat-name { font-size: 0.55em; text-align: center; white-space: normal; line-height: 1.2; word-wrap: break-word; padding: 0 2px;}
+            .cat-name { 
+                font-size: 0.52em; text-align: center; white-space: normal; 
+                line-height: 1.2; word-wrap: break-word; overflow-wrap: break-word; 
+                padding: 0; width: 100%; box-sizing: border-box;
+            }
 
             .content-area { 
                 width: calc(100vw - 75px); padding: 0px 10px 10px 10px; 
