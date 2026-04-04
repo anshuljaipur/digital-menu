@@ -73,17 +73,24 @@
         .btn-profile { background: rgba(228, 77, 38, 0.1); color: var(--primary-color); border-color: rgba(228, 77, 38, 0.2); }
         .btn-profile:hover { background: var(--primary-color); color: white; }
 
-        /* --- 2. TOP BRANDS ROW (WITH ARROWS) --- */
+        /* --- 2. TOP BRANDS ROW (WITH PREMIUM EDGE ARROWS) --- */
         .brands-wrapper { width: 100%; background: var(--card-bg); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; position: relative; flex-shrink: 0; z-index: 9; transition: 0.3s;}
         .brands-row { width: 100%; display: flex; justify-content: flex-start; overflow-x: auto; padding: 15px 20px; gap: 25px; scrollbar-width: none; box-sizing: border-box; scroll-behavior: smooth;}
         .brands-row::-webkit-scrollbar { display: none; }
         
-        .brand-arrow { position: absolute; z-index: 10; background: var(--card-bg); border: 1px solid var(--border-color); box-shadow: 0 2px 8px rgba(0,0,0,0.2); width: 34px; height: 50px; border-radius: 8px; display: none; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; color: var(--glacier-blue); padding: 0; transition: 0.2s;}
-        .brand-arrow:hover { background: var(--hover-bg); }
+        .brand-arrow { 
+            position: absolute; top: 10px; z-index: 10; 
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+            border: 1px solid var(--border-color); box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+            width: 36px; height: 75px; display: none; flex-direction: column; align-items: center; justify-content: center; 
+            cursor: pointer; color: var(--glacier-blue); padding: 0; transition: 0.2s;
+        }
+        [data-theme="dark"] .brand-arrow { background: rgba(30, 41, 59, 0.85); border-color: #334155; }
+        .brand-arrow:hover { background: var(--hover-bg); opacity: 1; }
         .arrow-icon { font-size: 1.1em; font-weight: 900; line-height: 1; }
         .arrow-count { font-size: 0.65em; font-weight: 800; color: var(--active-brand-red); margin-top: 2px; }
-        .left-arrow { left: 5px; }
-        .right-arrow { right: 5px; }
+        .left-arrow { left: 0; border-radius: 0 12px 12px 0; border-left: none; }
+        .right-arrow { right: 0; border-radius: 12px 0 0 12px; border-right: none; }
 
         .brand-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; } 
         .brand-icon { width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--border-color); transition: 0.2s; background: #fff; padding: 5px; box-sizing: border-box; }
@@ -189,13 +196,13 @@
         .banner-price { font-size: 1.3em; font-weight: 800; color: #fff;}
         .banner-right { font-size: 1.1em; display: flex; align-items: center; gap: 8px; color: #e0e7ff;}
 
-        /* 🚀 BACK TO TOP & CATEGORY FLOATING BUTTONS 🚀 */
+        /* 🚀 BACK TO TOP BUTTON 🚀 */
         .floating-action-container { position: fixed; bottom: 85px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 999; pointer-events: none; }
         .floating-btn { background: var(--glacier-blue); color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(31,81,198,0.4); cursor: pointer; opacity: 0; transition: 0.3s ease; transform: translateY(20px); pointer-events: auto; border: none;}
         .floating-btn.visible { opacity: 1; transform: translateY(0); }
         .floating-btn:hover { background: #1a42a4; }
         
-        #mobile-cat-toggle { display: none; } /* Hidden on desktop */
+        #mobile-cat-toggle { display: none; } 
 
         /* --- MODALS --- */
         .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: var(--overlay-bg); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
@@ -257,12 +264,15 @@
         .pd-bottom-row { display: flex; justify-content: space-between; align-items: center; border-top: 2px solid var(--border-color); padding-top: 20px; margin-top: auto; }
 
 
-        /* 📱 🔥 MOBILE UI FIXES WITH VERTICAL EDGE BUTTON 🔥 📱 */
+        /* 📱 🔥 MOBILE UI FIXES WITH EDGE ARROWS 🔥 📱 */
         @media (max-width: 800px) {
             header { padding: 10px 15px; height: 55px; }
             .header-logo { height: 35px; }
             .hide-mobile-text { display: none; }
             .action-btn { padding: 6px 10px; font-size: 0.8em; }
+
+            /* 🌟 MOBILE BRAND SLIDER ARROWS 🌟 */
+            .brand-arrow { height: 65px; top: 7px; width: 32px; }
 
             .brands-wrapper { border-bottom: none; } 
             .brands-row { padding: 12px 15px; gap: 15px; -webkit-overflow-scrolling: touch; border-bottom: 1px solid var(--border-color); }
@@ -346,11 +356,10 @@
             #pd-modal-img { height: 180px; }
             #pd-modal-name { font-size: 1.2em; }
 
-            /* FLOATING ACTION BUTTONS (MOBILE) */
             .floating-action-container { bottom: 85px; right: 15px; }
             .floating-btn { width: 40px; height: 40px; font-size: 1.1em;}
             
-            /* 🟢 NEW VERTICAL SIDE-TAB BUTTON 🟢 */
+            /* 🟢 VERTICAL SIDE-TAB BUTTON 🟢 */
             #mobile-cat-toggle {
                 display: flex; position: fixed; top: 50%; left: 0; transform: translateY(-50%);
                 background: var(--glacier-blue); color: white; border: none;
@@ -362,7 +371,6 @@
             }
             #mobile-cat-toggle:hover { background: #1a42a4; padding-left: 12px; }
             
-            /* Overlay shadow when sidebar is open */
             #sidebar-overlay {
                 display: none; position: fixed; top: 65px; left: 0; width: 100vw; height: calc(100dvh - 65px);
                 background: rgba(0,0,0,0.5); z-index: 899; backdrop-filter: blur(2px);
@@ -388,7 +396,6 @@
         <img src="https://i.postimg.cc/pV8FwNvw/logo_glacier.png" alt="Glacier Ice Cream Logo" class="header-logo">
         <div class="header-actions">
             <button class="action-btn" onclick="cycleTheme()" id="theme-toggle-btn" title="Toggle Theme">🖥️</button>
-            
             <button class="action-btn btn-profile" onclick="handleProfileClick()" id="nav-profile-btn">
                 👤 <span class="hide-mobile-text" id="nav-profile-text">Login</span>
             </button>
@@ -614,7 +621,6 @@
             const controlsBar = document.querySelector('.controls-bar');
             const backToTop = document.getElementById('back-to-top');
 
-            // Hide/Show Search Bar
             if (window.innerWidth <= 800) {
                 let currentScrollY = this.scrollTop;
                 if (currentScrollY > lastScrollY && currentScrollY > 60) {
@@ -627,7 +633,6 @@
                 controlsBar.style.top = '0'; 
             }
 
-            // Hide/Show Back to Top
             if(this.scrollTop > 400) {
                 backToTop.classList.add('visible');
             } else {
@@ -646,11 +651,11 @@
             if(sidebar.classList.contains('mobile-open')) {
                 overlay.classList.add('visible');
                 toggleBtn.innerHTML = '❮';
-                toggleBtn.style.left = '100px'; // Slides with the sidebar
+                toggleBtn.style.left = '100px'; 
             } else {
                 overlay.classList.remove('visible');
                 toggleBtn.innerHTML = '❯';
-                toggleBtn.style.left = '0'; // Snaps back to edge
+                toggleBtn.style.left = '0'; 
             }
         }
 
