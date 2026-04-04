@@ -56,14 +56,17 @@
             position: fixed; 
             top: 0; left: 0; right: 0; bottom: 0;
             transition: background-color 0.3s ease, color 0.3s ease;
-            touch-action: manipulation; /* 🛑 STOPS DOUBLE TAP ZOOM 🛑 */
+            touch-action: manipulation;
         }
         
-        * { touch-action: manipulation; } /* Ensures no element triggers zoom */
+        * { touch-action: manipulation; } 
         
-        /* 🛑 PREVENTS IOS KEYBOARD ZOOM WHEN TYPING IN SEARCH BAR 🛑 */
-        input, select, textarea {
-            font-size: 16px !important; 
+        input, select, textarea { font-size: 16px !important; }
+
+        /* 🟢 NAYA FIX: DARK MODE ME SELECT DROPDOWN WHITE-TEXT ISSUE 🟢 */
+        select option {
+            background-color: var(--card-bg);
+            color: var(--text-main);
         }
 
         img { -webkit-user-drag: none; -khtml-user-drag: none; -moz-user-drag: none; -o-user-drag: none; user-drag: none; -webkit-touch-callout: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; pointer-events: none; }
@@ -82,11 +85,17 @@
         .btn-profile { background: rgba(228, 77, 38, 0.1); color: var(--primary-color); border-color: rgba(228, 77, 38, 0.2); }
         .btn-profile:hover { background: var(--primary-color); color: white; }
 
-        /* --- 2. TOP BRANDS ROW (WITH BLUE EDGE ARROWS) --- */
-        .brands-wrapper { width: 100%; background: var(--card-bg); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; position: relative; flex-shrink: 0; z-index: 9; transition: 0.3s;}
+        /* --- 2. TOP SECTION (BRANDS + SEARCH/SORT) --- */
+        .top-nav-bar { display: flex; width: 100%; background: var(--card-bg); border-bottom: 1px solid var(--border-color); z-index: 9; flex-shrink: 0; transition: 0.3s; }
+        
+        .brands-wrapper { flex: 1; min-width: 0; display: flex; align-items: center; position: relative; transition: 0.3s;}
         .brands-row { width: 100%; display: flex; justify-content: flex-start; overflow-x: auto; padding: 15px 20px; gap: 25px; scrollbar-width: none; box-sizing: border-box; scroll-behavior: smooth;}
         .brands-row::-webkit-scrollbar { display: none; }
         
+        /* 🟢 SEARCH & SORT RIGHT SIDE DESKTOP 🟢 */
+        .search-sort-side { display: flex; flex-direction: column; width: 320px; padding: 10px 20px; gap: 8px; border-left: 1px solid var(--border-color); justify-content: center; }
+        .search-sort-side .control-chip { padding: 6px 15px; margin: 0; min-width: auto; flex: 1;}
+
         .brand-arrow { 
             position: absolute; top: 15px; z-index: 10; 
             background: rgba(31, 81, 198, 0.9); 
@@ -97,10 +106,8 @@
             padding: 0; transition: 0.2s;
         }
         .brand-arrow:hover { background: var(--glacier-blue); opacity: 1; }
-        
         .arrow-icon { font-size: 1.4em; font-weight: 900; line-height: 1; text-shadow: none; } 
         .arrow-count { font-size: 0.7em; font-weight: 800; color: #ffffff; margin-top: 2px; opacity: 0.9;}
-        
         .left-arrow { left: 0; border-radius: 0 16px 16px 0; }
         .right-arrow { right: 0; border-radius: 16px 0 0 16px; }
         
@@ -131,18 +138,18 @@
         .content-area::-webkit-scrollbar { width: 8px; }
         .content-area::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
 
-        /* 🟢 SOLID BACKGROUND AUTO-HIDE SEARCH & TAGS BAR 🟢 */
+        /* 🟢 SOLID BACKGROUND AUTO-HIDE CONTROLS BAR 🟢 */
         .controls-bar { 
             position: sticky; top: 0; z-index: 50;
             background: var(--main-bg); 
-            border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; 
+            display: flex; flex-direction: column; gap: 10px; 
             margin: 0px -30px 15px -30px; padding: 15px 30px 5px 30px; transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
         }
         .search-sort-wrapper { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; width: 100%; }
         .control-chip { display: flex; align-items: center; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 50px; padding: 10px 20px; flex: 1; min-width: 250px; max-width: 450px; transition: 0.2s;}
         .control-chip:focus-within { border-color: var(--glacier-blue); box-shadow: 0 4px 12px rgba(31,81,198,0.1);}
-        .control-chip input { border: none; outline: none; background: transparent; font-family: inherit; width: 100%; color: var(--text-main); margin-left: 8px;}
-        .control-chip select { border: none; outline: none; background: transparent; font-family: inherit; font-weight: 600; color: var(--text-main); cursor: pointer; width: 100%; margin-left: 8px;}
+        .control-chip input { border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.9em; width: 100%; color: var(--text-main); margin-left: 8px;}
+        .control-chip select { border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.9em; font-weight: 600; color: var(--text-main); cursor: pointer; width: 100%; margin-left: 8px;}
 
         /* 🏷️ SMART TAGS FILTER BAR 🏷️ */
         .tags-container {
@@ -277,6 +284,11 @@
         #pd-modal-volume { font-size: 0.9em; color: var(--text-muted); font-weight: 500; margin-bottom: 20px; }
         .pd-bottom-row { display: flex; justify-content: space-between; align-items: center; border-top: 2px solid var(--border-color); padding-top: 20px; margin-top: auto; }
 
+        /* 🟢 DESKTOP TAG BAR ADJUSTMENTS 🟢 */
+        @media (min-width: 801px) {
+            #mobile-search-sort { display: none !important; }
+            .controls-bar { margin: 0 -30px 15px -30px; padding: 5px 30px 5px 30px; border-bottom: none;}
+        }
 
         /* 📱 🔥 MOBILE UI FIXES 🔥 📱 */
         @media (max-width: 800px) {
@@ -285,12 +297,14 @@
             .hide-mobile-text { display: none; }
             .action-btn { padding: 6px 10px; font-size: 0.8em; }
 
-            /* 🌟 MOBILE BRAND SLIDER ARROWS 🌟 */
+            .search-sort-side { display: none !important; } /* Hide desktop search */
+            .top-nav-bar { flex-direction: column; border-bottom: none; }
+            .brands-wrapper { border-bottom: 1px solid var(--border-color); width: 100%; } 
+            
             .brand-arrow { height: 55px; top: 12px; width: 35px; }
             .arrow-icon { font-size: 1.2em; }
 
-            .brands-wrapper { border-bottom: none; } 
-            .brands-row { padding: 12px 15px; gap: 15px; -webkit-overflow-scrolling: touch; border-bottom: 1px solid var(--border-color); }
+            .brands-row { padding: 12px 15px; gap: 15px; -webkit-overflow-scrolling: touch; border-bottom: none; }
             .brand-icon { width: 55px; height: 55px; }
             .brand-name { font-size: 0.55em; }
 
@@ -319,6 +333,7 @@
             .controls-bar { 
                 padding: 15px 12px 5px 12px; gap: 10px; 
                 margin: 0px -10px 10px -10px; width: calc(100% + 20px);
+                border-bottom: 1px solid var(--border-color);
             }
             .search-sort-wrapper { flex-wrap: nowrap; gap: 8px; }
             .control-chip { padding: 8px 10px; min-width: 0; border-radius: 12px;}
@@ -418,18 +433,36 @@
         </div>
     </header>
 
-    <div class="brands-wrapper">
-        <button id="btn-brand-left" class="brand-arrow left-arrow" onclick="scrollBrands(-1)">
-            <span class="arrow-icon">❮</span>
-            <span class="arrow-count" id="brand-count-left"></span>
-        </button>
-        
-        <div class="brands-row" id="brands-sidebar" onscroll="updateBrandArrows()"></div>
-        
-        <button id="btn-brand-right" class="brand-arrow right-arrow" onclick="scrollBrands(1)">
-            <span class="arrow-icon">❯</span>
-            <span class="arrow-count" id="brand-count-right"></span>
-        </button>
+    <div class="top-nav-bar">
+        <div class="brands-wrapper">
+            <button id="btn-brand-left" class="brand-arrow left-arrow" onclick="scrollBrands(-1)">
+                <span class="arrow-icon">❮</span>
+                <span class="arrow-count" id="brand-count-left"></span>
+            </button>
+            
+            <div class="brands-row" id="brands-sidebar" onscroll="updateBrandArrows()"></div>
+            
+            <button id="btn-brand-right" class="brand-arrow right-arrow" onclick="scrollBrands(1)">
+                <span class="arrow-icon">❯</span>
+                <span class="arrow-count" id="brand-count-right"></span>
+            </button>
+        </div>
+
+        <div class="search-sort-side" id="desktop-search-sort">
+            <div class="control-chip">
+                🔍 <input type="text" id="search-bar-desktop" placeholder="Search ice creams..." onkeyup="syncInputs()">
+            </div>
+            <div class="control-chip">
+                ↕️ <select id="sort-dropdown-desktop" onchange="syncInputs()">
+                    <option value="default">Sort by relevance</option>
+                    <option value="disc-high-low">Discount: High - Low</option>
+                    <option value="low-high">Price: Low - High</option>
+                    <option value="high-low">Price: High - Low</option>
+                    <option value="vol-low-high">Size: Small - Large</option>
+                    <option value="vol-high-low">Size: Large - Small</option>
+                </select>
+            </div>
+        </div>
     </div>
 
     <div id="sidebar-overlay" onclick="toggleMobileCategory()"></div>
@@ -440,12 +473,12 @@
         <main class="content-area" id="products-area">
             
             <div class="controls-bar">
-                <div class="search-sort-wrapper">
+                <div class="search-sort-wrapper" id="mobile-search-sort">
                     <div class="control-chip">
-                        🔍 <input type="text" id="search-bar" placeholder="Search ice creams..." onkeyup="applyFilters()">
+                        🔍 <input type="text" id="search-bar-mobile" placeholder="Search ice creams..." onkeyup="syncInputs()">
                     </div>
                     <div class="control-chip">
-                        ↕️ <select id="sort-dropdown" onchange="applyFilters()">
+                        ↕️ <select id="sort-dropdown-mobile" onchange="syncInputs()">
                             <option value="default">Sort by relevance</option>
                             <option value="disc-high-low">Discount: High - Low</option>
                             <option value="low-high">Price: Low - High</option>
@@ -491,8 +524,8 @@
         </button>
     </div>
 
-    <div id="product-detail-modal" class="custom-modal">
-        <div class="modal-content-box" style="padding-bottom: 25px;">
+    <div id="product-detail-modal" class="custom-modal" onclick="closeProductDetailModal()">
+        <div class="modal-content-box" onclick="event.stopPropagation()" style="padding-bottom: 25px;">
             <div style="display: flex; justify-content: flex-end; margin-bottom: -10px;">
                 <div class="close-modal-icon" onclick="closeProductDetailModal()">×</div>
             </div>
@@ -513,8 +546,8 @@
         </div>
     </div>
 
-    <div id="cart-modal" class="custom-modal">
-        <div class="modal-content-box">
+    <div id="cart-modal" class="custom-modal" onclick="toggleCart()">
+        <div class="modal-content-box" onclick="event.stopPropagation()">
             <div class="modal-header-row">
                 <h2>Your Cart</h2>
                 <div class="close-modal-icon" onclick="toggleCart()">×</div>
@@ -526,8 +559,8 @@
         </div>
     </div>
 
-    <div id="auth-modal" class="custom-modal">
-        <div class="modal-content-box">
+    <div id="auth-modal" class="custom-modal" onclick="closeAuthModal()">
+        <div class="modal-content-box" onclick="event.stopPropagation()">
             <div class="modal-header-row">
                 <h2>Login / Register</h2>
                 <div class="close-modal-icon" onclick="closeAuthModal()">×</div>
@@ -553,8 +586,8 @@
         </div>
     </div>
 
-    <div id="profile-modal" class="custom-modal">
-        <div class="modal-content-box">
+    <div id="profile-modal" class="custom-modal" onclick="closeProfileModal()">
+        <div class="modal-content-box" onclick="event.stopPropagation()">
             <div class="modal-header-row" style="border-bottom:none; margin-bottom:0; padding-bottom:5px;">
                 <h2>My Account</h2>
                 <div class="close-modal-icon" onclick="closeProfileModal()">×</div>
@@ -713,6 +746,19 @@
             const row = document.getElementById('brands-sidebar');
             row.scrollBy({ left: dir * 150, behavior: 'smooth' });
             setTimeout(updateBrandArrows, 300);
+        }
+
+        // 🟢 SYNC INPUTS BETWEEN DESKTOP & MOBILE 🟢
+        window.syncInputs = () => {
+            const isMobile = window.innerWidth <= 800;
+            if(isMobile) {
+                document.getElementById('search-bar-desktop').value = document.getElementById('search-bar-mobile').value;
+                document.getElementById('sort-dropdown-desktop').value = document.getElementById('sort-dropdown-mobile').value;
+            } else {
+                document.getElementById('search-bar-mobile').value = document.getElementById('search-bar-desktop').value;
+                document.getElementById('sort-dropdown-mobile').value = document.getElementById('sort-dropdown-desktop').value;
+            }
+            applyFilters();
         }
 
         const brandImageLinks = {
@@ -913,8 +959,13 @@
 
         function applyFilters() {
             const gridWrapper = document.getElementById('main-menu-grid'); const statusMsg = document.getElementById('status-msg');
-            const searchTerm = document.getElementById('search-bar').value.toLowerCase().trim(); 
-            const sortValue = document.getElementById('sort-dropdown').value;
+            
+            const isMobile = window.innerWidth <= 800;
+            const searchInput = isMobile ? document.getElementById('search-bar-mobile') : document.getElementById('search-bar-desktop');
+            const sortDropdown = isMobile ? document.getElementById('sort-dropdown-mobile') : document.getElementById('sort-dropdown-desktop');
+
+            const searchTerm = searchInput.value.toLowerCase().trim(); 
+            const sortValue = sortDropdown.value;
             const searchWords = searchTerm.split(/\s+/).filter(w => w.length > 0);
 
             let filteredItems = allItems.filter(item => {
@@ -959,7 +1010,10 @@
             document.getElementById('current-category-title').innerText = titlePrefix + titleText;
             document.getElementById('item-count').innerText = `${filteredItems.length} items`;
 
-            if (filteredItems.length === 0) { statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="setCategory('All Items'); setBrand('All Brands'); setTagFilter('All', document.querySelector('.filter-tag-chip')); document.getElementById('search-bar').value='';" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; statusMsg.style.display = 'block'; gridWrapper.innerHTML = ''; return; }
+            if (filteredItems.length === 0) { 
+                statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="document.getElementById('search-bar-desktop').value=''; document.getElementById('search-bar-mobile').value=''; syncInputs(); setCategory('All Items'); setBrand('All Brands'); setTagFilter('All', document.querySelector('.filter-tag-chip'));" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
+                statusMsg.style.display = 'block'; gridWrapper.innerHTML = ''; return; 
+            }
 
             statusMsg.style.display = 'none'; let newHTML = '';
             filteredItems.forEach((item, index) => {
