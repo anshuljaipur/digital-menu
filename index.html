@@ -257,7 +257,7 @@
         .pd-bottom-row { display: flex; justify-content: space-between; align-items: center; border-top: 2px solid var(--border-color); padding-top: 20px; margin-top: auto; }
 
 
-        /* 📱 🔥 MOBILE UI FIXES WITH FLOATING CATEGORY BUTTON 🔥 📱 */
+        /* 📱 🔥 MOBILE UI FIXES WITH VERTICAL EDGE BUTTON 🔥 📱 */
         @media (max-width: 800px) {
             header { padding: 10px 15px; height: 55px; }
             .header-logo { height: 35px; }
@@ -286,13 +286,11 @@
             .cat-icon { font-size: 1.8em; height: 35px; width: 35px; }
             .cat-name { font-size: 0.6em; text-align: center; white-space: normal; line-height: 1.2; word-wrap: break-word; padding: 0 2px;}
 
-            /* 🌟 CONTENT AREA TAKES FULL WIDTH NOW 🌟 */
             .content-area { 
                 width: 100vw; padding: 0px 10px 10px 10px; 
                 overflow-x: hidden; box-sizing: border-box;
             }
             
-            /* 🟢 SOLID BACKGROUND AUTO-HIDE MOBILE SEARCH BAR 🟢 */
             .controls-bar { 
                 padding: 15px 12px 5px 12px; gap: 10px; 
                 margin: 0px -10px 10px -10px; width: calc(100% + 20px);
@@ -352,15 +350,18 @@
             .floating-action-container { bottom: 85px; right: 15px; }
             .floating-btn { width: 40px; height: 40px; font-size: 1.1em;}
             
+            /* 🟢 NEW VERTICAL SIDE-TAB BUTTON 🟢 */
             #mobile-cat-toggle {
-                display: flex; position: fixed; bottom: 85px; left: -10px; 
+                display: flex; position: fixed; top: 50%; left: 0; transform: translateY(-50%);
                 background: var(--glacier-blue); color: white; border: none;
-                padding: 10px 20px 10px 25px; border-radius: 0 50px 50px 0;
-                font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 0.85em;
-                box-shadow: 4px 4px 15px rgba(31,81,198,0.4); cursor: pointer; z-index: 999;
-                align-items: center; gap: 8px; transition: 0.3s ease;
+                padding: 25px 8px; border-radius: 0 12px 12px 0;
+                font-size: 1.2em; font-weight: bold;
+                box-shadow: 4px 0px 15px rgba(31,81,198,0.4); cursor: pointer; z-index: 999;
+                align-items: center; justify-content: center;
+                transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
             }
-            #mobile-cat-toggle:hover { background: #1a42a4; padding-left: 30px; }
+            #mobile-cat-toggle:hover { background: #1a42a4; padding-left: 12px; }
+            
             /* Overlay shadow when sidebar is open */
             #sidebar-overlay {
                 display: none; position: fixed; top: 65px; left: 0; width: 100vw; height: calc(100dvh - 65px);
@@ -452,9 +453,7 @@
         </main>
     </div>
 
-    <button id="mobile-cat-toggle" onclick="toggleMobileCategory()">
-        <span style="font-size: 1.2em;">☰</span> Menu
-    </button>
+    <button id="mobile-cat-toggle" onclick="toggleMobileCategory()">❯</button>
 
     <div id="bottom-cart-banner" onclick="toggleCart()">
         <div class="banner-left">
@@ -641,12 +640,17 @@
             if(window.innerWidth > 800) return;
             const sidebar = document.getElementById('category-sidebar');
             const overlay = document.getElementById('sidebar-overlay');
+            const toggleBtn = document.getElementById('mobile-cat-toggle');
             
             sidebar.classList.toggle('mobile-open');
             if(sidebar.classList.contains('mobile-open')) {
                 overlay.classList.add('visible');
+                toggleBtn.innerHTML = '❮';
+                toggleBtn.style.left = '100px'; // Slides with the sidebar
             } else {
                 overlay.classList.remove('visible');
+                toggleBtn.innerHTML = '❯';
+                toggleBtn.style.left = '0'; // Snaps back to edge
             }
         }
 
@@ -847,7 +851,6 @@
             });
             document.getElementById('products-area').scrollTop = 0; applyFilters();
             
-            // Auto close mobile sidebar after selection
             if(window.innerWidth <= 800) toggleMobileCategory();
         }
 
