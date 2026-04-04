@@ -83,17 +83,20 @@
             backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
             border: none; box-shadow: none; 
             width: 45px; height: 65px; display: none; flex-direction: column; justify-content: center; 
-            cursor: pointer; color: var(--text-main); padding: 0; transition: 0.2s;
+            cursor: pointer; color: var(--glacier-blue); /* 🔵 Arrow Color Changed to Blue */
+            padding: 0; transition: 0.2s;
         }
-        .brand-arrow:hover { opacity: 1; color: var(--glacier-blue); }
-        .arrow-icon { font-size: 1.2em; font-weight: 900; line-height: 1; }
+        .brand-arrow:hover { opacity: 1; color: var(--primary-color); }
+        
+        /* 🔵 Arrow size increased and shadow added for clear visibility */
+        .arrow-icon { font-size: 1.5em; font-weight: 900; line-height: 1; text-shadow: 1px 1px 3px rgba(0,0,0,0.15); } 
         .arrow-count { font-size: 0.7em; font-weight: 800; color: var(--active-brand-red); margin-top: 2px; }
         
-        .left-arrow { left: 0; align-items: flex-start; padding-left: 10px; background: linear-gradient(to right, rgba(255,255,255,0.95) 40%, rgba(255,255,255,0)); }
-        .right-arrow { right: 0; align-items: flex-end; padding-right: 10px; background: linear-gradient(to left, rgba(255,255,255,0.95) 40%, rgba(255,255,255,0)); }
+        .left-arrow { left: 0; align-items: flex-start; padding-left: 8px; background: linear-gradient(to right, rgba(255,255,255,0.95) 45%, rgba(255,255,255,0)); }
+        .right-arrow { right: 0; align-items: flex-end; padding-right: 8px; background: linear-gradient(to left, rgba(255,255,255,0.95) 45%, rgba(255,255,255,0)); }
         
-        [data-theme="dark"] .left-arrow { background: linear-gradient(to right, rgba(30,41,59,0.95) 40%, rgba(30,41,59,0)); }
-        [data-theme="dark"] .right-arrow { background: linear-gradient(to left, rgba(30,41,59,0.95) 40%, rgba(30,41,59,0)); }
+        [data-theme="dark"] .left-arrow { background: linear-gradient(to right, rgba(30,41,59,0.95) 45%, rgba(30,41,59,0)); }
+        [data-theme="dark"] .right-arrow { background: linear-gradient(to left, rgba(30,41,59,0.95) 45%, rgba(30,41,59,0)); }
 
         .brand-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
         .brand-icon { width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--border-color); transition: 0.2s; background: #fff; padding: 5px; box-sizing: border-box; }
@@ -276,7 +279,7 @@
 
             /* 🌟 MOBILE BRAND SLIDER ARROWS 🌟 */
             .brand-arrow { height: 55px; top: 12px; width: 45px; }
-
+            .arrow-icon { font-size: 1.3em; }
             .brands-wrapper { border-bottom: none; } 
             .brands-row { padding: 12px 15px; gap: 15px; -webkit-overflow-scrolling: touch; border-bottom: 1px solid var(--border-color); }
             .brand-icon { width: 55px; height: 55px; }
