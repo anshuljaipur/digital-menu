@@ -73,32 +73,31 @@
         .btn-profile { background: rgba(228, 77, 38, 0.1); color: var(--primary-color); border-color: rgba(228, 77, 38, 0.2); }
         .btn-profile:hover { background: var(--primary-color); color: white; }
 
-        /* --- 2. TOP BRANDS ROW (WITH PREMIUM EDGE ARROWS) --- */
+        /* --- 2. TOP BRANDS ROW (WITH BLUE EDGE ARROWS) --- */
         .brands-wrapper { width: 100%; background: var(--card-bg); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; position: relative; flex-shrink: 0; z-index: 9; transition: 0.3s;}
         .brands-row { width: 100%; display: flex; justify-content: flex-start; overflow-x: auto; padding: 15px 20px; gap: 25px; scrollbar-width: none; box-sizing: border-box; scroll-behavior: smooth;}
         .brands-row::-webkit-scrollbar { display: none; }
         
         .brand-arrow { 
             position: absolute; top: 15px; z-index: 10; 
+            background: rgba(31, 81, 198, 0.9); /* 🔵 Blue Theme Background */
             backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-            border: none; box-shadow: none; 
-            width: 45px; height: 65px; display: none; flex-direction: column; justify-content: center; 
-            cursor: pointer; color: var(--glacier-blue); /* 🔵 Arrow Color Changed to Blue */
+            border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 12px rgba(31,81,198,0.3); 
+            width: 40px; height: 65px; display: none; flex-direction: column; justify-content: center; align-items: center !important;
+            cursor: pointer; color: #ffffff; /* ⚪ White Text */
             padding: 0; transition: 0.2s;
         }
-        .brand-arrow:hover { opacity: 1; color: var(--primary-color); }
+        .brand-arrow:hover { background: var(--glacier-blue); opacity: 1; }
         
-        /* 🔵 Arrow size increased and shadow added for clear visibility */
-        .arrow-icon { font-size: 1.5em; font-weight: 900; line-height: 1; text-shadow: 1px 1px 3px rgba(0,0,0,0.15); } 
-        .arrow-count { font-size: 0.7em; font-weight: 800; color: var(--active-brand-red); margin-top: 2px; }
+        .arrow-icon { font-size: 1.4em; font-weight: 900; line-height: 1; text-shadow: none; } 
+        .arrow-count { font-size: 0.7em; font-weight: 800; color: #ffffff; margin-top: 2px; opacity: 0.9;}
         
-        .left-arrow { left: 0; align-items: flex-start; padding-left: 8px; background: linear-gradient(to right, rgba(255,255,255,0.95) 45%, rgba(255,255,255,0)); }
-        .right-arrow { right: 0; align-items: flex-end; padding-right: 8px; background: linear-gradient(to left, rgba(255,255,255,0.95) 45%, rgba(255,255,255,0)); }
+        .left-arrow { left: 0; border-radius: 0 16px 16px 0; }
+        .right-arrow { right: 0; border-radius: 16px 0 0 16px; }
         
-        [data-theme="dark"] .left-arrow { background: linear-gradient(to right, rgba(30,41,59,0.95) 45%, rgba(30,41,59,0)); }
-        [data-theme="dark"] .right-arrow { background: linear-gradient(to left, rgba(30,41,59,0.95) 45%, rgba(30,41,59,0)); }
+        [data-theme="dark"] .brand-arrow { background: rgba(31, 81, 198, 0.8); border-color: rgba(255,255,255,0.1); }
 
-        .brand-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+        .brand-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; } 
         .brand-icon { width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--border-color); transition: 0.2s; background: #fff; padding: 5px; box-sizing: border-box; }
         .brand-icon img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; transform: scale(0.9); transition: 0.2s; } 
         .brand-name { font-size: 0.6em; font-weight: 700; color: var(--text-muted); text-align: center; margin-top: 8px; white-space: nowrap; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -160,7 +159,7 @@
         
         .card-img-wrapper { position: relative; background: #fff; border-radius: 12px; height: 160px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; flex-shrink: 0; cursor: pointer; overflow: hidden;}
         .card-img-wrapper img { width: 90%; height: 90%; object-fit: contain; mix-blend-mode: multiply; }
-        [data-theme="dark"] .card-img-wrapper { background: #e2e8f0; } /* Make images visible in dark mode */
+        [data-theme="dark"] .card-img-wrapper { background: #e2e8f0; } 
         
         .new-badge { position: absolute; top: -5px; left: -5px; background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; font-size: 0.6em; font-weight: 800; padding: 4px 10px; border-radius: 8px; z-index: 3; box-shadow: 0 2px 6px rgba(142,68,173,0.3); text-transform: uppercase; letter-spacing: 0.5px; }
         .red-discount-icon { position: absolute; top: -5px; right: -5px; background: var(--active-brand-red); color: white; font-size: 0.7em; font-weight: 800; padding: 4px 8px; border-radius: 8px; z-index: 3; }
@@ -270,7 +269,7 @@
         .pd-bottom-row { display: flex; justify-content: space-between; align-items: center; border-top: 2px solid var(--border-color); padding-top: 20px; margin-top: auto; }
 
 
-        /* 📱 🔥 MOBILE UI FIXES WITH EDGE ARROWS 🔥 📱 */
+        /* 📱 🔥 MOBILE UI FIXES 🔥 📱 */
         @media (max-width: 800px) {
             header { padding: 10px 15px; height: 55px; }
             .header-logo { height: 35px; }
@@ -278,8 +277,9 @@
             .action-btn { padding: 6px 10px; font-size: 0.8em; }
 
             /* 🌟 MOBILE BRAND SLIDER ARROWS 🌟 */
-            .brand-arrow { height: 55px; top: 12px; width: 45px; }
-            .arrow-icon { font-size: 1.3em; }
+            .brand-arrow { height: 55px; top: 12px; width: 35px; }
+            .arrow-icon { font-size: 1.2em; }
+
             .brands-wrapper { border-bottom: none; } 
             .brands-row { padding: 12px 15px; gap: 15px; -webkit-overflow-scrolling: touch; border-bottom: 1px solid var(--border-color); }
             .brand-icon { width: 55px; height: 55px; }
