@@ -207,13 +207,13 @@
         .legal-notice-vol { color: var(--active-brand-red); font-size: 1.1em; font-weight: 700; margin-bottom: 12px !important;}
 
         #bottom-cart-banner { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 600px; background: var(--glacier-blue); color: white; padding: 16px 25px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 1000; cursor: pointer; transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-sizing: border-box; }
-        #bottom-cart-banner.visible { bottom: 20px; }
+        #bottom-cart-banner.visible { bottom: calc(20px + env(safe-area-inset-bottom)); }
         .banner-left { display: flex; flex-direction: column; }
         .banner-items { font-size: 0.8em; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; }
         .banner-price { font-size: 1.3em; font-weight: 800; color: #fff;}
         .banner-right { font-size: 1.1em; display: flex; align-items: center; gap: 8px; color: #e0e7ff;}
 
-        .floating-action-container { position: fixed; bottom: 85px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 999; pointer-events: none; }
+        .floating-action-container { position: fixed; bottom: calc(85px + env(safe-area-inset-bottom)); right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 999; pointer-events: none; }
         .floating-btn { background: var(--glacier-blue); color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(31,81,198,0.4); cursor: pointer; opacity: 0; transition: 0.3s ease; transform: translateY(20px); pointer-events: auto; border: none;}
         .floating-btn.visible { opacity: 1; transform: translateY(0); }
         .floating-btn:hover { background: #1a42a4; }
@@ -278,14 +278,16 @@
         #pd-modal-volume { font-size: 0.9em; color: var(--text-muted); font-weight: 500; margin-bottom: 20px; }
         .pd-bottom-row { display: flex; justify-content: space-between; align-items: center; border-top: 2px solid var(--border-color); padding-top: 20px; margin-top: auto; }
 
-        @media (min-width: 801px) {
+        /* 🟢 DESKTOP FIXES 🟢 */
+        @media (min-width: 1000px) {
             #mobile-search-sort { display: none !important; }
             .controls-bar { margin: 0 -30px 15px -30px; padding: 5px 30px 5px 30px; border-bottom: none;}
         }
 
-        /* 📱 🔥 MOBILE UI FIXES 🔥 📱 */
-        @media (max-width: 800px) {
-            header { padding: 10px 15px; height: 55px; }
+        /* 📱 🔥 MOBILE UI FIXES (INCLUDES LANDSCAPE FIX) 🔥 📱 */
+        @media (max-width: 999px) {
+            /* 🟢 SAFE AREA INSET (IPHONE NOTCH FIX FOR LANDSCAPE) 🟢 */
+            header { padding: 10px calc(15px + env(safe-area-inset-right)) 10px calc(15px + env(safe-area-inset-left)); height: 55px; }
             .header-logo { height: 35px; }
             .hide-mobile-text { display: none; }
             .action-btn { padding: 6px 10px; font-size: 0.8em; }
@@ -297,7 +299,7 @@
             .brand-arrow { height: 55px; top: 12px; width: 35px; }
             .arrow-icon { font-size: 1.2em; }
 
-            .brands-row { padding: 12px 15px; gap: 15px; -webkit-overflow-scrolling: touch; border-bottom: none; }
+            .brands-row { padding: 12px calc(15px + env(safe-area-inset-right)) 12px calc(15px + env(safe-area-inset-left)); gap: 15px; -webkit-overflow-scrolling: touch; border-bottom: none; }
             .brand-icon { width: 55px; height: 55px; }
             .brand-name { font-size: 0.55em; }
 
@@ -306,6 +308,7 @@
             .sidebar { 
                 position: fixed; top: 65px; left: -100%; height: calc(100dvh - 65px);
                 width: 100px; padding: 10px 5px; padding-bottom: 100px;
+                padding-left: calc(5px + env(safe-area-inset-left));
                 border-right: 1px solid var(--border-color); background: var(--card-bg);
                 box-shadow: 4px 0 25px rgba(0,0,0,0.15);
                 overflow-x: hidden !important; overflow-y: auto; touch-action: pan-y; box-sizing: border-box;
@@ -318,13 +321,13 @@
             .cat-name { font-size: 0.6em; text-align: center; white-space: normal; line-height: 1.2; word-wrap: break-word; padding: 0 2px;}
 
             .content-area { 
-                width: 100vw; padding: 0px 10px 10px 10px; 
+                width: 100vw; padding: 0px calc(10px + env(safe-area-inset-right)) 10px calc(10px + env(safe-area-inset-left)); 
                 overflow-x: hidden; box-sizing: border-box;
             }
             
             .controls-bar { 
-                padding: 15px 12px 5px 12px; gap: 10px; 
-                margin: 0px -10px 10px -10px; width: calc(100% + 20px);
+                padding: 15px calc(12px + env(safe-area-inset-right)) 5px calc(12px + env(safe-area-inset-left)); gap: 10px; 
+                margin: 0px calc(-10px - env(safe-area-inset-right)) 10px calc(-10px - env(safe-area-inset-left)); width: auto;
                 border-bottom: 1px solid var(--border-color);
             }
             .search-sort-wrapper { flex-wrap: nowrap; gap: 8px; }
@@ -362,7 +365,7 @@
             .auth-btn, .checkout-btn { margin-bottom: 10px; }
             @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-            #bottom-cart-banner { width: calc(100% - 30px); padding: 14px 20px; bottom: -100px; border-radius: 14px;}
+            #bottom-cart-banner { width: calc(100% - 30px - env(safe-area-inset-left) - env(safe-area-inset-right)); padding: 14px 20px; bottom: -100px; border-radius: 14px;}
             #bottom-cart-banner.visible { bottom: calc(15px + env(safe-area-inset-bottom)); }
             .banner-items { font-size: 0.75em; }
             .banner-price { font-size: 1.2em; }
@@ -371,11 +374,11 @@
             #pd-modal-img { height: 180px; }
             #pd-modal-name { font-size: 1.2em; }
 
-            .floating-action-container { bottom: 85px; right: 15px; }
+            .floating-action-container { bottom: calc(85px + env(safe-area-inset-bottom)); right: calc(15px + env(safe-area-inset-right)); }
             .floating-btn { width: 40px; height: 40px; font-size: 1.1em;}
             
             #mobile-cat-toggle {
-                display: flex; position: fixed; top: 50%; left: 0; transform: translateY(-50%);
+                display: flex; position: fixed; top: 50%; left: env(safe-area-inset-left); transform: translateY(-50%);
                 background: var(--glacier-blue); color: white; border: none;
                 padding: 25px 8px; border-radius: 0 12px 12px 0;
                 font-size: 1.2em; font-weight: bold;
@@ -649,7 +652,6 @@
             else btn.innerText = '🖥️';
         }
 
-        // Initialize Theme
         applyTheme(currentTheme);
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
             if(currentTheme === 'auto') applyTheme('auto');
@@ -657,28 +659,25 @@
 
         // 🌟 Auto-Hide Search Bar & Back to Top Logic 🌟
         let lastScrollY = 0;
-        let showThreshold = 20; // 🟢 NAYA FIX: Tolerance for showing on upward scroll 🟢
+        let showThreshold = 20; 
         
         document.getElementById('products-area').addEventListener('scroll', function() {
             const controlsBar = document.querySelector('.controls-bar');
             const backToTop = document.getElementById('back-to-top');
 
-            if (window.innerWidth <= 800) {
+            // 🟢 NEW FIX: Use 999px to cover landscape mobile 🟢
+            if (window.innerWidth <= 999) {
                 let currentScrollY = this.scrollTop;
                 let scrollDiff = currentScrollY - lastScrollY;
 
-                // Only perform direction checks if outside the initial top buffer
                 if (currentScrollY > 60) {
-                     // If scrolling down, hide
                     if (scrollDiff > 0) {
                         controlsBar.style.top = '-160px'; 
                     } 
-                    // If scrolling up SIGNIFICANTLY (more than 20px), show
                     else if (scrollDiff < -showThreshold) {
                         controlsBar.style.top = '0'; 
                     }
                 } 
-                // Always show when near the very top
                 else {
                     controlsBar.style.top = '0'; 
                 }
@@ -697,7 +696,7 @@
 
         // 🌟 MOBILE CATEGORY OVERLAY LOGIC 🌟
         window.toggleMobileCategory = () => {
-            if(window.innerWidth > 800) return;
+            if(window.innerWidth > 999) return;
             const sidebar = document.getElementById('category-sidebar');
             const overlay = document.getElementById('sidebar-overlay');
             const toggleBtn = document.getElementById('mobile-cat-toggle');
@@ -706,11 +705,11 @@
             if(sidebar.classList.contains('mobile-open')) {
                 overlay.classList.add('visible');
                 toggleBtn.innerHTML = '❮';
-                toggleBtn.style.left = '100px'; 
+                toggleBtn.style.left = 'calc(100px + env(safe-area-inset-left))'; 
             } else {
                 overlay.classList.remove('visible');
                 toggleBtn.innerHTML = '❯';
-                toggleBtn.style.left = '0'; 
+                toggleBtn.style.left = 'env(safe-area-inset-left)'; 
             }
         }
 
@@ -757,7 +756,7 @@
 
         // 🟢 SYNC INPUTS BETWEEN DESKTOP & MOBILE 🟢
         window.syncInputs = () => {
-            const isMobile = window.innerWidth <= 800;
+            const isMobile = window.innerWidth <= 999;
             if(isMobile) {
                 document.getElementById('search-bar-desktop').value = document.getElementById('search-bar-mobile').value;
                 document.getElementById('sort-dropdown-desktop').value = document.getElementById('sort-dropdown-mobile').value;
@@ -858,7 +857,6 @@
                 setupAppUI(); applyFilters();
                 loadingBar.style.width = '100%'; 
                 
-                // 🟢 HIDE SPLASH SCREEN AFTER LOAD 🟢
                 setTimeout(() => {
                     const splash = document.getElementById('splash-screen');
                     if(splash) {
@@ -893,12 +891,10 @@
                     if(lCat.includes('family')||lCat.includes('pack')) iconHTML = '📦';
                     else if(lCat.includes('tub')) iconHTML = '<img src="https://i.postimg.cc/ydZk4TbJ/1012418_1.png" style="width: 24px; height: 24px; object-fit: contain;">';
                     else if(lCat.includes('cone')) iconHTML = '🍦'; 
-                    else if(lCat.includes('stick')||lCat.includes('bar')) iconHTML = '<img src="https://i.postimg.cc/QNvs0hfc/ice-cream-stick-ico.png" style="width: 24px; height: 24px; object-fit: contain;">';
-                    else if(lCat.includes('kulfi')) iconHTML = '<img src="https://i.postimg.cc/QC6CP5Pp/5350544-1.png" style="width: 24px; height: 24px; object-fit: contain;">';
+                    else if(lCat.includes('stick')||lCat.includes('bar') || lCat.includes('kulfi')) iconHTML = '<img src="https://i.postimg.cc/QC6CP5Pp/5350544-1.png" style="width: 24px; height: 24px; object-fit: contain;">'; 
                     else if(lCat.includes('cake')||lCat.includes('slice')) iconHTML = '🍰'; 
-                    else if(lCat.includes('sundae')) iconHTML = '🍨'; 
-                    else if(lCat.includes('cup')) iconHTML = '<img src="https://i.postimg.cc/Wz8GpXY2/ice-cream-cup-ico.png" style="width: 24px; height: 24px; object-fit: contain;">';
-                    else iconHTML = '🍦';
+                    else if(lCat.includes('cup')||lCat.includes('sundae')) iconHTML = '🍧'; 
+                    else iconHTML = '🍨';
                 }
                 const div = document.createElement('div'); div.className = `cat-item ${cat === 'All Items' ? 'active' : ''}`;
                 div.onclick = () => setCategory(cat); div.innerHTML = `<div class="cat-icon">${iconHTML}</div><div class="cat-name">${name}</div>`;
@@ -946,7 +942,7 @@
             applyFilters();
             setTimeout(() => document.getElementById('products-area').scrollTop = 0, 10);
             
-            if(window.innerWidth <= 800) toggleMobileCategory();
+            if(window.innerWidth <= 999) toggleMobileCategory();
         }
 
         function setBrand(brandName) {
@@ -987,7 +983,7 @@
         function applyFilters() {
             const gridWrapper = document.getElementById('main-menu-grid'); const statusMsg = document.getElementById('status-msg');
             
-            const isMobile = window.innerWidth <= 800;
+            const isMobile = window.innerWidth <= 999;
             const searchInput = isMobile ? document.getElementById('search-bar-mobile') : document.getElementById('search-bar-desktop');
             const sortDropdown = isMobile ? document.getElementById('sort-dropdown-mobile') : document.getElementById('sort-dropdown-desktop');
 
