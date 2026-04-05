@@ -657,17 +657,32 @@
 
         // 🌟 Auto-Hide Search Bar & Back to Top Logic 🌟
         let lastScrollY = 0;
+        let showThreshold = 20; // 🟢 NAYA FIX: Tolerance for showing on upward scroll 🟢
+        
         document.getElementById('products-area').addEventListener('scroll', function() {
             const controlsBar = document.querySelector('.controls-bar');
             const backToTop = document.getElementById('back-to-top');
 
             if (window.innerWidth <= 800) {
                 let currentScrollY = this.scrollTop;
-                if (currentScrollY > lastScrollY && currentScrollY > 60) {
-                    controlsBar.style.top = '-160px'; 
-                } else {
+                let scrollDiff = currentScrollY - lastScrollY;
+
+                // Only perform direction checks if outside the initial top buffer
+                if (currentScrollY > 60) {
+                     // If scrolling down, hide
+                    if (scrollDiff > 0) {
+                        controlsBar.style.top = '-160px'; 
+                    } 
+                    // If scrolling up SIGNIFICANTLY (more than 20px), show
+                    else if (scrollDiff < -showThreshold) {
+                        controlsBar.style.top = '0'; 
+                    }
+                } 
+                // Always show when near the very top
+                else {
                     controlsBar.style.top = '0'; 
                 }
+                
                 lastScrollY = currentScrollY;
             } else {
                 controlsBar.style.top = '0'; 
@@ -849,7 +864,7 @@
                     if(splash) {
                         splash.style.opacity = '0';
                         splash.style.visibility = 'hidden';
-                        setTimeout(() => splash.remove(), 600); // Remove from DOM after fade
+                        setTimeout(() => splash.remove(), 600); 
                     }
                     loadingBar.style.opacity = '0'; 
                     statusMsg.style.display='none'; 
@@ -878,10 +893,11 @@
                     if(lCat.includes('family')||lCat.includes('pack')) iconHTML = '📦';
                     else if(lCat.includes('tub')) iconHTML = '<img src="https://i.postimg.cc/ydZk4TbJ/1012418_1.png" style="width: 24px; height: 24px; object-fit: contain;">';
                     else if(lCat.includes('cone')) iconHTML = '🍦'; 
-                    else if(lCat.includes('stick')||lCat.includes('bar')) iconHTML = '🍡'; 
+                    // 🟢 NAYA FIX: Kulfi icon changed 🟢
+                    else if(lCat.includes('stick')||lCat.includes('bar') || lCat.includes('kulfi')) iconHTML = '<img src="https://i.postimg.cc/QC6CP5Pp/5350544-1.png" style="width: 24px; height: 24px; object-fit: contain;">'; 
                     else if(lCat.includes('cake')||lCat.includes('slice')) iconHTML = '🍰'; 
-                    else if(lCat.includes('cup')||lCat.includes('sundae')) iconHTML = '🍧'; 
-                    else iconHTML = '🍨';
+                    else if(lCat.includes('cup')||lCat.includes('sundae')) iconHTML = '🍨'; 
+                    else iconHTML = '🍦';
                 }
                 const div = document.createElement('div'); div.className = `cat-item ${cat === 'All Items' ? 'active' : ''}`;
                 div.onclick = () => setCategory(cat); div.innerHTML = `<div class="cat-icon">${iconHTML}</div><div class="cat-name">${name}</div>`;
