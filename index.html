@@ -16,7 +16,7 @@
             --glacier-blue: #1f51c6; 
             --active-brand-red: #e74c3c;
             
-            /* LIGHT THEME (DEFAULT) */
+            /* LIGHT THEME */
             --bg-color: #ffffff;
             --main-bg: #f8f9fc;
             --card-bg: #ffffff;
@@ -67,19 +67,12 @@
         .skeleton-bg { background: linear-gradient(90deg, var(--chip-bg) 25%, var(--border-color) 50%, var(--chip-bg) 75%) !important; background-size: 200% 100% !important; animation: shimmer 1.5s infinite linear !important; }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-        /* 🌟 SPLASH SCREEN CSS 🌟 */
-        #splash-screen {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
-            background: linear-gradient(135deg, var(--glacier-blue), #1a42a4);
-            z-index: 999999; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
+        /* 🌟 SPLASH SCREEN 🌟 */
+        #splash-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: linear-gradient(135deg, var(--glacier-blue), #1a42a4); z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease; }
         .splash-content { text-align: center; color: white; }
         .splash-icon { font-size: 5em; animation: bounce-scoop 0.8s infinite alternate cubic-bezier(0.4, 0, 0.2, 1); margin-bottom: 15px; }
         .splash-title { font-family: 'Montserrat', sans-serif; font-size: 2.2em; font-weight: 800; letter-spacing: 1px; margin: 0; text-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .splash-subtext { font-size: 0.9em; opacity: 0.8; font-weight: 500; margin-top: 10px; animation: pulse-text 1.5s infinite; }
-        
         @keyframes bounce-scoop { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(-25px) scale(1.05); } }
         @keyframes pulse-text { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
@@ -94,6 +87,8 @@
         .btn-profile { background: rgba(228, 77, 38, 0.1); color: var(--primary-color); border-color: rgba(228, 77, 38, 0.2); }
         .btn-profile:hover { background: var(--primary-color); color: white; }
 
+        .landscape-search-sort { display: none; } /* Hidden by default */
+
         /* --- 2. TOP SECTION (BRANDS + SEARCH/SORT) --- */
         .top-nav-bar { display: flex; width: 100%; background: var(--card-bg); border-bottom: 1px solid var(--border-color); z-index: 9; flex-shrink: 0; transition: 0.3s; }
         
@@ -104,23 +99,21 @@
         .search-sort-side { display: flex; flex-direction: column; width: 320px; padding: 10px 20px; gap: 8px; border-left: 1px solid var(--border-color); justify-content: center; }
         .search-sort-side .control-chip { padding: 6px 15px; margin: 0; min-width: auto; flex: 1;}
 
+        /* 🟢 HIGHLIGHTED FIX: EDGE-FADING SCROLLER ARROWS 🟢 */
         .brand-arrow { 
-            position: absolute; top: 15px; z-index: 10; 
-            background: rgba(31, 81, 198, 0.9); 
-            backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-            border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 12px rgba(31,81,198,0.3); 
-            width: 40px; height: 65px; display: none; flex-direction: column; justify-content: center; align-items: center !important;
-            cursor: pointer; color: #ffffff; 
-            padding: 0; transition: 0.2s;
+            position: absolute; top: 0; z-index: 10; 
+            height: 100%; width: 50px; display: none; flex-direction: column; justify-content: center; 
+            cursor: pointer; color: var(--text-main); padding: 0; transition: 0.2s;
+            background: transparent; border: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none;
         }
-        .brand-arrow:hover { background: var(--glacier-blue); opacity: 1; }
-        .arrow-icon { font-size: 1.4em; font-weight: 900; line-height: 1; text-shadow: none; } 
-        .arrow-count { font-size: 0.7em; font-weight: 800; color: #ffffff; margin-top: 2px; opacity: 0.9;}
-        .left-arrow { left: 0; border-radius: 0 16px 16px 0; }
-        .right-arrow { right: 0; border-radius: 16px 0 0 16px; }
-        [data-theme="dark"] .brand-arrow { background: rgba(31, 81, 198, 0.8); border-color: rgba(255,255,255,0.1); }
+        .left-arrow { left: 0; align-items: flex-start; padding-left: 5px; background: linear-gradient(90deg, var(--card-bg) 40%, transparent); }
+        .right-arrow { right: 0; align-items: flex-end; padding-right: 5px; background: linear-gradient(270deg, var(--card-bg) 40%, transparent); }
+        
+        .arrow-icon { font-size: 1.4em; font-weight: 800; line-height: 1; text-shadow: none; opacity: 0.7;} 
+        .brand-arrow:hover .arrow-icon { opacity: 1; color: var(--glacier-blue); }
+        .arrow-count { font-size: 0.7em; font-weight: 800; color: var(--active-brand-red); margin-top: 2px; opacity: 1;}
 
-        .brand-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; } 
+        .brand-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; z-index: 1;} 
         .brand-icon { width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--border-color); transition: 0.2s; background: #fff; padding: 5px; box-sizing: border-box; }
         .brand-icon img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; transform: scale(0.9); transition: 0.2s; } 
         .brand-name { font-size: 0.6em; font-weight: 700; color: var(--text-muted); text-align: center; margin-top: 8px; white-space: nowrap; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -207,13 +200,13 @@
         .legal-notice-vol { color: var(--active-brand-red); font-size: 1.1em; font-weight: 700; margin-bottom: 12px !important;}
 
         #bottom-cart-banner { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 600px; background: var(--glacier-blue); color: white; padding: 16px 25px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 1000; cursor: pointer; transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-sizing: border-box; }
-        #bottom-cart-banner.visible { bottom: calc(20px + env(safe-area-inset-bottom)); }
+        #bottom-cart-banner.visible { bottom: 20px; }
         .banner-left { display: flex; flex-direction: column; }
         .banner-items { font-size: 0.8em; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; }
         .banner-price { font-size: 1.3em; font-weight: 800; color: #fff;}
         .banner-right { font-size: 1.1em; display: flex; align-items: center; gap: 8px; color: #e0e7ff;}
 
-        .floating-action-container { position: fixed; bottom: calc(85px + env(safe-area-inset-bottom)); right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 999; pointer-events: none; }
+        .floating-action-container { position: fixed; bottom: 85px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 999; pointer-events: none; }
         .floating-btn { background: var(--glacier-blue); color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(31,81,198,0.4); cursor: pointer; opacity: 0; transition: 0.3s ease; transform: translateY(20px); pointer-events: auto; border: none;}
         .floating-btn.visible { opacity: 1; transform: translateY(0); }
         .floating-btn:hover { background: #1a42a4; }
@@ -278,16 +271,14 @@
         #pd-modal-volume { font-size: 0.9em; color: var(--text-muted); font-weight: 500; margin-bottom: 20px; }
         .pd-bottom-row { display: flex; justify-content: space-between; align-items: center; border-top: 2px solid var(--border-color); padding-top: 20px; margin-top: auto; }
 
-        /* 🟢 DESKTOP FIXES 🟢 */
         @media (min-width: 1000px) {
             #mobile-search-sort { display: none !important; }
             .controls-bar { margin: 0 -30px 15px -30px; padding: 5px 30px 5px 30px; border-bottom: none;}
         }
 
-        /* 📱 🔥 MOBILE UI FIXES (INCLUDES LANDSCAPE FIX) 🔥 📱 */
+        /* 📱 🔥 MOBILE PORTRAIT UI FIXES 🔥 📱 */
         @media (max-width: 999px) {
-            /* 🟢 SAFE AREA INSET (IPHONE NOTCH FIX FOR LANDSCAPE) 🟢 */
-            header { padding: 10px calc(15px + env(safe-area-inset-right)) 10px calc(15px + env(safe-area-inset-left)); height: 55px; }
+            header { padding: 10px 15px; height: 55px; }
             .header-logo { height: 35px; }
             .hide-mobile-text { display: none; }
             .action-btn { padding: 6px 10px; font-size: 0.8em; }
@@ -296,10 +287,7 @@
             .top-nav-bar { flex-direction: column; border-bottom: none; }
             .brands-wrapper { border-bottom: 1px solid var(--border-color); width: 100%; } 
             
-            .brand-arrow { height: 55px; top: 12px; width: 35px; }
-            .arrow-icon { font-size: 1.2em; }
-
-            .brands-row { padding: 12px calc(15px + env(safe-area-inset-right)) 12px calc(15px + env(safe-area-inset-left)); gap: 15px; -webkit-overflow-scrolling: touch; border-bottom: none; }
+            .brands-row { padding: 12px 15px; gap: 15px; -webkit-overflow-scrolling: touch; border-bottom: none; }
             .brand-icon { width: 55px; height: 55px; }
             .brand-name { font-size: 0.55em; }
 
@@ -308,7 +296,6 @@
             .sidebar { 
                 position: fixed; top: 65px; left: -100%; height: calc(100dvh - 65px);
                 width: 100px; padding: 10px 5px; padding-bottom: 100px;
-                padding-left: calc(5px + env(safe-area-inset-left));
                 border-right: 1px solid var(--border-color); background: var(--card-bg);
                 box-shadow: 4px 0 25px rgba(0,0,0,0.15);
                 overflow-x: hidden !important; overflow-y: auto; touch-action: pan-y; box-sizing: border-box;
@@ -320,14 +307,11 @@
             .cat-icon { font-size: 1.8em; height: 35px; width: 35px; }
             .cat-name { font-size: 0.6em; text-align: center; white-space: normal; line-height: 1.2; word-wrap: break-word; padding: 0 2px;}
 
-            .content-area { 
-                width: 100vw; padding: 0px calc(10px + env(safe-area-inset-right)) 10px calc(10px + env(safe-area-inset-left)); 
-                overflow-x: hidden; box-sizing: border-box;
-            }
+            .content-area { width: 100vw; padding: 0px 10px 10px 10px; overflow-x: hidden; box-sizing: border-box; }
             
             .controls-bar { 
-                padding: 15px calc(12px + env(safe-area-inset-right)) 5px calc(12px + env(safe-area-inset-left)); gap: 10px; 
-                margin: 0px calc(-10px - env(safe-area-inset-right)) 10px calc(-10px - env(safe-area-inset-left)); width: auto;
+                padding: 15px 12px 5px 12px; gap: 10px; 
+                margin: 0px -10px 10px -10px; width: calc(100% + 20px);
                 border-bottom: 1px solid var(--border-color);
             }
             .search-sort-wrapper { flex-wrap: nowrap; gap: 8px; }
@@ -355,12 +339,7 @@
             .app-qty-control button { font-size: 1.1em; padding: 0 4px; }
 
             .custom-modal { align-items: flex-end; }
-            .modal-content-box { 
-                border-radius: 24px 24px 0 0; width: 100%; max-width: 100%; margin: 0; 
-                animation: slideUp 0.3s ease-out; padding: 25px 20px;
-                padding-bottom: calc(25px + env(safe-area-inset-bottom)); 
-                max-height: 90dvh; 
-            }
+            .modal-content-box { border-radius: 24px 24px 0 0; width: 100%; max-width: 100%; margin: 0; animation: slideUp 0.3s ease-out; padding: 25px 20px; padding-bottom: calc(25px + env(safe-area-inset-bottom)); max-height: 90dvh; }
             .auth-input { padding: 12px; margin-bottom: 12px; }
             .auth-btn, .checkout-btn { margin-bottom: 10px; }
             @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -380,11 +359,9 @@
             #mobile-cat-toggle {
                 display: flex; position: fixed; top: 50%; left: env(safe-area-inset-left); transform: translateY(-50%);
                 background: var(--glacier-blue); color: white; border: none;
-                padding: 25px 8px; border-radius: 0 12px 12px 0;
-                font-size: 1.2em; font-weight: bold;
+                padding: 25px 8px; border-radius: 0 12px 12px 0; font-size: 1.2em; font-weight: bold;
                 box-shadow: 4px 0px 15px rgba(31,81,198,0.4); cursor: pointer; z-index: 999;
-                align-items: center; justify-content: center;
-                transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+                align-items: center; justify-content: center; transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
             }
             #mobile-cat-toggle:hover { background: #1a42a4; padding-left: 12px; }
             
@@ -393,6 +370,33 @@
                 background: rgba(0,0,0,0.5); z-index: 899; backdrop-filter: blur(2px);
             }
             #sidebar-overlay.visible { display: block; }
+        }
+
+        /* 📱 🔥 LANDSCAPE MODE FIX (FOR MOBILE) 🔥 📱 */
+        @media (max-width: 999px) and (orientation: landscape) {
+            header { padding: 5px calc(15px + env(safe-area-inset-right)) 5px calc(15px + env(safe-area-inset-left)); height: 50px; }
+            .header-logo { height: 28px; }
+            
+            /* Show Search/Sort in Header */
+            .landscape-search-sort { display: flex; flex: 1; align-items: center; justify-content: center; gap: 10px; margin: 0 15px; }
+            .landscape-search-sort .control-chip { background: var(--main-bg); border: 1px solid var(--border-color); border-radius: 50px; padding: 4px 12px; display: flex; align-items: center; flex: 1; max-width: 250px; height: 32px;}
+            .landscape-search-sort input, .landscape-search-sort select { border: none; background: transparent; color: var(--text-main); font-family: inherit; font-size: 0.85em !important; width: 100%; outline: none; margin-left: 5px;}
+            
+            #mobile-search-sort { display: none !important; }
+            .controls-bar { margin: 0 !important; padding: 10px !important; border-bottom: none !important; background: transparent !important; position: relative !important; top: 0 !important; }
+            
+            /* Category Fixed Left */
+            .sidebar { position: fixed !important; top: 50px !important; left: env(safe-area-inset-left) !important; width: 80px !important; height: calc(100dvh - 50px) !important; display: flex !important; transform: none !important; box-shadow: 1px 0 5px rgba(0,0,0,0.05) !important; z-index: 100; padding-bottom: 20px !important; }
+            #mobile-cat-toggle { display: none !important; }
+            
+            /* Layout Adjustments */
+            .top-nav-bar { padding-left: calc(80px + env(safe-area-inset-left)) !important; padding-right: calc(120px + env(safe-area-inset-right)) !important; box-sizing: border-box;}
+            .main-layout { margin-left: 80px; width: calc(100vw - 80px); flex-direction: row; }
+            .content-area { padding-left: env(safe-area-inset-left) !important; padding-right: calc(130px + env(safe-area-inset-right)) !important; }
+            
+            /* Tags Right Fixed Panel */
+            .tags-container { position: fixed !important; right: env(safe-area-inset-right) !important; top: 50px !important; width: 120px !important; height: calc(100dvh - 50px) !important; background: var(--card-bg) !important; border-left: 1px solid var(--border-color) !important; flex-direction: column !important; overflow-y: auto !important; padding: 10px !important; white-space: normal !important; flex-wrap: nowrap !important; z-index: 100; gap: 8px; box-sizing: border-box; }
+            .filter-tag-chip { text-align: center; justify-content: center; padding: 8px 5px !important; font-size: 0.65em !important; white-space: normal !important; height: auto !important;}
         }
 
         @media (max-width: 360px) {
@@ -419,6 +423,23 @@
 
     <header>
         <img src="https://i.postimg.cc/c4MX4XyQ/logo-glacier.png" alt="Glacier Ice Cream Logo" class="header-logo">
+        
+        <div class="landscape-search-sort">
+            <div class="control-chip">
+                🔍 <input type="text" id="search-bar-landscape" placeholder="Search..." onkeyup="syncInputs('landscape')">
+            </div>
+            <div class="control-chip">
+                ↕️ <select id="sort-dropdown-landscape" onchange="syncInputs('landscape')">
+                    <option value="default">Sort by relevance</option>
+                    <option value="disc-high-low">Discount: High - Low</option>
+                    <option value="low-high">Price: Low - High</option>
+                    <option value="high-low">Price: High - Low</option>
+                    <option value="vol-low-high">Size: Small - Large</option>
+                    <option value="vol-high-low">Size: Large - Small</option>
+                </select>
+            </div>
+        </div>
+
         <div class="header-actions">
             <button class="action-btn" onclick="cycleTheme()" id="theme-toggle-btn" title="Toggle Theme">🖥️</button>
             <button class="action-btn btn-profile" onclick="handleProfileClick()" id="nav-profile-btn">
@@ -445,10 +466,10 @@
 
         <div class="search-sort-side" id="desktop-search-sort">
             <div class="control-chip">
-                🔍 <input type="text" id="search-bar-desktop" placeholder="Search ice creams..." onkeyup="syncInputs()">
+                🔍 <input type="text" id="search-bar-desktop" placeholder="Search ice creams..." onkeyup="syncInputs('desktop')">
             </div>
             <div class="control-chip">
-                ↕️ <select id="sort-dropdown-desktop" onchange="syncInputs()">
+                ↕️ <select id="sort-dropdown-desktop" onchange="syncInputs('desktop')">
                     <option value="default">Sort by relevance</option>
                     <option value="disc-high-low">Discount: High - Low</option>
                     <option value="low-high">Price: Low - High</option>
@@ -470,10 +491,10 @@
             <div class="controls-bar">
                 <div class="search-sort-wrapper" id="mobile-search-sort">
                     <div class="control-chip">
-                        🔍 <input type="text" id="search-bar-mobile" placeholder="Search ice creams..." onkeyup="syncInputs()">
+                        🔍 <input type="text" id="search-bar-mobile" placeholder="Search ice creams..." onkeyup="syncInputs('mobile')">
                     </div>
                     <div class="control-chip">
-                        ↕️ <select id="sort-dropdown-mobile" onchange="syncInputs()">
+                        ↕️ <select id="sort-dropdown-mobile" onchange="syncInputs('mobile')">
                             <option value="default">Sort by relevance</option>
                             <option value="disc-high-low">Discount: High - Low</option>
                             <option value="low-high">Price: Low - High</option>
@@ -665,8 +686,7 @@
             const controlsBar = document.querySelector('.controls-bar');
             const backToTop = document.getElementById('back-to-top');
 
-            // 🟢 NEW FIX: Use 999px to cover landscape mobile 🟢
-            if (window.innerWidth <= 999) {
+            if (window.innerWidth <= 999 && !window.matchMedia("(orientation: landscape)").matches) {
                 let currentScrollY = this.scrollTop;
                 let scrollDiff = currentScrollY - lastScrollY;
 
@@ -696,7 +716,7 @@
 
         // 🌟 MOBILE CATEGORY OVERLAY LOGIC 🌟
         window.toggleMobileCategory = () => {
-            if(window.innerWidth > 999) return;
+            if(window.innerWidth > 999 || window.matchMedia("(orientation: landscape)").matches) return;
             const sidebar = document.getElementById('category-sidebar');
             const overlay = document.getElementById('sidebar-overlay');
             const toggleBtn = document.getElementById('mobile-cat-toggle');
@@ -754,16 +774,19 @@
             setTimeout(updateBrandArrows, 300);
         }
 
-        // 🟢 SYNC INPUTS BETWEEN DESKTOP & MOBILE 🟢
-        window.syncInputs = () => {
-            const isMobile = window.innerWidth <= 999;
-            if(isMobile) {
-                document.getElementById('search-bar-desktop').value = document.getElementById('search-bar-mobile').value;
-                document.getElementById('sort-dropdown-desktop').value = document.getElementById('sort-dropdown-mobile').value;
-            } else {
-                document.getElementById('search-bar-mobile').value = document.getElementById('search-bar-desktop').value;
-                document.getElementById('sort-dropdown-mobile').value = document.getElementById('sort-dropdown-desktop').value;
-            }
+        // 🟢 SYNC INPUTS BETWEEN DESKTOP, MOBILE & LANDSCAPE 🟢
+        window.syncInputs = (source) => {
+            const searchVal = document.getElementById(`search-bar-${source}`).value;
+            const sortVal = document.getElementById(`sort-dropdown-${source}`).value;
+            
+            ['desktop', 'mobile', 'landscape'].forEach(env => {
+                if(env !== source) {
+                    const searchEl = document.getElementById(`search-bar-${env}`);
+                    const sortEl = document.getElementById(`sort-dropdown-${env}`);
+                    if(searchEl) searchEl.value = searchVal;
+                    if(sortEl) sortEl.value = sortVal;
+                }
+            });
             applyFilters();
         }
 
@@ -925,7 +948,14 @@
                 tagsContainer.style.display = 'none';
             }
 
-            window.addEventListener('resize', updateBrandArrows);
+            window.addEventListener('resize', () => {
+                updateBrandArrows();
+                if(window.innerWidth > 999 || window.matchMedia("(orientation: landscape)").matches) {
+                    document.getElementById('category-sidebar').classList.remove('mobile-open');
+                    document.getElementById('sidebar-overlay').classList.remove('visible');
+                    document.getElementById('mobile-cat-toggle').innerHTML = '❯';
+                }
+            });
         }
 
         function setCategory(categoryName) {
@@ -942,7 +972,7 @@
             applyFilters();
             setTimeout(() => document.getElementById('products-area').scrollTop = 0, 10);
             
-            if(window.innerWidth <= 999) toggleMobileCategory();
+            toggleMobileCategory();
         }
 
         function setBrand(brandName) {
@@ -983,12 +1013,15 @@
         function applyFilters() {
             const gridWrapper = document.getElementById('main-menu-grid'); const statusMsg = document.getElementById('status-msg');
             
-            const isMobile = window.innerWidth <= 999;
-            const searchInput = isMobile ? document.getElementById('search-bar-mobile') : document.getElementById('search-bar-desktop');
-            const sortDropdown = isMobile ? document.getElementById('sort-dropdown-mobile') : document.getElementById('sort-dropdown-desktop');
+            let activeEnv = 'mobile';
+            if(window.innerWidth > 999) activeEnv = 'desktop';
+            else if(window.matchMedia("(orientation: landscape)").matches) activeEnv = 'landscape';
+            
+            const searchInput = document.getElementById(`search-bar-${activeEnv}`);
+            const sortDropdown = document.getElementById(`sort-dropdown-${activeEnv}`);
 
-            const searchTerm = searchInput.value.toLowerCase().trim(); 
-            const sortValue = sortDropdown.value;
+            const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : ''; 
+            const sortValue = sortDropdown ? sortDropdown.value : 'default';
             const searchWords = searchTerm.split(/\s+/).filter(w => w.length > 0);
 
             let filteredItems = allItems.filter(item => {
@@ -1034,7 +1067,7 @@
             document.getElementById('item-count').innerText = `${filteredItems.length} items`;
 
             if (filteredItems.length === 0) { 
-                statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="document.getElementById('search-bar-desktop').value=''; document.getElementById('search-bar-mobile').value=''; syncInputs(); setCategory('All Items'); setBrand('All Brands'); setTagFilter('All', document.querySelector('.filter-tag-chip'));" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
+                statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="['desktop','mobile','landscape'].forEach(e => { let sb = document.getElementById('search-bar-'+e); if(sb) sb.value=''; }); applyFilters(); setCategory('All Items'); setBrand('All Brands'); setTagFilter('All', document.querySelector('.filter-tag-chip'));" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
                 statusMsg.style.display = 'block'; gridWrapper.innerHTML = ''; return; 
             }
 
