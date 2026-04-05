@@ -2,7 +2,7 @@
 <html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, viewport-fit=cover">
     <title>Glacier Ice Cream - Digital Menu</title>
     
     <link rel="icon" type="image/jpeg" href="https://i.postimg.cc/DfWgmYTD/favicon.jpg"> 
@@ -44,6 +44,7 @@
         }
 
         /* 🚨 GLOBAL RESET & LOCK 🚨 */
+        html { -webkit-text-size-adjust: 100%; } /* Fix iOS rotation zoom bug */
         html, body { 
             margin: 0; padding: 0; 
             width: 100vw; max-width: 100%; 
@@ -92,7 +93,7 @@
         /* --- 2. TOP SECTION (BRANDS + SEARCH/SORT) --- */
         .top-nav-bar { display: flex; width: 100%; background: var(--card-bg); border-bottom: 1px solid var(--border-color); z-index: 9; flex-shrink: 0; transition: 0.3s; }
         
-        .brands-wrapper { flex: 1; min-width: 0; display: flex; align-items: center; position: relative; transition: height 0.3s ease, opacity 0.3s ease;}
+        .brands-wrapper { flex: 1; min-width: 0; display: flex; align-items: center; position: relative; transition: height 0.3s ease, opacity 0.3s ease, border 0.3s ease;}
         .brands-row { width: 100%; display: flex; justify-content: flex-start; overflow-x: auto; padding: 15px 20px; gap: 25px; scrollbar-width: none; box-sizing: border-box; scroll-behavior: smooth;}
         .brands-row::-webkit-scrollbar { display: none; }
         
@@ -158,6 +159,9 @@
         .filter-tag-chip { padding: 8px 16px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 50px; font-size: 0.75em; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex-shrink: 0; }
         .filter-tag-chip:hover { border-color: var(--glacier-blue); color: var(--text-main); }
         .filter-tag-chip.active { background: var(--glacier-blue); color: #fff; border-color: var(--glacier-blue); box-shadow: 0 4px 8px rgba(31,81,198,0.2); }
+
+        /* External Tags Container (For Landscape) */
+        .tags-sidebar-landscape { display: none; }
 
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
         .section-header h2 { margin: 0; font-size: 1.4em; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
@@ -286,7 +290,7 @@
             .action-btn { padding: 6px 10px; font-size: 0.8em; }
 
             .search-sort-side { display: none !important; } 
-            .top-nav-bar { flex-direction: column; border-bottom: none; }
+            .top-nav-bar { flex-direction: column; border-bottom: none; width: 100%;}
             .brands-wrapper { border-bottom: 1px solid var(--border-color); width: 100%; } 
             
             .brands-row { padding: 12px 15px; gap: 15px; -webkit-overflow-scrolling: touch; border-bottom: none; }
@@ -392,6 +396,7 @@
                 border-bottom: 1px solid var(--border-color); 
                 transition: height 0.3s ease, opacity 0.3s ease !important;
                 overflow: hidden;
+                margin-left: calc(80px + env(safe-area-inset-left)) !important; 
                 width: calc(100vw - 80px - 120px - env(safe-area-inset-left) - env(safe-area-inset-right)) !important; 
             }
             .hidden-landscape {
@@ -407,8 +412,7 @@
             
             /* 🟢 Squeeze Top Nav and Main Layout between Sidebar and Tags 🟢 */
             .top-nav-bar { 
-                margin-left: calc(80px + env(safe-area-inset-left)) !important; 
-                width: calc(100vw - 80px - 120px - env(safe-area-inset-left) - env(safe-area-inset-right)) !important; 
+                width: 100vw !important; 
                 padding: 0 !important; box-sizing: border-box;
             }
             .main-layout { 
@@ -421,29 +425,28 @@
             /* 🟢 3 ITEM GRID 🟢 */
             .menu-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
             
-            /* 🟢 FIXED RIGHT FILTERS PANEL 🟢 */
-            #tags-container { 
+            /* 🟢 FIXED RIGHT FILTERS PANEL (OUTSIDE SCROLL AREA TO FIX IOS SAFARI BUG) 🟢 */
+            .tags-sidebar-landscape { 
+                display: flex !important;
                 position: fixed !important; 
-                right: env(safe-area-inset-right) !important; 
+                right: 0 !important; 
                 top: 50px !important; 
-                width: 120px !important; 
+                width: calc(120px + env(safe-area-inset-right)) !important; 
                 height: calc(100dvh - 50px) !important; 
                 background: var(--card-bg) !important; 
                 border-left: 1px solid var(--border-color) !important; 
                 flex-direction: column !important; 
                 overflow-y: auto !important; 
                 padding: 10px 5px 100px 5px !important; 
-                white-space: normal !important; 
-                flex-wrap: nowrap !important; 
-                z-index: 99999 !important; 
+                padding-right: calc(5px + env(safe-area-inset-right)) !important;
+                z-index: 100 !important; 
                 gap: 8px !important; 
                 box-sizing: border-box !important; 
-                display: flex !important;
-                visibility: visible !important;
-                opacity: 1 !important;
                 -webkit-overflow-scrolling: touch !important;
             }
-            .filter-tag-chip { text-align: center; justify-content: center; padding: 8px 5px !important; font-size: 0.65em !important; white-space: normal !important; height: auto !important;}
+            #tags-container-portrait { display: none !important; }
+
+            .filter-tag-chip { text-align: center; justify-content: center; padding: 8px 5px !important; font-size: 0.65em !important; white-space: normal !important; height: auto !important; display: flex !important; align-items: center !important;}
             
             /* Cart Banner Adjustments */
             #bottom-cart-banner { 
@@ -559,7 +562,7 @@
                     </div>
                 </div>
 
-                <div class="tags-container" id="tags-container"></div>
+                <div class="tags-container" id="tags-container-portrait"></div>
             </div>
 
             <div class="section-header">
@@ -577,6 +580,8 @@
             </div>
         </main>
     </div>
+
+    <aside class="tags-sidebar-landscape" id="tags-container-landscape"></aside>
 
     <button id="mobile-cat-toggle" onclick="toggleMobileCategory()">❯</button>
 
@@ -997,15 +1002,22 @@
             allItems.forEach(item => {
                 getItemTags(item).forEach(t => allTags.add(t));
             });
-            const tagsContainer = document.getElementById('tags-container');
+            
             if(allTags.size > 0) {
-                let tagsHTML = `<div class="filter-tag-chip active" onclick="setTagFilter('All', this)">All</div>`;
+                let tagsHTML = `<div class="filter-tag-chip active" data-tag="All" onclick="setTagFilter('All')">All</div>`;
                 Array.from(allTags).sort().forEach(tag => {
-                    tagsHTML += `<div class="filter-tag-chip" onclick="setTagFilter('${tag.replace(/'/g, "\\'")}', this)">${getTagIcon(tag)}${tag}</div>`;
+                    let safeTag = tag.replace(/'/g, "\\'");
+                    tagsHTML += `<div class="filter-tag-chip" data-tag="${safeTag}" onclick="setTagFilter('${safeTag}')">${getTagIcon(tag)}${tag}</div>`;
                 });
-                tagsContainer.innerHTML = tagsHTML;
+                
+                // Update both tags containers (Portrait & Landscape)
+                const ptContainer = document.getElementById('tags-container-portrait');
+                const lsContainer = document.getElementById('tags-container-landscape');
+                if(ptContainer) ptContainer.innerHTML = tagsHTML;
+                if(lsContainer) lsContainer.innerHTML = tagsHTML;
             } else {
-                tagsContainer.style.display = 'none';
+                document.getElementById('tags-container-portrait').style.display = 'none';
+                document.getElementById('tags-container-landscape').style.display = 'none';
             }
 
             window.addEventListener('resize', () => {
@@ -1057,10 +1069,15 @@
             setTimeout(() => document.getElementById('products-area').scrollTop = 0, 10);
         }
 
-        function setTagFilter(tag, el) {
+        function setTagFilter(tag) {
             currentTagFilter = tag;
-            document.querySelectorAll('.filter-tag-chip').forEach(btn => btn.classList.remove('active'));
-            el.classList.add('active');
+            document.querySelectorAll('.filter-tag-chip').forEach(btn => {
+                if(btn.getAttribute('data-tag') === tag) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
             
             applyFilters();
             setTimeout(() => document.getElementById('products-area').scrollTop = 0, 10);
@@ -1127,7 +1144,7 @@
             document.getElementById('item-count').innerText = `${filteredItems.length} items`;
 
             if (filteredItems.length === 0) { 
-                statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="['desktop','mobile','landscape'].forEach(e => { let sb = document.getElementById('search-bar-'+e); if(sb) sb.value=''; }); applyFilters(); setCategory('All Items'); setBrand('All Brands'); setTagFilter('All', document.querySelector('.filter-tag-chip'));" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
+                statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="['desktop','mobile','landscape'].forEach(e => { let sb = document.getElementById('search-bar-'+e); if(sb) sb.value=''; }); applyFilters(); setCategory('All Items'); setBrand('All Brands'); setTagFilter('All');" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
                 statusMsg.style.display = 'block'; gridWrapper.innerHTML = ''; return; 
             }
 
