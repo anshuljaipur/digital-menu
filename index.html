@@ -43,7 +43,7 @@
             --overlay-bg: rgba(0, 0, 0, 0.8);
         }
 
-        /* 🚨 GLOBAL RESET & LOCK (100% INSTEAD OF 100VW TO FIX OVERFLOW) 🚨 */
+        /* 🚨 GLOBAL RESET & LOCK (FIXED OVERFLOW & ZOOM) 🚨 */
         * { box-sizing: border-box; touch-action: manipulation; } 
         
         html { -webkit-text-size-adjust: 100%; width: 100%; height: 100%; } 
@@ -293,7 +293,7 @@
 
             .search-sort-side { display: none !important; } 
             .top-nav-bar { flex-direction: column; border-bottom: none; width: 100%;}
-            .brands-wrapper { border-bottom: 1px solid var(--border-color); width: 100%; } 
+            .brands-wrapper { border-bottom: 1px solid var(--border-color); width: 100%; max-height: 120px; overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;} 
             
             .brands-row { padding: 12px 15px; gap: 15px; -webkit-overflow-scrolling: touch; border-bottom: none; }
             .brand-icon { width: 55px; height: 55px; }
@@ -393,18 +393,19 @@
             #mobile-search-sort { display: none !important; }
             .controls-bar { margin: 0 !important; padding: 0 !important; border-bottom: none !important; background: transparent !important; position: static !important; transform: none !important; width: 100%;}
             
-            /* 🟢 Auto-hiding Brands Wrapper - SQUEEZED BETWEEN SIDEBARS 🟢 */
+            /* 🟢 PERFECT Auto-hiding Brands Wrapper - SQUEEZED BETWEEN SIDEBARS 🟢 */
             .brands-wrapper { 
                 border-bottom: 1px solid var(--border-color); 
-                transition: height 0.3s ease, opacity 0.3s ease !important;
+                transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease !important;
                 overflow: hidden;
+                max-height: 100px;
                 margin-left: calc(80px + env(safe-area-inset-left)) !important; 
                 width: calc(100% - 80px - 120px - env(safe-area-inset-left) - env(safe-area-inset-right)) !important; 
             }
             .hidden-landscape {
-                height: 0 !important;
+                max-height: 0 !important;
                 opacity: 0 !important;
-                border-bottom: none !important;
+                border-bottom-width: 0 !important;
                 pointer-events: none;
             }
 
@@ -416,6 +417,7 @@
             .top-nav-bar { 
                 width: 100% !important; 
                 padding: 0 !important; box-sizing: border-box;
+                border-bottom: none !important;
             }
             .main-layout { 
                 margin-left: calc(80px + env(safe-area-inset-left)) !important; 
@@ -741,7 +743,7 @@
         window.addEventListener('orientationchange', () => {
             setTimeout(() => {
                 document.body.style.display = 'none';
-                document.body.offsetHeight; // trigger reflow
+                document.body.offsetHeight; 
                 document.body.style.display = '';
                 window.scrollTo(0, 0);
                 updateBrandArrows();
