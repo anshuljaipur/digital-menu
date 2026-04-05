@@ -92,7 +92,7 @@
         /* --- 2. TOP SECTION (BRANDS + SEARCH/SORT) --- */
         .top-nav-bar { display: flex; width: 100%; background: var(--card-bg); border-bottom: 1px solid var(--border-color); z-index: 9; flex-shrink: 0; transition: 0.3s; }
         
-        .brands-wrapper { flex: 1; min-width: 0; display: flex; align-items: center; position: relative; transition: 0.3s;}
+        .brands-wrapper { flex: 1; min-width: 0; display: flex; align-items: center; position: relative; transition: height 0.3s ease, opacity 0.3s ease;}
         .brands-row { width: 100%; display: flex; justify-content: flex-start; overflow-x: auto; padding: 15px 20px; gap: 25px; scrollbar-width: none; box-sizing: border-box; scroll-behavior: smooth;}
         .brands-row::-webkit-scrollbar { display: none; }
         
@@ -379,39 +379,73 @@
             header { padding: 5px calc(15px + env(safe-area-inset-right)) 5px calc(15px + env(safe-area-inset-left)); height: 50px; }
             .header-logo { height: 28px; }
             
-            /* Show Search/Sort in Header */
-            .landscape-search-sort { display: flex; flex: 1; align-items: center; justify-content: center; gap: 10px; margin: 0 15px; }
+            /* 🟢 Show Search/Sort in Header 🟢 */
+            .landscape-search-sort { display: flex !important; flex: 1; align-items: center; justify-content: center; gap: 10px; margin: 0 15px; }
             .landscape-search-sort .control-chip { background: var(--main-bg); border: 1px solid var(--border-color); border-radius: 50px; padding: 4px 12px; display: flex; align-items: center; flex: 1; max-width: 250px; height: 32px;}
             .landscape-search-sort input, .landscape-search-sort select { border: none; background: transparent; color: var(--text-main); font-family: inherit; font-size: 0.85em !important; width: 100%; outline: none; margin-left: 5px;}
             
             #mobile-search-sort { display: none !important; }
-            .controls-bar { margin: 0 !important; padding: 10px !important; border-bottom: none !important; background: transparent !important; position: relative !important; top: 0 !important; }
+            .controls-bar { margin: 0 !important; padding: 0 !important; border-bottom: none !important; background: transparent !important; position: static !important; transform: none !important; }
             
-            /* Category Fixed Left */
+            /* 🟢 Auto-hiding Brands Wrapper 🟢 */
+            .brands-wrapper { 
+                border-bottom: 1px solid var(--border-color); 
+                transition: height 0.3s ease, opacity 0.3s ease !important;
+                overflow: hidden;
+                width: calc(100vw - 80px - 120px - env(safe-area-inset-left) - env(safe-area-inset-right)) !important; 
+            }
+            .hidden-landscape {
+                height: 0 !important;
+                opacity: 0 !important;
+                border-bottom: none !important;
+                pointer-events: none;
+            }
+
+            /* 🟢 Category Fixed Left 🟢 */
             .sidebar { position: fixed !important; top: 50px !important; left: env(safe-area-inset-left) !important; width: 80px !important; height: calc(100dvh - 50px) !important; display: flex !important; transform: none !important; box-shadow: 1px 0 5px rgba(0,0,0,0.05) !important; z-index: 100; padding-bottom: 20px !important; }
             #mobile-cat-toggle { display: none !important; }
             
-            /* Layout Adjustments - Squeeze Top Nav and Main Layout between Sidebar and Tags */
+            /* 🟢 Squeeze Top Nav and Main Layout between Sidebar and Tags 🟢 */
             .top-nav-bar { 
                 margin-left: calc(80px + env(safe-area-inset-left)) !important; 
                 width: calc(100vw - 80px - 120px - env(safe-area-inset-left) - env(safe-area-inset-right)) !important; 
                 padding: 0 !important; box-sizing: border-box;
             }
-            .brands-wrapper { border-bottom: 1px solid var(--border-color); }
-            
             .main-layout { 
                 margin-left: calc(80px + env(safe-area-inset-left)) !important; 
                 width: calc(100vw - 80px - 120px - env(safe-area-inset-left) - env(safe-area-inset-right)) !important; 
                 flex-direction: row; 
             }
             .content-area { padding-left: 10px !important; padding-right: 10px !important; width: 100% !important; }
-            .menu-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important; }
             
-            /* Tags Right Fixed Panel */
-            .tags-container { position: fixed !important; right: env(safe-area-inset-right) !important; top: 50px !important; width: 120px !important; height: calc(100dvh - 50px) !important; background: var(--card-bg) !important; border-left: 1px solid var(--border-color) !important; flex-direction: column !important; overflow-y: auto !important; padding: 10px !important; white-space: normal !important; flex-wrap: nowrap !important; z-index: 100; gap: 8px; box-sizing: border-box; }
+            /* 🟢 3 ITEM GRID 🟢 */
+            .menu-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
+            
+            /* 🟢 FIXED RIGHT FILTERS PANEL 🟢 */
+            #tags-container { 
+                position: fixed !important; 
+                right: env(safe-area-inset-right) !important; 
+                top: 50px !important; 
+                width: 120px !important; 
+                height: calc(100dvh - 50px) !important; 
+                background: var(--card-bg) !important; 
+                border-left: 1px solid var(--border-color) !important; 
+                flex-direction: column !important; 
+                overflow-y: auto !important; 
+                padding: 10px 5px 100px 5px !important; 
+                white-space: normal !important; 
+                flex-wrap: nowrap !important; 
+                z-index: 99999 !important; 
+                gap: 8px !important; 
+                box-sizing: border-box !important; 
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
             .filter-tag-chip { text-align: center; justify-content: center; padding: 8px 5px !important; font-size: 0.65em !important; white-space: normal !important; height: auto !important;}
             
-            /* Cart Banner Squeeze */
+            /* Cart Banner Adjustments */
             #bottom-cart-banner { 
                 width: calc(100vw - 80px - 120px - 20px - env(safe-area-inset-left) - env(safe-area-inset-right)) !important;
                 left: calc(80px + 10px + env(safe-area-inset-left)) !important;
@@ -698,33 +732,39 @@
             if(currentTheme === 'auto') applyTheme('auto');
         });
 
-        // 🌟 Auto-Hide Search Bar & Back to Top Logic 🌟
+        // 🌟 Auto-Hide Logic 🌟
         let lastScrollY = 0;
         let showThreshold = 20; 
         
         document.getElementById('products-area').addEventListener('scroll', function() {
             const controlsBar = document.querySelector('.controls-bar');
             const backToTop = document.getElementById('back-to-top');
+            const brandsWrapper = document.querySelector('.brands-wrapper');
 
-            if (window.innerWidth <= 999 && !window.matchMedia("(orientation: landscape)").matches) {
+            if (window.innerWidth <= 999) {
+                let isLandscape = window.matchMedia("(orientation: landscape)").matches;
                 let currentScrollY = this.scrollTop;
                 let scrollDiff = currentScrollY - lastScrollY;
 
                 if (currentScrollY > 60) {
                     if (scrollDiff > 0) {
-                        controlsBar.style.top = '-160px'; 
+                        if (isLandscape) brandsWrapper.classList.add('hidden-landscape');
+                        else controlsBar.style.top = '-160px'; 
                     } 
                     else if (scrollDiff < -showThreshold) {
-                        controlsBar.style.top = '0'; 
+                        if (isLandscape) brandsWrapper.classList.remove('hidden-landscape');
+                        else controlsBar.style.top = '0'; 
                     }
                 } 
                 else {
-                    controlsBar.style.top = '0'; 
+                    if (isLandscape) brandsWrapper.classList.remove('hidden-landscape');
+                    else controlsBar.style.top = '0'; 
                 }
                 
                 lastScrollY = currentScrollY;
             } else {
                 controlsBar.style.top = '0'; 
+                document.querySelector('.brands-wrapper').classList.remove('hidden-landscape');
             }
 
             if(this.scrollTop > 400) {
@@ -992,7 +1032,7 @@
             applyFilters();
             setTimeout(() => document.getElementById('products-area').scrollTop = 0, 10);
             
-            toggleMobileCategory();
+            if(window.innerWidth <= 999 && !window.matchMedia("(orientation: landscape)").matches) toggleMobileCategory();
         }
 
         function setBrand(brandName) {
