@@ -10,10 +10,13 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Poppins:wght@400;500;600;700;800&display=swap');
 
+        /* 🌓 CSS VARIABLES FOR THEMING 🌓 */
         :root {
             --primary-color: #e44d26;
             --glacier-blue: #1f51c6; 
             --active-brand-red: #e74c3c;
+            
+            /* LIGHT THEME */
             --bg-color: #ffffff;
             --main-bg: #f8f9fc;
             --card-bg: #ffffff;
@@ -27,6 +30,7 @@
         }
 
         [data-theme="dark"] {
+            /* DARK THEME */
             --bg-color: #0f172a;
             --main-bg: #020617;
             --card-bg: #1e293b;
@@ -39,7 +43,9 @@
             --overlay-bg: rgba(0, 0, 0, 0.8);
         }
 
+        /* 🚨 GLOBAL RESET & LOCK (FIXED OVERFLOW & ZOOM) 🚨 */
         * { box-sizing: border-box; touch-action: manipulation; } 
+        
         html { -webkit-text-size-adjust: 100%; width: 100%; height: 100%; } 
         
         html, body { 
@@ -51,7 +57,8 @@
             background-color: var(--bg-color); color: var(--text-main); 
             font-family: 'Poppins', sans-serif; 
             display: flex; flex-direction: column; 
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            position: fixed; 
+            top: 0; left: 0; right: 0; bottom: 0;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
         
@@ -62,6 +69,7 @@
         .skeleton-bg { background: linear-gradient(90deg, var(--chip-bg) 25%, var(--border-color) 50%, var(--chip-bg) 75%) !important; background-size: 200% 100% !important; animation: shimmer 1.5s infinite linear !important; }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
+        /* 🌟 SPLASH SCREEN 🌟 */
         #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: linear-gradient(135deg, var(--glacier-blue), #1a42a4); z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease; }
         .splash-content { text-align: center; color: white; }
         .splash-icon { font-size: 5em; animation: bounce-scoop 0.8s infinite alternate cubic-bezier(0.4, 0, 0.2, 1); margin-bottom: 15px; }
@@ -72,7 +80,8 @@
 
         #loading-bar { position: fixed; top: 0; left: 0; height: 4px; background-color: var(--glacier-blue); width: 0%; z-index: 9999; transition: width 0.3s ease, opacity 0.5s ease; box-shadow: 0 2px 5px rgba(31,81,198, 0.5); }
 
-        header { background: var(--card-bg); padding: 12px 25px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; z-index: 100; flex-shrink: 0; height: 65px; box-sizing: border-box; width: 100%; transition: 0.3s; }
+        /* --- 1. HEADER --- */
+        header { background: var(--card-bg); padding: 12px 25px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; z-index: 100; flex-shrink: 0; height: 65px; box-sizing: border-box; transition: 0.3s; width: 100%;}
         .header-logo { height: 45px; width: auto; object-fit: contain; }
         .header-actions { display: flex; gap: 10px; align-items: center; }
         .action-btn { font-family: 'Poppins', sans-serif; border: 1px solid var(--border-color); padding: 8px 14px; border-radius: 50px; font-weight: 600; font-size: 0.85em; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; background: var(--card-bg); color: var(--text-main); }
@@ -82,7 +91,9 @@
 
         .landscape-search-sort { display: none; }
 
+        /* --- 2. TOP SECTION (BRANDS + SEARCH/SORT) --- */
         .top-nav-bar { display: flex; width: 100%; background: var(--card-bg); border-bottom: 1px solid var(--border-color); z-index: 9; flex-shrink: 0; transition: 0.3s; }
+        
         .brands-wrapper { flex: 1; min-width: 0; display: flex; align-items: center; position: relative; transition: height 0.3s ease, opacity 0.3s ease, border 0.3s ease;}
         .brands-row { width: 100%; display: flex; justify-content: flex-start; overflow-x: auto; padding: 15px 20px; gap: 25px; scrollbar-width: none; box-sizing: border-box; scroll-behavior: smooth;}
         .brands-row::-webkit-scrollbar { display: none; }
@@ -92,27 +103,32 @@
 
         .brand-arrow { 
             position: absolute; top: 15px; z-index: 10; 
-            background: rgba(31, 81, 198, 0.9); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+            background: rgba(31, 81, 198, 0.9); 
+            backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
             border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 12px rgba(31,81,198,0.3); 
             width: 40px; height: 65px; display: none; flex-direction: column; justify-content: center; align-items: center !important;
-            cursor: pointer; color: #ffffff; padding: 0; transition: 0.2s;
+            cursor: pointer; color: #ffffff; 
+            padding: 0; transition: 0.2s;
         }
-        .left-arrow { left: 0; border-radius: 0 16px 16px 0; }
-        .right-arrow { right: 0; border-radius: 16px 0 0 16px; }
+        .brand-arrow:hover { background: var(--glacier-blue); opacity: 1; }
         .arrow-icon { font-size: 1.4em; font-weight: 900; line-height: 1; text-shadow: none; } 
         .arrow-count { font-size: 0.7em; font-weight: 800; color: #ffffff; margin-top: 2px; opacity: 0.9;}
-        .brand-arrow:hover { background: var(--glacier-blue); opacity: 1; }
+        .left-arrow { left: 0; border-radius: 0 16px 16px 0; }
+        .right-arrow { right: 0; border-radius: 16px 0 0 16px; }
         [data-theme="dark"] .brand-arrow { background: rgba(31, 81, 198, 0.8); border-color: rgba(255,255,255,0.1); }
 
         .brand-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; } 
         .brand-icon { width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--border-color); transition: 0.2s; background: #fff; padding: 5px; box-sizing: border-box; }
-        .brand-icon img, .brand-icon svg { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; transform: scale(0.9); transition: 0.2s; } 
+        .brand-icon img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; transform: scale(0.9); transition: 0.2s; } 
         .brand-name { font-size: 0.6em; font-weight: 700; color: var(--text-muted); text-align: center; margin-top: 8px; white-space: nowrap; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px; }
         .brand-item.active .brand-icon { border-color: var(--active-brand-red); border-width: 2px; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.15); }
         .brand-item.active .brand-name { color: var(--active-brand-red); }
 
+        /* --- 3. MAIN DESKTOP LAYOUT --- */
         .main-layout { display: flex; flex: 1; overflow: hidden; background: var(--main-bg); width: 100%; box-sizing: border-box; transition: 0.3s;}
-        .sidebar { width: 240px; background: var(--card-bg); display: flex; flex-direction: column; overflow-y: auto; padding: 20px 15px; gap: 8px; scrollbar-width: none; border-right: 1px solid var(--border-color); flex-shrink: 0; box-sizing: border-box; transition: 0.3s;}
+        
+        /* LEFT SIDEBAR */
+        .sidebar { width: 240px; background: var(--card-bg); display: flex; flex-direction: column; overflow-y: auto; padding: 20px 15px; gap: 8px; scrollbar-width: none; border-right: 1px solid var(--border-color); flex-shrink: 0; box-sizing: border-box; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; transition: 0.3s;}
         .sidebar::-webkit-scrollbar { display: none; }
         .cat-item { display: flex; align-items: center; cursor: pointer; transition: 0.2s; padding: 10px 15px; border-radius: 50px; gap: 12px; flex-shrink: 0; color: var(--text-main);}
         .cat-icon { font-size: 1.4em; display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; }
@@ -121,30 +137,40 @@
         .cat-item.active { background: rgba(31,81,198,0.1); }
         .cat-item.active .cat-name { color: var(--glacier-blue); font-weight: 700; }
 
-        .content-area { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 0px 30px 20px 30px; scroll-behavior: smooth; box-sizing: border-box; position: relative; width: 100%; }
+        /* RIGHT CONTENT AREA */
+        .content-area { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 0px 30px 20px 30px; scroll-behavior: smooth; box-sizing: border-box; position: relative; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; width: 100%; }
         .content-area::-webkit-scrollbar { width: 8px; }
         .content-area::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
 
-        .controls-bar { position: sticky; top: 0; z-index: 50; background: var(--main-bg); display: flex; flex-direction: column; gap: 10px; margin: 0px -30px 15px -30px; padding: 15px 30px 5px 30px; transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s; }
+        .controls-bar { 
+            position: sticky; top: 0; z-index: 50;
+            background: var(--main-bg); 
+            display: flex; flex-direction: column; gap: 10px; 
+            margin: 0px -30px 15px -30px; padding: 15px 30px 5px 30px; transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
+        }
         .search-sort-wrapper { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; width: 100%; }
         .control-chip { display: flex; align-items: center; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 50px; padding: 10px 20px; flex: 1; min-width: 250px; max-width: 450px; transition: 0.2s;}
         .control-chip:focus-within { border-color: var(--glacier-blue); box-shadow: 0 4px 12px rgba(31,81,198,0.1);}
         .control-chip input { border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.9em; width: 100%; color: var(--text-main); margin-left: 8px;}
         .control-chip select { border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.9em; font-weight: 600; color: var(--text-main); cursor: pointer; width: 100%; margin-left: 8px;}
 
-        .tags-container { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 10px 0; scrollbar-width: none; width: 100%; box-sizing: border-box; }
+        /* 🏷️ TAGS */
+        .tags-container { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 10px 0; scrollbar-width: none; -webkit-overflow-scrolling: touch; width: 100%; box-sizing: border-box; }
         .tags-container::-webkit-scrollbar { display: none; }
         .filter-tag-chip { padding: 8px 16px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 50px; font-size: 0.75em; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex-shrink: 0; }
         .filter-tag-chip:hover { border-color: var(--glacier-blue); color: var(--text-main); }
         .filter-tag-chip.active { background: var(--glacier-blue); color: #fff; border-color: var(--glacier-blue); box-shadow: 0 4px 8px rgba(31,81,198,0.2); }
 
+        /* External Tags Container (For Landscape) */
         .tags-sidebar-landscape { display: none; }
 
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; width: 100%; }
         .section-header h2 { margin: 0; font-size: 1.4em; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
         .section-count { font-size: 0.9em; font-weight: 500; color: var(--text-muted); }
 
+        /* PRODUCT GRID */
         .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; align-items: start; padding-bottom: 40px; box-sizing: border-box; width: 100%;}
+        
         .menu-card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color); display: flex; flex-direction: column; position: relative; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s; height: 100%; box-sizing: border-box;}
         .menu-card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.1); transform: translateY(-3px); }
         
@@ -242,29 +268,26 @@
         .modal-tab-content { display: none; }
         .modal-tab-content.active { display: flex; flex-direction: column; }
 
+        /* PRODUCT DETAIL CSS */
         #pd-modal-img { width: 100%; height: 220px; object-fit: contain; mix-blend-mode: multiply; margin-bottom: 20px; background: #fff; border-radius: 12px; padding: 10px; box-sizing: border-box;}
         [data-theme="dark"] #pd-modal-img { background: #e2e8f0; mix-blend-mode: normal; }
         .pd-modal-brand-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
         .pd-brand-icon { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fff;}
         .pd-brand-icon img, .pd-brand-icon svg { width: 100%; height: 100%; object-fit: cover; }
         .pd-brand-name { font-weight: 700; color: var(--text-muted); font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; }
-        #pd-modal-name { font-size: 1.4em; font-weight: 800; color: var(--text-main); margin: 0 0 8px 0; line-height: 1.3; }
-        #pd-modal-volume { font-size: 0.9em; color: var(--text-muted); font-weight: 500; margin-bottom: 20px; }
+        #pd-modal-name { font-size: 1.4em; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.3; }
+        #pd-modal-volume { font-size: 0.9em; color: var(--text-muted); font-weight: 500; margin-bottom: 20px; margin-top: 5px; }
         
-        /* 🟢 DESCRIPTION & INGREDIENTS CSS 🟢 */
-        .pd-detail-section { margin-bottom: 15px; display: none; padding: 12px; background: var(--chip-bg); border-radius: 12px; }
-        .pd-detail-title { margin: 0 0 5px 0; font-size: 0.75em; font-weight: 800; color: var(--glacier-blue); text-transform: uppercase; letter-spacing: 1px;}
-        .pd-detail-text { margin: 0; font-size: 0.85em; color: var(--text-main); line-height: 1.6; }
-
-        /* 🟢 DESCRIPTION & INGREDIENTS CSS 🟢 */
+        /* 🟢 MINIMALIST DESCRIPTION & INGREDIENTS CSS 🟢 */
         .pd-desc-text { margin: 5px 0 15px 0; font-size: 0.9em; color: var(--text-muted); line-height: 1.5; display: none; }
         .pd-ing-text { margin: 0 0 15px 0; font-size: 0.8em; color: var(--active-brand-red); font-style: italic; line-height: 1.4; display: none; font-weight: 500;}
         
         .pd-bottom-row { display: flex; justify-content: space-between; align-items: center; border-top: 2px solid var(--border-color); padding-top: 20px; margin-top: auto; }
 
+        /* 🟢 DESKTOP FIXES 🟢 */
         @media (min-width: 1000px) {
             #mobile-search-sort { display: none !important; }
-            .controls-bar { margin: 0 -30px 15px -30px; padding: 5px 30px 5px 30px; border-bottom: none; width: calc(100% + 60px);}
+            .controls-bar { margin: 0 -30px 15px -30px; padding: 5px 30px 5px 30px; border-bottom: none;}
         }
 
         /* 📱 🔥 MOBILE PORTRAIT UI FIXES 🔥 📱 */
@@ -276,7 +299,13 @@
 
             .search-sort-side { display: none !important; } 
             .top-nav-bar { flex-direction: column; border-bottom: none; width: 100%;}
-            .brands-wrapper { border-bottom: 1px solid var(--border-color); width: 100%; max-height: 120px; overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;} 
+            
+            /* Squeeze Brands Panel smoothly */
+            .brands-wrapper { 
+                border-bottom: 1px solid var(--border-color); width: 100%; 
+                max-height: 120px; overflow: hidden; 
+                transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+            } 
             
             .brands-row { padding: 12px 15px; gap: 15px; -webkit-overflow-scrolling: touch; border-bottom: none; }
             .brand-icon { width: 55px; height: 55px; }
@@ -368,6 +397,7 @@
             header { padding: 5px calc(15px + env(safe-area-inset-right)) 5px calc(15px + env(safe-area-inset-left)); height: 50px; }
             .header-logo { height: 28px; }
             
+            /* 🟢 Show Search/Sort in Header 🟢 */
             .landscape-search-sort { display: flex !important; flex: 1; align-items: center; justify-content: center; gap: 10px; margin: 0 15px; }
             .landscape-search-sort .control-chip { background: var(--main-bg); border: 1px solid var(--border-color); border-radius: 50px; padding: 4px 12px; display: flex; align-items: center; flex: 1; max-width: 250px; height: 32px;}
             .landscape-search-sort input, .landscape-search-sort select { border: none; background: transparent; color: var(--text-main); font-family: inherit; font-size: 0.85em !important; width: 100%; outline: none; margin-left: 5px;}
@@ -375,19 +405,30 @@
             #mobile-search-sort { display: none !important; }
             .controls-bar { margin: 0 !important; padding: 0 !important; border-bottom: none !important; background: transparent !important; position: static !important; transform: none !important; width: 100%;}
             
+            /* 🟢 Perfect Auto-hide Brands in Landscape 🟢 */
             .brands-wrapper { 
                 border-bottom: 1px solid var(--border-color); 
                 transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease !important;
-                overflow: hidden; max-height: 100px;
+                overflow: hidden;
+                max-height: 100px;
                 margin-left: calc(80px + env(safe-area-inset-left)) !important; 
                 width: calc(100% - 80px - 120px - env(safe-area-inset-left) - env(safe-area-inset-right)) !important; 
             }
-            .hidden-landscape { max-height: 0 !important; opacity: 0 !important; border-bottom-width: 0 !important; pointer-events: none; }
+            .hidden-landscape {
+                max-height: 0 !important;
+                opacity: 0 !important;
+                border-bottom-width: 0 !important;
+                pointer-events: none;
+            }
 
             .sidebar { position: fixed !important; top: 50px !important; left: env(safe-area-inset-left) !important; width: 80px !important; height: calc(100dvh - 50px) !important; display: flex !important; transform: none !important; box-shadow: 1px 0 5px rgba(0,0,0,0.05) !important; z-index: 100; padding-bottom: 20px !important; }
             #mobile-cat-toggle { display: none !important; }
             
-            .top-nav-bar { width: 100% !important; padding: 0 !important; box-sizing: border-box; border-bottom: none !important; }
+            .top-nav-bar { 
+                width: 100% !important; 
+                padding: 0 !important; box-sizing: border-box;
+                border-bottom: none !important;
+            }
             .main-layout { 
                 margin-left: calc(80px + env(safe-area-inset-left)) !important; 
                 width: calc(100% - 80px - 120px - env(safe-area-inset-left) - env(safe-area-inset-right)) !important; 
@@ -397,22 +438,33 @@
             
             .menu-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
             
+            /* 🟢 Fixed Right Tags Panel 🟢 */
             .tags-sidebar-landscape { 
-                display: flex !important; position: fixed !important; 
-                right: env(safe-area-inset-right) !important; top: 50px !important; 
-                width: 120px !important; height: calc(100dvh - 50px) !important; 
-                background: var(--card-bg) !important; border-left: 1px solid var(--border-color) !important; 
-                flex-direction: column !important; overflow-y: auto !important; 
-                padding: 10px 5px 100px 5px !important; padding-right: calc(5px + env(safe-area-inset-right)) !important;
-                z-index: 100 !important; gap: 8px !important; box-sizing: border-box !important; 
+                display: flex !important;
+                position: fixed !important; 
+                right: env(safe-area-inset-right) !important; 
+                top: 50px !important; 
+                width: 120px !important; 
+                height: calc(100dvh - 50px) !important; 
+                background: var(--card-bg) !important; 
+                border-left: 1px solid var(--border-color) !important; 
+                flex-direction: column !important; 
+                overflow-y: auto !important; 
+                padding: 10px 5px 100px 5px !important; 
+                padding-right: calc(5px + env(safe-area-inset-right)) !important;
+                z-index: 100 !important; 
+                gap: 8px !important; 
+                box-sizing: border-box !important; 
                 -webkit-overflow-scrolling: touch !important;
             }
             #tags-container-portrait { display: none !important; }
+
             .filter-tag-chip { text-align: center; justify-content: center; padding: 8px 5px !important; font-size: 0.65em !important; white-space: normal !important; height: auto !important; display: flex !important; align-items: center !important;}
             
             #bottom-cart-banner { 
                 width: calc(100% - 80px - 120px - 20px - env(safe-area-inset-left) - env(safe-area-inset-right)) !important;
-                left: calc(80px + 10px + env(safe-area-inset-left)) !important; transform: none !important;
+                left: calc(80px + 10px + env(safe-area-inset-left)) !important;
+                transform: none !important;
             }
         }
 
@@ -458,6 +510,7 @@
         </div>
 
         <div class="header-actions">
+            <button class="action-btn" onclick="refreshMenu()" id="refresh-btn" title="Refresh Menu" style="font-size: 1.1em; padding: 6px 12px;">🔄</button>
             <button class="action-btn" onclick="cycleTheme()" id="theme-toggle-btn" title="Toggle Theme">🖥️</button>
             <button class="action-btn btn-profile" onclick="handleProfileClick()" id="nav-profile-btn">
                 👤 <span class="hide-mobile-text" id="nav-profile-text">Login</span>
@@ -570,6 +623,7 @@
                 <div class="pd-brand-icon" id="pd-modal-brand-logo"></div>
                 <div class="pd-brand-name" id="pd-modal-brand-name"></div>
             </div>
+            
             <h2 id="pd-modal-name" style="margin-bottom: 5px;">Product Name</h2>
             <p id="pd-modal-desc" class="pd-desc-text"></p>
             <div id="pd-modal-volume">500ml</div>
@@ -698,7 +752,6 @@
             if(currentTheme === 'auto') applyTheme('auto');
         });
 
-        // 🟢 ROTATION FIX 🟢
         window.addEventListener('orientationchange', () => {
             setTimeout(() => {
                 document.body.style.display = 'none';
@@ -829,7 +882,7 @@
             "mother dairy": "https://i.postimg.cc/4dSGNpcB/md_logo.png",
             "amul": "https://via.placeholder.com/100/e44d26/ffffff?text=Amul",
             "kwality": "https://i.postimg.cc/ncGM1PfV/kw_logo.png",
-            "walls": "https://i.postimg.cc/ncGM1PfV/kw_logo.png",
+            "kwality walls": "https://i.postimg.cc/ncGM1PfV/kw_logo.png",
             "gianis": "https://i.postimg.cc/L6kw6Gr2/lgo-gianis.png",
             "havmor": "https://i.postimg.cc/KvD45HhZ/logo_havmor.png",
             "hocco": "https://i.postimg.cc/CLsd4Qph/hocco_logo.png",
@@ -837,6 +890,7 @@
         };
 
         function getBrandLogo(brandName) {
+            if(!brandName) return '';
             const b = brandName.toLowerCase(); let matchedImg = '';
             for (let key in brandImageLinks) { if (b.includes(key)) { matchedImg = brandImageLinks[key]; break; } }
             if (matchedImg) return `<img src="${matchedImg}" alt="${brandName}">`;
@@ -891,13 +945,38 @@
             return '';
         }
 
+        // 🟢 REFRESH MENU FUNCTION 🟢
+        async function refreshMenu() {
+            const btn = document.getElementById('refresh-btn');
+            btn.innerHTML = '⏳';
+            btn.style.pointerEvents = 'none';
+            btn.style.opacity = '0.5';
+            
+            document.getElementById('main-menu-grid').innerHTML = '';
+            const statusMsg = document.getElementById('status-msg');
+            statusMsg.innerHTML = '<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🔄</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">Fetching latest menu...</h3></div>';
+            statusMsg.style.display = 'block';
+            
+            // Clear sidebars so they don't duplicate
+            document.getElementById('category-sidebar').innerHTML = '';
+            document.getElementById('brands-sidebar').innerHTML = '';
+            
+            await loadData();
+            
+            btn.innerHTML = '🔄';
+            btn.style.pointerEvents = 'auto';
+            btn.style.opacity = '1';
+        }
+
         async function loadData() {
-            const statusMsg = document.getElementById('status-msg'); const loadingBar = document.getElementById('loading-bar');
-            loadingBar.style.width = '30%';
+            const statusMsg = document.getElementById('status-msg'); 
+            const loadingBar = document.getElementById('loading-bar');
+            if(loadingBar) loadingBar.style.width = '30%';
+            
             try {
                 const noCacheUrl = googleSheetUrl + "?t=" + new Date().getTime();
                 const response = await fetch(noCacheUrl); 
-                loadingBar.style.width = '70%'; 
+                if(loadingBar) loadingBar.style.width = '70%'; 
                 
                 if (!response.ok) throw new Error("Network response failed");
                 const textData = await response.text();
@@ -907,11 +986,11 @@
                 if(!Array.isArray(allItems) && allItems.error) throw new Error("Apps Script Error: " + allItems.error);
                 if(!allItems || allItems.length === 0) { 
                     statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3></div>`; 
-                    loadingBar.style.width = '100%'; return; 
+                    if(loadingBar) loadingBar.style.width = '100%'; return; 
                 }
                 
                 setupAppUI(); applyFilters();
-                loadingBar.style.width = '100%'; 
+                if(loadingBar) loadingBar.style.width = '100%'; 
                 
                 setTimeout(() => {
                     const splash = document.getElementById('splash-screen');
@@ -920,7 +999,7 @@
                         splash.style.visibility = 'hidden';
                         setTimeout(() => splash.remove(), 600); 
                     }
-                    loadingBar.style.opacity = '0'; 
+                    if(loadingBar) loadingBar.style.opacity = '0'; 
                     statusMsg.style.display='none'; 
                     updateBrandArrows(); 
                 }, 800);
@@ -929,12 +1008,16 @@
                 console.error(error);
                 const splashSub = document.querySelector('.splash-subtext');
                 if(splashSub) splashSub.innerText = "⚠️ Error loading menu!";
-                loadingBar.style.width = '100%'; loadingBar.style.backgroundColor = '#e74c3c';
+                if(loadingBar) { loadingBar.style.width = '100%'; loadingBar.style.backgroundColor = '#e74c3c'; }
+                statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">⚠️</span><h3 style="color: #e74c3c; margin: 10px 0 5px 0;">Failed to load data</h3></div>`;
+                statusMsg.style.display = 'block';
             }
         }
 
         function setupAppUI() {
             const sidebar = document.getElementById('category-sidebar');
+            sidebar.innerHTML = ''; // 🟢 Prevent duplicate rendering on refresh
+            
             const uniqueCats = [...new Set(allItems.map(item => item.category || 'More Favorites').filter(c => c))];
             const categories = ['New Arrivals', 'All Items', ...uniqueCats];
             
@@ -952,16 +1035,22 @@
                     else if(lCat.includes('cup')||lCat.includes('sundae')) iconHTML = '🍧'; 
                     else iconHTML = '🍨';
                 }
-                const div = document.createElement('div'); div.className = `cat-item ${cat === 'All Items' ? 'active' : ''}`;
+                const div = document.createElement('div'); 
+                // Set initial active state based on currentCategory so refresh keeps user selection
+                div.className = `cat-item ${cat === currentCategory ? 'active' : ''}`;
                 div.onclick = () => setCategory(cat); div.innerHTML = `<div class="cat-icon">${iconHTML}</div><div class="cat-name">${name}</div>`;
                 sidebar.appendChild(div);
             });
 
             const brandSidebar = document.getElementById('brands-sidebar');
+            brandSidebar.innerHTML = ''; // 🟢 Prevent duplicate rendering on refresh
+            
             const brands = ['All Brands', ...new Set(allItems.map(item => item.brand).filter(b => b))];
             brands.forEach(brand => {
                 let iconHTML = brand === 'All Brands' ? `<svg viewBox="0 0 100 100" style="width:100%; height:100%; background:var(--chip-bg);"><text x="50" y="55" font-size="28" fill="var(--glacier-blue)" font-weight="bold" font-family="Montserrat, sans-serif" text-anchor="middle" dominant-baseline="middle">ALL</text></svg>` : getBrandLogo(brand);
-                const div = document.createElement('div'); div.className = `brand-item ${brand === 'All Brands' ? 'active' : ''}`;
+                const div = document.createElement('div'); 
+                // Keep active state on refresh
+                div.className = `brand-item ${brand === currentBrand ? 'active' : ''}`;
                 div.onclick = () => setBrand(brand); div.innerHTML = `<div class="brand-icon">${iconHTML}</div><div class="brand-name">${brand === 'All Brands' ? 'All' : brand}</div>`;
                 brandSidebar.appendChild(div);
             });
@@ -972,10 +1061,11 @@
             });
             
             if(allTags.size > 0) {
-                let tagsHTML = `<div class="filter-tag-chip active" data-tag="All" onclick="setTagFilter('All')">All</div>`;
+                let tagsHTML = `<div class="filter-tag-chip ${currentTagFilter === 'All' ? 'active' : ''}" data-tag="All" onclick="setTagFilter('All')">All</div>`;
                 Array.from(allTags).sort().forEach(tag => {
                     let safeTag = tag.replace(/'/g, "\\'");
-                    tagsHTML += `<div class="filter-tag-chip" data-tag="${safeTag}" onclick="setTagFilter('${safeTag}')">${getTagIcon(tag)}${tag}</div>`;
+                    let isActive = currentTagFilter === tag ? 'active' : '';
+                    tagsHTML += `<div class="filter-tag-chip ${isActive}" data-tag="${safeTag}" onclick="setTagFilter('${safeTag}')">${getTagIcon(tag)}${tag}</div>`;
                 });
                 
                 const ptContainer = document.getElementById('tags-container-portrait');
@@ -1179,7 +1269,7 @@
                 }
             }
             
-           const descEl = document.getElementById('pd-modal-desc');
+            const descEl = document.getElementById('pd-modal-desc');
             const ingEl = document.getElementById('pd-modal-ingredients');
             
             if(desc !== '') {
