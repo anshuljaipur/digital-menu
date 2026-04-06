@@ -255,6 +255,10 @@
         .pd-detail-section { margin-bottom: 15px; display: none; padding: 12px; background: var(--chip-bg); border-radius: 12px; }
         .pd-detail-title { margin: 0 0 5px 0; font-size: 0.75em; font-weight: 800; color: var(--glacier-blue); text-transform: uppercase; letter-spacing: 1px;}
         .pd-detail-text { margin: 0; font-size: 0.85em; color: var(--text-main); line-height: 1.6; }
+
+        /* 🟢 DESCRIPTION & INGREDIENTS CSS 🟢 */
+        .pd-desc-text { margin: 5px 0 15px 0; font-size: 0.9em; color: var(--text-muted); line-height: 1.5; display: none; }
+        .pd-ing-text { margin: 0 0 15px 0; font-size: 0.8em; color: var(--active-brand-red); font-style: italic; line-height: 1.4; display: none; font-weight: 500;}
         
         .pd-bottom-row { display: flex; justify-content: space-between; align-items: center; border-top: 2px solid var(--border-color); padding-top: 20px; margin-top: auto; }
 
@@ -566,18 +570,11 @@
                 <div class="pd-brand-icon" id="pd-modal-brand-logo"></div>
                 <div class="pd-brand-name" id="pd-modal-brand-name"></div>
             </div>
-            
-            <h2 id="pd-modal-name">Product Name</h2>
+            <h2 id="pd-modal-name" style="margin-bottom: 5px;">Product Name</h2>
+            <p id="pd-modal-desc" class="pd-desc-text"></p>
             <div id="pd-modal-volume">500ml</div>
             
-            <div id="pd-modal-desc-wrap" class="pd-detail-section">
-                <h4 class="pd-detail-title">Description</h4>
-                <p id="pd-modal-desc" class="pd-detail-text"></p>
-            </div>
-            <div id="pd-modal-ing-wrap" class="pd-detail-section" style="margin-bottom: 20px;">
-                <h4 class="pd-detail-title">Ingredients</h4>
-                <p id="pd-modal-ingredients" class="pd-detail-text" style="font-size: 0.8em;"></p>
-            </div>
+            <p id="pd-modal-ingredients" class="pd-ing-text"></p>
 
             <div class="pd-bottom-row">
                 <div id="pd-modal-price-wrap" class="price-row"></div>
@@ -1182,21 +1179,21 @@
                 }
             }
             
-            const descWrap = document.getElementById('pd-modal-desc-wrap');
-            const ingWrap = document.getElementById('pd-modal-ing-wrap');
+           const descEl = document.getElementById('pd-modal-desc');
+            const ingEl = document.getElementById('pd-modal-ingredients');
             
             if(desc !== '') {
-                document.getElementById('pd-modal-desc').innerText = desc;
-                descWrap.style.display = 'block';
+                descEl.innerText = desc;
+                descEl.style.display = 'block';
             } else {
-                descWrap.style.display = 'none';
+                descEl.style.display = 'none';
             }
             
             if(ing !== '') {
-                document.getElementById('pd-modal-ingredients').innerText = ing;
-                ingWrap.style.display = 'block';
+                ingEl.innerText = "*Note: " + ing;
+                ingEl.style.display = 'block';
             } else {
-                ingWrap.style.display = 'none';
+                ingEl.style.display = 'none';
             }
 
             let priceHTML = discountNum > 0 ? `<span class="item-price">₹${item.price}</span> <span class="item-mrp" style="text-decoration:line-through; color:var(--text-muted); font-size:0.8em; margin-left:5px;">₹${item.mrp}</span>` : `<span class="item-price">₹${item.price}</span>`;
