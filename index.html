@@ -434,25 +434,27 @@
             /* 🟢 3 ITEM GRID 🟢 */
             .menu-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
             
-            /* 🟢 FIXED RIGHT FILTERS PANEL 🟢 */
+            /* 🟢 FIXED RIGHT FILTERS PANEL (OUTSIDE SCROLL AREA TO FIX IOS SAFARI BUG) 🟢 */
             .tags-sidebar-landscape { 
                 display: flex !important;
                 position: fixed !important; 
-                right: env(safe-area-inset-right) !important; 
+                right: 0 !important; 
                 top: 50px !important; 
-                width: 120px !important; 
+                width: calc(120px + env(safe-area-inset-right)) !important; 
                 height: calc(100dvh - 50px) !important; 
                 background: var(--card-bg) !important; 
                 border-left: 1px solid var(--border-color) !important; 
                 flex-direction: column !important; 
                 overflow-y: auto !important; 
                 padding: 10px 5px 100px 5px !important; 
+                padding-right: calc(5px + env(safe-area-inset-right)) !important;
                 z-index: 100 !important; 
                 gap: 8px !important; 
                 box-sizing: border-box !important; 
                 -webkit-overflow-scrolling: touch !important;
             }
             #tags-container-portrait { display: none !important; }
+
             .filter-tag-chip { text-align: center; justify-content: center; padding: 8px 5px !important; font-size: 0.65em !important; white-space: normal !important; height: auto !important; display: flex !important; align-items: center !important;}
             
             /* Cart Banner Adjustments */
@@ -1209,6 +1211,7 @@
             gridWrapper.innerHTML = newHTML; updateAddButtons();
         }
 
+        // 🟢 SUPER FLEXIBLE DESCRIPTION & INGREDIENTS MATCHER 🟢
         window.openProductDetail = (itemName) => {
             const item = allItems.find(i => i.name === itemName);
             if(!item) return;
@@ -1223,21 +1226,31 @@
             document.getElementById('pd-modal-name').innerText = item.name;
             document.getElementById('pd-modal-volume').innerText = volText || '';
 
-            // 🟢 Handle Description & Ingredients 🟢
-            const desc = item.description || item.Description || item.DESCRIPTION || '';
-            const ing = item.ingredients || item.Ingredients || item.INGREDIENTS || '';
+            // Search keys safely without worrying about spaces or case
+            let desc = '';
+            let ing = '';
+            
+            for(let key in item) {
+                let cleanKey = key.toLowerCase().replace(/[^a-z]/g, '');
+                if(['description', 'desc', 'detail', 'details', 'about'].includes(cleanKey)) {
+                    if(item[key] && String(item[key]).trim() !== '') desc = String(item[key]).trim();
+                }
+                if(['ingredient', 'ingredients', 'composition', 'items'].includes(cleanKey)) {
+                    if(item[key] && String(item[key]).trim() !== '') ing = String(item[key]).trim();
+                }
+            }
             
             const descWrap = document.getElementById('pd-modal-desc-wrap');
             const ingWrap = document.getElementById('pd-modal-ing-wrap');
             
-            if(desc) {
+            if(desc !== '') {
                 document.getElementById('pd-modal-desc').innerText = desc;
                 descWrap.style.display = 'block';
             } else {
                 descWrap.style.display = 'none';
             }
             
-            if(ing) {
+            if(ing !== '') {
                 document.getElementById('pd-modal-ingredients').innerText = ing;
                 ingWrap.style.display = 'block';
             } else {
