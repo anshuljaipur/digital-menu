@@ -900,44 +900,62 @@
 
         function protectImages(e) { if (e.target.tagName === 'IMG' || e.target.tagName === 'svg') { e.preventDefault(); return false; } return true; }
 
-        // 🟢 FIXED SMART DATE PARSER FOR SAFARI/MOBILE 🟢
-        // 🟢 FIXED SMART DATE PARSER FOR SAFARI/MOBILE 🟢
+// 🟢 SAFARI BULLETPROOF DATE PARSER 🟢
         function getLaunchDate(item) {
             let dateStr = null;
+            // 1. Find the date string from the item object
             for (let key in item) {
                 let cleanKey = String(key).toLowerCase().replace(/[^a-z0-9]/g, '');
                 if (cleanKey.includes('launch') || cleanKey.includes('year') || cleanKey.includes('date')) {
-                    if (item[key] && String(item[key]).trim() !== '') { dateStr = String(item[key]).trim(); break; }
+                    if (item[key] && String(item[key]).trim() !== '') { 
+                        dateStr = String(item[key]).trim(); 
+                        break; 
+                    }
                 }
             }
             if (!dateStr) return null;
+
+            // 2. Extract Year and Month directly using Regex (Bypassing Safari's Date parser)
+            // Look for 4 consecutive digits as the Year (e.g., 2026)
+            let yearMatch = dateStr.match(/\d{4}/);
+            if (!yearMatch) return null;
             
-            // 🟢 iOS/Safari BUG FIX: "Regex" se direct Year, Month aur Day nikalenge
-            // 1. Format YYYY-MM-DD ya YYYY/MM/DD (Jaise: 2026-02-01)
-            let match1 = dateStr.match(/(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
-            if (match1) return new Date(parseInt(match1[1]), parseInt(match1[2]) - 1, parseInt(match1[3]));
+            let year = parseInt(yearMatch[0], 10);
+            let month = 0; // Default to January (0-indexed)
+
+            // Try to extract the month (looking for digits or month names)
+            let monthMatchDigits = dateStr.match(/(?:^|[\/\-])(\d{1,2})(?:[\/\-]|$)/);
+            if (monthMatchDigits && parseInt(monthMatchDigits[1], 10) <= 12) {
+                // Assuming format like YYYY-MM-DD or DD/MM/YYYY
+                month = parseInt(monthMatchDigits[1], 10) - 1; 
+            } else {
+                // Look for month names (Jan, Feb, Mar, etc.)
+                const monthNames = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+                let lowerDateStr = dateStr.toLowerCase();
+                for (let i = 0; i < monthNames.length; i++) {
+                    if (lowerDateStr.includes(monthNames[i])) {
+                        month = i;
+                        break;
+                    }
+                }
+            }
             
-            // 2. Format DD-MM-YYYY ya DD/MM/YYYY (Jaise: 01-02-2026)
-            let match2 = dateStr.match(/(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
-            if (match2) return new Date(parseInt(match2[3]), parseInt(match2[2]) - 1, parseInt(match2[1]));
-
-            // 3. Format YYYY-MM (Jaise: 2026-02)
-            let match3 = dateStr.match(/(\d{4})[-\/](\d{1,2})/);
-            if (match3) return new Date(parseInt(match3[1]), parseInt(match3[2]) - 1, 1);
-
-            // 4. Fallback (Agar Feb 2026 jaisa kuch ho)
-            let d = new Date(dateStr.replace(/-/g, '/'));
-            if (!isNaN(d.getTime())) return d;
-
-            d = new Date("01 " + dateStr);
-            return isNaN(d.getTime()) ? null : d;
+            // Return an object with pure numbers, not a Date object
+            return { year: year, month: month };
         }
 
         function isNewArrival(item) {
-            let launchDate = getLaunchDate(item);
-            if (!launchDate) return false;
+            let launchData = getLaunchDate(item);
+            if (!launchData) return false;
+
             let now = new Date();
-            let monthsDiff = (now.getFullYear() - launchDate.getFullYear()) * 12 + (now.getMonth() - launchDate.getMonth());
+            let currentYear = now.getFullYear();
+            let currentMonth = now.getMonth(); // 0-11
+
+            // Calculate difference in months
+            let monthsDiff = (currentYear - launchData.year) * 12 + (currentMonth - launchData.month);
+            
+            // Item is "New" if launched within the last 3 months, or up to 2 months in the future
             return monthsDiff >= -2 && monthsDiff <= 3; 
         }
 
