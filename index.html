@@ -704,7 +704,8 @@
                 
                 <div style="margin-bottom: 15px;">
                     <label class="auth-label">Main Account Name</label>
-                    <input type="text" id="profile-name-main" class="auth-input" placeholder="e.g. Rahul Sharma" onchange="saveMainName()">
+                    <input type="text" id="profile-name-main" class="auth-input" placeholder="e.g. Rahul Sharma" onchange="saveMainName()" style="margin-bottom: 5px;">
+                    <div id="main-name-msg" style="font-size: 0.75em; font-weight: 700; text-align: right; height: 15px;"></div>
                 </div>
                 
                 <div id="address-list-view">
@@ -741,6 +742,8 @@
 
                     <input type="text" id="new-addr-house" class="auth-input" placeholder="House / Flat / Block No. *" style="background:var(--card-bg);">
                     <textarea id="new-addr-area" class="auth-input" rows="2" placeholder="Area / Street / Landmark (Auto-filled by Map) *" style="background:var(--card-bg);"></textarea>
+
+                    <div id="addr-msg" style="font-size: 0.85em; margin-bottom: 15px; text-align: center; font-weight: 700;"></div>
 
                     <div style="display:flex; gap:10px;">
                         <button class="auth-btn" style="flex:1; padding: 12px;" onclick="saveNewAddress()">Save</button>
@@ -1624,7 +1627,6 @@
                     window.globalUserData = docSnap.data();
                     document.getElementById('profile-name-main').value = window.globalUserData.name || '';
                     
-                    // 🟢 MIGRATE OLD DATA OR INIT ARRAY 🟢
                     if (!window.globalUserData.addresses) {
                         window.globalUserData.addresses = [];
                         if (window.globalUserData.address || window.globalUserData.house) {
@@ -1645,7 +1647,6 @@
                     
                     renderAddresses();
                 } else {
-                    // New user init
                     window.globalUserData = { name: '', phone: window.globalUser.phoneNumber, addresses: [], defaultAddressIndex: 0 };
                     renderAddresses();
                 }
@@ -1695,12 +1696,16 @@
             confirmationResult.confirm(otp).catch((error) => { btn.disabled = false; btn.innerText = "Verify & Login"; errorDiv.innerText = "Invalid OTP. Please try again."; });
         };
 
-        // 🟢 NEW MULTI-ADDRESS LOGIC 🟢
+        // 🟢 AUTO-SAVE MAIN NAME 🟢
         window.saveMainName = async () => {
             if(!window.globalUser) return;
             const name = document.getElementById('profile-name-main').value.trim();
             window.globalUserData.name = name;
             await setDoc(doc(db, "users", window.globalUser.uid), { name: name }, { merge: true });
+            let msg = document.getElementById('main-name-msg');
+            msg.innerText = "Name saved! ✅";
+            msg.style.color = "#10b981";
+            setTimeout(() => { msg.innerText = ''; }, 3000);
         }
 
         window.renderAddresses = () => {
@@ -1736,7 +1741,6 @@
             window.globalUserData.defaultAddressIndex = index;
             renderAddresses();
             
-            // Background update to firestore
             if(window.globalUser) {
                 await setDoc(doc(db, "users", window.globalUser.uid), { defaultAddressIndex: index }, { merge: true });
             }
@@ -1754,7 +1758,6 @@
             document.getElementById('addr-msg').innerText = '';
             
             if(editIndex >= 0) {
-                // Edit Mode
                 document.getElementById('addr-form-title').innerText = 'Edit Address';
                 document.getElementById('edit-addr-index').value = editIndex;
                 
@@ -1765,16 +1768,13 @@
                 document.getElementById('new-addr-house').value = addr.house;
                 document.getElementById('new-addr-area').value = addr.area;
                 
-                // Hide map by default on edit unless requested
                 document.getElementById('map-wrapper').style.display = 'none';
                 document.getElementById('open-map-btn').style.display = 'flex';
             } else {
-                // Add Mode
                 document.getElementById('addr-form-title').innerText = 'Add New Address';
                 document.getElementById('edit-addr-index').value = -1;
                 setAddrType('Home');
                 
-                // Pre-fill user details to save time
                 document.getElementById('new-addr-name').value = window.globalUserData.name || '';
                 document.getElementById('new-addr-phone').value = window.globalUser ? window.globalUser.phoneNumber : '';
                 document.getElementById('new-addr-house').value = '';
@@ -1809,6 +1809,7 @@
             }
         }
 
+        // 🟢 FIXED ADDRESS SAVING LOGIC 🟢
         window.saveNewAddress = async () => {
             if(!window.globalUser) return;
             
@@ -1818,14 +1819,16 @@
             const area = document.getElementById('new-addr-area').value.trim();
             const editIndex = parseInt(document.getElementById('edit-addr-index').value);
             
+            let msgBox = document.getElementById('addr-msg');
+            
             if(!name || !phone || !house || !area) {
-                document.getElementById('addr-msg').innerText = "Please fill all the details marked with *";
-                document.getElementById('addr-msg').style.color = "var(--active-brand-red)";
+                msgBox.innerText = "Please fill all the details marked with *";
+                msgBox.style.color = "var(--active-brand-red)";
                 return;
             }
 
-            document.getElementById('addr-msg').innerText = "Saving...";
-            document.getElementById('addr-msg').style.color = "var(--text-muted)";
+            msgBox.innerText = "Saving...";
+            msgBox.style.color = "var(--text-muted)";
             
             let newAddrObj = {
                 label: window.newAddressType,
@@ -1841,7 +1844,7 @@
                 window.globalUserData.addresses[editIndex] = newAddrObj;
             } else {
                 window.globalUserData.addresses.push(newAddrObj);
-                window.selectedAddressIndex = window.globalUserData.addresses.length - 1; // Auto select new
+                window.selectedAddressIndex = window.globalUserData.addresses.length - 1; 
                 window.globalUserData.defaultAddressIndex = window.selectedAddressIndex;
             }
 
@@ -1849,15 +1852,18 @@
                 await setDoc(doc(db, "users", window.globalUser.uid), { 
                     addresses: window.globalUserData.addresses,
                     defaultAddressIndex: window.globalUserData.defaultAddressIndex,
-                    name: window.globalUserData.name // ensure main name is saved
+                    name: window.globalUserData.name || ''
                 }, { merge: true });
                 
                 hideAddAddressForm();
                 renderAddresses();
+                document.getElementById('profile-msg').innerText = "Address saved successfully! ✅";
+                document.getElementById('profile-msg').style.color = "#10b981";
+                setTimeout(() => { document.getElementById('profile-msg').innerText = ''; }, 3000);
                 
             } catch(e) { 
-                document.getElementById('addr-msg').innerText = "Failed to save."; 
-                document.getElementById('addr-msg').style.color = "var(--active-brand-red)"; 
+                msgBox.innerText = "Failed to save."; 
+                msgBox.style.color = "var(--active-brand-red)"; 
             }
         };
 
@@ -1920,11 +1926,10 @@
                     total += (data.price * data.qty); itemsSummary.push(`${data.qty}x ${name}`);
                 }
                 
-                // 🟢 USE SELECTED ADDRESS FOR CHECKOUT 🟢
                 if (window.globalUser && window.globalUserData && window.globalUserData.addresses && window.globalUserData.addresses.length > 0) {
                     
                     let addr = window.globalUserData.addresses[window.selectedAddressIndex];
-                    if(!addr) addr = window.globalUserData.addresses[0]; // fallback
+                    if(!addr) addr = window.globalUserData.addresses[0]; 
                     
                     let fullDeliveryAddress = `${addr.house}, ${addr.area}`;
                     message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
