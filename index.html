@@ -693,7 +693,11 @@
                     <label class="auth-label">Delivery Location</label>
                     
                     <button id="open-map-btn" class="action-btn" onclick="initLocationPicker()" style="width:100%; justify-content:center; margin-bottom:10px; background:var(--chip-bg); border-color:var(--glacier-blue); color:var(--glacier-blue);">📍 Auto-Locate on Map</button>
-                    <div id="map-container" style="display:none; height: 200px; border-radius: 10px; margin-bottom: 10px; overflow: hidden; border: 2px solid var(--border-color);"></div>
+                    
+                    <div id="map-wrapper" style="display:none; position: relative; width: 100%; margin-bottom: 10px;">
+                        <div id="map-container" style="height: 200px; border-radius: 10px; overflow: hidden; border: 2px solid var(--border-color);"></div>
+                        <button id="locate-me-btn" onclick="getCurrentLocation()" style="position: absolute; bottom: 15px; right: 10px; z-index: 400; background: white; border: 2px solid var(--border-color); border-radius: 8px; width: 34px; height: 34px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 1.2em; display: flex; align-items: center; justify-content: center; padding: 0;" title="My Location">🎯</button>
+                    </div>
 
                     <div style="display:flex; gap:10px; margin-bottom: 10px;">
                         <div style="flex: 1;">
@@ -1448,7 +1452,7 @@
         let marker;
 
         function initLocationPicker() {
-            document.getElementById('map-container').style.display = 'block';
+            document.getElementById('map-wrapper').style.display = 'block';
             document.getElementById('open-map-btn').style.display = 'none'; 
             
             if (!map) {
@@ -1472,6 +1476,11 @@
             
             setTimeout(() => { map.invalidateSize(); }, 300);
 
+            // Fetch location immediately on open
+            getCurrentLocation();
+        }
+
+        function getCurrentLocation() {
             if (navigator.geolocation) {
                 document.getElementById('profile-address').value = "Locating you... 📍";
                 navigator.geolocation.getCurrentPosition(
@@ -1483,8 +1492,9 @@
                         getAddressFromCoords(lat, lng);
                     },
                     (error) => {
-                        alert("Could not get current location automatically. Please tap/drag the pin on the map to set your location.");
-                        document.getElementById('profile-address').value = "";
+                        console.warn("Geolocation Error:", error.message);
+                        // No annoying alert! Just a polite message in the text box.
+                        document.getElementById('profile-address').value = "Location access denied. Please tap or drag the pin manually.";
                     },
                     { enableHighAccuracy: true }
                 );
@@ -1500,20 +1510,16 @@
                 if(data && data.address) {
                     let addr = data.address;
                     
-                    // Get meaningful parts to avoid repetition
                     let road = addr.road || '';
                     let neighborhood = addr.neighbourhood || '';
                     let suburb = addr.suburb || '';
                     let city = addr.city || addr.town || addr.county || '';
                     let postcode = addr.postcode || '';
 
-                    // Combine neighborhood and suburb if both exist, else pick one
                     let area = [neighborhood, suburb].filter(Boolean).join(', ');
 
-                    // Create array of parts and filter out empty ones
                     let parts = [road, area, city, postcode].filter(p => p.trim() !== '');
                     
-                    // Remove duplicates (e.g., if neighborhood is same as city)
                     let uniqueParts = [];
                     parts.forEach(p => {
                         let isDuplicate = uniqueParts.some(existing => existing.toLowerCase().includes(p.toLowerCase()) || p.toLowerCase().includes(existing.toLowerCase()));
@@ -1524,7 +1530,6 @@
 
                     document.getElementById('profile-address').value = uniqueParts.join(', ');
                     
-                    // 🟢 HIGHLIGHT HOUSE NO FIELD 🟢
                     const houseField = document.getElementById('profile-house');
                     houseField.style.borderColor = 'var(--active-brand-red)';
                     houseField.focus();
