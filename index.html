@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
     <title>Glacier Ice Cream - Digital Menu</title>
     
+    <link rel="preconnect" href="https://i.postimg.cc" crossorigin>
+    <link rel="dns-prefetch" href="https://i.postimg.cc">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
     <link rel="icon" type="image/jpeg" href="https://i.postimg.cc/DfWgmYTD/favicon.jpg"> 
 
     <style>
@@ -483,7 +488,7 @@
     <div id="loading-bar"></div>
 
     <header>
-        <img src="https://i.postimg.cc/c4MX4XyQ/logo-glacier.png" alt="Glacier Ice Cream Logo" class="header-logo">
+        <img src="https://i.postimg.cc/c4MX4XyQ/logo-glacier.png" alt="Glacier Ice Cream Logo" class="header-logo" fetchpriority="high">
         
         <div class="landscape-search-sort">
             <div class="control-chip">
@@ -903,7 +908,6 @@
         // 🟢 SAFARI BULLETPROOF DATE PARSER 🟢
         function getLaunchDate(item) {
             let dateStr = null;
-            // 1. Find the date string from the item object
             for (let key in item) {
                 let cleanKey = String(key).toLowerCase().replace(/[^a-z0-9]/g, '');
                 if (cleanKey.includes('launch') || cleanKey.includes('year') || cleanKey.includes('date')) {
@@ -915,14 +919,12 @@
             }
             if (!dateStr) return null;
 
-            // 2. Extract Year and Month directly using Regex (Bypassing Safari's Date parser)
             let yearMatch = dateStr.match(/\d{4}/);
             if (!yearMatch) return null;
             
             let year = parseInt(yearMatch[0], 10);
             let month = 0; 
 
-            // Try to extract the month
             let monthMatchDigits = dateStr.match(/(?:^|[\/\-])(\d{1,2})(?:[\/\-]|$)/);
             if (monthMatchDigits && parseInt(monthMatchDigits[1], 10) <= 12) {
                 month = parseInt(monthMatchDigits[1], 10) - 1; 
@@ -1228,7 +1230,6 @@
             document.getElementById('current-category-title').innerText = titlePrefix + titleText;
             document.getElementById('item-count').innerText = `${filteredItems.length} items`;
 
-            // 🟢 RESET PAGINATION 🟢
             currentFilteredItems = filteredItems;
             currentlyDisplayed = 0;
             gridWrapper.innerHTML = '';
@@ -1241,12 +1242,9 @@
             }
 
             statusMsg.style.display = 'none'; 
-            
-            // Render first batch
             renderMoreItems();
         }
 
-        // 🟢 SMART ITEMS PER PAGE LOGIC (3 ROWS) 🟢
         function getItemsPerPage() {
             let itemsPerRow = 4;
             if (window.innerWidth <= 360) {
@@ -1261,12 +1259,12 @@
                 const grid = document.getElementById('main-menu-grid');
                 let gridWidth = grid.clientWidth;
                 if(gridWidth > 0) {
-                    itemsPerRow = Math.floor((gridWidth + 20) / 240); // 220px min width + 20px gap
+                    itemsPerRow = Math.floor((gridWidth + 20) / 240); 
                 } else {
                     itemsPerRow = Math.floor((window.innerWidth - 300) / 240) || 4;
                 }
             }
-            return Math.max(1, itemsPerRow) * 3; // Always load 3 lines worth of items
+            return Math.max(1, itemsPerRow) * 3; 
         }
 
         window.loadMoreItems = () => {
@@ -1277,7 +1275,6 @@
             const gridWrapper = document.getElementById('main-menu-grid');
             let newHTML = '';
             
-            // Calculate how many items equal exactly 3 rows for the current device
             let itemsPerPage = getItemsPerPage();
             let itemsToRender = currentFilteredItems.slice(currentlyDisplayed, currentlyDisplayed + itemsPerPage);
 
@@ -1287,7 +1284,6 @@
                 let displayName = item.name.replace(volText, '').trim() || item.name;
                 let discountNum = getDiscount(item);
                 
-                // Price Layout
                 let priceHTML = discountNum > 0 ? `<div class="price-row"><span class="item-price">₹${item.price}</span><span class="item-mrp">₹${item.mrp}</span></div>` : `<div class="price-row"><span class="item-price">₹${item.price}</span></div>`;
                 
                 let tagsHTML = '';
@@ -1303,7 +1299,7 @@
                         <div class="card-img-wrapper skeleton-bg">
                             ${isNewArrival(item) ? `<div class="new-badge">✨ NEW</div>` : ''}
                             ${discountNum > 0 ? `<div class="red-discount-icon">⬇</div>` : ''}
-                            <img src="${item.img}" referrerpolicy="no-referrer" loading="lazy" style="opacity: 0; transition: opacity 0.4s ease;" onload="this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';" onerror="this.onerror=null; this.src='https://placehold.co/300x220/f4f6f9/a0a0a0?text=No+Image'; this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';">
+                            <img src="${item.img}" referrerpolicy="no-referrer" loading="lazy" decoding="async" style="opacity: 0; transition: opacity 0.3s ease-in-out;" onload="this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';" onerror="this.onerror=null; this.src='https://placehold.co/300x220/f4f6f9/a0a0a0?text=No+Image'; this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';">
                             
                             <div class="btn-container" id="add-wrap-${safeName}" onclick="event.stopPropagation()"></div>
                         </div>
