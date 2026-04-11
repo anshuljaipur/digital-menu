@@ -173,7 +173,7 @@
         .section-header h2 { margin: 0; font-size: 1.4em; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
         .section-count { font-size: 0.9em; font-weight: 500; color: var(--text-muted); }
 
-        /* 🟢 NEW PREMIUM PRODUCT GRID & CARD CSS 🟢 */
+        /* 🟢 PREMIUM PRODUCT GRID & CARD CSS 🟢 */
         .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; align-items: start; padding-bottom: 20px; box-sizing: border-box; width: 100%;}
         
         .menu-card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color); display: flex; flex-direction: column; position: relative; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s; height: 100%; box-sizing: border-box;}
@@ -209,6 +209,8 @@
         .price-row { display: flex; align-items: baseline; gap: 6px; margin: 0; }
         .item-price { font-size: 1.25em; font-weight: 800; color: var(--text-main); line-height: 1;}
         .item-mrp { font-size: 0.85em; font-weight: 500; color: var(--text-muted); text-decoration: line-through; }
+
+        #load-more-container { text-align: center; margin: 10px 0 30px 0; display: none; width: 100%; }
 
         .legal-footer { text-align: center; font-size: 0.7em; color: var(--text-muted); padding: 30px 15px 40px 15px; margin-top: auto; font-weight: 500; border-top: 1px dashed var(--border-color); width: 100%;}
         .legal-footer p { margin: 5px 0; }
@@ -688,12 +690,18 @@
                     <label class="auth-label">Full Name</label>
                     <input type="text" id="profile-name" class="auth-input" placeholder="e.g. Rahul Sharma">
                     
-                    <label class="auth-label">Delivery Address</label>
+                    <label class="auth-label">Delivery Location</label>
                     
-                    <button id="open-map-btn" class="action-btn" onclick="initLocationPicker()" style="width:100%; justify-content:center; margin-bottom:10px; background:var(--chip-bg); border-color:var(--glacier-blue); color:var(--glacier-blue);">📍 Use Current Location / Map</button>
-                    <div id="map-container" style="display:none; height: 250px; border-radius: 10px; margin-bottom: 10px; overflow: hidden; border: 2px solid var(--border-color);"></div>
+                    <button id="open-map-btn" class="action-btn" onclick="initLocationPicker()" style="width:100%; justify-content:center; margin-bottom:10px; background:var(--chip-bg); border-color:var(--glacier-blue); color:var(--glacier-blue);">📍 Auto-Locate on Map</button>
+                    <div id="map-container" style="display:none; height: 200px; border-radius: 10px; margin-bottom: 10px; overflow: hidden; border: 2px solid var(--border-color);"></div>
 
-                    <textarea id="profile-address" class="auth-input" rows="3" placeholder="Flat No, Building, Street, Landmark..."></textarea>
+                    <div style="display:flex; gap:10px; margin-bottom: 10px;">
+                        <div style="flex: 1;">
+                            <input type="text" id="profile-house" class="auth-input" placeholder="House / Flat / Block No. *" style="margin-bottom: 0; padding: 12px; font-weight: 600;">
+                        </div>
+                    </div>
+
+                    <textarea id="profile-address" class="auth-input" rows="2" placeholder="Area / Street / Landmark (Auto-filled by Map)"></textarea>
                     
                     <button class="auth-btn" id="save-profile-btn" onclick="saveProfile()">Save Details</button>
                     <div id="profile-msg" style="color: #10b981; font-size: 0.85em; margin-top: 8px; text-align: center; font-weight: 700;"></div>
@@ -985,7 +993,6 @@
             btn.style.opacity = '0.5';
             
             document.getElementById('main-menu-grid').innerHTML = '';
-            document.getElementById('load-more-container').style.display = 'none';
             const statusMsg = document.getElementById('status-msg');
             statusMsg.innerHTML = '<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🔄</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">Fetching latest menu...</h3></div>';
             statusMsg.style.display = 'block';
@@ -1238,7 +1245,6 @@
             gridWrapper.innerHTML = '';
 
             if (filteredItems.length === 0) { 
-                document.getElementById('load-more-container').style.display = 'none';
                 statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="['desktop','mobile','landscape'].forEach(e => { let sb = document.getElementById('search-bar-'+e); if(sb) sb.value=''; }); applyFilters(); setCategory('All Items'); setBrand('All Brands'); setTagFilter('All');" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
                 statusMsg.style.display = 'block'; 
                 return; 
@@ -1268,10 +1274,6 @@
                 }
             }
             return Math.max(1, itemsPerRow) * 4; 
-        }
-
-        window.loadMoreItems = () => {
-            renderMoreItems();
         }
 
         function renderMoreItems() {
@@ -1450,7 +1452,6 @@
             document.getElementById('open-map-btn').style.display = 'none'; 
             
             if (!map) {
-                // Default location: Jaipur (26.9124, 75.7873)
                 map = L.map('map-container').setView([26.9124, 75.7873], 13); 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '© OpenStreetMap'
@@ -1491,17 +1492,51 @@
         }
 
         async function getAddressFromCoords(lat, lng) {
-            document.getElementById('profile-address').value = "Fetching exact address... ⏳";
+            document.getElementById('profile-address').value = "Fetching exact area... ⏳";
             try {
                 let response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
                 let data = await response.json();
-                if(data && data.display_name) {
+                
+                if(data && data.address) {
+                    let addr = data.address;
+                    
+                    // Get meaningful parts to avoid repetition
+                    let road = addr.road || '';
+                    let neighborhood = addr.neighbourhood || '';
+                    let suburb = addr.suburb || '';
+                    let city = addr.city || addr.town || addr.county || '';
+                    let postcode = addr.postcode || '';
+
+                    // Combine neighborhood and suburb if both exist, else pick one
+                    let area = [neighborhood, suburb].filter(Boolean).join(', ');
+
+                    // Create array of parts and filter out empty ones
+                    let parts = [road, area, city, postcode].filter(p => p.trim() !== '');
+                    
+                    // Remove duplicates (e.g., if neighborhood is same as city)
+                    let uniqueParts = [];
+                    parts.forEach(p => {
+                        let isDuplicate = uniqueParts.some(existing => existing.toLowerCase().includes(p.toLowerCase()) || p.toLowerCase().includes(existing.toLowerCase()));
+                        if (!isDuplicate) {
+                            uniqueParts.push(p);
+                        }
+                    });
+
+                    document.getElementById('profile-address').value = uniqueParts.join(', ');
+                    
+                    // 🟢 HIGHLIGHT HOUSE NO FIELD 🟢
+                    const houseField = document.getElementById('profile-house');
+                    houseField.style.borderColor = 'var(--active-brand-red)';
+                    houseField.focus();
+                    setTimeout(() => { houseField.style.borderColor = 'var(--border-color)'; }, 3000);
+                    
+                } else if(data && data.display_name) {
                     document.getElementById('profile-address').value = data.display_name;
                 } else {
-                    document.getElementById('profile-address').value = "Address not found. Please type manually.";
+                    document.getElementById('profile-address').value = "Area not found. Please type manually.";
                 }
             } catch (e) {
-                document.getElementById('profile-address').value = "Error fetching address. Please type manually.";
+                document.getElementById('profile-address').value = "Error fetching location. Please type manually.";
             }
         }
     </script>
@@ -1541,6 +1576,7 @@
                 if (docSnap.exists()) {
                     window.globalUserData = docSnap.data();
                     document.getElementById('profile-name').value = window.globalUserData.name || '';
+                    document.getElementById('profile-house').value = window.globalUserData.house || '';
                     document.getElementById('profile-address').value = window.globalUserData.address || '';
                 }
                 loadPastOrders(uid);
@@ -1591,13 +1627,25 @@
 
         window.saveProfile = async () => {
             if(!window.globalUser) return;
-            const name = document.getElementById('profile-name').value.trim(); const address = document.getElementById('profile-address').value.trim(); const btn = document.getElementById('save-profile-btn');
+            const name = document.getElementById('profile-name').value.trim(); 
+            const house = document.getElementById('profile-house').value.trim();
+            const address = document.getElementById('profile-address').value.trim(); 
+            const btn = document.getElementById('save-profile-btn');
+            
+            if(!house && address) {
+                document.getElementById('profile-msg').innerText = "Please enter your House/Flat No.";
+                document.getElementById('profile-msg').style.color = "var(--active-brand-red)";
+                document.getElementById('profile-house').focus();
+                return;
+            }
+
             btn.disabled = true; btn.innerText = "Saving...";
             try {
-                await setDoc(doc(db, "users", window.globalUser.uid), { name: name, address: address, phone: window.globalUser.phoneNumber }, { merge: true });
-                window.globalUserData = { name, address, phone: window.globalUser.phoneNumber };
+                await setDoc(doc(db, "users", window.globalUser.uid), { name: name, house: house, address: address, phone: window.globalUser.phoneNumber }, { merge: true });
+                window.globalUserData = { name, house, address, phone: window.globalUser.phoneNumber };
                 document.getElementById('profile-msg').innerText = "Profile saved successfully! ✅";
-            } catch(e) { document.getElementById('profile-msg').innerText = "Failed to save."; document.getElementById('profile-msg').style.color = "#e74c3c"; }
+                document.getElementById('profile-msg').style.color = "#10b981";
+            } catch(e) { document.getElementById('profile-msg').innerText = "Failed to save."; document.getElementById('profile-msg').style.color = "var(--active-brand-red)"; }
             btn.disabled = false; btn.innerText = "Save Details";
         };
 
@@ -1660,8 +1708,9 @@
                     total += (data.price * data.qty); itemsSummary.push(`${data.qty}x ${name}`);
                 }
                 
-                if (window.globalUser && window.globalUserData && window.globalUserData.address) {
-                    message += `\n*Delivery Details:*\nName: ${window.globalUserData.name}\nAddress: ${window.globalUserData.address}\nPhone: ${window.globalUser.phoneNumber}\n`;
+                if (window.globalUser && window.globalUserData && (window.globalUserData.address || window.globalUserData.house)) {
+                    let fullDeliveryAddress = window.globalUserData.house ? `${window.globalUserData.house}, ${window.globalUserData.address}` : window.globalUserData.address;
+                    message += `\n*Delivery Details:*\nName: ${window.globalUserData.name}\nAddress: ${fullDeliveryAddress}\nPhone: ${window.globalUser.phoneNumber}\n`;
                     
                     addDoc(collection(db, "orders"), { userId: window.globalUser.uid, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() }).then(() => {
                         loadPastOrders(window.globalUser.uid);
