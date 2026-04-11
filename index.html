@@ -5,11 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
     <title>Glacier Ice Cream - Digital Menu</title>
     
-    <link rel="preconnect" href="https://i.postimg.cc" crossorigin>
-    <link rel="dns-prefetch" href="https://i.postimg.cc">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
     <link rel="icon" type="image/jpeg" href="https://i.postimg.cc/DfWgmYTD/favicon.jpg"> 
 
     <style>
@@ -207,15 +202,6 @@
         .price-row { display: flex; align-items: baseline; gap: 6px; margin: 0; }
         .item-price { font-size: 1.25em; font-weight: 800; color: var(--text-main); line-height: 1;}
         .item-mrp { font-size: 0.85em; font-weight: 500; color: var(--text-muted); text-decoration: line-through; }
-
-        /* 🟢 LOAD MORE BUTTON CSS 🟢 */
-        #load-more-container { text-align: center; margin: 10px 0 30px 0; display: none; width: 100%; }
-        #load-more-btn { 
-            padding: 12px 30px; font-size: 1em; font-weight: 700; font-family: 'Poppins', sans-serif;
-            background: var(--glacier-blue); color: white; border: none; border-radius: 50px;
-            box-shadow: 0 4px 15px rgba(31,81,198,0.3); cursor: pointer; transition: 0.2s;
-        }
-        #load-more-btn:hover { transform: translateY(-2px); background: #1a42a4; }
 
         .legal-footer { text-align: center; font-size: 0.7em; color: var(--text-muted); padding: 30px 15px 40px 15px; margin-top: auto; font-weight: 500; border-top: 1px dashed var(--border-color); width: 100%;}
         .legal-footer p { margin: 5px 0; }
@@ -488,7 +474,7 @@
     <div id="loading-bar"></div>
 
     <header>
-        <img src="https://i.postimg.cc/c4MX4XyQ/logo-glacier.png" alt="Glacier Ice Cream Logo" class="header-logo" fetchpriority="high">
+        <img src="https://i.postimg.cc/c4MX4XyQ/logo-glacier.png" alt="Glacier Ice Cream Logo" class="header-logo">
         
         <div class="landscape-search-sort">
             <div class="control-chip">
@@ -583,10 +569,6 @@
             <div id="status-msg" style="display:none;">Stocking our freezer... Please wait!</div>
             
             <div class="menu-grid" id="main-menu-grid"></div>
-            
-            <div id="load-more-container">
-                <button id="load-more-btn" onclick="loadMoreItems()">Load More ⬇️</button>
-            </div>
 
             <div class="legal-footer">
                 <p class="legal-notice-vol">ℹ️ Volume & MRP subject to change. Please refer to actual packaging for final details.</p>
@@ -770,10 +752,18 @@
         let lastScrollY = 0;
         let showThreshold = 20; 
         
+        // 🟢 SCROLL LISTENER (AUTO-HIDE & INFINITE SCROLL) 🟢
         document.getElementById('products-area').addEventListener('scroll', function() {
             const controlsBar = document.querySelector('.controls-bar');
             const backToTop = document.getElementById('back-to-top');
             const brandsWrapper = document.querySelector('.brands-wrapper');
+
+            // Infinite Scroll Trigger (load when 300px away from bottom)
+            if (currentlyDisplayed < currentFilteredItems.length) {
+                if (this.scrollTop + this.clientHeight >= this.scrollHeight - 300) {
+                    renderMoreItems();
+                }
+            }
 
             if (window.innerWidth <= 999) {
                 let isLandscape = window.matchMedia("(orientation: landscape)").matches;
@@ -905,7 +895,6 @@
 
         function protectImages(e) { if (e.target.tagName === 'IMG' || e.target.tagName === 'svg') { e.preventDefault(); return false; } return true; }
 
-        // 🟢 SAFARI BULLETPROOF DATE PARSER 🟢
         function getLaunchDate(item) {
             let dateStr = null;
             for (let key in item) {
@@ -982,7 +971,6 @@
             btn.style.opacity = '0.5';
             
             document.getElementById('main-menu-grid').innerHTML = '';
-            document.getElementById('load-more-container').style.display = 'none';
             const statusMsg = document.getElementById('status-msg');
             statusMsg.innerHTML = '<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🔄</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">Fetching latest menu...</h3></div>';
             statusMsg.style.display = 'block';
@@ -1235,7 +1223,6 @@
             gridWrapper.innerHTML = '';
 
             if (filteredItems.length === 0) { 
-                document.getElementById('load-more-container').style.display = 'none';
                 statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="['desktop','mobile','landscape'].forEach(e => { let sb = document.getElementById('search-bar-'+e); if(sb) sb.value=''; }); applyFilters(); setCategory('All Items'); setBrand('All Brands'); setTagFilter('All');" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
                 statusMsg.style.display = 'block'; 
                 return; 
@@ -1245,6 +1232,7 @@
             renderMoreItems();
         }
 
+        // 🟢 SMART 4-ROW CALCULATOR FOR INFINITE SCROLL 🟢
         function getItemsPerPage() {
             let itemsPerRow = 4;
             if (window.innerWidth <= 360) {
@@ -1264,11 +1252,7 @@
                     itemsPerRow = Math.floor((window.innerWidth - 300) / 240) || 4;
                 }
             }
-            return Math.max(1, itemsPerRow) * 3; 
-        }
-
-        window.loadMoreItems = () => {
-            renderMoreItems();
+            return Math.max(1, itemsPerRow) * 4; // Load 4 rows initially to fill screen and trigger scroll
         }
 
         function renderMoreItems() {
@@ -1320,13 +1304,6 @@
             currentlyDisplayed += itemsToRender.length;
             
             updateAddButtons();
-
-            const loadMoreContainer = document.getElementById('load-more-container');
-            if (currentlyDisplayed >= currentFilteredItems.length) {
-                loadMoreContainer.style.display = 'none';
-            } else {
-                loadMoreContainer.style.display = 'block';
-            }
         }
 
         window.openProductDetail = (itemName) => {
