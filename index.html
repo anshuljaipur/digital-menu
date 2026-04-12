@@ -1063,10 +1063,12 @@
 
         function getTagIcon(tag) {
             let t = tag.toLowerCase();
-            if(t.includes('vegan')) return '🍃 ';
-            if(t.includes('diet')) return '📏 ';
-            if(t.includes('sugar')) return '🚫 ';
-            return '';
+            if(t.includes('vegan')) return '🍃';
+            if(t.includes('diet') || t.includes('lite')) return '📏';
+            if(t.includes('sugar')) return '🚫';
+            if(t.includes('fast') || t.includes('vrat') || t.includes('guilt')) return '⚡';
+            if(t.includes('best') || t.includes('popular')) return '🔥';
+            return '🏷️'; // Default Icon
         }
 
         async function refreshMenu() {
@@ -1362,7 +1364,7 @@
             return Math.max(1, itemsPerRow) * 4; 
         }
 
-        function renderMoreItems() {
+       function renderMoreItems() {
             const gridWrapper = document.getElementById('main-menu-grid');
             let newHTML = '';
             
@@ -1377,11 +1379,16 @@
                 
                 let priceHTML = discountNum > 0 ? `<div class="price-row"><span class="item-price">₹${item.price}</span><span class="item-mrp">₹${item.mrp}</span></div>` : `<div class="price-row"><span class="item-price">₹${item.price}</span></div>`;
                 
+                // 🟢 ICON TAGS LOGIC 🟢
                 let tagsHTML = '';
                 const itemTagsArray = getItemTags(item);
                 if(itemTagsArray.length > 0) {
                     tagsHTML = `<div class="card-tags-row">` + 
-                               itemTagsArray.map(t => `<span class="card-tag ${getTagStyle(t)}">${getTagIcon(t)}${t}</span>`).join('') + 
+                               itemTagsArray.map(t => {
+                                   let icon = getTagIcon(t).trim() || '🏷️';
+                                   // Added inline styles to make them perfect circular icons
+                                   return `<span class="card-tag ${getTagStyle(t)}" title="${t}" style="width: 24px; height: 24px; padding: 0; justify-content: center; border-radius: 50%; font-size: 0.9em; flex-shrink: 0; cursor: help;">${icon}</span>`;
+                               }).join('') + 
                                `</div>`;
                 }
 
