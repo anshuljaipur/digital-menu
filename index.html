@@ -2074,8 +2074,9 @@
                     let fullDeliveryAddress = `${addr.house}, ${addr.area}`;
                     message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
                     
+                    // 🟢 FIXED GOOGLE MAPS LINK 🟢
                     if (addr.lat && addr.lng) {
-                        message += `📍 *Google Maps Link:* https://www.google.com/maps?q=${addr.lat},${addr.lng}\n`;
+                        message += `📍 *Google Maps Link:* https://maps.google.com/?q=${addr.lat},${addr.lng}\n`;
                     }
                     
                     addDoc(collection(db, "orders"), { userId: window.globalUser.uid, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() }).then(() => {
