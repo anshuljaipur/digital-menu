@@ -297,7 +297,7 @@
         .leaflet-container { z-index: 1 !important; font-family: 'Poppins', sans-serif; }
         .leaflet-control-attribution { display: none; }
 
-        /* 🟢 NEW MULTI-ADDRESS CSS 🟢 */
+        /* 🟢 MULTI-ADDRESS CSS 🟢 */
         .address-card { border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; position: relative; background: var(--card-bg); box-shadow: 0 2px 5px rgba(0,0,0,0.02);}
         .address-card:hover { border-color: var(--glacier-blue); transform: translateY(-2px);}
         .address-card.selected { border-color: var(--glacier-blue); background: var(--hover-bg); border-width: 2px; padding: 11px;}
@@ -733,6 +733,9 @@
 
                     <input type="hidden" id="edit-addr-index" value="-1">
                     
+                    <input type="hidden" id="new-addr-lat" value="">
+                    <input type="hidden" id="new-addr-lng" value="">
+                    
                     <div style="display: flex; gap: 10px;">
                         <input type="text" id="new-addr-name" class="auth-input" placeholder="Receiver's Name *" style="background:var(--card-bg); flex:1;">
                         <input type="number" id="new-addr-phone" class="auth-input" placeholder="Contact No. *" style="background:var(--card-bg); flex:1;">
@@ -1003,6 +1006,7 @@
 
         function protectImages(e) { if (e.target.tagName === 'IMG' || e.target.tagName === 'svg') { e.preventDefault(); return false; } return true; }
 
+        // 🟢 SAFARI BULLETPROOF DATE PARSER 🟢
         function getLaunchDate(item) {
             let dateStr = null;
             for (let key in item) {
@@ -1528,10 +1532,7 @@
         function closeAuthModal() { document.getElementById('auth-modal').style.display = 'none'; }
         function closeProfileModal() { document.getElementById('profile-modal').style.display = 'none'; }
         
-        window.onload = loadData;
-    </script>
-
-    <script>
+        // 🟢 LEAFLET MAP LOGIC (LIVE AUTOCOMPLETE SEARCH & GPS) 🟢
         let map;
         let marker;
         let searchTimeout;
@@ -1550,18 +1551,20 @@
                 
                 marker.on('dragend', function(event) {
                     var position = marker.getLatLng();
+                    document.getElementById('new-addr-lat').value = position.lat;
+                    document.getElementById('new-addr-lng').value = position.lng;
                     getAddressFromCoords(position.lat, position.lng);
                 });
 
                 map.on('click', function(e) {
                     marker.setLatLng(e.latlng);
+                    document.getElementById('new-addr-lat').value = e.latlng.lat;
+                    document.getElementById('new-addr-lng').value = e.latlng.lng;
                     getAddressFromCoords(e.latlng.lat, e.latlng.lng);
                 });
             }
             
             setTimeout(() => { map.invalidateSize(); }, 300);
-
-            // Fetch location immediately on open
             getCurrentLocation();
         }
 
@@ -1572,6 +1575,10 @@
                     (position) => {
                         const lat = position.coords.latitude;
                         const lng = position.coords.longitude;
+                        
+                        document.getElementById('new-addr-lat').value = lat;
+                        document.getElementById('new-addr-lng').value = lng;
+
                         map.setView([lat, lng], 16);
                         marker.setLatLng([lat, lng]);
                         getAddressFromCoords(lat, lng);
@@ -1598,7 +1605,6 @@
             
             searchTimeout = setTimeout(async () => {
                 try {
-                    // Adding countrycodes=in ensures relevant Indian results
                     let response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=in`);
                     let data = await response.json();
                     
@@ -1615,6 +1621,9 @@
                                 let lat = parseFloat(place.lat);
                                 let lon = parseFloat(place.lon);
                                 
+                                document.getElementById('new-addr-lat').value = lat;
+                                document.getElementById('new-addr-lng').value = lon;
+
                                 map.setView([lat, lon], 16);
                                 marker.setLatLng([lat, lon]);
                                 getAddressFromCoords(lat, lon);
@@ -1628,7 +1637,7 @@
                 } catch (error) {
                     console.error('Search error:', error);
                 }
-            }, 500); // 0.5 sec delay
+            }, 500); 
         }
 
         async function searchLocation() {
@@ -1646,6 +1655,9 @@
                     let lat = data[0].lat;
                     let lon = data[0].lon;
                     
+                    document.getElementById('new-addr-lat').value = lat;
+                    document.getElementById('new-addr-lng').value = lon;
+
                     map.setView([lat, lon], 16);
                     marker.setLatLng([lat, lon]);
                     getAddressFromCoords(lat, lon); 
@@ -1699,6 +1711,8 @@
                 document.getElementById('new-addr-area').value = "Error fetching location. Please type manually.";
             }
         }
+
+        window.onload = loadData;
     </script>
 
     <script type="module">
@@ -1721,7 +1735,6 @@
 
         window.globalUser = null; window.globalUserData = null; let confirmationResult = null;
         
-        // 🟢 MULTI-ADDRESS VARIABLES 🟢
         window.selectedAddressIndex = 0;
         window.newAddressType = 'Home';
 
@@ -1749,7 +1762,9 @@
                                 name: window.globalUserData.name || '',
                                 phone: window.globalUserData.phone || window.globalUser.phoneNumber,
                                 house: window.globalUserData.house || '',
-                                area: window.globalUserData.address || ''
+                                area: window.globalUserData.address || '',
+                                lat: '',
+                                lng: ''
                             });
                         }
                     }
@@ -1759,12 +1774,12 @@
                         window.selectedAddressIndex = 0;
                     }
                     
-                    renderAddresses();
+                    window.renderAddresses();
                 } else {
                     window.globalUserData = { name: '', phone: window.globalUser.phoneNumber, addresses: [], defaultAddressIndex: 0 };
-                    renderAddresses();
+                    window.renderAddresses();
                 }
-                loadPastOrders(uid);
+                window.loadPastOrders(uid);
             } catch(e) { console.error("Error fetching user", e); }
         }
 
@@ -1772,12 +1787,12 @@
             if (window.globalUser) { 
                 document.getElementById('profile-modal').style.display = 'flex'; 
                 document.getElementById('profile-msg').innerText = ''; 
-                switchModalTab('profile');
+                window.switchModalTab('profile');
             } 
             else { 
                 document.getElementById('auth-modal').style.display = 'flex'; 
                 document.getElementById('auth-error').innerText = ''; 
-                setupRecaptcha(); 
+                window.setupRecaptcha(); 
             }
         };
 
@@ -1788,7 +1803,7 @@
             document.getElementById(`tab-${tabName}-btn`).classList.add('active');
         }
 
-        function setupRecaptcha() {
+        window.setupRecaptcha = () => {
             if(!window.recaptchaVerifier) { window.recaptchaVerifier = new RecaptchaVerifier(auth, 'send-otp-btn', { 'size': 'invisible' }); }
         }
 
@@ -1852,7 +1867,7 @@
         window.selectAddress = async (index) => {
             window.selectedAddressIndex = index;
             window.globalUserData.defaultAddressIndex = index;
-            renderAddresses();
+            window.renderAddresses();
             
             if(window.globalUser) {
                 await setDoc(doc(db, "users", window.globalUser.uid), { defaultAddressIndex: index }, { merge: true });
@@ -1875,11 +1890,14 @@
                 document.getElementById('edit-addr-index').value = editIndex;
                 
                 let addr = window.globalUserData.addresses[editIndex];
-                setAddrType(addr.label);
+                window.setAddrType(addr.label);
                 document.getElementById('new-addr-name').value = addr.name;
                 document.getElementById('new-addr-phone').value = addr.phone;
                 document.getElementById('new-addr-house').value = addr.house;
                 document.getElementById('new-addr-area').value = addr.area;
+                
+                document.getElementById('new-addr-lat').value = addr.lat || '';
+                document.getElementById('new-addr-lng').value = addr.lng || '';
                 
                 document.getElementById('map-wrapper-parent').style.display = 'none';
                 document.getElementById('open-map-btn').style.display = 'flex';
@@ -1887,12 +1905,15 @@
             } else {
                 document.getElementById('addr-form-title').innerText = 'Add New Address';
                 document.getElementById('edit-addr-index').value = -1;
-                setAddrType('Home');
+                window.setAddrType('Home');
                 
                 document.getElementById('new-addr-name').value = window.globalUserData.name || '';
                 document.getElementById('new-addr-phone').value = window.globalUser ? window.globalUser.phoneNumber : '';
                 document.getElementById('new-addr-house').value = '';
                 document.getElementById('new-addr-area').value = '';
+                
+                document.getElementById('new-addr-lat').value = '';
+                document.getElementById('new-addr-lng').value = '';
                 
                 document.getElementById('map-wrapper-parent').style.display = 'none';
                 document.getElementById('open-map-btn').style.display = 'flex';
@@ -1914,7 +1935,7 @@
             }
             window.globalUserData.defaultAddressIndex = window.selectedAddressIndex;
             
-            renderAddresses();
+            window.renderAddresses();
             
             if(window.globalUser) {
                 await setDoc(doc(db, "users", window.globalUser.uid), { 
@@ -1933,6 +1954,9 @@
             const area = document.getElementById('new-addr-area').value.trim();
             const editIndex = parseInt(document.getElementById('edit-addr-index').value);
             
+            const lat = document.getElementById('new-addr-lat').value;
+            const lng = document.getElementById('new-addr-lng').value;
+            
             let msgBox = document.getElementById('addr-msg');
             
             if(!name || !phone || !house || !area) {
@@ -1949,7 +1973,9 @@
                 name: name,
                 phone: phone,
                 house: house,
-                area: area
+                area: area,
+                lat: lat,
+                lng: lng
             };
 
             if(!window.globalUserData.addresses) window.globalUserData.addresses = [];
@@ -1969,8 +1995,8 @@
                     name: window.globalUserData.name || ''
                 }, { merge: true });
                 
-                hideAddAddressForm();
-                renderAddresses();
+                window.hideAddAddressForm();
+                window.renderAddresses();
                 document.getElementById('profile-msg').innerText = "Address saved successfully! ✅";
                 document.getElementById('profile-msg').style.color = "#10b981";
                 setTimeout(() => { document.getElementById('profile-msg').innerText = ''; }, 3000);
@@ -2004,4 +2030,70 @@
                     let itemsHtml = '';
                     if(data.itemsSummary) {
                         const itemsArray = data.itemsSummary.split(', ');
-                        itemsArray.forEach(
+                        itemsArray.forEach(item => {
+                            itemsHtml += `<div class="order-item-line"><span style="color:#cbd5e1;">▪</span> <span>${item}</span></div>`;
+                        });
+                    }
+                    
+                    html += `
+                        <div class="order-history-card">
+                            <div class="order-header-row">
+                                <div class="order-history-date">📅 ${dateStr} <span class="order-history-time">${timeStr}</span></div>
+                                <div class="order-history-total">₹${data.totalAmount}</div>
+                            </div>
+                            <div class="order-history-items">
+                                ${itemsHtml}
+                            </div>
+                        </div>
+                    `;
+                    count++;
+                });
+                listDiv.innerHTML = html;
+            } catch(e) { 
+                listDiv.innerHTML = '<p style="font-size: 0.85em; color: #e74c3c; text-align: center; padding:15px;">Failed to load orders. Please check connection.</p>'; 
+                console.error(e); 
+            }
+        };
+
+        window.logout = () => { signOut(auth).then(() => { window.closeProfileModal(); window.location.reload(); }); };
+
+        window.checkout = async (method) => {
+            if(Object.keys(cart).length === 0) return;
+            if (method === 'whatsapp') {
+                let message = "Hello Glacier Ice Cream!🍦\n\n*New Order:*\n"; let total = 0; let itemsSummary = [];
+                for (const [name, data] of Object.entries(cart)) {
+                    message += `- ${data.qty}x [${data.brand}] ${name} (₹${data.price * data.qty})\n`;
+                    total += (data.price * data.qty); itemsSummary.push(`${data.qty}x ${name}`);
+                }
+                
+                if (window.globalUser && window.globalUserData && window.globalUserData.addresses && window.globalUserData.addresses.length > 0) {
+                    
+                    let addr = window.globalUserData.addresses[window.selectedAddressIndex];
+                    if(!addr) addr = window.globalUserData.addresses[0]; 
+                    
+                    let fullDeliveryAddress = `${addr.house}, ${addr.area}`;
+                    message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
+                    
+                    if (addr.lat && addr.lng) {
+                        message += `📍 *Google Maps Link:* https://www.google.com/maps?q=${addr.lat},${addr.lng}\n`;
+                    }
+                    
+                    addDoc(collection(db, "orders"), { userId: window.globalUser.uid, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() }).then(() => {
+                        window.loadPastOrders(window.globalUser.uid);
+                    });
+                } else if (window.globalUser) { 
+                    alert("Please add a delivery address in 'My Profile' before checking out!"); 
+                    return;
+                } else {
+                    window.handleProfileClick();
+                    return;
+                }
+
+                message += `\n*Total Amount: ₹${total}*\n\n_Please confirm my order._`;
+                
+                window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+            }
+        };
+    </script>
+</body>
+</html>
