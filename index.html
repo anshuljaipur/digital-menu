@@ -735,9 +735,17 @@
 
                     <button id="open-map-btn" class="action-btn" onclick="initLocationPicker()" style="width:100%; justify-content:center; margin-bottom:10px; background:var(--card-bg); border-color:var(--glacier-blue); color:var(--glacier-blue);">📍 Auto-Locate on Map</button>
                     
-                    <div id="map-wrapper" style="display:none; position: relative; width: 100%; margin-bottom: 10px;">
-                        <div id="map-container" style="height: 180px; border-radius: 10px; overflow: hidden; border: 2px solid var(--border-color);"></div>
-                        <button id="locate-me-btn" onclick="getCurrentLocation()" style="position: absolute; bottom: 15px; right: 10px; z-index: 400; background: white; border: 2px solid var(--border-color); border-radius: 8px; width: 34px; height: 34px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 1.2em; display: flex; align-items: center; justify-content: center; padding: 0;" title="My Location">🎯</button>
+                    <div id="map-wrapper-parent" style="display:none; width: 100%; margin-bottom: 10px;">
+                        
+                        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                            <input type="text" id="map-search-input" class="auth-input" placeholder="Search city or area..." style="margin-bottom:0; padding:10px; flex:1; font-size:0.85em; background:var(--card-bg);" onkeypress="if(event.key==='Enter') searchLocation()">
+                            <button class="auth-btn" onclick="searchLocation()" style="width:auto; padding:10px 15px; font-size:0.9em; margin:0;">🔍</button>
+                        </div>
+
+                        <div style="position: relative; width: 100%;">
+                            <div id="map-container" style="height: 180px; border-radius: 10px; overflow: hidden; border: 2px solid var(--border-color);"></div>
+                            <button id="locate-me-btn" onclick="getCurrentLocation()" style="position: absolute; bottom: 15px; right: 10px; z-index: 400; background: white; border: 2px solid var(--border-color); border-radius: 8px; width: 34px; height: 34px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 1.2em; display: flex; align-items: center; justify-content: center; padding: 0;" title="My Location">🎯</button>
+                        </div>
                     </div>
 
                     <input type="text" id="new-addr-house" class="auth-input" placeholder="House / Flat / Block No. *" style="background:var(--card-bg);">
@@ -778,6 +786,21 @@
 
         let currentTheme = localStorage.getItem('glacier_theme') || 'auto';
         
+        // 🟢 ESCAPE KEY LISTENER TO CLOSE ALL OPEN MODALS 🟢
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                const pdModal = document.getElementById('product-detail-modal');
+                const cartModal = document.getElementById('cart-modal');
+                const authModal = document.getElementById('auth-modal');
+                const profileModal = document.getElementById('profile-modal');
+                
+                if (pdModal.style.display === 'flex') closeProductDetailModal();
+                else if (cartModal.style.display === 'flex') cartModal.style.display = 'none';
+                else if (authModal.style.display === 'flex') closeAuthModal();
+                else if (profileModal.style.display === 'flex') closeProfileModal();
+            }
+        });
+
         function applyTheme(theme) {
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             if (theme === 'dark' || (theme === 'auto' && prefersDark)) {
@@ -1494,7 +1517,7 @@
         let marker;
 
         function initLocationPicker() {
-            document.getElementById('map-wrapper').style.display = 'block';
+            document.getElementById('map-wrapper-parent').style.display = 'block';
             document.getElementById('open-map-btn').style.display = 'none'; 
             
             if (!map) {
@@ -1535,10 +1558,35 @@
                     },
                     (error) => {
                         console.warn("Geolocation Error:", error.message);
-                        document.getElementById('new-addr-area').value = "Location access denied. Please tap or drag the pin manually.";
+                        document.getElementById('new-addr-area').value = "Location access denied. Please search or tap on map.";
                     },
                     { enableHighAccuracy: true }
                 );
+            }
+        }
+
+        // 🟢 NEW MAP SEARCH FUNCTION 🟢
+        async function searchLocation() {
+            const query = document.getElementById('map-search-input').value.trim();
+            if(!query) return;
+            
+            document.getElementById('new-addr-area').value = "Searching... 🔍";
+            try {
+                let response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`);
+                let data = await response.json();
+                
+                if(data && data.length > 0) {
+                    let lat = data[0].lat;
+                    let lon = data[0].lon;
+                    
+                    map.setView([lat, lon], 16);
+                    marker.setLatLng([lat, lon]);
+                    getAddressFromCoords(lat, lon); 
+                } else {
+                    document.getElementById('new-addr-area').value = "Location not found. Try a different search.";
+                }
+            } catch(e) {
+                document.getElementById('new-addr-area').value = "Search error. Please try again.";
             }
         }
 
@@ -1696,7 +1744,6 @@
             confirmationResult.confirm(otp).catch((error) => { btn.disabled = false; btn.innerText = "Verify & Login"; errorDiv.innerText = "Invalid OTP. Please try again."; });
         };
 
-        // 🟢 AUTO-SAVE MAIN NAME 🟢
         window.saveMainName = async () => {
             if(!window.globalUser) return;
             const name = document.getElementById('profile-name-main').value.trim();
@@ -1768,8 +1815,9 @@
                 document.getElementById('new-addr-house').value = addr.house;
                 document.getElementById('new-addr-area').value = addr.area;
                 
-                document.getElementById('map-wrapper').style.display = 'none';
+                document.getElementById('map-wrapper-parent').style.display = 'none';
                 document.getElementById('open-map-btn').style.display = 'flex';
+                document.getElementById('map-search-input').value = '';
             } else {
                 document.getElementById('addr-form-title').innerText = 'Add New Address';
                 document.getElementById('edit-addr-index').value = -1;
@@ -1780,8 +1828,9 @@
                 document.getElementById('new-addr-house').value = '';
                 document.getElementById('new-addr-area').value = '';
                 
-                document.getElementById('map-wrapper').style.display = 'none';
+                document.getElementById('map-wrapper-parent').style.display = 'none';
                 document.getElementById('open-map-btn').style.display = 'flex';
+                document.getElementById('map-search-input').value = '';
             }
         }
 
@@ -1809,7 +1858,6 @@
             }
         }
 
-        // 🟢 FIXED ADDRESS SAVING LOGIC 🟢
         window.saveNewAddress = async () => {
             if(!window.globalUser) return;
             
