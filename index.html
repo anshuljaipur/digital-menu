@@ -312,6 +312,11 @@
         .type-badge { padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 50px; font-size: 0.8em; cursor: pointer; color: var(--text-muted); font-weight: 600; white-space: nowrap; transition: 0.2s; background: var(--card-bg);}
         .type-badge.active { background: var(--glacier-blue); color: white; border-color: var(--glacier-blue); box-shadow: 0 4px 10px rgba(31,81,198,0.2);}
 
+        /* 🟢 SEARCH SUGGESTION CSS 🟢 */
+        .suggestion-item { padding: 10px 12px; font-size: 0.8em; color: var(--text-main); cursor: pointer; border-bottom: 1px solid var(--border-color); text-align: left; line-height: 1.4; }
+        .suggestion-item:last-child { border-bottom: none; }
+        .suggestion-item:hover { background: var(--hover-bg); color: var(--glacier-blue); font-weight: 600; }
+
         /* 🟢 DESKTOP FIXES 🟢 */
         @media (min-width: 1000px) {
             #mobile-search-sort { display: none !important; }
@@ -738,7 +743,11 @@
                     <div id="map-wrapper-parent" style="display:none; width: 100%; margin-bottom: 10px;">
                         
                         <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                            <input type="text" id="map-search-input" class="auth-input" placeholder="Search city or area..." style="margin-bottom:0; padding:10px; flex:1; font-size:0.85em; background:var(--card-bg);" onkeypress="if(event.key==='Enter') searchLocation()">
+                            <div style="position: relative; flex: 1;">
+                                <input type="text" id="map-search-input" class="auth-input" placeholder="Search area or city..." style="width:100%; margin-bottom:0; padding:10px; font-size:0.85em; background:var(--card-bg);" oninput="handleSearchInput(event)" onkeypress="if(event.key==='Enter') searchLocation()">
+                                
+                                <div id="search-suggestions" style="display:none; position:absolute; top:100%; left:0; width:100%; background:var(--card-bg); border:1px solid var(--border-color); border-radius:8px; z-index:2000; max-height:160px; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-top:4px;"></div>
+                            </div>
                             <button class="auth-btn" onclick="searchLocation()" style="width:auto; padding:10px 15px; font-size:0.9em; margin:0;">🔍</button>
                         </div>
 
@@ -798,6 +807,14 @@
                 else if (cartModal.style.display === 'flex') cartModal.style.display = 'none';
                 else if (authModal.style.display === 'flex') closeAuthModal();
                 else if (profileModal.style.display === 'flex') closeProfileModal();
+            }
+        });
+
+        // 🟢 HIDE SEARCH SUGGESTIONS ON OUTSIDE CLICK 🟢
+        document.addEventListener('click', function(e) {
+            if (e.target.id !== 'map-search-input') {
+                const box = document.getElementById('search-suggestions');
+                if(box) box.style.display = 'none';
             }
         });
 
@@ -1062,6 +1079,7 @@
             btn.style.opacity = '0.5';
             
             document.getElementById('main-menu-grid').innerHTML = '';
+            document.getElementById('load-more-container').style.display = 'none';
             const statusMsg = document.getElementById('status-msg');
             statusMsg.innerHTML = '<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🔄</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">Fetching latest menu...</h3></div>';
             statusMsg.style.display = 'block';
@@ -1314,6 +1332,7 @@
             gridWrapper.innerHTML = '';
 
             if (filteredItems.length === 0) { 
+                document.getElementById('load-more-container').style.display = 'none';
                 statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="['desktop','mobile','landscape'].forEach(e => { let sb = document.getElementById('search-bar-'+e); if(sb) sb.value=''; }); applyFilters(); setCategory('All Items'); setBrand('All Brands'); setTagFilter('All');" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
                 statusMsg.style.display = 'block'; 
                 return; 
@@ -1515,6 +1534,7 @@
     <script>
         let map;
         let marker;
+        let searchTimeout;
 
         function initLocationPicker() {
             document.getElementById('map-wrapper-parent').style.display = 'block';
@@ -1540,8 +1560,6 @@
             }
             
             setTimeout(() => { map.invalidateSize(); }, 300);
-
-            // Fetch location immediately on open
             getCurrentLocation();
         }
 
@@ -1565,14 +1583,61 @@
             }
         }
 
-        // 🟢 NEW MAP SEARCH FUNCTION 🟢
+        // 🟢 LIVE SEARCH AUTOCOMPLETE (DEBOUNCED) 🟢
+        function handleSearchInput(event) {
+            clearTimeout(searchTimeout);
+            let query = event.target.value.trim();
+            const suggestionBox = document.getElementById('search-suggestions');
+            
+            if (query.length < 3) {
+                suggestionBox.style.display = 'none';
+                return;
+            }
+            
+            searchTimeout = setTimeout(async () => {
+                try {
+                    // Adding countrycodes=in ensures relevant Indian results (especially near Jaipur)
+                    let response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=in`);
+                    let data = await response.json();
+                    
+                    if (data && data.length > 0) {
+                        suggestionBox.innerHTML = '';
+                        data.forEach(place => {
+                            let div = document.createElement('div');
+                            div.className = 'suggestion-item';
+                            div.innerText = place.display_name;
+                            div.onclick = () => {
+                                document.getElementById('map-search-input').value = place.display_name;
+                                suggestionBox.style.display = 'none';
+                                
+                                let lat = parseFloat(place.lat);
+                                let lon = parseFloat(place.lon);
+                                
+                                map.setView([lat, lon], 16);
+                                marker.setLatLng([lat, lon]);
+                                getAddressFromCoords(lat, lon);
+                            };
+                            suggestionBox.appendChild(div);
+                        });
+                        suggestionBox.style.display = 'block';
+                    } else {
+                        suggestionBox.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Search error:', error);
+                }
+            }, 500); // 0.5 sec delay
+        }
+
         async function searchLocation() {
             const query = document.getElementById('map-search-input').value.trim();
             if(!query) return;
             
+            document.getElementById('search-suggestions').style.display = 'none';
             document.getElementById('new-addr-area').value = "Searching... 🔍";
+            
             try {
-                let response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`);
+                let response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&countrycodes=in`);
                 let data = await response.json();
                 
                 if(data && data.length > 0) {
@@ -1606,7 +1671,6 @@
                     let postcode = addr.postcode || '';
 
                     let area = [neighborhood, suburb].filter(Boolean).join(', ');
-
                     let parts = [road, area, city, postcode].filter(p => p.trim() !== '');
                     
                     let uniqueParts = [];
@@ -1655,7 +1719,6 @@
 
         window.globalUser = null; window.globalUserData = null; let confirmationResult = null;
         
-        // 🟢 MULTI-ADDRESS VARIABLES 🟢
         window.selectedAddressIndex = 0;
         window.newAddressType = 'Home';
 
