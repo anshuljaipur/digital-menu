@@ -195,7 +195,7 @@
         .app-qty-control button { background: none; border: none; color: var(--glacier-blue); font-weight: bold; font-size: 1.2em; cursor: pointer; padding: 0 5px; }
 
         .card-tags-row { display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-bottom: 8px; padding-bottom: 2px; }
-.card-tags-row::-webkit-scrollbar { display: none; }
+        .card-tags-row::-webkit-scrollbar { display: none; }
         .card-tag { font-size: 0.55em; font-weight: 800; padding: 3px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 2px;}
         .tag-style-vegan { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);}
         .tag-style-sugarfree { background: rgba(225, 29, 72, 0.1); color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.2);}
@@ -534,6 +534,9 @@
                     <option value="high-low">Price: High - Low</option>
                     <option value="vol-low-high">Size: Small - Large</option>
                     <option value="vol-high-low">Size: Large - Small</option>
+                    <option value="brand-az">Brand: A - Z</option>
+                    <option value="cat-az">Category: A - Z</option>
+                    <option value="ing-az">Ingredients: A - Z</option>
                 </select>
             </div>
         </div>
@@ -575,6 +578,9 @@
                     <option value="high-low">Price: High - Low</option>
                     <option value="vol-low-high">Size: Small - Large</option>
                     <option value="vol-high-low">Size: Large - Small</option>
+                    <option value="brand-az">Brand: A - Z</option>
+                    <option value="cat-az">Category: A - Z</option>
+                    <option value="ing-az">Ingredients: A - Z</option>
                 </select>
             </div>
         </div>
@@ -600,6 +606,9 @@
                             <option value="high-low">Price: High - Low</option>
                             <option value="vol-low-high">Size: Small - Large</option>
                             <option value="vol-high-low">Size: Large - Small</option>
+                            <option value="brand-az">Brand: A - Z</option>
+                            <option value="cat-az">Category: A - Z</option>
+                            <option value="ing-az">Ingredients: A - Z</option>
                         </select>
                     </div>
                 </div>
@@ -919,8 +928,6 @@
                 backToTop.classList.remove('visible');
             }
         });
-
-        // Toggle button logic removed as it's now a fixed scrollable bar
 
         function updateBrandArrows() {
             const row = document.getElementById('brands-sidebar');
@@ -1317,6 +1324,13 @@
                 else if (sortValue === 'vol-low-high') filteredItems.sort((a, b) => getVolume(a.name) - getVolume(b.name)); 
                 else if (sortValue === 'vol-high-low') filteredItems.sort((a, b) => getVolume(b.name) - getVolume(a.name)); 
                 else if (sortValue === 'disc-high-low') filteredItems.sort((a, b) => getDiscount(b) - getDiscount(a));
+                else if (sortValue === 'brand-az') filteredItems.sort((a, b) => String(a.brand || '').localeCompare(String(b.brand || '')));
+                else if (sortValue === 'cat-az') filteredItems.sort((a, b) => String(a.category || '').localeCompare(String(b.category || '')));
+                else if (sortValue === 'ing-az') filteredItems.sort((a, b) => {
+                    let ingA = a.ingredients || a.ingredient || a.composition || '';
+                    let ingB = b.ingredients || b.ingredient || b.composition || '';
+                    return String(ingA).localeCompare(String(ingB));
+                });
             }
 
             let titlePrefix = currentBrand !== 'All Brands' ? currentBrand + ' ' : '';
@@ -1382,7 +1396,7 @@
                 const itemTagsArray = getItemTags(item);
                 if(itemTagsArray.length > 0) {
                     tagsHTML = `<div class="card-tags-row">` + 
-                               itemTagsArray.map(t => `<span class="card-tag ${getTagStyle(t)}" title="${t}" style="padding: 0; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 1.1em; flex-shrink: 0;">${getTagIcon(t) || '🏷️'}</span>`).join('') +
+                               itemTagsArray.map(t => `<span class="card-tag ${getTagStyle(t)}" title="${t}" style="padding: 0; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 1.1em; flex-shrink: 0;">${getTagIcon(t) || '🏷️'}</span>`).join('') + 
                                `</div>`;
                 }
 
@@ -1401,7 +1415,7 @@
                         <div class="item-name">${displayName}</div>
                         
                         <div class="vol-price-row">
-                            <div class="item-volume">${volText || '&nbsp;'}</div>
+                            <div class="item-volume">${volText || ' '}</div>
                             ${priceHTML}
                         </div>
                     </div>
@@ -2072,7 +2086,7 @@
                     message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
                     
                     if (addr.lat && addr.lng) {
-                        message += `📍 *Google Maps Link:* https://www.google.com/maps/search/?api=1&query=${addr.lat},${addr.lng}\n`;
+                        message += `📍 *Google Maps Link:* https://maps.google.com/?q=${addr.lat},${addr.lng}\n`;
                     }
                     
                     addDoc(collection(db, "orders"), { userId: window.globalUser.uid, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() }).then(() => {
