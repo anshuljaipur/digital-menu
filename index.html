@@ -2080,93 +2080,42 @@ function getTagIcon(tag) {
         window.logout = () => { signOut(auth).then(() => { window.closeProfileModal(); window.location.reload(); }); };
 
         window.checkout = async (method) => {
-    if (Object.keys(cart).length === 0) return;
+            if(Object.keys(cart).length === 0) return;
+            if (method === 'whatsapp') {
+                let message = "Hello Glacier Ice Cream!🍦\n\n*New Order:*\n"; let total = 0; let itemsSummary = [];
+                for (const [name, data] of Object.entries(cart)) {
+                    message += `- ${data.qty}x [${data.brand}] ${name} (₹${data.price * data.qty})\n`;
+                    total += (data.price * data.qty); itemsSummary.push(`${data.qty}x ${name}`);
+                }
+                
+                if (window.globalUser && window.globalUserData && window.globalUserData.addresses && window.globalUserData.addresses.length > 0) {
+                    
+                    let addr = window.globalUserData.addresses[window.selectedAddressIndex];
+                    if(!addr) addr = window.globalUserData.addresses[0]; 
+                    
+                    let fullDeliveryAddress = `${addr.house}, ${addr.area}`;
+                    message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
+                    
+                    if (addr.lat && addr.lng) {
+                        message += `📍 *Google Maps Link:* https://maps.google.com/?q=${addr.lat},${addr.lng}\n`;
+                    }
+                    
+                    addDoc(collection(db, "orders"), { userId: window.globalUser.uid, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() }).then(() => {
+                        window.loadPastOrders(window.globalUser.uid);
+                    });
+                } else if (window.globalUser) { 
+                    alert("Please add a delivery address in 'My Profile' before checking out!"); 
+                    return;
+                } else {
+                    window.handleProfileClick();
+                    return;
+                }
 
-    if (method === 'whatsapp') {
-        // 1. Validation: User login aur address check
-        if (!window.globalUser) {
-            alert("Please login to place an order!");
-            window.handleProfileClick();
-            return;
-        }
-        if (!window.globalUserData || !window.globalUserData.addresses || window.globalUserData.addresses.length === 0) {
-            alert("Please add a delivery address in 'My Profile' before checking out!");
-            window.handleProfileClick();
-            return;
-        }
-
-        // 2. Selected Address nikalna
-        let addr = window.globalUserData.addresses[window.selectedAddressIndex];
-        if (!addr) addr = window.globalUserData.addresses[0]; 
-        let fullDeliveryAddress = `${addr.house}, ${addr.area}`;
-
-        // 3. Cart Calculation & WhatsApp Message build karna
-        let message = "Hello Glacier Ice Cream!🍦\n\n*🛒 New Order:*\n"; 
-        let total = 0; 
-        let itemsSummary = [];
-        let itemsForDB = []; // Database ke liye clean array
-
-        for (const [name, data] of Object.entries(cart)) {
-            message += `- ${data.qty}x [${data.brand}] ${name} (₹${data.price * data.qty})\n`;
-            total += (data.price * data.qty); 
-            itemsSummary.push(`${data.qty}x ${name}`);
-            itemsForDB.push({ name: name, brand: data.brand, price: data.price, qty: data.qty });
-        }
-        
-        message += `\n*📦 Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
-        
-        // Google Maps ka standard, working link format 
-        let mapLink = "";
-        if (addr.lat && addr.lng) {
-            mapLink = `https://maps.google.com/?q=${addr.lat},${addr.lng}`;
-            message += `📍 *Google Maps Link:* ${mapLink}\n`;
-        }
-
-        message += `\n*💰 Total Amount: ₹${total}*\n\n_Please confirm my order._`;
-
-        const checkoutBtn = document.getElementById('checkout-wa');
-        checkoutBtn.innerText = "⏳ Processing...";
-        checkoutBtn.disabled = true;
-
-        // 4. FIREBASE (FIRESTORE) MEIN ORDER SAVE KARNA (Step 1 & 2 of Blueprint)
-        try {
-            const orderData = { 
-                userId: window.globalUser.uid, 
-                customerName: addr.name,
-                customerPhone: addr.phone,
-                deliveryAddress: fullDeliveryAddress,
-                lat: addr.lat || "",
-                lng: addr.lng || "",
-                items: itemsForDB, 
-                itemsSummary: itemsSummary.join(', '), 
-                totalAmount: total, 
-                status: "pending", // Blueprint logic: Default status
-                timestamp: new Date() 
-            };
-
-            // Order Firebase me push karo
-            await addDoc(collection(db, "orders"), orderData);
-            
-            // 5. Order successfully save hone ke baad UI update karein
-            window.loadPastOrders(window.globalUser.uid); // Past orders me naya order dikhaye
-            cart = {}; // Cart empty kar dein
-            updateCartUI(); 
-            toggleCart(); // Cart modal close kar dein
-            
-            checkoutBtn.innerText = "📱 Order on WhatsApp";
-            checkoutBtn.disabled = false;
-
-            // 6. WhatsApp par bhej dein
-            window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-
-        } catch (error) {
-            console.error("Firebase Error: ", error);
-            alert("Database me order save nahi ho paya. Please check internet connection.");
-            checkoutBtn.innerText = "📱 Order on WhatsApp";
-            checkoutBtn.disabled = false;
-        }
-    }
-};
+                message += `\n*Total Amount: ₹${total}*\n\n_Please confirm my order._`;
+                
+                window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+            }
+        };
     </script>
 </body>
 </html>
