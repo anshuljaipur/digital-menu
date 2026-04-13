@@ -162,7 +162,7 @@
         /* 🏷️ TAGS */
         .tags-container { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 10px 0; scrollbar-width: none; -webkit-overflow-scrolling: touch; width: 100%; box-sizing: border-box; }
         .tags-container::-webkit-scrollbar { display: none; }
-        .filter-tag-chip { padding: 8px 16px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 50px; font-size: 0.75em; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex-shrink: 0; }
+        .filter-tag-chip { padding: 8px 16px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 50px; font-size: 0.75em; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .filter-tag-chip:hover { border-color: var(--glacier-blue); color: var(--text-main); }
         .filter-tag-chip.active { background: var(--glacier-blue); color: #fff; border-color: var(--glacier-blue); box-shadow: 0 4px 8px rgba(31,81,198,0.2); }
 
@@ -1069,13 +1069,24 @@
             return 'tag-style-default';
         }
 
-        function getTagIcon(tag) {
-            let t = tag.toLowerCase();
-            if(t.includes('vegan')) return '🍃 ';
-            if(t.includes('diet')) return '📏 ';
-            if(t.includes('sugar')) return '🚫 ';
-            return '';
-        }
+function getTagIcon(tag) {
+    let t = tag.toLowerCase();
+    let imgUrl = '';
+    
+    // Aapke diye gaye custom links aur matching keywords
+    if (t.includes('vegan')) imgUrl = 'https://i.postimg.cc/mD5dDdW4/vegan.png';
+    else if (t.includes('diet') || t.includes('fast') || t.includes('vrat') || t.includes('guilt')) imgUrl = 'https://i.postimg.cc/wvGWvWYY/diet_icon.png';
+    else if (t.includes('sugar')) imgUrl = 'https://i.postimg.cc/MTFsTsJ2/sficon.png';
+    else if (t.includes('fruit')) imgUrl = 'https://i.postimg.cc/rmPhmhXB/fruit.png';
+
+    // Agar link match ho gaya toh image tag return karenge
+    if (imgUrl) {
+        return `<img src="${imgUrl}" style="width: 16px; height: 16px; object-fit: contain; vertical-align: middle;" alt="icon">`;
+    }
+    
+    // Default fallback agar kisi nayi tag pe icon nahi set kiya
+    return '';
+}
 
         async function refreshMenu() {
             const btn = document.getElementById('refresh-btn');
