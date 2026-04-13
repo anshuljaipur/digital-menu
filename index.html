@@ -22,8 +22,6 @@
             --primary-color: #e44d26;
             --glacier-blue: #1f51c6; 
             --active-brand-red: #e74c3c;
-            
-            /* LIGHT THEME */
             --bg-color: #ffffff;
             --main-bg: #f8f9fc;
             --card-bg: #ffffff;
@@ -37,7 +35,6 @@
         }
 
         [data-theme="dark"] {
-            /* DARK THEME */
             --bg-color: #0f172a;
             --main-bg: #020617;
             --card-bg: #1e293b;
@@ -50,25 +47,15 @@
             --overlay-bg: rgba(0, 0, 0, 0.8);
         }
 
-        /* 🚨 GLOBAL RESET & LOCK (FIXED OVERFLOW & ZOOM) 🚨 */
+        /* 🚨 GLOBAL RESET & LOCK 🚨 */
         * { box-sizing: border-box; touch-action: manipulation; } 
-        
-        html { -webkit-text-size-adjust: 100%; width: 100%; height: 100%; } 
-        
         html, body { 
-            margin: 0; padding: 0; 
-            width: 100%; max-width: 100%; 
-            height: 100%; height: 100dvh; 
-            overflow: hidden !important; 
-            overscroll-behavior: none; 
-            background-color: var(--bg-color); color: var(--text-main); 
-            font-family: 'Poppins', sans-serif; 
-            display: flex; flex-direction: column; 
-            position: fixed; 
-            top: 0; left: 0; right: 0; bottom: 0;
+            margin: 0; padding: 0; width: 100%; max-width: 100%; height: 100%; height: 100dvh; 
+            overflow: hidden !important; overscroll-behavior: none; 
+            background-color: var(--bg-color); color: var(--text-main); font-family: 'Poppins', sans-serif; 
+            display: flex; flex-direction: column; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
-        
         input, select, textarea { font-size: 16px !important; max-width: 100%; }
         select option { background-color: var(--card-bg); color: var(--text-main); }
         img { -webkit-user-drag: none; user-drag: none; pointer-events: none; }
@@ -85,7 +72,7 @@
         @keyframes bounce-scoop { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(-25px) scale(1.05); } }
         @keyframes pulse-text { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
-        #loading-bar { position: fixed; top: 0; left: 0; height: 4px; background-color: var(--glacier-blue); width: 0%; z-index: 9999; transition: width 0.3s ease, opacity 0.5s ease; box-shadow: 0 2px 5px rgba(31,81,198, 0.5); }
+        #loading-bar { position: fixed; top: 0; left: 0; height: 4px; background-color: var(--glacier-blue); width: 0%; z-index: 9999; transition: width 0.3s ease, opacity 0.5s ease; }
 
         /* --- 1. HEADER --- */
         header { background: var(--card-bg); padding: 12px 25px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; z-index: 100; flex-shrink: 0; height: 65px; box-sizing: border-box; transition: 0.3s; width: 100%;}
@@ -98,9 +85,8 @@
 
         .landscape-search-sort { display: none; }
 
-        /* --- 2. TOP SECTION (BRANDS + SEARCH/SORT) --- */
+        /* --- 2. TOP SECTION (BRANDS) --- */
         .top-nav-bar { display: flex; width: 100%; background: var(--card-bg); border-bottom: 1px solid var(--border-color); z-index: 9; flex-shrink: 0; transition: 0.3s; }
-        
         .brands-wrapper { flex: 1; min-width: 0; display: flex; align-items: center; position: relative; transition: height 0.3s ease, opacity 0.3s ease, border 0.3s ease;}
         .brands-row { width: 100%; display: flex; justify-content: flex-start; overflow-x: auto; padding: 15px 20px; gap: 25px; scrollbar-width: none; box-sizing: border-box; scroll-behavior: smooth;}
         .brands-row::-webkit-scrollbar { display: none; }
@@ -108,20 +94,12 @@
         .search-sort-side { display: flex; flex-direction: column; width: 320px; padding: 10px 20px; gap: 8px; border-left: 1px solid var(--border-color); justify-content: center; }
         .search-sort-side .control-chip { padding: 6px 15px; margin: 0; min-width: auto; flex: 1;}
 
-        .brand-arrow { 
-            position: absolute; top: 15px; z-index: 10; 
-            background: rgba(31, 81, 198, 0.9); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-            border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 12px rgba(31,81,198,0.3); 
-            width: 40px; height: 65px; display: none; flex-direction: column; justify-content: center; align-items: center !important;
-            cursor: pointer; color: #ffffff; padding: 0; transition: 0.2s;
-        }
+        .brand-arrow { position: absolute; top: 15px; z-index: 10; background: rgba(31, 81, 198, 0.9); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 12px rgba(31,81,198,0.3); width: 40px; height: 65px; display: none; flex-direction: column; justify-content: center; align-items: center !important; cursor: pointer; color: #ffffff; padding: 0; transition: 0.2s;}
         .left-arrow { left: 0; border-radius: 0 16px 16px 0; }
         .right-arrow { right: 0; border-radius: 16px 0 0 16px; }
-        .arrow-icon { font-size: 1.4em; font-weight: 900; line-height: 1; text-shadow: none; } 
-        .arrow-count { font-size: 0.7em; font-weight: 800; color: #ffffff; margin-top: 2px; opacity: 0.9;}
+        .arrow-icon { font-size: 1.4em; font-weight: 900; line-height: 1; } 
         .brand-arrow:hover { background: var(--glacier-blue); opacity: 1; }
-        [data-theme="dark"] .brand-arrow { background: rgba(31, 81, 198, 0.8); border-color: rgba(255,255,255,0.1); }
-
+        
         .brand-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; } 
         .brand-icon { width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--border-color); transition: 0.2s; background: #fff; padding: 5px; box-sizing: border-box; }
         .brand-icon img, .brand-icon svg { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; transform: scale(0.9); transition: 0.2s; } 
@@ -129,11 +107,11 @@
         .brand-item.active .brand-icon { border-color: var(--active-brand-red); border-width: 2px; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.15); }
         .brand-item.active .brand-name { color: var(--active-brand-red); }
 
-        /* --- 3. MAIN DESKTOP LAYOUT --- */
+        /* --- 3. MAIN LAYOUT --- */
         .main-layout { display: flex; flex: 1; overflow: hidden; background: var(--main-bg); width: 100%; box-sizing: border-box; transition: 0.3s;}
         
-        /* LEFT SIDEBAR */
-        .sidebar { width: 240px; background: var(--card-bg); display: flex; flex-direction: column; overflow-y: auto; padding: 20px 15px; gap: 8px; scrollbar-width: none; border-right: 1px solid var(--border-color); flex-shrink: 0; box-sizing: border-box; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; transition: 0.3s;}
+        /* CATEGORY SIDEBAR / BAR */
+        .sidebar { width: 240px; background: var(--card-bg); display: flex; flex-direction: column; overflow-y: auto; padding: 20px 15px; gap: 8px; scrollbar-width: none; border-right: 1px solid var(--border-color); flex-shrink: 0; box-sizing: border-box; overscroll-behavior-y: contain; transition: 0.3s;}
         .sidebar::-webkit-scrollbar { display: none; }
         .cat-item { display: flex; align-items: center; cursor: pointer; transition: 0.2s; padding: 10px 15px; border-radius: 50px; gap: 12px; flex-shrink: 0; color: var(--text-main);}
         .cat-icon { font-size: 1.4em; display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; }
@@ -142,40 +120,28 @@
         .cat-item.active { background: rgba(31,81,198,0.1); }
         .cat-item.active .cat-name { color: var(--glacier-blue); font-weight: 700; }
 
-        /* RIGHT CONTENT AREA */
-        .content-area { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 0px 30px 20px 30px; scroll-behavior: smooth; box-sizing: border-box; position: relative; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; width: 100%; }
+        /* CONTENT AREA */
+        .content-area { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 0px 30px 20px 30px; scroll-behavior: smooth; box-sizing: border-box; position: relative; overscroll-behavior-y: contain; width: 100%; }
         .content-area::-webkit-scrollbar { width: 8px; }
         .content-area::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
 
-        .controls-bar { 
-            position: sticky; top: 0; z-index: 50;
-            background: var(--main-bg); 
-            display: flex; flex-direction: column; gap: 10px; 
-            margin: 0px -30px 15px -30px; padding: 15px 30px 5px 30px; transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
-        }
+        .controls-bar { position: sticky; top: 0; z-index: 50; background: var(--main-bg); display: flex; flex-direction: column; gap: 10px; margin: 0px -30px 15px -30px; padding: 15px 30px 5px 30px; transition: 0.3s;}
         .search-sort-wrapper { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; width: 100%; }
         .control-chip { display: flex; align-items: center; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 50px; padding: 10px 20px; flex: 1; min-width: 250px; max-width: 450px; transition: 0.2s;}
-        .control-chip:focus-within { border-color: var(--glacier-blue); box-shadow: 0 4px 12px rgba(31,81,198,0.1);}
-        .control-chip input { border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.9em; width: 100%; color: var(--text-main); margin-left: 8px;}
-        .control-chip select { border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.9em; font-weight: 600; color: var(--text-main); cursor: pointer; width: 100%; margin-left: 8px;}
+        .control-chip input, .control-chip select { border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.9em; width: 100%; color: var(--text-main); margin-left: 8px;}
 
-        /* 🏷️ TAGS */
-        .tags-container { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 10px 0; scrollbar-width: none; -webkit-overflow-scrolling: touch; width: 100%; box-sizing: border-box; }
+        /* TAGS */
+        .tags-container { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 10px 0; scrollbar-width: none; width: 100%; box-sizing: border-box; }
         .tags-container::-webkit-scrollbar { display: none; }
         .filter-tag-chip { padding: 8px 16px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 50px; font-size: 0.75em; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex-shrink: 0; }
-        .filter-tag-chip:hover { border-color: var(--glacier-blue); color: var(--text-main); }
         .filter-tag-chip.active { background: var(--glacier-blue); color: #fff; border-color: var(--glacier-blue); box-shadow: 0 4px 8px rgba(31,81,198,0.2); }
-
-        /* External Tags Container (For Landscape) */
-        .tags-sidebar-landscape { display: none; }
 
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; width: 100%; }
         .section-header h2 { margin: 0; font-size: 1.4em; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
         .section-count { font-size: 0.9em; font-weight: 500; color: var(--text-muted); }
 
-        /* 🟢 PREMIUM PRODUCT GRID & CARD CSS 🟢 */
+        /* 🟢 PRODUCT GRID & CARD 🟢 */
         .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; align-items: start; padding-bottom: 20px; box-sizing: border-box; width: 100%;}
-        
         .menu-card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color); display: flex; flex-direction: column; position: relative; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s; height: 100%; box-sizing: border-box;}
         .menu-card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.1); transform: translateY(-3px); }
         
@@ -187,20 +153,12 @@
         .red-discount-icon { position: absolute; top: -8px; right: -8px; background: var(--active-brand-red); color: white; font-size: 0.7em; font-weight: 800; padding: 4px 8px; border-radius: 8px; z-index: 5; box-shadow: 0 4px 10px rgba(231,76,60,0.3); }
 
         .btn-container { position: absolute; right: 12px; bottom: -18px; z-index: 10; }
-        
         .app-add-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); color: var(--glacier-blue); border: 1px solid var(--border-color); font-size: 1.6em; font-weight: 500; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: 0.2s; line-height: 1; padding-bottom: 2px;}
-        .app-add-btn:hover { border-color: var(--glacier-blue); background: var(--hover-bg); transform: scale(1.05); color: var(--glacier-blue);}
-        
         .app-qty-control { height: 36px; width: 90px; background: var(--card-bg); color: var(--glacier-blue); border-radius: 50px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-weight: 700; font-size: 1em; box-sizing: border-box; }
         .app-qty-control button { background: none; border: none; color: var(--glacier-blue); font-weight: bold; font-size: 1.2em; cursor: pointer; padding: 0 5px; }
 
         .card-tags-row { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
-        .card-tag { font-size: 0.55em; font-weight: 800; padding: 3px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 2px;}
-        .tag-style-vegan { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);}
-        .tag-style-sugarfree { background: rgba(225, 29, 72, 0.1); color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.2);}
-        .tag-style-fastfriendly { background: rgba(217, 119, 6, 0.1); color: #d97706; border: 1px solid rgba(217, 119, 6, 0.2);}
-        .tag-style-default { background: var(--chip-bg); color: var(--text-muted); border: 1px solid var(--border-color);}
-
+        
         .brand-tag { font-size: 0.6em; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
         .item-name { font-size: 1em; font-weight: 700; color: var(--text-main); margin: 0 0 6px 0; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 40px; }
         
@@ -209,8 +167,6 @@
         .price-row { display: flex; align-items: baseline; gap: 6px; margin: 0; }
         .item-price { font-size: 1.25em; font-weight: 800; color: var(--text-main); line-height: 1;}
         .item-mrp { font-size: 0.85em; font-weight: 500; color: var(--text-muted); text-decoration: line-through; }
-
-        #load-more-container { text-align: center; margin: 10px 0 30px 0; display: none; width: 100%; }
 
         .legal-footer { text-align: center; font-size: 0.7em; color: var(--text-muted); padding: 30px 15px 40px 15px; margin-top: auto; font-weight: 500; border-top: 1px dashed var(--border-color); width: 100%;}
         .legal-footer p { margin: 5px 0; }
@@ -226,9 +182,6 @@
         .floating-action-container { position: fixed; bottom: 85px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 999; pointer-events: none; }
         .floating-btn { background: var(--glacier-blue); color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(31,81,198,0.4); cursor: pointer; opacity: 0; transition: 0.3s ease; transform: translateY(20px); pointer-events: auto; border: none;}
         .floating-btn.visible { opacity: 1; transform: translateY(0); }
-        .floating-btn:hover { background: #1a42a4; }
-        
-        #mobile-cat-toggle { display: none; } 
 
         /* --- MODALS --- */
         .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: var(--overlay-bg); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
@@ -238,41 +191,24 @@
         .modal-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px;}
         .modal-header-row h2 { margin: 0; color: var(--text-main); font-size: 1.4em; font-weight: 800;}
         .close-modal-icon { font-size: 1.5em; color: var(--text-muted); cursor: pointer; font-weight: bold; transition: 0.2s;}
-        .close-modal-icon:hover { color: var(--active-brand-red); }
         
+        /* CART & AUTH CSS */
         .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-weight: 500; border-bottom: 1px dashed var(--border-color); padding-bottom: 15px; }
         .cart-item-details { flex: 2; font-size: 0.95em; color: var(--text-main);}
         .cart-item-controls { flex: 1; display: flex; justify-content: center; align-items: center; gap: 12px; }
         .cart-item-price { flex: 1; text-align: right; font-weight: 800; color: var(--text-main); }
         .qty-btn { background: var(--chip-bg); border: none; width: 30px; height: 30px; border-radius: 8px; font-weight: bold; cursor: pointer; color: var(--text-main); transition: 0.2s;}
-        .qty-btn:hover { background: var(--border-color); }
         .cart-total { font-size: 1.4em; font-weight: 800; color: var(--text-main); text-align: right; margin-top: 10px; border-top: 2px solid var(--border-color); padding-top: 15px;}
         .checkout-btn { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 1.1em; font-weight: bold; color: white; cursor: pointer; margin-top: 15px; transition: 0.2s;}
         .btn-wa { background: #10b981; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);} .btn-wa:hover { background: #059669; transform: translateY(-2px);}
-        .btn-clear { background: var(--card-bg); color: var(--active-brand-red); border: 2px solid rgba(231, 76, 60, 0.2); margin-top: 10px;} .btn-clear:hover { background: rgba(231, 76, 60, 0.1); }
-
-        .auth-input { width: 100%; padding: 14px; border: 2px solid var(--border-color); border-radius: 10px; font-size: 1em; margin-bottom: 15px; box-sizing: border-box; font-family: 'Poppins', sans-serif; transition: 0.2s; outline: none; color: var(--text-main); background: var(--input-bg);}
-        .auth-input:focus { border-color: var(--glacier-blue); }
+        .btn-clear { background: var(--card-bg); color: var(--active-brand-red); border: 2px solid rgba(231, 76, 60, 0.2); margin-top: 10px;}
+        
+        .auth-input { width: 100%; padding: 14px; border: 2px solid var(--border-color); border-radius: 10px; font-size: 1em; margin-bottom: 15px; box-sizing: border-box; font-family: 'Poppins', sans-serif; outline: none; color: var(--text-main); background: var(--input-bg);}
         .auth-label { font-size: 0.85em; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.5px;}
         .auth-btn { width: 100%; padding: 16px; background: var(--glacier-blue); color: white; border: none; border-radius: 10px; font-size: 1.05em; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(31,81,198,0.2);}
-        .auth-btn:hover { background: #1a42a4; transform: translateY(-2px);}
-        .auth-btn:disabled { background: var(--text-muted); cursor: not-allowed; box-shadow: none; transform: none;}
-
-        #order-history-list { max-height: 280px; overflow-y: auto; padding: 5px; scrollbar-width: thin; }
-        #order-history-list::-webkit-scrollbar { width: 6px; }
-        #order-history-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
-        .order-history-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: 0.2s;}
-        .order-history-card:hover { border-color: var(--glacier-blue); transform: translateY(-2px); }
-        .order-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border-color); padding-bottom: 10px; margin-bottom: 10px;}
-        .order-history-date { font-weight: 700; color: var(--text-main); font-size: 0.85em; display: flex; align-items: center; gap: 6px;}
-        .order-history-time { color: var(--text-muted); font-weight: 500; font-size: 0.85em; }
-        .order-history-total { font-weight: 800; color: var(--primary-color); font-size: 1.1em;}
-        .order-history-items { color: var(--text-muted); font-size: 0.85em; line-height: 1.6; margin: 0; }
-        .order-item-line { display: flex; gap: 8px; margin-bottom: 4px; align-items: flex-start; }
-
+        
         #modal-tab-bar { display: flex; width: 100%; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; flex-shrink: 0;}
         .modal-tab { flex: 1; text-align: center; padding: 12px; font-weight: 700; font-size: 0.95em; color: var(--text-muted); cursor: pointer; transition: 0.2s; position: relative;}
-        .modal-tab:hover { color: var(--glacier-blue); background: var(--hover-bg); border-radius: 10px 10px 0 0;}
         .modal-tab.active { color: var(--glacier-blue); }
         .modal-tab.active::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 2px; background: var(--glacier-blue); border-radius: 2px;}
         .modal-tab-content { display: none; }
@@ -287,19 +223,12 @@
         .pd-brand-name { font-weight: 700; color: var(--text-muted); font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; }
         #pd-modal-name { font-size: 1.4em; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.3; }
         #pd-modal-volume { font-size: 0.9em; color: var(--text-muted); font-weight: 500; margin-bottom: 20px; margin-top: 5px; }
-        
         .pd-desc-text { margin: 5px 0 15px 0; font-size: 0.9em; color: var(--text-muted); line-height: 1.5; display: none; }
         .pd-ing-text { margin: 0 0 15px 0; font-size: 0.8em; color: var(--active-brand-red); font-style: italic; line-height: 1.4; display: none; font-weight: 500;}
-        
         .pd-bottom-row { display: flex; justify-content: space-between; align-items: center; border-top: 2px solid var(--border-color); padding-top: 20px; margin-top: auto; }
-
-        /* 🗺️ LEAFLET MAP CUSTOM CSS 🗺️ */
-        .leaflet-container { z-index: 1 !important; font-family: 'Poppins', sans-serif; }
-        .leaflet-control-attribution { display: none; }
 
         /* 🟢 MULTI-ADDRESS CSS 🟢 */
         .address-card { border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; position: relative; background: var(--card-bg); box-shadow: 0 2px 5px rgba(0,0,0,0.02);}
-        .address-card:hover { border-color: var(--glacier-blue); transform: translateY(-2px);}
         .address-card.selected { border-color: var(--glacier-blue); background: var(--hover-bg); border-width: 2px; padding: 11px;}
         .address-card.selected::after { content: '✓'; position: absolute; top: 12px; right: 12px; color: var(--glacier-blue); font-size: 1.2em; font-weight: 900; }
         .addr-label { font-weight: 800; font-size: 0.85em; color: var(--text-main); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; text-transform: uppercase; letter-spacing: 0.5px;}
@@ -307,12 +236,13 @@
         .addr-contact { font-size: 0.75em; color: var(--text-main); font-weight: 600;}
         .addr-actions { margin-top: 10px; display: flex; gap: 15px; border-top: 1px dashed var(--border-color); padding-top: 8px;}
         .addr-btn { font-size: 0.75em; color: var(--active-brand-red); background: none; border: none; padding: 0; cursor: pointer; font-weight: 700; }
-        
         .type-selector { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; scrollbar-width: none; padding-bottom: 5px;}
-        .type-badge { padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 50px; font-size: 0.8em; cursor: pointer; color: var(--text-muted); font-weight: 600; white-space: nowrap; transition: 0.2s; background: var(--card-bg);}
-        .type-badge.active { background: var(--glacier-blue); color: white; border-color: var(--glacier-blue); box-shadow: 0 4px 10px rgba(31,81,198,0.2);}
+        .type-badge { padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 50px; font-size: 0.8em; cursor: pointer; color: var(--text-muted); font-weight: 600; background: var(--card-bg);}
+        .type-badge.active { background: var(--glacier-blue); color: white; border-color: var(--glacier-blue); }
 
-        /* 🟢 SEARCH SUGGESTION CSS 🟢 */
+        /* 🗺️ MAP & SEARCH SUGGESTION CSS 🗺️ */
+        .leaflet-container { z-index: 1 !important; font-family: 'Poppins', sans-serif; }
+        .leaflet-control-attribution { display: none; }
         .suggestion-item { padding: 10px 12px; font-size: 0.8em; color: var(--text-main); cursor: pointer; border-bottom: 1px solid var(--border-color); text-align: left; line-height: 1.4; }
         .suggestion-item:last-child { border-bottom: none; }
         .suggestion-item:hover { background: var(--hover-bg); color: var(--glacier-blue); font-weight: 600; }
@@ -332,67 +262,29 @@
 
             .search-sort-side { display: none !important; } 
             .top-nav-bar { flex-direction: column; border-bottom: none; width: 100%;}
-            
-            /* Squeeze Brands Panel smoothly */
-            .brands-wrapper { 
-                border-bottom: 1px solid var(--border-color); width: 100%; 
-                max-height: 120px; overflow: hidden; 
-                transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
-            } 
-            
+            .brands-wrapper { border-bottom: 1px solid var(--border-color); width: 100%; max-height: 120px; overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease;} 
             .brands-row { padding: 12px 15px; gap: 15px; -webkit-overflow-scrolling: touch; border-bottom: none; }
             .brand-icon { width: 55px; height: 55px; }
             .brand-name { font-size: 0.55em; }
 
             .main-layout { flex-direction: column; width: 100%; overflow-x: hidden; position: relative; } 
             
-            /* 🟢 NEW COMPACT & FIXED MOBILE CATEGORIES 🟢 */
+            /* 🟢 COMPACT & FIXED MOBILE CATEGORIES 🟢 */
             .sidebar { 
-                position: sticky !important; 
-                top: 0 !important; 
-                left: 0 !important; 
-                width: 100% !important; 
-                height: auto !important;
-                flex-direction: row !important; 
-                padding: 10px 15px !important;
-                border-right: none !important; 
-                border-bottom: 1px solid var(--border-color) !important; 
-                background: var(--main-bg) !important;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
-                overflow-x: auto !important; 
-                overflow-y: hidden !important; 
-                z-index: 95 !important;
-                gap: 10px !important;
-                scroll-behavior: smooth;
+                position: sticky !important; top: 0 !important; left: 0 !important; width: 100% !important; height: auto !important;
+                flex-direction: row !important; padding: 10px 15px !important; border-right: none !important; border-bottom: 1px solid var(--border-color) !important; 
+                background: var(--main-bg) !important; box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important; overflow-x: auto !important; overflow-y: hidden !important; 
+                z-index: 95 !important; gap: 10px !important; scroll-behavior: smooth;
             }
-            .cat-item { 
-                flex-direction: row !important; 
-                gap: 6px !important; 
-                padding: 6px 14px !important; 
-                border-radius: 50px !important; 
-                border: 1px solid var(--border-color) !important;
-                background: var(--card-bg) !important;
-                width: auto !important; 
-                min-width: max-content !important;
-            }
-            .cat-item.active {
-                background: var(--glacier-blue) !important;
-                border-color: var(--glacier-blue) !important;
-            }
+            .cat-item { flex-direction: row !important; gap: 6px !important; padding: 6px 14px !important; border-radius: 50px !important; border: 1px solid var(--border-color) !important; background: var(--card-bg) !important; width: auto !important; min-width: max-content !important; }
+            .cat-item.active { background: var(--glacier-blue) !important; border-color: var(--glacier-blue) !important; }
             .cat-icon { display: none !important; } 
             .cat-name { font-size: 0.8em !important; font-weight: 600 !important; color: var(--text-main) !important; padding: 0 !important;}
             .cat-item.active .cat-name { color: white !important; }
             
-            #mobile-cat-toggle { display: none !important; }
-            #sidebar-overlay { display: none !important; }
-
             .content-area { width: 100%; padding: 0px 10px 10px 10px; overflow-x: hidden; box-sizing: border-box; }
             
-            .controls-bar { 
-                padding: 15px 12px 5px 12px; gap: 10px; 
-                margin: 0px -10px 10px -10px; width: calc(100% + 20px);
-                border-bottom: 1px solid var(--border-color);
-            }
+            .controls-bar { padding: 15px 12px 5px 12px; gap: 10px; margin: 0px -10px 10px -10px; width: calc(100% + 20px); border-bottom: 1px solid var(--border-color); }
             .search-sort-wrapper { flex-wrap: nowrap; gap: 8px; }
             .control-chip { padding: 8px 10px; min-width: 0; border-radius: 12px;}
             .control-chip:first-child { flex: 1.8; }
@@ -401,14 +293,12 @@
             .section-header { margin-bottom: 12px; padding-bottom: 8px; width: 100%; }
             .section-header h2 { font-size: 1.1em; }
             
-            /* 🟢 MOBILE GRID FIXES 🟢 */
             .menu-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; margin: 0; padding-bottom: 10px;}
             .menu-card { padding: 8px; border-radius: 12px; }
             .card-img-wrapper { height: 100px; margin-bottom: 20px; border-radius: 10px; } 
             .new-badge { top: -6px; left: -6px; font-size: 0.5em; padding: 3px 6px; }
             .red-discount-icon { top: -6px; right: -6px; font-size: 0.55em; padding: 3px 6px; }
             
-            /* 🟢 MOBILE BUTTON OVERLAP 🟢 */
             .btn-container { right: 8px; bottom: -14px; }
             .app-add-btn { width: 30px; height: 30px; font-size: 1.2em; }
             .app-qty-control { height: 30px; width: 75px; font-size: 0.85em; padding: 0 4px;}
@@ -425,19 +315,14 @@
 
             .custom-modal { align-items: flex-end; }
             .modal-content-box { border-radius: 24px 24px 0 0; width: 100%; max-width: 100%; margin: 0; animation: slideUp 0.3s ease-out; padding: 25px 20px; padding-bottom: calc(25px + env(safe-area-inset-bottom)); max-height: 90dvh; }
-            .auth-input { padding: 12px; margin-bottom: 12px; }
-            .auth-btn, .checkout-btn { margin-bottom: 10px; }
             @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
             #bottom-cart-banner { width: calc(100% - 30px - env(safe-area-inset-left) - env(safe-area-inset-right)); padding: 14px 20px; bottom: -100px; border-radius: 14px;}
             #bottom-cart-banner.visible { bottom: calc(15px + env(safe-area-inset-bottom)); }
             .banner-items { font-size: 0.75em; }
             .banner-price { font-size: 1.2em; }
-            .banner-right { font-size: 1em; }
 
             #pd-modal-img { height: 180px; }
-            #pd-modal-name { font-size: 1.2em; }
-
             .floating-action-container { bottom: calc(85px + env(safe-area-inset-bottom)); right: calc(15px + env(safe-area-inset-right)); }
             .floating-btn { width: 40px; height: 40px; font-size: 1.1em;}
         }
@@ -446,54 +331,22 @@
         @media (max-width: 999px) and (orientation: landscape) {
             header { padding: 5px calc(15px + env(safe-area-inset-right)) 5px calc(15px + env(safe-area-inset-left)); height: 50px; }
             .header-logo { height: 28px; }
-            
             .landscape-search-sort { display: flex !important; flex: 1; align-items: center; justify-content: center; gap: 10px; margin: 0 15px; }
             .landscape-search-sort .control-chip { background: var(--main-bg); border: 1px solid var(--border-color); border-radius: 50px; padding: 4px 12px; display: flex; align-items: center; flex: 1; max-width: 250px; height: 32px;}
             .landscape-search-sort input, .landscape-search-sort select { border: none; background: transparent; color: var(--text-main); font-family: inherit; font-size: 0.85em !important; width: 100%; outline: none; margin-left: 5px;}
-            
             #mobile-search-sort { display: none !important; }
             .controls-bar { margin: 0 !important; padding: 0 !important; border-bottom: none !important; background: transparent !important; position: static !important; transform: none !important; width: 100%;}
-            
-            .brands-wrapper { 
-                border-bottom: 1px solid var(--border-color); 
-                transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease !important;
-                overflow: hidden; max-height: 100px;
-                margin-left: calc(80px + env(safe-area-inset-left)) !important; 
-                width: calc(100% - 80px - 120px - env(safe-area-inset-left) - env(safe-area-inset-right)) !important; 
-            }
+            .brands-wrapper { border-bottom: 1px solid var(--border-color); transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease !important; overflow: hidden; max-height: 100px; width: 100% !important; }
             .hidden-landscape { max-height: 0 !important; opacity: 0 !important; border-bottom-width: 0 !important; pointer-events: none; }
-
-            .sidebar { position: fixed !important; top: 50px !important; left: env(safe-area-inset-left) !important; width: 80px !important; height: calc(100dvh - 50px) !important; display: flex !important; transform: none !important; box-shadow: 1px 0 5px rgba(0,0,0,0.05) !important; z-index: 100; padding-bottom: 20px !important; flex-direction: column !important; overflow-y: auto !important;}
-            .cat-item { width: 100% !important; } /* Reset landscape width */
-            #mobile-cat-toggle { display: none !important; }
             
+            /* 🟢 Sidebar Fixed Top in Landscape 🟢 */
+            .sidebar { position: sticky !important; top: 0 !important; left: 0 !important; width: 100% !important; height: auto !important; display: flex !important; flex-direction: row !important; box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important; z-index: 100 !important; padding: 10px 15px !important; overflow-x: auto !important; overflow-y: hidden !important;}
             .top-nav-bar { width: 100% !important; padding: 0 !important; box-sizing: border-box; border-bottom: none !important; }
-            .main-layout { 
-                margin-left: calc(80px + env(safe-area-inset-left)) !important; 
-                width: calc(100% - 80px - 120px - env(safe-area-inset-left) - env(safe-area-inset-right)) !important; 
-                flex-direction: row; 
-            }
+            .main-layout { margin-left: 0 !important; width: 100% !important; flex-direction: column !important; }
             .content-area { padding-left: 10px !important; padding-right: 10px !important; width: 100% !important; }
-            
             .menu-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
-            
-            .tags-sidebar-landscape { 
-                display: flex !important; position: fixed !important; 
-                right: env(safe-area-inset-right) !important; top: 50px !important; 
-                width: 120px !important; height: calc(100dvh - 50px) !important; 
-                background: var(--card-bg) !important; border-left: 1px solid var(--border-color) !important; 
-                flex-direction: column !important; overflow-y: auto !important; 
-                padding: 10px 5px 100px 5px !important; padding-right: calc(5px + env(safe-area-inset-right)) !important;
-                z-index: 100 !important; gap: 8px !important; box-sizing: border-box !important; 
-                -webkit-overflow-scrolling: touch !important;
-            }
-            #tags-container-portrait { display: none !important; }
-            .filter-tag-chip { text-align: center; justify-content: center; padding: 8px 5px !important; font-size: 0.65em !important; white-space: normal !important; height: auto !important; display: flex !important; align-items: center !important;}
-            
-            #bottom-cart-banner { 
-                width: calc(100% - 80px - 120px - 20px - env(safe-area-inset-left) - env(safe-area-inset-right)) !important;
-                left: calc(80px + 10px + env(safe-area-inset-left)) !important; transform: none !important;
-            }
+            .tags-sidebar-landscape { display: none !important; } 
+            #bottom-cart-banner { width: calc(100% - 20px - env(safe-area-inset-left) - env(safe-area-inset-right)) !important; left: 50% !important; transform: translateX(-50%) !important;}
         }
 
         @media (max-width: 360px) {
@@ -551,14 +404,10 @@
         <div class="brands-wrapper">
             <button id="btn-brand-left" class="brand-arrow left-arrow" onclick="scrollBrands(-1)">
                 <span class="arrow-icon">❮</span>
-                <span class="arrow-count" id="brand-count-left"></span>
             </button>
-            
             <div class="brands-row" id="brands-sidebar" onscroll="updateBrandArrows()"></div>
-            
             <button id="btn-brand-right" class="brand-arrow right-arrow" onclick="scrollBrands(1)">
                 <span class="arrow-icon">❯</span>
-                <span class="arrow-count" id="brand-count-right"></span>
             </button>
         </div>
 
@@ -579,13 +428,10 @@
         </div>
     </div>
 
-    <div id="sidebar-overlay"></div>
-
     <div class="main-layout">
         <aside class="sidebar" id="category-sidebar"></aside>
 
         <main class="content-area" id="products-area">
-            
             <div class="controls-bar">
                 <div class="search-sort-wrapper" id="mobile-search-sort">
                     <div class="control-chip">
@@ -602,7 +448,6 @@
                         </select>
                     </div>
                 </div>
-
                 <div class="tags-container" id="tags-container-portrait"></div>
             </div>
 
@@ -622,8 +467,6 @@
         </main>
     </div>
 
-    <aside class="tags-sidebar-landscape" id="tags-container-landscape"></aside>
-
     <div id="bottom-cart-banner" onclick="toggleCart()">
         <div class="banner-left">
             <span class="banner-items" id="banner-qty">0 ITEMS</span>
@@ -639,23 +482,19 @@
     </div>
 
     <div id="product-detail-modal" class="custom-modal" onclick="closeProductDetailModal()">
-        <div class="modal-content-box" onclick="event.stopPropagation()" style="padding-bottom: 25px;">
+        <div class="modal-content-box" onclick="event.stopPropagation()">
             <div style="display: flex; justify-content: flex-end; margin-bottom: -10px;">
                 <div class="close-modal-icon" onclick="closeProductDetailModal()">×</div>
             </div>
             <img id="pd-modal-img" src="" alt="Ice Cream">
-            
             <div class="pd-modal-brand-row">
                 <div class="pd-brand-icon" id="pd-modal-brand-logo"></div>
                 <div class="pd-brand-name" id="pd-modal-brand-name"></div>
             </div>
-            
             <h2 id="pd-modal-name" style="margin-bottom: 5px;">Product Name</h2>
             <p id="pd-modal-desc" class="pd-desc-text"></p>
             <div id="pd-modal-volume">500ml</div>
-            
             <p id="pd-modal-ingredients" class="pd-ing-text"></p>
-
             <div class="pd-bottom-row">
                 <div id="pd-modal-price-wrap" class="price-row"></div>
                 <div id="pd-modal-btn-wrap"></div>
@@ -683,7 +522,6 @@
                 <div class="close-modal-icon" onclick="closeAuthModal()">×</div>
             </div>
             <p style="font-size: 0.9em; color: var(--text-muted); margin-bottom: 20px; margin-top: 0;">Enter your mobile number to get an OTP.</p>
-            
             <div id="phone-input-section">
                 <label class="auth-label">Mobile Number</label>
                 <div style="display: flex; gap: 10px;">
@@ -693,7 +531,6 @@
                 <div id="recaptcha-container" style="margin-top: 10px;"></div>
                 <button class="auth-btn" id="send-otp-btn" onclick="sendOTP()" style="margin-top: 10px;">Send OTP</button>
             </div>
-
             <div id="otp-input-section" style="display: none;">
                 <label class="auth-label">Enter OTP</label>
                 <input type="number" id="otp-code" class="auth-input" placeholder="123456" style="letter-spacing: 2px; font-weight: bold; text-align: center;">
@@ -716,7 +553,6 @@
             </div>
             
             <div id="tab-profile-content" class="modal-tab-content active">
-                
                 <div style="margin-bottom: 15px;">
                     <label class="auth-label">Main Account Name</label>
                     <input type="text" id="profile-name-main" class="auth-input" placeholder="e.g. Rahul Sharma" onchange="saveMainName()" style="margin-bottom: 5px;">
@@ -728,8 +564,7 @@
                         Saved Addresses
                         <button class="action-btn" onclick="showAddAddressForm()" style="padding: 4px 12px; font-size:0.8em; border-color:var(--glacier-blue); color:var(--glacier-blue);">+ Add</button>
                     </label>
-                    <div id="addresses-container">
-                        </div>
+                    <div id="addresses-container"></div>
                 </div>
 
                 <div id="add-address-form" style="display:none; background: var(--chip-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border-color);">
@@ -742,7 +577,6 @@
                     </div>
 
                     <input type="hidden" id="edit-addr-index" value="-1">
-                    
                     <input type="hidden" id="new-addr-lat" value="">
                     <input type="hidden" id="new-addr-lng" value="">
                     
@@ -754,19 +588,16 @@
                     <button id="open-map-btn" class="action-btn" onclick="initLocationPicker()" style="width:100%; justify-content:center; margin-bottom:10px; background:var(--card-bg); border-color:var(--glacier-blue); color:var(--glacier-blue);">📍 Auto-Locate on Map</button>
                     
                     <div id="map-wrapper-parent" style="display:none; width: 100%; margin-bottom: 10px;">
-                        
                         <div style="display: flex; gap: 8px; margin-bottom: 8px;">
                             <div style="position: relative; flex: 1;">
                                 <input type="text" id="map-search-input" class="auth-input" placeholder="Search area or city..." style="width:100%; margin-bottom:0; padding:10px; font-size:0.85em; background:var(--card-bg);" oninput="handleSearchInput(event)" onkeypress="if(event.key==='Enter') searchLocation()">
-                                
                                 <div id="search-suggestions" style="display:none; position:absolute; top:100%; left:0; width:100%; background:var(--card-bg); border:1px solid var(--border-color); border-radius:8px; z-index:2000; max-height:160px; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-top:4px;"></div>
                             </div>
                             <button class="auth-btn" onclick="searchLocation()" style="width:auto; padding:10px 15px; font-size:0.9em; margin:0;">🔍</button>
                         </div>
-
                         <div style="position: relative; width: 100%;">
                             <div id="map-container" style="height: 180px; border-radius: 10px; overflow: hidden; border: 2px solid var(--border-color);"></div>
-                            <button id="locate-me-btn" onclick="getCurrentLocation()" style="position: absolute; bottom: 15px; right: 10px; z-index: 400; background: white; border: 2px solid var(--border-color); border-radius: 8px; width: 34px; height: 34px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 1.2em; display: flex; align-items: center; justify-content: center; padding: 0;" title="My Location">🎯</button>
+                            <button id="locate-me-btn" onclick="event.preventDefault(); getCurrentLocation();" style="position: absolute; bottom: 15px; right: 10px; z-index: 9999; background: white; border: 2px solid var(--border-color); border-radius: 8px; width: 38px; height: 38px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.3); font-size: 1.4em; display: flex; align-items: center; justify-content: center; padding: 0;" title="My Location">🎯</button>
                         </div>
                     </div>
 
@@ -791,7 +622,6 @@
                 </div>
                 <p style="font-size:0.8em; color:var(--text-muted); text-align:center; margin-top:15px; border-top:1px solid var(--border-color); padding-top:10px;">Only last 10 orders are shown locally.</p>
             </div>
-
         </div>
     </div>
 
@@ -802,28 +632,17 @@
         const WHATSAPP_NUMBER = "919829610570"; 
         
         let allItems = []; let currentCategory = 'All Items'; let currentBrand = 'All Brands'; let currentTagFilter = 'All'; let cart = {}; 
-
-        let currentFilteredItems = [];
-        let currentlyDisplayed = 0;
-
+        let currentFilteredItems = []; let currentlyDisplayed = 0;
         let currentTheme = localStorage.getItem('glacier_theme') || 'auto';
         
-        // 🟢 ESCAPE KEY LISTENER TO CLOSE ALL OPEN MODALS 🟢
+        // 🟢 ESCAPE KEY & OUTSIDE CLICK LISTENER 🟢
         document.addEventListener('keydown', function(event) {
             if (event.key === "Escape") {
-                const pdModal = document.getElementById('product-detail-modal');
-                const cartModal = document.getElementById('cart-modal');
-                const authModal = document.getElementById('auth-modal');
-                const profileModal = document.getElementById('profile-modal');
-                
-                if (pdModal.style.display === 'flex') closeProductDetailModal();
-                else if (cartModal.style.display === 'flex') cartModal.style.display = 'none';
-                else if (authModal.style.display === 'flex') closeAuthModal();
-                else if (profileModal.style.display === 'flex') closeProfileModal();
+                document.querySelectorAll('.custom-modal').forEach(modal => {
+                    if(modal.style.display === 'flex') modal.style.display = 'none';
+                });
             }
         });
-
-        // 🟢 HIDE SEARCH SUGGESTIONS ON OUTSIDE CLICK 🟢
         document.addEventListener('click', function(e) {
             if (e.target.id !== 'map-search-input') {
                 const box = document.getElementById('search-suggestions');
@@ -845,7 +664,6 @@
             if(currentTheme === 'light') currentTheme = 'dark';
             else if(currentTheme === 'dark') currentTheme = 'auto';
             else currentTheme = 'light';
-            
             localStorage.setItem('glacier_theme', currentTheme);
             applyTheme(currentTheme);
         }
@@ -872,9 +690,7 @@
             }, 100);
         });
 
-        let lastScrollY = 0;
-        let showThreshold = 20; 
-        
+        let lastScrollY = 0; let showThreshold = 20; 
         document.getElementById('products-area').addEventListener('scroll', function() {
             const controlsBar = document.querySelector('.controls-bar');
             const backToTop = document.getElementById('back-to-top');
@@ -895,31 +711,23 @@
                     if (scrollDiff > 0) {
                         if (isLandscape) brandsWrapper.classList.add('hidden-landscape');
                         else controlsBar.style.top = '-160px'; 
-                    } 
-                    else if (scrollDiff < -showThreshold) {
+                    } else if (scrollDiff < -showThreshold) {
                         if (isLandscape) brandsWrapper.classList.remove('hidden-landscape');
                         else controlsBar.style.top = '0'; 
                     }
-                } 
-                else {
+                } else {
                     if (isLandscape) brandsWrapper.classList.remove('hidden-landscape');
                     else controlsBar.style.top = '0'; 
                 }
-                
                 lastScrollY = currentScrollY;
             } else {
                 controlsBar.style.top = '0'; 
                 document.querySelector('.brands-wrapper').classList.remove('hidden-landscape');
             }
 
-            if(this.scrollTop > 400) {
-                backToTop.classList.add('visible');
-            } else {
-                backToTop.classList.remove('visible');
-            }
+            if(this.scrollTop > 400) { backToTop.classList.add('visible'); } 
+            else { backToTop.classList.remove('visible'); }
         });
-
-        // Toggle button logic removed as it's now a fixed scrollable bar
 
         function updateBrandArrows() {
             const row = document.getElementById('brands-sidebar');
@@ -940,19 +748,11 @@
             const lBtn = document.getElementById('btn-brand-left');
             const rBtn = document.getElementById('btn-brand-right');
             
-            if (row.scrollLeft > 5) {
-                lBtn.style.display = 'flex';
-                document.getElementById('brand-count-left').innerText = hiddenLeft > 0 ? hiddenLeft : '';
-            } else {
-                lBtn.style.display = 'none';
-            }
+            if (row.scrollLeft > 5) { lBtn.style.display = 'flex'; } 
+            else { lBtn.style.display = 'none'; }
 
-            if (Math.ceil(row.scrollLeft + row.clientWidth) < row.scrollWidth - 5) {
-                rBtn.style.display = 'flex';
-                document.getElementById('brand-count-right').innerText = hiddenRight > 0 ? hiddenRight : '';
-            } else {
-                rBtn.style.display = 'none';
-            }
+            if (Math.ceil(row.scrollLeft + row.clientWidth) < row.scrollWidth - 5) { rBtn.style.display = 'flex'; } 
+            else { rBtn.style.display = 'none'; }
         }
 
         window.scrollBrands = (dir) => {
@@ -964,7 +764,6 @@
         window.syncInputs = (source) => {
             const searchVal = document.getElementById(`search-bar-${source}`).value;
             const sortVal = document.getElementById(`sort-dropdown-${source}`).value;
-            
             ['desktop', 'mobile', 'landscape'].forEach(env => {
                 if(env !== source) {
                     const searchEl = document.getElementById(`search-bar-${env}`);
@@ -1005,17 +804,13 @@
             for (let key in item) {
                 let cleanKey = String(key).toLowerCase().replace(/[^a-z0-9]/g, '');
                 if (cleanKey.includes('launch') || cleanKey.includes('year') || cleanKey.includes('date')) {
-                    if (item[key] && String(item[key]).trim() !== '') { 
-                        dateStr = String(item[key]).trim(); 
-                        break; 
-                    }
+                    if (item[key] && String(item[key]).trim() !== '') { dateStr = String(item[key]).trim(); break; }
                 }
             }
             if (!dateStr) return null;
 
             let yearMatch = dateStr.match(/\d{4}/);
             if (!yearMatch) return null;
-            
             let year = parseInt(yearMatch[0], 10);
             let month = 0; 
 
@@ -1026,10 +821,7 @@
                 const monthNames = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
                 let lowerDateStr = dateStr.toLowerCase();
                 for (let i = 0; i < monthNames.length; i++) {
-                    if (lowerDateStr.includes(monthNames[i])) {
-                        month = i;
-                        break;
-                    }
+                    if (lowerDateStr.includes(monthNames[i])) { month = i; break; }
                 }
             }
             return { year: year, month: month };
@@ -1038,11 +830,9 @@
         function isNewArrival(item) {
             let launchData = getLaunchDate(item);
             if (!launchData) return false;
-
             let now = new Date();
             let currentYear = now.getFullYear();
             let currentMonth = now.getMonth(); 
-
             let monthsDiff = (currentYear - launchData.year) * 12 + (currentMonth - launchData.month);
             return monthsDiff >= -2 && monthsDiff <= 3; 
         }
@@ -1061,52 +851,41 @@
             return 'tag-style-default';
         }
 
+        // 🟢 CUSTOM IMAGE ICONS FOR TAGS 🟢
         function getTagIcon(tag) {
             let t = tag.toLowerCase();
-            if(t.includes('vegan')) return '🍃';
-            if(t.includes('diet') || t.includes('lite')) return '📏';
-            if(t.includes('sugar')) return '🚫';
-            if(t.includes('fast') || t.includes('vrat') || t.includes('guilt')) return '⚡';
-            if(t.includes('best') || t.includes('popular')) return '🔥';
-            return '🏷️'; // Default Icon
+            if(t.includes('vegan')) return '<img src="https://i.postimg.cc/YOUR_VEGAN_ICON.png" style="width:100%; height:100%; object-fit:contain;" alt="Vegan">';
+            if(t.includes('diet') || t.includes('lite')) return '<img src="https://i.postimg.cc/YOUR_DIET_ICON.png" style="width:100%; height:100%; object-fit:contain;" alt="Diet">';
+            if(t.includes('sugar')) return '<img src="https://i.postimg.cc/YOUR_SUGARFREE_ICON.png" style="width:100%; height:100%; object-fit:contain;" alt="Sugar Free">';
+            if(t.includes('fast') || t.includes('vrat') || t.includes('guilt')) return '<img src="https://i.postimg.cc/YOUR_VRAT_ICON.png" style="width:100%; height:100%; object-fit:contain;" alt="Vrat">';
+            if(t.includes('best') || t.includes('popular')) return '<img src="https://i.postimg.cc/YOUR_BESTSELLER_ICON.png" style="width:100%; height:100%; object-fit:contain;" alt="Bestseller">';
+            return '<img src="https://i.postimg.cc/YOUR_DEFAULT_ICON.png" style="width:100%; height:100%; object-fit:contain;" alt="Tag">'; 
         }
 
         async function refreshMenu() {
             const btn = document.getElementById('refresh-btn');
-            btn.innerHTML = '⏳';
-            btn.style.pointerEvents = 'none';
-            btn.style.opacity = '0.5';
-            
+            btn.innerHTML = '⏳'; btn.style.pointerEvents = 'none'; btn.style.opacity = '0.5';
             document.getElementById('main-menu-grid').innerHTML = '';
-            document.getElementById('load-more-container').style.display = 'none';
             const statusMsg = document.getElementById('status-msg');
             statusMsg.innerHTML = '<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🔄</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">Fetching latest menu...</h3></div>';
             statusMsg.style.display = 'block';
-            
             document.getElementById('category-sidebar').innerHTML = '';
             document.getElementById('brands-sidebar').innerHTML = '';
-            
             await loadData();
-            
-            btn.innerHTML = '🔄';
-            btn.style.pointerEvents = 'auto';
-            btn.style.opacity = '1';
+            btn.innerHTML = '🔄'; btn.style.pointerEvents = 'auto'; btn.style.opacity = '1';
         }
 
         async function loadData() {
             const statusMsg = document.getElementById('status-msg'); 
             const loadingBar = document.getElementById('loading-bar');
             if(loadingBar) loadingBar.style.width = '30%';
-            
             try {
                 const noCacheUrl = googleSheetUrl + "?t=" + new Date().getTime();
                 const response = await fetch(noCacheUrl); 
                 if(loadingBar) loadingBar.style.width = '70%'; 
-                
                 if (!response.ok) throw new Error("Network response failed");
                 const textData = await response.text();
-                try { allItems = JSON.parse(textData); } 
-                catch(e) { throw new Error("Sheet returned Error Page instead of JSON data."); }
+                try { allItems = JSON.parse(textData); } catch(e) { throw new Error("Sheet Error."); }
 
                 if(!Array.isArray(allItems) && allItems.error) throw new Error("Apps Script Error: " + allItems.error);
                 if(!allItems || allItems.length === 0) { 
@@ -1119,16 +898,11 @@
                 
                 setTimeout(() => {
                     const splash = document.getElementById('splash-screen');
-                    if(splash) {
-                        splash.style.opacity = '0';
-                        splash.style.visibility = 'hidden';
-                        setTimeout(() => splash.remove(), 600); 
-                    }
+                    if(splash) { splash.style.opacity = '0'; splash.style.visibility = 'hidden'; setTimeout(() => splash.remove(), 600); }
                     if(loadingBar) loadingBar.style.opacity = '0'; 
                     statusMsg.style.display='none'; 
                     updateBrandArrows(); 
                 }, 800);
-
             } catch (error) { 
                 console.error(error);
                 const splashSub = document.querySelector('.splash-subtext');
@@ -1178,31 +952,7 @@
                 brandSidebar.appendChild(div);
             });
 
-            let allTags = new Set();
-            allItems.forEach(item => {
-                getItemTags(item).forEach(t => allTags.add(t));
-            });
-            
-            if(allTags.size > 0) {
-                let tagsHTML = `<div class="filter-tag-chip ${currentTagFilter === 'All' ? 'active' : ''}" data-tag="All" onclick="setTagFilter('All')">All</div>`;
-                Array.from(allTags).sort().forEach(tag => {
-                    let safeTag = tag.replace(/'/g, "\\'");
-                    let isActive = currentTagFilter === tag ? 'active' : '';
-                    tagsHTML += `<div class="filter-tag-chip ${isActive}" data-tag="${safeTag}" onclick="setTagFilter('${safeTag}')">${getTagIcon(tag)}${tag}</div>`;
-                });
-                
-                const ptContainer = document.getElementById('tags-container-portrait');
-                const lsContainer = document.getElementById('tags-container-landscape');
-                if(ptContainer) ptContainer.innerHTML = tagsHTML;
-                if(lsContainer) lsContainer.innerHTML = tagsHTML;
-            } else {
-                document.getElementById('tags-container-portrait').style.display = 'none';
-                document.getElementById('tags-container-landscape').style.display = 'none';
-            }
-
-            window.addEventListener('resize', () => {
-                updateBrandArrows();
-            });
+            window.addEventListener('resize', () => { updateBrandArrows(); });
         }
 
         function setCategory(categoryName) {
@@ -1211,8 +961,6 @@
                 const name = btn.querySelector('.cat-name').innerText.trim();
                 if (name.toLowerCase() === categoryName.toLowerCase() || (categoryName.includes('New') && name.includes('New'))) {
                     btn.classList.add('active');
-                    
-                    // 🟢 SMART HORIZONTAL/VERTICAL SCROLLING 🟢
                     if(window.innerWidth <= 999 && !window.matchMedia("(orientation: landscape)").matches) {
                         const scrollPos = btn.offsetLeft - (container.clientWidth / 2) + (btn.clientWidth / 2); 
                         container.scrollTo({ left: scrollPos, behavior: 'smooth' });
@@ -1220,10 +968,8 @@
                         const scrollPos = btn.offsetTop - (container.clientHeight / 2) + (btn.clientHeight / 2); 
                         container.scrollTo({ top: scrollPos, behavior: 'smooth' });
                     }
-
                 } else btn.classList.remove('active');
             });
-            
             applyFilters();
             setTimeout(() => document.getElementById('products-area').scrollTop = 0, 10);
         }
@@ -1240,26 +986,8 @@
             });
             
             if (currentCategory.includes('New') && brandName !== 'All Brands') {
-                if (!allItems.some(i => i.brand === brandName && isNewArrival(i))) { 
-                    setCategory('All Items'); 
-                    return; 
-                }
+                if (!allItems.some(i => i.brand === brandName && isNewArrival(i))) { setCategory('All Items'); return; }
             }
-            
-            applyFilters();
-            setTimeout(() => document.getElementById('products-area').scrollTop = 0, 10);
-        }
-
-        function setTagFilter(tag) {
-            currentTagFilter = tag;
-            document.querySelectorAll('.filter-tag-chip').forEach(btn => {
-                if(btn.getAttribute('data-tag') === tag) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
-            });
-            
             applyFilters();
             setTimeout(() => document.getElementById('products-area').scrollTop = 0, 10);
         }
@@ -1298,16 +1026,12 @@
                     matchesSearch = searchWords.every(word => textToSearch.includes(word));
                 }
 
-                const itemTags = getItemTags(item);
-                const matchesTagFilter = currentTagFilter === 'All' ? true : itemTags.includes(currentTagFilter);
-
-                return isAvailable && matchesBrand && matchesCategory && matchesSearch && matchesTagFilter;
+                return isAvailable && matchesBrand && matchesCategory && matchesSearch;
             });
 
             if (currentCategory === 'New Arrivals' && sortValue === 'default') {
                 filteredItems.sort((a, b) => {
-                    let dateA = getLaunchDate(a);
-                    let dateB = getLaunchDate(b);
+                    let dateA = getLaunchDate(a); let dateB = getLaunchDate(b);
                     let valA = dateA ? (dateA.year * 12 + dateA.month) : 0;
                     let valB = dateB ? (dateB.year * 12 + dateB.month) : 0;
                     return valB - valA;
@@ -1322,7 +1046,6 @@
 
             let titlePrefix = currentBrand !== 'All Brands' ? currentBrand + ' ' : '';
             let titleText = searchTerm !== '' ? 'Search Results' : (currentCategory === 'New Arrivals' ? 'New Arrivals' : (currentCategory === 'All Items' ? 'Menu' : currentCategory));
-            if (currentTagFilter !== 'All') titleText += ` (${currentTagFilter})`;
             
             document.getElementById('current-category-title').innerText = titlePrefix + titleText;
             document.getElementById('item-count').innerText = `${filteredItems.length} items`;
@@ -1332,8 +1055,7 @@
             gridWrapper.innerHTML = '';
 
             if (filteredItems.length === 0) { 
-                document.getElementById('load-more-container').style.display = 'none';
-                statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="['desktop','mobile','landscape'].forEach(e => { let sb = document.getElementById('search-bar-'+e); if(sb) sb.value=''; }); applyFilters(); setCategory('All Items'); setBrand('All Brands'); setTagFilter('All');" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
+                statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="['desktop','mobile','landscape'].forEach(e => { let sb = document.getElementById('search-bar-'+e); if(sb) sb.value=''; }); applyFilters(); setCategory('All Items'); setBrand('All Brands');" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
                 statusMsg.style.display = 'block'; 
                 return; 
             }
@@ -1344,27 +1066,17 @@
 
         function getItemsPerPage() {
             let itemsPerRow = 4;
-            if (window.innerWidth <= 360) {
-                itemsPerRow = 2; 
-            } else if (window.innerWidth <= 999) {
-                if (window.matchMedia("(orientation: landscape)").matches) {
-                    itemsPerRow = 3;
-                } else {
-                    itemsPerRow = 2;
-                }
-            } else {
+            if (window.innerWidth <= 360) { itemsPerRow = 2; } 
+            else if (window.innerWidth <= 999) { itemsPerRow = window.matchMedia("(orientation: landscape)").matches ? 3 : 2; } 
+            else {
                 const grid = document.getElementById('main-menu-grid');
                 let gridWidth = grid.clientWidth;
-                if(gridWidth > 0) {
-                    itemsPerRow = Math.floor((gridWidth + 20) / 240); 
-                } else {
-                    itemsPerRow = Math.floor((window.innerWidth - 300) / 240) || 4;
-                }
+                itemsPerRow = gridWidth > 0 ? Math.floor((gridWidth + 20) / 240) : Math.floor((window.innerWidth - 300) / 240) || 4;
             }
             return Math.max(1, itemsPerRow) * 4; 
         }
 
-       function renderMoreItems() {
+        function renderMoreItems() {
             const gridWrapper = document.getElementById('main-menu-grid');
             let newHTML = '';
             
@@ -1379,15 +1091,13 @@
                 
                 let priceHTML = discountNum > 0 ? `<div class="price-row"><span class="item-price">₹${item.price}</span><span class="item-mrp">₹${item.mrp}</span></div>` : `<div class="price-row"><span class="item-price">₹${item.price}</span></div>`;
                 
-                // 🟢 ICON TAGS LOGIC 🟢
                 let tagsHTML = '';
                 const itemTagsArray = getItemTags(item);
                 if(itemTagsArray.length > 0) {
                     tagsHTML = `<div class="card-tags-row">` + 
                                itemTagsArray.map(t => {
-                                   let icon = getTagIcon(t).trim() || '🏷️';
-                                   // Added inline styles to make them perfect circular icons
-                                   return `<span class="card-tag ${getTagStyle(t)}" title="${t}" style="width: 24px; height: 24px; padding: 0; justify-content: center; border-radius: 50%; font-size: 0.9em; flex-shrink: 0; cursor: help;">${icon}</span>`;
+                                   let iconHTML = getTagIcon(t);
+                                   return `<span class="card-tag ${getTagStyle(t)}" title="${t}" style="width: 26px; height: 26px; padding: 3px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; cursor: help; overflow: hidden; background: #ffffff;">${iconHTML}</span>`;
                                }).join('') + 
                                `</div>`;
                 }
@@ -1407,7 +1117,7 @@
                         <div class="item-name">${displayName}</div>
                         
                         <div class="vol-price-row">
-                            <div class="item-volume">${volText || '&nbsp;'}</div>
+                            <div class="item-volume">${volText || ' '}</div>
                             ${priceHTML}
                         </div>
                     </div>
@@ -1434,35 +1144,18 @@
             document.getElementById('pd-modal-name').innerText = item.name;
             document.getElementById('pd-modal-volume').innerText = volText || '';
 
-            let desc = '';
-            let ing = '';
-            
+            let desc = ''; let ing = '';
             for(let key in item) {
                 let cleanKey = String(key).toLowerCase().replace(/[^a-z]/g, '');
-                if(['description', 'desc', 'detail', 'details'].includes(cleanKey)) {
-                    if(item[key]) desc = String(item[key]).trim();
-                }
-                if(['ingredient', 'ingredients', 'composition'].includes(cleanKey)) {
-                    if(item[key]) ing = String(item[key]).trim();
-                }
+                if(['description', 'desc', 'detail', 'details'].includes(cleanKey)) { if(item[key]) desc = String(item[key]).trim(); }
+                if(['ingredient', 'ingredients', 'composition'].includes(cleanKey)) { if(item[key]) ing = String(item[key]).trim(); }
             }
             
             const descEl = document.getElementById('pd-modal-desc');
             const ingEl = document.getElementById('pd-modal-ingredients');
             
-            if(desc !== '') {
-                descEl.innerText = desc;
-                descEl.style.display = 'block';
-            } else {
-                descEl.style.display = 'none';
-            }
-            
-            if(ing !== '') {
-                ingEl.innerText = "*Note: " + ing;
-                ingEl.style.display = 'block';
-            } else {
-                ingEl.style.display = 'none';
-            }
+            if(desc !== '') { descEl.innerText = desc; descEl.style.display = 'block'; } else { descEl.style.display = 'none'; }
+            if(ing !== '') { ingEl.innerText = "*Note: " + ing; ingEl.style.display = 'block'; } else { ingEl.style.display = 'none'; }
 
             const priceWrap = document.getElementById('pd-modal-price-wrap');
             let priceHTML = discountNum > 0 ? `<span class="item-price">₹${item.price}</span> <span class="item-mrp" style="text-decoration:line-through; color:var(--text-muted); font-size:0.8em; margin-left:5px;">₹${item.mrp}</span>` : `<span class="item-price">₹${item.price}</span>`;
@@ -1478,9 +1171,7 @@
             document.getElementById('product-detail-modal').style.display = 'flex';
         }
 
-        window.closeProductDetailModal = () => {
-            document.getElementById('product-detail-modal').style.display = 'none';
-        }
+        window.closeProductDetailModal = () => { document.getElementById('product-detail-modal').style.display = 'none'; }
 
         function updateAddButtons() {
             allItems.forEach(item => {
@@ -1494,18 +1185,14 @@
         }
 
         function addToCart(name, price, brand) { 
-            if(cart[name]) cart[name].qty += 1; 
-            else cart[name] = { price: price, qty: 1, brand: brand }; 
-            updateCartUI(); 
-            if(document.getElementById('product-detail-modal').style.display === 'flex') openProductDetail(name);
+            if(cart[name]) cart[name].qty += 1; else cart[name] = { price: price, qty: 1, brand: brand }; 
+            updateCartUI(); if(document.getElementById('product-detail-modal').style.display === 'flex') openProductDetail(name);
         }
 
         function changeQty(name, delta) { 
             if(cart[name]) { 
-                cart[name].qty += delta; 
-                if(cart[name].qty <= 0) delete cart[name]; 
-                updateCartUI(); 
-                if(document.getElementById('product-detail-modal').style.display === 'flex') openProductDetail(name);
+                cart[name].qty += delta; if(cart[name].qty <= 0) delete cart[name]; 
+                updateCartUI(); if(document.getElementById('product-detail-modal').style.display === 'flex') openProductDetail(name);
             } 
         }
 
@@ -1514,9 +1201,7 @@
             let totalQty = 0; let totalPrice = 0; cartList.innerHTML = '';
             for (const [name, data] of Object.entries(cart)) {
                 totalQty += data.qty; const itemTotal = data.price * data.qty; totalPrice += itemTotal;
-                
                 let itemPriceHTML = `₹${itemTotal}`;
-
                 cartList.innerHTML += `<div class="cart-item"><div class="cart-item-details"><div style="font-size: 0.75em; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">${data.brand}</div><div style="font-weight: 600; color: var(--text-main);">${name}</div></div><div class="cart-item-controls"><button class="qty-btn" onclick="changeQty('${name.replace(/'/g, "\\'")}', -1)">-</button><span style="font-weight: 700;">${data.qty}</span><button class="qty-btn" onclick="changeQty('${name.replace(/'/g, "\\'")}', 1)">+</button></div><div class="cart-item-price">${itemPriceHTML}</div></div>`;
             }
             updateAddButtons();
@@ -1533,13 +1218,8 @@
         function closeAuthModal() { document.getElementById('auth-modal').style.display = 'none'; }
         function closeProfileModal() { document.getElementById('profile-modal').style.display = 'none'; }
         
-        window.onload = loadData;
-    </script>
-
-    <script>
-        let map;
-        let marker;
-        let searchTimeout;
+        // 🟢 LEAFLET MAP LOGIC (FREE OPENSTREETMAP) 🟢
+        let map; let marker; let searchTimeout;
 
         function initLocationPicker() {
             document.getElementById('map-wrapper-parent').style.display = 'block';
@@ -1547,10 +1227,7 @@
             
             if (!map) {
                 map = L.map('map-container').setView([26.9124, 75.7873], 13); 
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap'
-                }).addTo(map);
-
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
                 marker = L.marker([26.9124, 75.7873], {draggable: true}).addTo(map);
                 
                 marker.on('dragend', function(event) {
@@ -1567,45 +1244,30 @@
                     getAddressFromCoords(e.latlng.lat, e.latlng.lng);
                 });
             }
-            
             setTimeout(() => { map.invalidateSize(); }, 300);
             getCurrentLocation();
         }
 
         function getCurrentLocation() {
+            document.getElementById('new-addr-area').value = "Locating you... 📍";
             if (navigator.geolocation) {
-                document.getElementById('new-addr-area').value = "Locating you... 📍";
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        
-                        document.getElementById('new-addr-lat').value = lat;
-                        document.getElementById('new-addr-lng').value = lng;
-
-                        map.setView([lat, lng], 16);
-                        marker.setLatLng([lat, lng]);
-                        getAddressFromCoords(lat, lng);
+                        const lat = position.coords.latitude; const lng = position.coords.longitude;
+                        document.getElementById('new-addr-lat').value = lat; document.getElementById('new-addr-lng').value = lng;
+                        map.setView([lat, lng], 16); marker.setLatLng([lat, lng]); getAddressFromCoords(lat, lng);
                     },
-                    (error) => {
-                        console.warn("Geolocation Error:", error.message);
-                        document.getElementById('new-addr-area').value = "Location access denied. Please search or tap on map.";
-                    },
-                    { enableHighAccuracy: true }
+                    (error) => { document.getElementById('new-addr-area').value = "Location access denied. Please search or tap on map."; },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                 );
-            }
+            } else { document.getElementById('new-addr-area').value = "GPS not supported. Please search or tap on map."; }
         }
 
-        // 🟢 LIVE SEARCH AUTOCOMPLETE (DEBOUNCED) 🟢
         function handleSearchInput(event) {
             clearTimeout(searchTimeout);
             let query = event.target.value.trim();
             const suggestionBox = document.getElementById('search-suggestions');
-            
-            if (query.length < 3) {
-                suggestionBox.style.display = 'none';
-                return;
-            }
+            if (query.length < 3) { suggestionBox.style.display = 'none'; return; }
             
             searchTimeout = setTimeout(async () => {
                 try {
@@ -1621,56 +1283,33 @@
                             div.onclick = () => {
                                 document.getElementById('map-search-input').value = place.display_name;
                                 suggestionBox.style.display = 'none';
-                                
-                                let lat = parseFloat(place.lat);
-                                let lon = parseFloat(place.lon);
-                                
-                                document.getElementById('new-addr-lat').value = lat;
-                                document.getElementById('new-addr-lng').value = lon;
-
-                                map.setView([lat, lon], 16);
-                                marker.setLatLng([lat, lon]);
-                                getAddressFromCoords(lat, lon);
+                                let lat = parseFloat(place.lat); let lon = parseFloat(place.lon);
+                                document.getElementById('new-addr-lat').value = lat; document.getElementById('new-addr-lng').value = lon;
+                                map.setView([lat, lon], 16); marker.setLatLng([lat, lon]); getAddressFromCoords(lat, lon);
                             };
                             suggestionBox.appendChild(div);
                         });
                         suggestionBox.style.display = 'block';
-                    } else {
-                        suggestionBox.style.display = 'none';
-                    }
-                } catch (error) {
-                    console.error('Search error:', error);
-                }
+                    } else { suggestionBox.style.display = 'none'; }
+                } catch (error) {}
             }, 500); 
         }
 
         async function searchLocation() {
             const query = document.getElementById('map-search-input').value.trim();
             if(!query) return;
-            
             document.getElementById('search-suggestions').style.display = 'none';
             document.getElementById('new-addr-area').value = "Searching... 🔍";
             
             try {
                 let response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&countrycodes=in`);
                 let data = await response.json();
-                
                 if(data && data.length > 0) {
-                    let lat = data[0].lat;
-                    let lon = data[0].lon;
-                    
-                    document.getElementById('new-addr-lat').value = lat;
-                    document.getElementById('new-addr-lng').value = lon;
-
-                    map.setView([lat, lon], 16);
-                    marker.setLatLng([lat, lon]);
-                    getAddressFromCoords(lat, lon); 
-                } else {
-                    document.getElementById('new-addr-area').value = "Location not found. Try a different search.";
-                }
-            } catch(e) {
-                document.getElementById('new-addr-area').value = "Search error. Please try again.";
-            }
+                    let lat = data[0].lat; let lon = data[0].lon;
+                    document.getElementById('new-addr-lat').value = lat; document.getElementById('new-addr-lng').value = lon;
+                    map.setView([lat, lon], 16); marker.setLatLng([lat, lon]); getAddressFromCoords(lat, lon); 
+                } else { document.getElementById('new-addr-area').value = "Location not found. Try a different search."; }
+            } catch(e) { document.getElementById('new-addr-area').value = "Search error. Please try again."; }
         }
 
         async function getAddressFromCoords(lat, lng) {
@@ -1681,40 +1320,27 @@
                 
                 if(data && data.address) {
                     let addr = data.address;
-                    
-                    let road = addr.road || '';
-                    let neighborhood = addr.neighbourhood || '';
-                    let suburb = addr.suburb || '';
-                    let city = addr.city || addr.town || addr.county || '';
-                    let postcode = addr.postcode || '';
-
+                    let road = addr.road || ''; let neighborhood = addr.neighbourhood || ''; let suburb = addr.suburb || '';
+                    let city = addr.city || addr.town || addr.county || ''; let postcode = addr.postcode || '';
                     let area = [neighborhood, suburb].filter(Boolean).join(', ');
                     let parts = [road, area, city, postcode].filter(p => p.trim() !== '');
                     
                     let uniqueParts = [];
                     parts.forEach(p => {
                         let isDuplicate = uniqueParts.some(existing => existing.toLowerCase().includes(p.toLowerCase()) || p.toLowerCase().includes(existing.toLowerCase()));
-                        if (!isDuplicate) {
-                            uniqueParts.push(p);
-                        }
+                        if (!isDuplicate) uniqueParts.push(p);
                     });
 
                     document.getElementById('new-addr-area').value = uniqueParts.join(', ');
-                    
                     const houseField = document.getElementById('new-addr-house');
-                    houseField.style.borderColor = 'var(--active-brand-red)';
-                    houseField.focus();
+                    houseField.style.borderColor = 'var(--active-brand-red)'; houseField.focus();
                     setTimeout(() => { houseField.style.borderColor = 'var(--border-color)'; }, 3000);
-                    
-                } else if(data && data.display_name) {
-                    document.getElementById('new-addr-area').value = data.display_name;
-                } else {
-                    document.getElementById('new-addr-area').value = "Area not found. Please type manually.";
-                }
-            } catch (e) {
-                document.getElementById('new-addr-area').value = "Error fetching location. Please type manually.";
-            }
+                } else if(data && data.display_name) { document.getElementById('new-addr-area').value = data.display_name; } 
+                else { document.getElementById('new-addr-area').value = "Area not found. Please type manually."; }
+            } catch (e) { document.getElementById('new-addr-area').value = "Error fetching location. Please type manually."; }
         }
+        
+        window.onload = loadData;
     </script>
 
     <script type="module">
@@ -1736,14 +1362,11 @@
         const db = getFirestore(app);
 
         window.globalUser = null; window.globalUserData = null; let confirmationResult = null;
-        
-        // 🟢 MULTI-ADDRESS VARIABLES 🟢
-        window.selectedAddressIndex = 0;
-        window.newAddressType = 'Home';
+        window.selectedAddressIndex = 0; window.newAddressType = 'Home';
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                window.globalUser = user; document.getElementById('nav-profile-text').innerText = "My Profile"; closeAuthModal();
+                window.globalUser = user; document.getElementById('nav-profile-text').innerText = "My Profile"; window.closeAuthModal();
                 await fetchUserData(user.uid);
             } else {
                 window.globalUser = null; window.globalUserData = null; document.getElementById('nav-profile-text').innerText = "Login";
@@ -1761,22 +1384,15 @@
                         window.globalUserData.addresses = [];
                         if (window.globalUserData.address || window.globalUserData.house) {
                             window.globalUserData.addresses.push({
-                                label: 'Home',
-                                name: window.globalUserData.name || '',
+                                label: 'Home', name: window.globalUserData.name || '',
                                 phone: window.globalUserData.phone || window.globalUser.phoneNumber,
-                                house: window.globalUserData.house || '',
-                                area: window.globalUserData.address || '',
-                                lat: '',
-                                lng: ''
+                                house: window.globalUserData.house || '', area: window.globalUserData.address || '', lat: '', lng: ''
                             });
                         }
                     }
                     
                     window.selectedAddressIndex = window.globalUserData.defaultAddressIndex || 0;
-                    if(window.selectedAddressIndex >= window.globalUserData.addresses.length) {
-                        window.selectedAddressIndex = 0;
-                    }
-                    
+                    if(window.selectedAddressIndex >= window.globalUserData.addresses.length) window.selectedAddressIndex = 0;
                     window.renderAddresses();
                 } else {
                     window.globalUserData = { name: '', phone: window.globalUser.phoneNumber, addresses: [], defaultAddressIndex: 0 };
@@ -1791,8 +1407,7 @@
                 document.getElementById('profile-modal').style.display = 'flex'; 
                 document.getElementById('profile-msg').innerText = ''; 
                 window.switchModalTab('profile');
-            } 
-            else { 
+            } else { 
                 document.getElementById('auth-modal').style.display = 'flex'; 
                 document.getElementById('auth-error').innerText = ''; 
                 window.setupRecaptcha(); 
@@ -1834,18 +1449,15 @@
             window.globalUserData.name = name;
             await setDoc(doc(db, "users", window.globalUser.uid), { name: name }, { merge: true });
             let msg = document.getElementById('main-name-msg');
-            msg.innerText = "Name saved! ✅";
-            msg.style.color = "#10b981";
+            msg.innerText = "Name saved! ✅"; msg.style.color = "#10b981";
             setTimeout(() => { msg.innerText = ''; }, 3000);
         }
 
         window.renderAddresses = () => {
-            const container = document.getElementById('addresses-container');
-            container.innerHTML = '';
+            const container = document.getElementById('addresses-container'); container.innerHTML = '';
             
             if(!window.globalUserData || !window.globalUserData.addresses || window.globalUserData.addresses.length === 0) {
-                container.innerHTML = '<p style="font-size:0.85em; color:var(--text-muted); text-align:center; padding:10px 0;">No addresses saved yet. Add one to order!</p>';
-                return;
+                container.innerHTML = '<p style="font-size:0.85em; color:var(--text-muted); text-align:center; padding:10px 0;">No addresses saved yet. Add one to order!</p>'; return;
             }
 
             window.globalUserData.addresses.forEach((addr, index) => {
@@ -1868,13 +1480,8 @@
         }
 
         window.selectAddress = async (index) => {
-            window.selectedAddressIndex = index;
-            window.globalUserData.defaultAddressIndex = index;
-            window.renderAddresses();
-            
-            if(window.globalUser) {
-                await setDoc(doc(db, "users", window.globalUser.uid), { defaultAddressIndex: index }, { merge: true });
-            }
+            window.selectedAddressIndex = index; window.globalUserData.defaultAddressIndex = index; window.renderAddresses();
+            if(window.globalUser) { await setDoc(doc(db, "users", window.globalUser.uid), { defaultAddressIndex: index }, { merge: true }); }
         }
 
         window.setAddrType = (type) => {
@@ -1898,7 +1505,6 @@
                 document.getElementById('new-addr-phone').value = addr.phone;
                 document.getElementById('new-addr-house').value = addr.house;
                 document.getElementById('new-addr-area').value = addr.area;
-                
                 document.getElementById('new-addr-lat').value = addr.lat || '';
                 document.getElementById('new-addr-lng').value = addr.lng || '';
                 
@@ -1914,7 +1520,6 @@
                 document.getElementById('new-addr-phone').value = window.globalUser ? window.globalUser.phoneNumber : '';
                 document.getElementById('new-addr-house').value = '';
                 document.getElementById('new-addr-area').value = '';
-                
                 document.getElementById('new-addr-lat').value = '';
                 document.getElementById('new-addr-lng').value = '';
                 
@@ -1937,125 +1542,59 @@
                 window.selectedAddressIndex = Math.max(0, window.globalUserData.addresses.length - 1);
             }
             window.globalUserData.defaultAddressIndex = window.selectedAddressIndex;
-            
             window.renderAddresses();
             
             if(window.globalUser) {
-                await setDoc(doc(db, "users", window.globalUser.uid), { 
-                    addresses: window.globalUserData.addresses,
-                    defaultAddressIndex: window.globalUserData.defaultAddressIndex
-                }, { merge: true });
+                await setDoc(doc(db, "users", window.globalUser.uid), { addresses: window.globalUserData.addresses, defaultAddressIndex: window.globalUserData.defaultAddressIndex }, { merge: true });
             }
         }
 
         window.saveNewAddress = async () => {
             if(!window.globalUser) return;
             
-            const name = document.getElementById('new-addr-name').value.trim();
-            const phone = document.getElementById('new-addr-phone').value.trim();
-            const house = document.getElementById('new-addr-house').value.trim();
-            const area = document.getElementById('new-addr-area').value.trim();
+            const name = document.getElementById('new-addr-name').value.trim(); const phone = document.getElementById('new-addr-phone').value.trim();
+            const house = document.getElementById('new-addr-house').value.trim(); const area = document.getElementById('new-addr-area').value.trim();
             const editIndex = parseInt(document.getElementById('edit-addr-index').value);
-            
-            const lat = document.getElementById('new-addr-lat').value;
-            const lng = document.getElementById('new-addr-lng').value;
-            
+            const lat = document.getElementById('new-addr-lat').value; const lng = document.getElementById('new-addr-lng').value;
             let msgBox = document.getElementById('addr-msg');
             
-            if(!name || !phone || !house || !area) {
-                msgBox.innerText = "Please fill all the details marked with *";
-                msgBox.style.color = "var(--active-brand-red)";
-                return;
-            }
-
-            msgBox.innerText = "Saving...";
-            msgBox.style.color = "var(--text-muted)";
+            if(!name || !phone || !house || !area) { msgBox.innerText = "Please fill all details (*)"; msgBox.style.color = "var(--active-brand-red)"; return; }
+            msgBox.innerText = "Saving..."; msgBox.style.color = "var(--text-muted)";
             
-            let newAddrObj = {
-                label: window.newAddressType,
-                name: name,
-                phone: phone,
-                house: house,
-                area: area,
-                lat: lat,
-                lng: lng
-            };
-
+            let newAddrObj = { label: window.newAddressType, name: name, phone: phone, house: house, area: area, lat: lat, lng: lng };
             if(!window.globalUserData.addresses) window.globalUserData.addresses = [];
 
-            if(editIndex >= 0) {
-                window.globalUserData.addresses[editIndex] = newAddrObj;
-            } else {
-                window.globalUserData.addresses.push(newAddrObj);
-                window.selectedAddressIndex = window.globalUserData.addresses.length - 1; 
-                window.globalUserData.defaultAddressIndex = window.selectedAddressIndex;
-            }
+            if(editIndex >= 0) { window.globalUserData.addresses[editIndex] = newAddrObj; } 
+            else { window.globalUserData.addresses.push(newAddrObj); window.selectedAddressIndex = window.globalUserData.addresses.length - 1; window.globalUserData.defaultAddressIndex = window.selectedAddressIndex; }
 
             try {
-                await setDoc(doc(db, "users", window.globalUser.uid), { 
-                    addresses: window.globalUserData.addresses,
-                    defaultAddressIndex: window.globalUserData.defaultAddressIndex,
-                    name: window.globalUserData.name || ''
-                }, { merge: true });
-                
-                window.hideAddAddressForm();
-                window.renderAddresses();
-                document.getElementById('profile-msg').innerText = "Address saved successfully! ✅";
-                document.getElementById('profile-msg').style.color = "#10b981";
+                await setDoc(doc(db, "users", window.globalUser.uid), { addresses: window.globalUserData.addresses, defaultAddressIndex: window.globalUserData.defaultAddressIndex, name: window.globalUserData.name || '' }, { merge: true });
+                window.hideAddAddressForm(); window.renderAddresses();
+                document.getElementById('profile-msg').innerText = "Address saved! ✅"; document.getElementById('profile-msg').style.color = "#10b981";
                 setTimeout(() => { document.getElementById('profile-msg').innerText = ''; }, 3000);
-                
-            } catch(e) { 
-                msgBox.innerText = "Failed to save."; 
-                msgBox.style.color = "var(--active-brand-red)"; 
-            }
+            } catch(e) { msgBox.innerText = "Failed to save."; msgBox.style.color = "var(--active-brand-red)"; }
         };
 
         window.loadPastOrders = async (uid) => {
             const listDiv = document.getElementById('order-history-list');
             try {
                 const querySnapshot = await getDocs(query(collection(db, "orders"), where("userId", "==", uid), orderBy("timestamp", "desc")));
+                if (querySnapshot.empty) { listDiv.innerHTML = '<p style="font-size: 0.85em; color: var(--text-muted); text-align: center; padding: 20px 0;">No past orders found. 🍦</p>'; return; }
                 
-                if (querySnapshot.empty) { 
-                    listDiv.innerHTML = '<p style="font-size: 0.85em; color: var(--text-muted); text-align: center; padding: 20px 0;">No past orders found. 🍦</p>'; 
-                    return; 
-                }
-                
-                let html = '';
-                let count = 0;
+                let html = ''; let count = 0;
                 querySnapshot.forEach((doc) => {
-                    if (count >= 10) return;
-                    const data = doc.data(); 
-                    
+                    if (count >= 10) return; const data = doc.data(); 
                     const dateObj = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
                     const dateStr = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
                     const timeStr = dateObj.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-                    
                     let itemsHtml = '';
-                    if(data.itemsSummary) {
-                        const itemsArray = data.itemsSummary.split(', ');
-                        itemsArray.forEach(item => {
-                            itemsHtml += `<div class="order-item-line"><span style="color:#cbd5e1;">▪</span> <span>${item}</span></div>`;
-                        });
-                    }
+                    if(data.itemsSummary) { data.itemsSummary.split(', ').forEach(item => { itemsHtml += `<div class="order-item-line"><span style="color:#cbd5e1;">▪</span> <span>${item}</span></div>`; }); }
                     
-                    html += `
-                        <div class="order-history-card">
-                            <div class="order-header-row">
-                                <div class="order-history-date">📅 ${dateStr} <span class="order-history-time">${timeStr}</span></div>
-                                <div class="order-history-total">₹${data.totalAmount}</div>
-                            </div>
-                            <div class="order-history-items">
-                                ${itemsHtml}
-                            </div>
-                        </div>
-                    `;
+                    html += `<div class="order-history-card"><div class="order-header-row"><div class="order-history-date">📅 ${dateStr} <span class="order-history-time">${timeStr}</span></div><div class="order-history-total">₹${data.totalAmount}</div></div><div class="order-history-items">${itemsHtml}</div></div>`;
                     count++;
                 });
                 listDiv.innerHTML = html;
-            } catch(e) { 
-                listDiv.innerHTML = '<p style="font-size: 0.85em; color: #e74c3c; text-align: center; padding:15px;">Failed to load orders. Please check connection.</p>'; 
-                console.error(e); 
-            }
+            } catch(e) { listDiv.innerHTML = '<p style="font-size: 0.85em; color: #e74c3c; text-align: center; padding:15px;">Failed to load orders.</p>'; }
         };
 
         window.logout = () => { signOut(auth).then(() => { window.closeProfileModal(); window.location.reload(); }); };
@@ -2070,30 +1609,24 @@
                 }
                 
                 if (window.globalUser && window.globalUserData && window.globalUserData.addresses && window.globalUserData.addresses.length > 0) {
-                    
                     let addr = window.globalUserData.addresses[window.selectedAddressIndex];
                     if(!addr) addr = window.globalUserData.addresses[0]; 
-                    
                     let fullDeliveryAddress = `${addr.house}, ${addr.area}`;
                     message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
                     
                     if (addr.lat && addr.lng) {
-                        message += `📍 *Google Maps Link:* https://www.google.com/maps?q=$${addr.lat},${addr.lng}\n`;
+                        // 🟢 FIXED GOOGLE MAPS LINK 🟢
+                        message += `📍 *Location Link:* https://www.google.com/maps?q=${addr.lat},${addr.lng}\n`;
                     }
                     
                     addDoc(collection(db, "orders"), { userId: window.globalUser.uid, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() }).then(() => {
                         window.loadPastOrders(window.globalUser.uid);
                     });
                 } else if (window.globalUser) { 
-                    alert("Please add a delivery address in 'My Profile' before checking out!"); 
-                    return;
-                } else {
-                    window.handleProfileClick();
-                    return;
-                }
+                    alert("Please add a delivery address in 'My Profile' before checking out!"); return;
+                } else { window.handleProfileClick(); return; }
 
                 message += `\n*Total Amount: ₹${total}*\n\n_Please confirm my order._`;
-                
                 window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
             }
         };
