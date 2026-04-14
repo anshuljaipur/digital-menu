@@ -1146,38 +1146,39 @@
         }
 
         // 🟢 SMOOTH BACKGROUND REFRESH (NO SCREEN WIPE) 🟢
-        async function refreshMenu() {
+      async function refreshMenu() {
             const btn = document.getElementById('refresh-btn');
-            if(btn) { btn.innerHTML = '⏳'; btn.style.pointerEvents = 'none'; btn.style.opacity = '0.5'; }
+            if(btn) {
+                btn.innerHTML = '⏳'; 
+                btn.style.pointerEvents = 'none'; 
+                btn.style.opacity = '0.5';
+            }
             
-            const loadingBar = document.getElementById('loading-bar');
-            if(loadingBar) { loadingBar.style.opacity = '1'; loadingBar.style.width = '30%'; }
-            
+            // 🟢 स्मूथ बैकग्राउंड रिफ्रेश - अब स्क्रीन ब्लैंक (तितर-बितर) नहीं होगी! 🟢
             try {
                 const noCacheUrl = googleSheetUrl + "?t=" + new Date().getTime();
                 const response = await fetch(noCacheUrl); 
-                if(loadingBar) loadingBar.style.width = '70%'; 
                 
                 if (!response.ok) throw new Error("Network response failed");
                 const textData = await response.text();
                 
-                // Update items in background
+                // नया डेटा बैकग्राउंड में अपडेट करें
                 allItems = JSON.parse(textData); 
                 
-                // Save current states
+                // ग्राहक ने जो ब्रांड/कैटेगरी सेलेक्ट कर रखी थी, उसे सेव करें
                 let savedCat = currentCategory;
                 let savedBrand = currentBrand;
                 let savedTag = currentTagFilter;
                 
-                // Rebuild top/side bars silently
+                // मेनू को चुपचाप बैकग्राउंड में बनाएँ
                 setupAppUI(); 
                 
-                // Restore states
+                // पुरानी सेटिंग्स वापस लाएँ
                 currentCategory = savedCat;
                 currentBrand = savedBrand;
                 currentTagFilter = savedTag;
                 
-                // Update visual active classes
+                // UI में एक्टिव (नीले) बटन सेट करें
                 document.querySelectorAll('.cat-item').forEach(btn => {
                     const name = btn.querySelector('.cat-name').innerText.trim();
                     if (name.toLowerCase() === currentCategory.toLowerCase() || (currentCategory.includes('New') && name.includes('New'))) {
@@ -1195,19 +1196,19 @@
                     else btn.classList.remove('active');
                 });
 
-                // Apply filters replaces innerHTML of the grid in one fast swap.
+                // 🟢 एक झटके में बिना स्क्रीन हिलाए नए आइटम्स लोड करें 🟢
                 applyFilters();
                 
-                if(loadingBar) { 
-                    loadingBar.style.width = '100%'; 
-                    setTimeout(() => { loadingBar.style.opacity = '0'; }, 500); 
-                }
             } catch(e) { 
                 console.error("Refresh Error:", e); 
-                if(loadingBar) { loadingBar.style.width = '100%'; loadingBar.style.backgroundColor = '#e74c3c'; setTimeout(() => { loadingBar.style.opacity = '0'; loadingBar.style.backgroundColor = 'var(--glacier-blue)'; }, 1000); }
+                alert("Failed to refresh menu. Please check your internet connection.");
             }
             
-            if(btn) { btn.innerHTML = '🔄'; btn.style.pointerEvents = 'auto'; btn.style.opacity = '1'; }
+            if(btn) {
+                btn.innerHTML = '🔄'; 
+                btn.style.pointerEvents = 'auto'; 
+                btn.style.opacity = '1';
+            }
         }
 
         // 🟢 INITIAL LOAD ONLY (WITH SPLASH SCREEN) 🟢
