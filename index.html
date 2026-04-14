@@ -917,7 +917,7 @@
             }, 100);
         });
 
-        // 🟢 NATIVE PULL TO REFRESH LOGIC 🟢
+     // 🟢 NATIVE PULL TO REFRESH LOGIC 🟢
         const productsArea = document.getElementById('products-area');
         const pullIndicator = document.getElementById('pull-refresh-indicator');
         let startY = 0; let isPulling = false;
@@ -942,7 +942,8 @@
                         if(text) text.innerText = 'Release to refresh';
                     } else {
                         if(icon) icon.style.transform = 'rotate(0deg)';
-                        if(text) text.innerText = 'Pull to refresh';
+                        // 🟢 आपकी पसंद का पहला मैसेज 🟢
+                        if(text) text.innerText = 'Pull for refresh.'; 
                     }
                 }
             }, {passive: true});
@@ -956,14 +957,21 @@
                     let text = pullIndicator.querySelector('.ptr-text');
                     
                     if(icon) { icon.style.transform = 'rotate(0deg)'; icon.innerHTML = '⏳'; }
-                    if(text) text.innerText = 'Refreshing...';
+                    // 🟢 आपकी पसंद का दूसरा मैसेज 🟢
+                    if(text) text.innerText = 'refreshing...'; 
                     
                     refreshMenu().then(() => { 
                         pullIndicator.style.height = '0'; 
                         pullIndicator.style.opacity = '0'; 
-                        setTimeout(() => { if(icon) icon.innerHTML = '⬇️'; }, 300);
+                        setTimeout(() => { 
+                            if(icon) icon.innerHTML = '⬇️'; 
+                            if(text) text.innerText = 'Pull for refresh.'; 
+                        }, 300);
                     });
-                } else { pullIndicator.style.height = '0'; pullIndicator.style.opacity = '0'; }
+                } else { 
+                    pullIndicator.style.height = '0'; 
+                    pullIndicator.style.opacity = '0'; 
+                }
             });
         }
 
