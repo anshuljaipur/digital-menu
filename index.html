@@ -589,7 +589,7 @@
         <main class="content-area" id="products-area">
             
             <div id="pull-refresh-indicator">
-                <div class="ptr-content"><span class="ptr-icon">⬇️</span><span class="ptr-text">Pull for refresh.</span></div>
+                <div class="ptr-content"><span class="ptr-icon" style="display:inline-block; transition: transform 0.3s ease;">⬇️</span><span class="ptr-text">Pull down to refresh</span></div>
             </div>
 
             <div class="controls-bar">
@@ -917,7 +917,7 @@
             }, 100);
         });
 
-        // 🟢 NATIVE PULL TO REFRESH LOGIC 🟢
+      // 🟢 NATIVE PULL TO REFRESH LOGIC 🟢
         const productsArea = document.getElementById('products-area');
         const pullIndicator = document.getElementById('pull-refresh-indicator');
         let startY = 0; let isPulling = false;
@@ -927,7 +927,7 @@
                 if (productsArea.scrollTop <= 0) { 
                     startY = e.touches[0].clientY; 
                     isPulling = true; 
-                    pullIndicator.style.transition = 'none'; // खींचते वक़्त स्मूथनेस के लिए
+                    pullIndicator.style.transition = 'none'; // खींचते वक़्त एनीमेशन बंद ताकि उंगली के साथ चले
                 }
             }, {passive: true});
 
@@ -935,9 +935,9 @@
                 if (!isPulling) return;
                 let y = e.touches[0].clientY; let dy = y - startY;
                 
-                // अगर यूज़र नीचे खींच रहा है और पेज टॉप पर है
+                // अगर पेज टॉप पर है और यूज़र नीचे खींच रहा है
                 if (dy > 0 && productsArea.scrollTop <= 0) {
-                    if (e.cancelable) e.preventDefault(); // 🛑 ब्राउज़र के डिफ़ॉल्ट बाउंस को रोकना (ज़रूरी) 🛑
+                    if (e.cancelable) e.preventDefault(); // ब्राउज़र के बाउंस इफ़ेक्ट को रोकना
                     
                     pullIndicator.style.opacity = '1';
                     pullIndicator.style.height = Math.min(dy, 80) + 'px';
@@ -945,40 +945,43 @@
                     let icon = pullIndicator.querySelector('.ptr-icon');
                     let text = pullIndicator.querySelector('.ptr-text');
                     
+                    // 60px से ज्यादा खींचने पर टेक्स्ट और तीर बदलें (Release to refresh)
                     if(dy > 60) {
-                        if(icon) icon.style.transform = 'rotate(180deg)';
+                        if(icon) icon.style.transform = 'rotate(180deg)'; // तीर ऊपर घूमेगा
                         if(text) text.innerText = 'Release to refresh';
                     } else {
-                        if(icon) icon.style.transform = 'rotate(0deg)';
-                        if(text) text.innerText = 'Pull for refresh.'; // 🟢 आपका कस्टम मैसेज 🟢
+                        if(icon) icon.style.transform = 'rotate(0deg)'; // तीर नीचे रहेगा
+                        if(text) text.innerText = 'Pull down to refresh'; 
                     }
                 }
-            }, {passive: false}); // 🛑 passive: false करना बहुत ज़रूरी है 🛑
+            }, {passive: false}); // 🛑 इसे false रखना बहुत ज़रूरी है 🛑
 
             productsArea.addEventListener('touchend', (e) => {
                 if (!isPulling) return;
                 isPulling = false;
-                pullIndicator.style.transition = 'height 0.3s, opacity 0.3s';
+                pullIndicator.style.transition = 'height 0.3s ease, opacity 0.3s ease';
                 
                 let currentHeight = parseInt(pullIndicator.style.height) || 0;
                 
+                // अगर 60px से ज्यादा खींचा था, तो रिफ्रेश चालू करें
                 if (currentHeight >= 60) {
-                    pullIndicator.style.height = '50px';
+                    pullIndicator.style.height = '60px'; // लोडिंग के वक़्त बॉक्स की हाइट फिक्स रखें
                     let icon = pullIndicator.querySelector('.ptr-icon');
                     let text = pullIndicator.querySelector('.ptr-text');
                     
-                    if(icon) { icon.style.transform = 'rotate(0deg)'; icon.innerHTML = '⏳'; }
-                    if(text) text.innerText = 'refreshing...'; // 🟢 आपका कस्टम मैसेज 🟢
+                    if(icon) { icon.style.transform = 'rotate(0deg)'; icon.innerHTML = '⏳'; } // लोडिंग आइकॉन
+                    if(text) text.innerText = 'Loading'; // 🟢 स्क्रीनशॉट वाला "Loading" टेक्स्ट 🟢
                     
                     refreshMenu().then(() => { 
                         pullIndicator.style.height = '0'; 
                         pullIndicator.style.opacity = '0'; 
                         setTimeout(() => { 
                             if(icon) { icon.innerHTML = '⬇️'; icon.style.transform = 'rotate(0deg)'; }
-                            if(text) text.innerText = 'Pull for refresh.'; 
-                        }, 300);
+                            if(text) text.innerText = 'Pull down to refresh'; 
+                        }, 300); // छुपने के बाद वापस नार्मल कर दें
                     });
                 } else { 
+                    // अगर थोड़ा सा खींच कर छोड़ दिया, तो चुपचाप वापस बंद कर दें
                     pullIndicator.style.height = '0'; 
                     pullIndicator.style.opacity = '0'; 
                 }
