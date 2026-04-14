@@ -147,6 +147,9 @@
         .content-area::-webkit-scrollbar { width: 8px; }
         .content-area::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
 
+        /* 🟢 PULL TO REFRESH INDICATOR 🟢 */
+        #pull-refresh-indicator { text-align: center; color: var(--glacier-blue); font-weight: 700; font-size: 0.9em; height: 0; overflow: hidden; transition: height 0.2s, opacity 0.2s; display: flex; align-items: center; justify-content: center; width: 100%; background: var(--main-bg); opacity: 0; }
+
         .controls-bar { 
             position: sticky; top: 0; z-index: 50;
             background: var(--main-bg); 
@@ -194,8 +197,7 @@
         .app-qty-control { height: 36px; width: 90px; background: var(--card-bg); color: var(--glacier-blue); border-radius: 50px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-weight: 700; font-size: 1em; box-sizing: border-box; }
         .app-qty-control button { background: none; border: none; color: var(--glacier-blue); font-weight: bold; font-size: 1.2em; cursor: pointer; padding: 0 5px; }
 
-        .card-tags-row { display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-bottom: 8px; padding-bottom: 2px; }
-        .card-tags-row::-webkit-scrollbar { display: none; }
+        .card-tags-row { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
         .card-tag { font-size: 0.55em; font-weight: 800; padding: 3px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 2px;}
         .tag-style-vegan { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);}
         .tag-style-sugarfree { background: rgba(225, 29, 72, 0.1); color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.2);}
@@ -310,8 +312,8 @@
         .addr-btn { font-size: 0.75em; color: var(--active-brand-red); background: none; border: none; padding: 0; cursor: pointer; font-weight: 700; }
         
         .type-selector { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; scrollbar-width: none; padding-bottom: 5px;}
-        .type-badge { padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 50px; font-size: 0.8em; cursor: pointer; color: var(--text-muted); font-weight: 600; white-space: nowrap; transition: 0.2s; background: var(--card-bg);}
-        .type-badge.active { background: var(--glacier-blue); color: white; border-color: var(--glacier-blue); box-shadow: 0 4px 10px rgba(31,81,198,0.2);}
+        .type-badge { padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 50px; font-size: 0.8em; cursor: pointer; color: var(--text-muted); font-weight: 600; background: var(--card-bg);}
+        .type-badge.active { background: var(--glacier-blue); color: white; border-color: var(--glacier-blue); }
 
         /* 🟢 SEARCH SUGGESTION CSS 🟢 */
         .suggestion-item { padding: 10px 12px; font-size: 0.8em; color: var(--text-main); cursor: pointer; border-bottom: 1px solid var(--border-color); text-align: left; line-height: 1.4; }
@@ -329,6 +331,10 @@
             header { padding: 10px 15px; height: 55px; }
             .header-logo { height: 35px; }
             .hide-mobile-text { display: none; }
+            
+            /* 🟢 HIDE REFRESH BUTTON ON MOBILE 🟢 */
+            #refresh-btn { display: none !important; }
+            
             .action-btn { padding: 6px 10px; font-size: 0.8em; }
 
             .search-sort-side { display: none !important; } 
@@ -347,7 +353,7 @@
 
             .main-layout { flex-direction: column; width: 100%; overflow-x: hidden; position: relative; } 
             
-            /* 🟢 NEW COMPACT & FIXED MOBILE CATEGORIES 🟢 */
+            /* 🟢 COMPACT & FIXED MOBILE CATEGORIES 🟢 */
             .sidebar { 
                 position: sticky !important; 
                 top: 0 !important; 
@@ -455,44 +461,36 @@
             #mobile-search-sort { display: none !important; }
             .controls-bar { margin: 0 !important; padding: 0 !important; border-bottom: none !important; background: transparent !important; position: static !important; transform: none !important; width: 100%;}
             
-            .brands-wrapper { 
-                border-bottom: 1px solid var(--border-color); 
-                transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease !important;
-                overflow: hidden; max-height: 100px;
-                margin-left: calc(80px + env(safe-area-inset-left)) !important; 
-                width: calc(100% - 80px - 120px - env(safe-area-inset-left) - env(safe-area-inset-right)) !important; 
+            /* 🟢 PERFECT TOP NAV HIDE IN LANDSCAPE 🟢 */
+            .top-nav-bar { 
+                width: 100% !important; padding: 0 !important; box-sizing: border-box; border-bottom: none !important; 
+                transition: max-height 0.4s ease, opacity 0.3s ease !important; overflow: hidden !important; 
             }
-            .hidden-landscape { max-height: 0 !important; opacity: 0 !important; border-bottom-width: 0 !important; pointer-events: none; }
-
-            .sidebar { position: fixed !important; top: 50px !important; left: env(safe-area-inset-left) !important; width: 80px !important; height: calc(100dvh - 50px) !important; display: flex !important; transform: none !important; box-shadow: 1px 0 5px rgba(0,0,0,0.05) !important; z-index: 100; padding-bottom: 20px !important; flex-direction: column !important; overflow-y: auto !important;}
-            .cat-item { width: 100% !important; } /* Reset landscape width */
-            #mobile-cat-toggle { display: none !important; }
+            .top-nav-bar.hidden-landscape { max-height: 0 !important; opacity: 0 !important; border-bottom-width: 0 !important; margin: 0 !important; padding: 0 !important; pointer-events: none; }
+            .brands-wrapper { border-bottom: 1px solid var(--border-color); width: 100% !important; }
             
-            .top-nav-bar { width: 100% !important; padding: 0 !important; box-sizing: border-box; border-bottom: none !important; }
-            .main-layout { 
-                margin-left: calc(80px + env(safe-area-inset-left)) !important; 
-                width: calc(100% - 80px - 120px - env(safe-area-inset-left) - env(safe-area-inset-right)) !important; 
-                flex-direction: row; 
+            /* 🟢 PERFECT LEFT SIDEBAR IN LANDSCAPE 🟢 */
+            .sidebar { 
+                position: fixed !important; top: 50px !important; left: env(safe-area-inset-left) !important; width: 80px !important; height: calc(100dvh - 50px) !important; 
+                display: flex !important; flex-direction: column !important; box-shadow: 1px 0 5px rgba(0,0,0,0.05) !important; z-index: 100 !important; 
+                padding: 10px 5px 20px 5px !important; overflow-y: auto !important; overflow-x: hidden !important; border-right: 1px solid var(--border-color) !important; 
+                background: var(--card-bg) !important;
             }
+            .cat-item { flex-direction: column !important; padding: 10px 5px !important; width: 100% !important; border-radius: 12px !important; gap: 4px !important; background: transparent !important;}
+            .cat-item.active { background: rgba(31,81,198,0.1) !important; }
+            .cat-icon { display: flex !important; font-size: 1.5em !important; margin-bottom: 2px !important; }
+            .cat-name { font-size: 0.6em !important; white-space: normal !important; text-align: center !important; color: var(--text-main) !important;}
+            .cat-item.active .cat-name { color: var(--glacier-blue) !important; }
+            
+            .main-layout { margin-left: calc(80px + env(safe-area-inset-left)) !important; width: calc(100% - 80px - env(safe-area-inset-left)) !important; flex-direction: row !important; }
             .content-area { padding-left: 10px !important; padding-right: 10px !important; width: 100% !important; }
             
             .menu-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
             
-            .tags-sidebar-landscape { 
-                display: flex !important; position: fixed !important; 
-                right: env(safe-area-inset-right) !important; top: 50px !important; 
-                width: 120px !important; height: calc(100dvh - 50px) !important; 
-                background: var(--card-bg) !important; border-left: 1px solid var(--border-color) !important; 
-                flex-direction: column !important; overflow-y: auto !important; 
-                padding: 10px 5px 100px 5px !important; padding-right: calc(5px + env(safe-area-inset-right)) !important;
-                z-index: 100 !important; gap: 8px !important; box-sizing: border-box !important; 
-                -webkit-overflow-scrolling: touch !important;
-            }
-            #tags-container-portrait { display: none !important; }
-            .filter-tag-chip { text-align: center; justify-content: center; padding: 8px 5px !important; font-size: 0.65em !important; white-space: normal !important; height: auto !important; display: flex !important; align-items: center !important;}
+            .tags-sidebar-landscape { display: none !important; } 
             
             #bottom-cart-banner { 
-                width: calc(100% - 80px - 120px - 20px - env(safe-area-inset-left) - env(safe-area-inset-right)) !important;
+                width: calc(100% - 80px - 20px - env(safe-area-inset-left) - env(safe-area-inset-right)) !important;
                 left: calc(80px + 10px + env(safe-area-inset-left)) !important; transform: none !important;
             }
         }
@@ -591,6 +589,10 @@
 
         <main class="content-area" id="products-area">
             
+            <div id="pull-refresh-indicator">
+                <div style="padding: 15px;">⬇️ Pull to refresh...</div>
+            </div>
+
             <div class="controls-bar">
                 <div class="search-sort-wrapper" id="mobile-search-sort">
                     <div class="control-chip">
@@ -624,6 +626,8 @@
             <div id="status-msg" style="display:none;">Stocking our freezer... Please wait!</div>
             
             <div class="menu-grid" id="main-menu-grid"></div>
+
+            <div id="load-more-container"></div>
 
             <div class="legal-footer">
                 <p class="legal-notice-vol">ℹ️ Volume & MRP subject to change. Please refer to actual packaging for final details.</p>
@@ -738,8 +742,7 @@
                         Saved Addresses
                         <button class="action-btn" onclick="showAddAddressForm()" style="padding: 4px 12px; font-size:0.8em; border-color:var(--glacier-blue); color:var(--glacier-blue);">+ Add</button>
                     </label>
-                    <div id="addresses-container">
-                        </div>
+                    <div id="addresses-container"></div>
                 </div>
 
                 <div id="add-address-form" style="display:none; background: var(--chip-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border-color);">
@@ -752,7 +755,6 @@
                     </div>
 
                     <input type="hidden" id="edit-addr-index" value="-1">
-                    
                     <input type="hidden" id="new-addr-lat" value="">
                     <input type="hidden" id="new-addr-lng" value="">
                     
@@ -764,19 +766,16 @@
                     <button id="open-map-btn" class="action-btn" onclick="initLocationPicker()" style="width:100%; justify-content:center; margin-bottom:10px; background:var(--card-bg); border-color:var(--glacier-blue); color:var(--glacier-blue);">📍 Auto-Locate on Map</button>
                     
                     <div id="map-wrapper-parent" style="display:none; width: 100%; margin-bottom: 10px;">
-                        
                         <div style="display: flex; gap: 8px; margin-bottom: 8px;">
                             <div style="position: relative; flex: 1;">
                                 <input type="text" id="map-search-input" class="auth-input" placeholder="Search area or city..." style="width:100%; margin-bottom:0; padding:10px; font-size:0.85em; background:var(--card-bg);" oninput="handleSearchInput(event)" onkeypress="if(event.key==='Enter') searchLocation()">
-                                
                                 <div id="search-suggestions" style="display:none; position:absolute; top:100%; left:0; width:100%; background:var(--card-bg); border:1px solid var(--border-color); border-radius:8px; z-index:2000; max-height:160px; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-top:4px;"></div>
                             </div>
                             <button class="auth-btn" onclick="searchLocation()" style="width:auto; padding:10px 15px; font-size:0.9em; margin:0;">🔍</button>
                         </div>
-
                         <div style="position: relative; width: 100%;">
                             <div id="map-container" style="height: 180px; border-radius: 10px; overflow: hidden; border: 2px solid var(--border-color);"></div>
-                            <button id="locate-me-btn" onclick="getCurrentLocation()" style="position: absolute; bottom: 15px; right: 10px; z-index: 400; background: white; border: 2px solid var(--border-color); border-radius: 8px; width: 34px; height: 34px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 1.2em; display: flex; align-items: center; justify-content: center; padding: 0;" title="My Location">🎯</button>
+                            <button id="locate-me-btn" onclick="event.preventDefault(); getCurrentLocation();" style="position: absolute; bottom: 15px; right: 10px; z-index: 9999; background: white; border: 2px solid var(--border-color); border-radius: 8px; width: 38px; height: 38px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.3); font-size: 1.4em; display: flex; align-items: center; justify-content: center; padding: 0;" title="My Location">🎯</button>
                         </div>
                     </div>
 
@@ -801,7 +800,6 @@
                 </div>
                 <p style="font-size:0.8em; color:var(--text-muted); text-align:center; margin-top:15px; border-top:1px solid var(--border-color); padding-top:10px;">Only last 10 orders are shown locally.</p>
             </div>
-
         </div>
     </div>
 
@@ -812,28 +810,18 @@
         const WHATSAPP_NUMBER = "919829610570"; 
         
         let allItems = []; let currentCategory = 'All Items'; let currentBrand = 'All Brands'; let currentTagFilter = 'All'; let cart = {}; 
-
-        let currentFilteredItems = [];
-        let currentlyDisplayed = 0;
-
+        let currentFilteredItems = []; let currentlyDisplayed = 0;
         let currentTheme = localStorage.getItem('glacier_theme') || 'auto';
         
-        // 🟢 ESCAPE KEY LISTENER TO CLOSE ALL OPEN MODALS 🟢
+        // 🟢 ESCAPE KEY & OUTSIDE CLICK LISTENER 🟢
         document.addEventListener('keydown', function(event) {
             if (event.key === "Escape") {
-                const pdModal = document.getElementById('product-detail-modal');
-                const cartModal = document.getElementById('cart-modal');
-                const authModal = document.getElementById('auth-modal');
-                const profileModal = document.getElementById('profile-modal');
-                
-                if (pdModal.style.display === 'flex') closeProductDetailModal();
-                else if (cartModal.style.display === 'flex') cartModal.style.display = 'none';
-                else if (authModal.style.display === 'flex') closeAuthModal();
-                else if (profileModal.style.display === 'flex') closeProfileModal();
+                document.querySelectorAll('.custom-modal').forEach(modal => {
+                    if(modal.style.display === 'flex') modal.style.display = 'none';
+                });
             }
         });
-
-        // 🟢 HIDE SEARCH SUGGESTIONS ON OUTSIDE CLICK 🟢
+        
         document.addEventListener('click', function(e) {
             if (e.target.id !== 'map-search-input') {
                 const box = document.getElementById('search-suggestions');
@@ -904,7 +892,6 @@
             if(currentTheme === 'light') currentTheme = 'dark';
             else if(currentTheme === 'dark') currentTheme = 'auto';
             else currentTheme = 'light';
-            
             localStorage.setItem('glacier_theme', currentTheme);
             applyTheme(currentTheme);
         }
@@ -931,52 +918,78 @@
             }, 100);
         });
 
-        let lastScrollY = 0;
-        let showThreshold = 20; 
-        
-        document.getElementById('products-area').addEventListener('scroll', function() {
-            const controlsBar = document.querySelector('.controls-bar');
-            const backToTop = document.getElementById('back-to-top');
-            const brandsWrapper = document.querySelector('.brands-wrapper');
+        // 🟢 PULL TO REFRESH LOGIC 🟢
+        const productsArea = document.getElementById('products-area');
+        const pullIndicator = document.getElementById('pull-refresh-indicator');
+        let startY = 0; let isPulling = false;
 
-            if (currentlyDisplayed < currentFilteredItems.length) {
-                if (this.scrollTop + this.clientHeight >= this.scrollHeight - 300) {
-                    renderMoreItems();
+        if (productsArea && pullIndicator) {
+            productsArea.addEventListener('touchstart', (e) => {
+                if (productsArea.scrollTop === 0) { startY = e.touches[0].clientY; isPulling = true; }
+            }, {passive: true});
+
+            productsArea.addEventListener('touchmove', (e) => {
+                if (!isPulling) return;
+                let y = e.touches[0].clientY; let dy = y - startY;
+                if (dy > 0 && productsArea.scrollTop === 0) {
+                    pullIndicator.style.opacity = '1';
+                    pullIndicator.style.height = Math.min(dy, 60) + 'px';
+                    if(dy > 50) pullIndicator.innerHTML = '<div style="padding: 15px;">🔄 Release to refresh!</div>';
+                    else pullIndicator.innerHTML = '<div style="padding: 15px;">⬇️ Pull to refresh...</div>';
                 }
-            }
+            }, {passive: true});
 
-            if (window.innerWidth <= 999) {
-                let isLandscape = window.matchMedia("(orientation: landscape)").matches;
-                let currentScrollY = this.scrollTop;
-                let scrollDiff = currentScrollY - lastScrollY;
+            productsArea.addEventListener('touchend', (e) => {
+                if (!isPulling) return;
+                isPulling = false;
+                if (parseInt(pullIndicator.style.height) >= 50) {
+                    pullIndicator.style.height = '50px';
+                    pullIndicator.innerHTML = '<div style="padding: 15px;">⏳ Refreshing...</div>';
+                    refreshMenu().then(() => { pullIndicator.style.height = '0'; pullIndicator.style.opacity = '0'; });
+                } else { pullIndicator.style.height = '0'; pullIndicator.style.opacity = '0'; }
+            });
+        }
 
-                if (currentScrollY > 60) {
-                    if (scrollDiff > 0) {
-                        if (isLandscape) brandsWrapper.classList.add('hidden-landscape');
-                        else controlsBar.style.top = '-160px'; 
-                    } 
-                    else if (scrollDiff < -showThreshold) {
-                        if (isLandscape) brandsWrapper.classList.remove('hidden-landscape');
-                        else controlsBar.style.top = '0'; 
+        let lastScrollY = 0; let showThreshold = 20; 
+        if(productsArea) {
+            productsArea.addEventListener('scroll', function() {
+                const controlsBar = document.querySelector('.controls-bar');
+                const backToTop = document.getElementById('back-to-top');
+                const topNavBar = document.querySelector('.top-nav-bar'); 
+
+                if (currentlyDisplayed < currentFilteredItems.length) {
+                    if (this.scrollTop + this.clientHeight >= this.scrollHeight - 300) {
+                        renderMoreItems();
                     }
-                } 
-                else {
-                    if (isLandscape) brandsWrapper.classList.remove('hidden-landscape');
-                    else controlsBar.style.top = '0'; 
                 }
-                
-                lastScrollY = currentScrollY;
-            } else {
-                controlsBar.style.top = '0'; 
-                document.querySelector('.brands-wrapper').classList.remove('hidden-landscape');
-            }
 
-            if(this.scrollTop > 400) {
-                backToTop.classList.add('visible');
-            } else {
-                backToTop.classList.remove('visible');
-            }
-        });
+                if (window.innerWidth <= 999) {
+                    let isLandscape = window.matchMedia("(orientation: landscape)").matches;
+                    let currentScrollY = this.scrollTop;
+                    let scrollDiff = currentScrollY - lastScrollY;
+
+                    if (currentScrollY > 60) {
+                        if (scrollDiff > 0) {
+                            if (isLandscape && topNavBar) topNavBar.classList.add('hidden-landscape');
+                            else if(controlsBar) controlsBar.style.top = '-160px'; 
+                        } else if (scrollDiff < -showThreshold) {
+                            if (isLandscape && topNavBar) topNavBar.classList.remove('hidden-landscape');
+                            else if(controlsBar) controlsBar.style.top = '0'; 
+                        }
+                    } else {
+                        if (isLandscape && topNavBar) topNavBar.classList.remove('hidden-landscape');
+                        else if(controlsBar) controlsBar.style.top = '0'; 
+                    }
+                    lastScrollY = currentScrollY;
+                } else {
+                    if(controlsBar) controlsBar.style.top = '0'; 
+                    if(topNavBar) topNavBar.classList.remove('hidden-landscape');
+                }
+
+                if(this.scrollTop > 400) { if(backToTop) backToTop.classList.add('visible'); } 
+                else { if(backToTop) backToTop.classList.remove('visible'); }
+            });
+        }
 
         function updateBrandArrows() {
             const row = document.getElementById('brands-sidebar');
@@ -997,31 +1010,22 @@
             const lBtn = document.getElementById('btn-brand-left');
             const rBtn = document.getElementById('btn-brand-right');
             
-            if (row.scrollLeft > 5) {
-                lBtn.style.display = 'flex';
-                document.getElementById('brand-count-left').innerText = hiddenLeft > 0 ? hiddenLeft : '';
-            } else {
-                lBtn.style.display = 'none';
-            }
+            if (row.scrollLeft > 5) { if(lBtn) lBtn.style.display = 'flex'; } 
+            else { if(lBtn) lBtn.style.display = 'none'; }
 
-            if (Math.ceil(row.scrollLeft + row.clientWidth) < row.scrollWidth - 5) {
-                rBtn.style.display = 'flex';
-                document.getElementById('brand-count-right').innerText = hiddenRight > 0 ? hiddenRight : '';
-            } else {
-                rBtn.style.display = 'none';
-            }
+            if (Math.ceil(row.scrollLeft + row.clientWidth) < row.scrollWidth - 5) { if(rBtn) rBtn.style.display = 'flex'; } 
+            else { if(rBtn) rBtn.style.display = 'none'; }
         }
 
         window.scrollBrands = (dir) => {
             const row = document.getElementById('brands-sidebar');
-            row.scrollBy({ left: dir * 150, behavior: 'smooth' });
+            if(row) row.scrollBy({ left: dir * 150, behavior: 'smooth' });
             setTimeout(updateBrandArrows, 300);
         }
 
         window.syncInputs = (source) => {
             const searchVal = document.getElementById(`search-bar-${source}`).value;
             const sortVal = document.getElementById(`sort-dropdown-${source}`).value;
-            
             ['desktop', 'mobile', 'landscape'].forEach(env => {
                 if(env !== source) {
                     const searchEl = document.getElementById(`search-bar-${env}`);
@@ -1062,17 +1066,13 @@
             for (let key in item) {
                 let cleanKey = String(key).toLowerCase().replace(/[^a-z0-9]/g, '');
                 if (cleanKey.includes('launch') || cleanKey.includes('year') || cleanKey.includes('date')) {
-                    if (item[key] && String(item[key]).trim() !== '') { 
-                        dateStr = String(item[key]).trim(); 
-                        break; 
-                    }
+                    if (item[key] && String(item[key]).trim() !== '') { dateStr = String(item[key]).trim(); break; }
                 }
             }
             if (!dateStr) return null;
 
             let yearMatch = dateStr.match(/\d{4}/);
             if (!yearMatch) return null;
-            
             let year = parseInt(yearMatch[0], 10);
             let month = 0; 
 
@@ -1083,10 +1083,7 @@
                 const monthNames = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
                 let lowerDateStr = dateStr.toLowerCase();
                 for (let i = 0; i < monthNames.length; i++) {
-                    if (lowerDateStr.includes(monthNames[i])) {
-                        month = i;
-                        break;
-                    }
+                    if (lowerDateStr.includes(monthNames[i])) { month = i; break; }
                 }
             }
             return { year: year, month: month };
@@ -1095,11 +1092,9 @@
         function isNewArrival(item) {
             let launchData = getLaunchDate(item);
             if (!launchData) return false;
-
             let now = new Date();
             let currentYear = now.getFullYear();
             let currentMonth = now.getMonth(); 
-
             let monthsDiff = (currentYear - launchData.year) * 12 + (currentMonth - launchData.month);
             return monthsDiff >= -2 && monthsDiff <= 3; 
         }
@@ -1135,12 +1130,15 @@
 
         async function refreshMenu() {
             const btn = document.getElementById('refresh-btn');
-            btn.innerHTML = '⏳';
-            btn.style.pointerEvents = 'none';
-            btn.style.opacity = '0.5';
+            if(btn) {
+                btn.innerHTML = '⏳'; btn.style.pointerEvents = 'none'; btn.style.opacity = '0.5';
+            }
             
             document.getElementById('main-menu-grid').innerHTML = '';
-            document.getElementById('load-more-container').style.display = 'none';
+            
+            let loadMore = document.getElementById('load-more-container');
+            if(loadMore) loadMore.style.display = 'none';
+            
             const statusMsg = document.getElementById('status-msg');
             statusMsg.innerHTML = '<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🔄</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">Fetching latest menu...</h3></div>';
             statusMsg.style.display = 'block';
@@ -1150,9 +1148,9 @@
             
             await loadData();
             
-            btn.innerHTML = '🔄';
-            btn.style.pointerEvents = 'auto';
-            btn.style.opacity = '1';
+            if(btn) {
+                btn.innerHTML = '🔄'; btn.style.pointerEvents = 'auto'; btn.style.opacity = '1';
+            }
         }
 
         async function loadData() {
@@ -1262,9 +1260,7 @@
                 document.getElementById('tags-container-landscape').style.display = 'none';
             }
 
-            window.addEventListener('resize', () => {
-                updateBrandArrows();
-            });
+            window.addEventListener('resize', () => { updateBrandArrows(); });
         }
 
         function setCategory(categoryName) {
@@ -1283,7 +1279,6 @@
                     }
                 } else btn.classList.remove('active');
             });
-            
             applyFilters();
             setTimeout(() => document.getElementById('products-area').scrollTop = 0, 10);
         }
@@ -1305,7 +1300,6 @@
                     return; 
                 }
             }
-            
             applyFilters();
             setTimeout(() => document.getElementById('products-area').scrollTop = 0, 10);
         }
@@ -1319,7 +1313,6 @@
                     btn.classList.remove('active');
                 }
             });
-            
             applyFilters();
             setTimeout(() => document.getElementById('products-area').scrollTop = 0, 10);
         }
@@ -1364,20 +1357,19 @@
                 return isAvailable && matchesBrand && matchesCategory && matchesSearch && matchesTagFilter;
             });
 
+            // 🟢 ADVANCED SORTING LOGIC 🟢
             if (currentCategory === 'New Arrivals' && sortValue === 'default') {
                 filteredItems.sort((a, b) => {
-                    let dateA = getLaunchDate(a);
-                    let dateB = getLaunchDate(b);
+                    let dateA = getLaunchDate(a); let dateB = getLaunchDate(b);
                     let valA = dateA ? (dateA.year * 12 + dateA.month) : 0;
                     let valB = dateB ? (dateB.year * 12 + dateB.month) : 0;
                     return valB - valA;
                 });
             } else {
-                if (sortValue === 'low-high') filteredItems.sort((a, b) => a.price - b.price); 
-                else if (sortValue === 'high-low') filteredItems.sort((a, b) => b.price - a.price); 
-                else if (sortValue === 'vol-low-high') filteredItems.sort((a, b) => getVolume(a.name) - getVolume(b.name)); 
-                else if (sortValue === 'vol-high-low') filteredItems.sort((a, b) => getVolume(b.name) - getVolume(a.name)); 
-                else if (sortValue === 'disc-high-low') filteredItems.sort((a, b) => getDiscount(b) - getDiscount(a));
+                if (sortValue === 'price-low-high') filteredItems.sort((a, b) => a.price - b.price); 
+                else if (sortValue === 'price-high-low') filteredItems.sort((a, b) => b.price - a.price); 
+                else if (sortValue === 'size-low-high') filteredItems.sort((a, b) => getVolume(a.name) - getVolume(b.name)); 
+                else if (sortValue === 'size-high-low') filteredItems.sort((a, b) => getVolume(b.name) - getVolume(a.name)); 
                 else if (sortValue === 'brand-az') filteredItems.sort((a, b) => String(a.brand || '').localeCompare(String(b.brand || '')));
                 else if (sortValue === 'cat-az') filteredItems.sort((a, b) => String(a.category || '').localeCompare(String(b.category || '')));
                 else if (sortValue === 'ing-az') filteredItems.sort((a, b) => {
@@ -1408,8 +1400,10 @@
             currentlyDisplayed = 0;
             gridWrapper.innerHTML = '';
 
+            let loadMore = document.getElementById('load-more-container');
+            
             if (filteredItems.length === 0) { 
-                document.getElementById('load-more-container').style.display = 'none';
+                if(loadMore) loadMore.style.display = 'none';
                 statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="clearAllFilters()" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
                 statusMsg.style.display = 'block'; 
                 return; 
@@ -1648,8 +1642,8 @@
         }
 
         function getCurrentLocation() {
+            document.getElementById('new-addr-area').value = "Locating you... 📍";
             if (navigator.geolocation) {
-                document.getElementById('new-addr-area').value = "Locating you... 📍";
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
                         const lat = position.coords.latitude;
@@ -1666,8 +1660,10 @@
                         console.warn("Geolocation Error:", error.message);
                         document.getElementById('new-addr-area').value = "Location access denied. Please search or tap on map.";
                     },
-                    { enableHighAccuracy: true }
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                 );
+            } else {
+                document.getElementById('new-addr-area').value = "GPS not supported. Please search or tap on map.";
             }
         }
 
