@@ -924,39 +924,51 @@
 
         if (productsArea && pullIndicator) {
             productsArea.addEventListener('touchstart', (e) => {
-                if (productsArea.scrollTop <= 0) { startY = e.touches[0].clientY; isPulling = true; }
+                if (productsArea.scrollTop <= 0) { 
+                    startY = e.touches[0].clientY; 
+                    isPulling = true; 
+                    pullIndicator.style.transition = 'none'; // खींचते वक़्त स्मूथनेस के लिए
+                }
             }, {passive: true});
 
             productsArea.addEventListener('touchmove', (e) => {
                 if (!isPulling) return;
                 let y = e.touches[0].clientY; let dy = y - startY;
+                
+                // अगर यूज़र नीचे खींच रहा है और पेज टॉप पर है
                 if (dy > 0 && productsArea.scrollTop <= 0) {
+                    if (e.cancelable) e.preventDefault(); // 🛑 ब्राउज़र के डिफ़ॉल्ट बाउंस को रोकना (ज़रूरी) 🛑
+                    
                     pullIndicator.style.opacity = '1';
-                    pullIndicator.style.height = Math.min(dy, 60) + 'px';
+                    pullIndicator.style.height = Math.min(dy, 80) + 'px';
                     
                     let icon = pullIndicator.querySelector('.ptr-icon');
                     let text = pullIndicator.querySelector('.ptr-text');
                     
-                    if(dy > 50) {
+                    if(dy > 60) {
                         if(icon) icon.style.transform = 'rotate(180deg)';
                         if(text) text.innerText = 'Release to refresh';
                     } else {
                         if(icon) icon.style.transform = 'rotate(0deg)';
-                        if(text) text.innerText = 'Pull for refresh.'; 
+                        if(text) text.innerText = 'Pull for refresh.'; // 🟢 आपका कस्टम मैसेज 🟢
                     }
                 }
-            }, {passive: true});
+            }, {passive: false}); // 🛑 passive: false करना बहुत ज़रूरी है 🛑
 
             productsArea.addEventListener('touchend', (e) => {
                 if (!isPulling) return;
                 isPulling = false;
-                if (parseInt(pullIndicator.style.height) >= 50) {
+                pullIndicator.style.transition = 'height 0.3s, opacity 0.3s';
+                
+                let currentHeight = parseInt(pullIndicator.style.height) || 0;
+                
+                if (currentHeight >= 60) {
                     pullIndicator.style.height = '50px';
                     let icon = pullIndicator.querySelector('.ptr-icon');
                     let text = pullIndicator.querySelector('.ptr-text');
                     
                     if(icon) { icon.style.transform = 'rotate(0deg)'; icon.innerHTML = '⏳'; }
-                    if(text) text.innerText = 'refreshing...'; 
+                    if(text) text.innerText = 'refreshing...'; // 🟢 आपका कस्टम मैसेज 🟢
                     
                     refreshMenu().then(() => { 
                         pullIndicator.style.height = '0'; 
@@ -972,7 +984,6 @@
                 }
             });
         }
-
         let lastScrollY = 0; let showThreshold = 20; 
         if(productsArea) {
             productsArea.addEventListener('scroll', function() {
