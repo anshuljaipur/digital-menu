@@ -561,9 +561,12 @@
         <div class="header-actions">
             <button class="action-btn" onclick="refreshMenu()" id="refresh-btn" title="Refresh Menu" style="font-size: 1.1em; padding: 6px 12px;">🔄</button>
             <button class="action-btn" onclick="cycleTheme()" id="theme-toggle-btn" title="Toggle Theme">🖥️</button>
-            <button class="action-btn btn-profile" onclick="handleProfileClick()" id="nav-profile-btn">
-                👤 <span class="hide-mobile-text" id="nav-profile-text">Login</span>
+            
+            <button class="action-btn btn-profile" onclick="handleProfileClick()" id="nav-profile-btn" style="padding: 6px 12px; gap: 6px;">
+                <span id="nav-profile-icon" style="display:flex; align-items:center; justify-content:center; font-size:1.1em;">👤</span>
+                <span class="hide-mobile-text" id="nav-profile-text">Login</span>
             </button>
+            
             <button class="action-btn" onclick="shareWebsite()">📤 <span class="hide-mobile-text">Share</span></button>
         </div>
     </header>
@@ -980,7 +983,7 @@
                             if(text) text.innerText = 'Release to refresh';
                         } else {
                             if(icon) icon.style.transform = 'rotate(0deg)';
-                            if(text) text.innerText = 'Pull for refresh.'; 
+                            if(text) text.innerText = 'Pull down to refresh'; 
                         }
                     }
                 } else {
@@ -1002,7 +1005,7 @@
                     let text = pullIndicator.querySelector('.ptr-text');
                     
                     if(icon) { icon.style.transform = 'rotate(0deg)'; icon.innerHTML = '⏳'; }
-                    if(text) text.innerText = 'refreshing...'; 
+                    if(text) text.innerText = 'Loading'; 
                     
                     refreshMenu().then(() => { 
                         pullIndicator.style.height = '0px'; 
@@ -1010,7 +1013,7 @@
                         pullIndicator.style.opacity = '0'; 
                         setTimeout(() => { 
                             if(icon) { icon.innerHTML = '⬇️'; icon.style.transform = 'rotate(0deg)'; }
-                            if(text) text.innerText = 'Pull for refresh.'; 
+                            if(text) text.innerText = 'Pull down to refresh'; 
                         }, 300);
                     });
                 } else { 
@@ -1815,7 +1818,6 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        // 🟢 NEW: signInAnonymously वापस इम्पोर्ट कर लिया है 🟢
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, collection, addDoc, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
@@ -1839,19 +1841,34 @@
         window.selectedAddressIndex = 0; 
         window.newAddressType = 'Home';
 
+        // 🟢 AUTH STATE LISTENER (HEADER PROFILE UPDATE) 🟢
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 window.globalUser = user; 
                 window.userDocId = user.uid; 
                 
-                document.getElementById('nav-profile-text').innerText = "My Profile"; 
+                // 🟢 NEW: Update Header with Profile Photo & Name 🟢
+                let displayName = "Guest";
+                let photoUrl = "https://placehold.co/100x100/1f51c6/ffffff?text=G";
+                
+                if(!user.isAnonymous && user.displayName) {
+                    displayName = user.displayName.split(' ')[0]; // सिर्फ First Name
+                    if(user.photoURL) photoUrl = user.photoURL;
+                }
+
+                document.getElementById('nav-profile-text').innerText = displayName;
+                document.getElementById('nav-profile-icon').innerHTML = `<img src="${photoUrl}" style="width: 22px; height: 22px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" referrerpolicy="no-referrer">`;
+                
                 window.closeAuthModal();
                 window.fetchUserData(window.userDocId);
             } else {
                 window.globalUser = null; 
                 window.globalUserData = null; 
                 window.userDocId = null;
+                
+                // Reset Header
                 document.getElementById('nav-profile-text').innerText = "Login";
+                document.getElementById('nav-profile-icon').innerHTML = '👤';
             }
         });
 
@@ -1872,7 +1889,7 @@
             }
         };
 
-        // 🟢 NEW: GUEST LOGIN SYSTEM 🟢
+        // 🟢 GUEST LOGIN SYSTEM 🟢
         window.guestLogin = async () => {
             const btn = document.getElementById('guest-btn'); 
             const errorDiv = document.getElementById('auth-error');
@@ -1919,11 +1936,14 @@
 
         window.handleProfileClick = () => {
             if (window.globalUser) { 
+                // 🟢 Populating Data for Profile Card 🟢
+                let displayName = window.globalUser.displayName || 'Guest User';
+                let photoUrl = window.globalUser.photoURL || 'https://placehold.co/100x100/1f51c6/ffffff?text=G';
+                let emailText = window.globalUser.email || 'Temporary Session';
                 
-                // 🟢 Populating Data (Works for both Google and Guest) 🟢
-                document.getElementById('profile-user-name').innerText = window.globalUser.displayName || 'Guest User';
-                document.getElementById('profile-user-email').innerText = window.globalUser.email || 'Temporary Session';
-                document.getElementById('profile-user-avatar').src = window.globalUser.photoURL || 'https://placehold.co/100x100/1f51c6/ffffff?text=Guest';
+                document.getElementById('profile-user-name').innerText = displayName;
+                document.getElementById('profile-user-email').innerText = emailText;
+                document.getElementById('profile-user-avatar').src = photoUrl;
 
                 document.getElementById('profile-modal').style.display = 'flex'; 
                 document.getElementById('profile-msg').innerText = ''; 
