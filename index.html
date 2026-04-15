@@ -2074,7 +2074,8 @@
                     message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
                     
                     if (addr.lat && addr.lng) {
-                        message += `📍 *Location Link:* https://maps.google.com/?q=...?q=${addr.lat},${addr.lng}\n`;
+                        // 🟢 100% PERFECT GOOGLE MAPS LINK 🟢
+                        message += `📍 *Location Link:* https://www.google.com/maps?q=${addr.lat},${addr.lng}\n`;
                     }
                     
                     addDoc(collection(db, "orders"), { userId: window.globalUser.uid, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() });
