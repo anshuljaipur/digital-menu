@@ -702,23 +702,26 @@
         </div>
     </div>
 
-    <div id="auth-modal" class="custom-modal" onclick="closeAuthModal()">
+<div id="auth-modal" class="custom-modal" onclick="closeAuthModal()">
         <div class="modal-content-box" onclick="event.stopPropagation()">
             <div class="modal-header-row">
                 <h2>Welcome</h2>
                 <div class="close-modal-icon" onclick="closeAuthModal()">×</div>
             </div>
-            <p style="font-size: 0.9em; color: var(--text-muted); margin-bottom: 20px; margin-top: 0;">Enter your mobile number to continue.</p>
+            <p style="font-size: 0.9em; color: var(--text-muted); margin-bottom: 25px; margin-top: 0;">Sign in to save your addresses and track orders across all devices.</p>
             
-            <div id="phone-input-section">
-                <label class="auth-label">Mobile Number</label>
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" value="+91" disabled style="width: 60px; padding: 14px; border: 2px solid var(--border-color); border-radius: 10px; background: var(--chip-bg); text-align: center; font-weight: bold; color: var(--text-main);">
-                    <input type="number" id="phone-number" class="auth-input" placeholder="9876543210" style="flex: 1; margin-bottom: 0;">
-                </div>
-                <button class="auth-btn" id="login-btn" onclick="simpleLogin()" style="margin-top: 15px;">Continue</button>
+            <div id="google-login-section" style="text-align: center;">
+                <button class="auth-btn" id="login-btn" onclick="googleLogin()" style="background: var(--card-bg); color: var(--text-main); border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                    <svg viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg" style="margin-right: 12px;">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                    Continue with Google
+                </button>
             </div>
-            <div id="auth-error" style="color: #e74c3c; font-size: 0.85em; font-weight: 600; margin-top: 10px; text-align: center;"></div>
+            <div id="auth-error" style="color: var(--active-brand-red); font-size: 0.85em; font-weight: 600; margin-top: 15px; text-align: center;"></div>
         </div>
     </div>
 
@@ -1800,7 +1803,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        // 🟢 NEW: GoogleAuthProvider और signInWithPopup इम्पोर्ट किया गया है 🟢
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, collection, addDoc, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -1814,75 +1818,76 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const provider = new GoogleAuthProvider(); // 🟢 Google Provider
         const db = getFirestore(app);
 
-        window.globalUser = null; window.globalUserData = null;
-        window.selectedAddressIndex = 0; window.newAddressType = 'Home';
+        window.globalUser = null; 
+        window.globalUserData = null;
+        window.userDocId = null; 
+        window.selectedAddressIndex = 0; 
+        window.newAddressType = 'Home';
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 window.globalUser = user; 
+                // Google Account की फिक्स UID का इस्तेमाल करेंगे ताकि सभी डिवाइस पर सेम रहे
+                window.userDocId = user.uid; 
+                
                 document.getElementById('nav-profile-text').innerText = "My Profile"; 
                 window.closeAuthModal();
-                window.fetchUserData(user.uid);
+                window.fetchUserData(window.userDocId);
             } else {
                 window.globalUser = null; 
                 window.globalUserData = null; 
+                window.userDocId = null;
                 document.getElementById('nav-profile-text').innerText = "Login";
             }
         });
 
-        // 🟢 SUPER FAST LOGIN SYSTEM 🟢
-        window.simpleLogin = async () => {
-            const phoneInput = document.getElementById('phone-number').value.trim();
+        // 🟢 GOOGLE LOGIN SYSTEM 🟢
+        window.googleLogin = async () => {
             const btn = document.getElementById('login-btn'); 
             const errorDiv = document.getElementById('auth-error');
             
-            if(phoneInput.length < 10) { errorDiv.innerText = "Please enter a valid 10-digit mobile number."; return; }
-            
-            btn.disabled = true; btn.innerText = "Logging in..."; errorDiv.innerText = "";
-            localStorage.setItem('glacier_phone', "+91" + phoneInput);
+            btn.disabled = true; btn.innerHTML = "Connecting to Google... ⏳"; errorDiv.innerText = "";
             
             try {
-                await signInAnonymously(auth);
+                await signInWithPopup(auth, provider);
+                // लॉगिन सफल होने पर onAuthStateChanged अपने आप बाकी काम संभाल लेगा
             } catch (error) {
-                btn.disabled = false; btn.innerText = "Continue"; 
-                errorDiv.innerText = "Error connecting to server. Please try again.";
+                btn.disabled = false; 
+                btn.innerHTML = `<svg viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg" style="margin-right: 12px;"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Continue with Google`; 
+                errorDiv.innerText = "Sign in cancelled or failed. Please try again.";
                 console.error(error);
             }
         };
 
-        window.fetchUserData = function(uid) {
+        window.fetchUserData = function(docId) {
             try {
-                onSnapshot(doc(db, "users", uid), (docSnap) => {
+                onSnapshot(doc(db, "users", docId), (docSnap) => {
                     if (docSnap.exists()) {
                         window.globalUserData = docSnap.data();
                         document.getElementById('profile-name-main').value = window.globalUserData.name || '';
                         
-                        if (!window.globalUserData.addresses) {
-                            window.globalUserData.addresses = [];
-                            if (window.globalUserData.address || window.globalUserData.house) {
-                                window.globalUserData.addresses.push({
-                                    label: 'Home', name: window.globalUserData.name || '',
-                                    phone: window.globalUserData.phone || localStorage.getItem('glacier_phone') || '',
-                                    house: window.globalUserData.house || '', area: window.globalUserData.address || '', lat: '', lng: ''
-                                });
-                            }
-                        }
+                        if (!window.globalUserData.addresses) window.globalUserData.addresses = [];
                         
                         window.selectedAddressIndex = window.globalUserData.defaultAddressIndex || 0;
                         if(window.selectedAddressIndex >= window.globalUserData.addresses.length) window.selectedAddressIndex = 0;
                         window.renderAddresses(); 
                     } else {
-                        // 🟢 Create New Profile Instantly 🟢
-                        let savedPhone = localStorage.getItem('glacier_phone') || '';
-                        window.globalUserData = { name: '', phone: savedPhone, addresses: [], defaultAddressIndex: 0 };
-                        setDoc(doc(db, "users", uid), window.globalUserData);
+                        // 🟢 Create New Profile Instantly with Google Name & Email 🟢
+                        window.globalUserData = { 
+                            name: window.globalUser.displayName || '', 
+                            email: window.globalUser.email || '', 
+                            addresses: [], 
+                            defaultAddressIndex: 0 
+                        };
+                        setDoc(doc(db, "users", docId), window.globalUserData);
                         window.renderAddresses();
                     }
                 });
 
-                window.loadPastOrders(uid);
+                window.loadPastOrders(docId);
             } catch(e) { console.error("Error fetching user", e); }
         }
 
@@ -1905,10 +1910,10 @@
         }
 
         window.saveMainName = async () => {
-            if(!window.globalUser) return;
+            if(!window.userDocId) return;
             const name = document.getElementById('profile-name-main').value.trim();
             window.globalUserData.name = name;
-            await setDoc(doc(db, "users", window.globalUser.uid), { name: name }, { merge: true });
+            await setDoc(doc(db, "users", window.userDocId), { name: name }, { merge: true });
             let msg = document.getElementById('main-name-msg');
             msg.innerText = "Name saved! ✅"; msg.style.color = "#10b981";
             setTimeout(() => { msg.innerText = ''; }, 3000);
@@ -1916,33 +1921,20 @@
 
         window.renderAddresses = () => {
             const container = document.getElementById('addresses-container'); container.innerHTML = '';
-            
             if(!window.globalUserData || !window.globalUserData.addresses || window.globalUserData.addresses.length === 0) {
                 container.innerHTML = '<p style="font-size:0.85em; color:var(--text-muted); text-align:center; padding:10px 0;">No addresses saved yet. Add one to order!</p>'; return;
             }
-
             window.globalUserData.addresses.forEach((addr, index) => {
                 let isSelected = index === window.selectedAddressIndex;
                 let icon = addr.label === 'Home' ? '🏠' : (addr.label === 'Work' ? '💼' : '📍');
-                
-                let cardHTML = `
-                    <div class="address-card ${isSelected ? 'selected' : ''}" onclick="selectAddress(${index})">
-                        <div class="addr-label">${icon} ${addr.label}</div>
-                        <div class="addr-details">${addr.house}, ${addr.area}</div>
-                        <div class="addr-contact">Receiver: ${addr.name} | 📞 ${addr.phone}</div>
-                        <div class="addr-actions">
-                            <button class="addr-btn" onclick="event.stopPropagation(); showAddAddressForm(${index})" style="color:var(--glacier-blue);">EDIT</button>
-                            <button class="addr-btn" onclick="event.stopPropagation(); deleteAddress(${index})">DELETE</button>
-                        </div>
-                    </div>
-                `;
+                let cardHTML = `<div class="address-card ${isSelected ? 'selected' : ''}" onclick="selectAddress(${index})"><div class="addr-label">${icon} ${addr.label}</div><div class="addr-details">${addr.house}, ${addr.area}</div><div class="addr-contact">Receiver: ${addr.name} | 📞 ${addr.phone}</div><div class="addr-actions"><button class="addr-btn" onclick="event.stopPropagation(); showAddAddressForm(${index})" style="color:var(--glacier-blue);">EDIT</button><button class="addr-btn" onclick="event.stopPropagation(); deleteAddress(${index})">DELETE</button></div></div>`;
                 container.insertAdjacentHTML('beforeend', cardHTML);
             });
         }
 
         window.selectAddress = async (index) => {
             window.selectedAddressIndex = index; window.globalUserData.defaultAddressIndex = index; window.renderAddresses();
-            if(window.globalUser) { await setDoc(doc(db, "users", window.globalUser.uid), { defaultAddressIndex: index }, { merge: true }); }
+            if(window.userDocId) { await setDoc(doc(db, "users", window.userDocId), { defaultAddressIndex: index }, { merge: true }); }
         }
 
         window.setAddrType = (type) => {
@@ -1955,11 +1947,9 @@
             document.getElementById('address-list-view').style.display = 'none';
             document.getElementById('add-address-form').style.display = 'block';
             document.getElementById('addr-msg').innerText = '';
-            
             if(editIndex >= 0) {
                 document.getElementById('addr-form-title').innerText = 'Edit Address';
                 document.getElementById('edit-addr-index').value = editIndex;
-                
                 let addr = window.globalUserData.addresses[editIndex];
                 window.setAddrType(addr.label);
                 document.getElementById('new-addr-name').value = addr.name;
@@ -1968,7 +1958,6 @@
                 document.getElementById('new-addr-area').value = addr.area;
                 document.getElementById('new-addr-lat').value = addr.lat || '';
                 document.getElementById('new-addr-lng').value = addr.lng || '';
-                
                 document.getElementById('map-wrapper-parent').style.display = 'none';
                 document.getElementById('open-map-btn').style.display = 'flex';
                 document.getElementById('map-search-input').value = '';
@@ -1977,20 +1966,19 @@
                 document.getElementById('edit-addr-index').value = -1;
                 window.setAddrType('Home');
                 
-                document.getElementById('new-addr-name').value = window.globalUserData.name || '';
+                // 🟢 Google Account से नाम अपने आप उठा लेगा 🟢
+                document.getElementById('new-addr-name').value = window.globalUserData.name || window.globalUser.displayName || '';
                 
-                // 🟢 Phone Autofill Fix 🟢
                 let defaultPhone = '';
-                if(window.globalUserData && window.globalUserData.phone) defaultPhone = window.globalUserData.phone.replace('+91', '');
-                else if(localStorage.getItem('glacier_phone')) defaultPhone = localStorage.getItem('glacier_phone').replace('+91', '');
-                
+                if(window.globalUserData && window.globalUserData.addresses && window.globalUserData.addresses.length > 0) {
+                    defaultPhone = window.globalUserData.addresses[0].phone;
+                }
                 document.getElementById('new-addr-phone').value = defaultPhone;
                 
                 document.getElementById('new-addr-house').value = '';
                 document.getElementById('new-addr-area').value = '';
                 document.getElementById('new-addr-lat').value = '';
                 document.getElementById('new-addr-lng').value = '';
-                
                 document.getElementById('map-wrapper-parent').style.display = 'none';
                 document.getElementById('open-map-btn').style.display = 'flex';
                 document.getElementById('map-search-input').value = '';
@@ -2004,22 +1992,19 @@
 
         window.deleteAddress = async (index) => {
             if(!confirm("Delete this address?")) return;
-            
             window.globalUserData.addresses.splice(index, 1);
             if(window.selectedAddressIndex >= window.globalUserData.addresses.length) {
                 window.selectedAddressIndex = Math.max(0, window.globalUserData.addresses.length - 1);
             }
             window.globalUserData.defaultAddressIndex = window.selectedAddressIndex;
             window.renderAddresses();
-            
-            if(window.globalUser) {
-                await setDoc(doc(db, "users", window.globalUser.uid), { addresses: window.globalUserData.addresses, defaultAddressIndex: window.globalUserData.defaultAddressIndex }, { merge: true });
+            if(window.userDocId) {
+                await setDoc(doc(db, "users", window.userDocId), { addresses: window.globalUserData.addresses, defaultAddressIndex: window.globalUserData.defaultAddressIndex }, { merge: true });
             }
         }
 
         window.saveNewAddress = async () => {
-            if(!window.globalUser) return;
-            
+            if(!window.userDocId) return;
             const name = document.getElementById('new-addr-name').value.trim(); const phone = document.getElementById('new-addr-phone').value.trim();
             const house = document.getElementById('new-addr-house').value.trim(); const area = document.getElementById('new-addr-area').value.trim();
             const editIndex = parseInt(document.getElementById('edit-addr-index').value);
@@ -2036,21 +2021,19 @@
             else { window.globalUserData.addresses.push(newAddrObj); window.selectedAddressIndex = window.globalUserData.addresses.length - 1; window.globalUserData.defaultAddressIndex = window.selectedAddressIndex; }
 
             try {
-                await setDoc(doc(db, "users", window.globalUser.uid), { addresses: window.globalUserData.addresses, defaultAddressIndex: window.globalUserData.defaultAddressIndex, name: window.globalUserData.name || '' }, { merge: true });
+                await setDoc(doc(db, "users", window.userDocId), { addresses: window.globalUserData.addresses, defaultAddressIndex: window.globalUserData.defaultAddressIndex, name: window.globalUserData.name || '' }, { merge: true });
                 window.hideAddAddressForm(); 
                 document.getElementById('profile-msg').innerText = "Address saved! ✅"; document.getElementById('profile-msg').style.color = "#10b981";
                 setTimeout(() => { document.getElementById('profile-msg').innerText = ''; }, 3000);
             } catch(e) { msgBox.innerText = "Failed to save."; msgBox.style.color = "var(--active-brand-red)"; }
         };
 
-        window.loadPastOrders = function(uid) {
+        window.loadPastOrders = function(docId) {
             const listDiv = document.getElementById('order-history-list');
             try {
-                const q = query(collection(db, "orders"), where("userId", "==", uid), orderBy("timestamp", "desc"));
-                
+                const q = query(collection(db, "orders"), where("userId", "==", docId), orderBy("timestamp", "desc"));
                 onSnapshot(q, (querySnapshot) => {
                     if (querySnapshot.empty) { listDiv.innerHTML = '<p style="font-size: 0.85em; color: var(--text-muted); text-align: center; padding: 20px 0;">No past orders found. 🍦</p>'; return; }
-                    
                     let html = ''; let count = 0;
                     querySnapshot.forEach((doc) => {
                         if (count >= 10) return; const data = doc.data(); 
@@ -2059,7 +2042,6 @@
                         const timeStr = dateObj.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
                         let itemsHtml = '';
                         if(data.itemsSummary) { data.itemsSummary.split(', ').forEach(item => { itemsHtml += `<div class="order-item-line"><span style="color:#cbd5e1;">▪</span> <span>${item}</span></div>`; }); }
-                        
                         html += `<div class="order-history-card"><div class="order-header-row"><div class="order-history-date">📅 ${dateStr} <span class="order-history-time">${timeStr}</span></div><div class="order-history-total">₹${data.totalAmount}</div></div><div class="order-history-items">${itemsHtml}</div></div>`;
                         count++;
                     });
@@ -2068,7 +2050,7 @@
             } catch(e) { listDiv.innerHTML = '<p style="font-size: 0.85em; color: #e74c3c; text-align: center; padding:15px;">Failed to load orders.</p>'; }
         };
 
-        window.logout = () => { signOut(auth).then(() => { localStorage.removeItem('glacier_phone'); window.closeProfileModal(); window.location.reload(); }); };
+        window.logout = () => { signOut(auth).then(() => { window.closeProfileModal(); window.location.reload(); }); };
 
         window.checkout = async (method) => {
             if(Object.keys(cart).length === 0) return;
@@ -2079,17 +2061,13 @@
                     total += (data.price * data.qty); itemsSummary.push(`${data.qty}x ${name}`);
                 }
                 
-                if (window.globalUser && window.globalUserData && window.globalUserData.addresses && window.globalUserData.addresses.length > 0) {
+                if (window.userDocId && window.globalUserData && window.globalUserData.addresses && window.globalUserData.addresses.length > 0) {
                     let addr = window.globalUserData.addresses[window.selectedAddressIndex];
                     if(!addr) addr = window.globalUserData.addresses[0]; 
                     let fullDeliveryAddress = `${addr.house}, ${addr.area}`;
                     message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
-                    
-                    if (addr.lat && addr.lng) {
-                        message += `📍 *Location Link:* https://maps.google.com/?q=...?q=${addr.lat},${addr.lng}\n`;
-                    }
-                    
-                    addDoc(collection(db, "orders"), { userId: window.globalUser.uid, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() });
+                    if (addr.lat && addr.lng) { message += `📍 *Location Link:* https://maps.google.com/?q={addr.lat},${addr.lng}\n`; }
+                    addDoc(collection(db, "orders"), { userId: window.userDocId, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() });
                 } else if (window.globalUser) { 
                     alert("Please add a delivery address in 'My Profile' before checking out!"); return;
                 } else { window.handleProfileClick(); return; }
