@@ -1794,8 +1794,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        // 🟢 NEW: onSnapshot इम्पोर्ट किया गया है रियल-टाइम सिंक के लिए 🟢
+        import { getFirestore, doc, setDoc, collection, addDoc, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCZJj830ufepvh2fh_ehkPoOki_l3QcCew",
@@ -1813,40 +1814,44 @@
         window.globalUser = null; window.globalUserData = null; let confirmationResult = null;
         window.selectedAddressIndex = 0; window.newAddressType = 'Home';
 
-        onAuthStateChanged(auth, async (user) => {
+        onAuthStateChanged(auth, (user) => {
             if (user) {
                 window.globalUser = user; document.getElementById('nav-profile-text').innerText = "My Profile"; window.closeAuthModal();
-                await fetchUserData(user.uid);
+                window.fetchUserData(user.uid); // 🟢 कॉल किया गया
             } else {
                 window.globalUser = null; window.globalUserData = null; document.getElementById('nav-profile-text').innerText = "Login";
             }
         });
 
-        async function fetchUserData(uid) {
+        // 🟢 REALTIME ADDRESS SYNC 🟢
+        window.fetchUserData = function(uid) {
             try {
-                const docSnap = await getDoc(doc(db, "users", uid));
-                if (docSnap.exists()) {
-                    window.globalUserData = docSnap.data();
-                    document.getElementById('profile-name-main').value = window.globalUserData.name || '';
-                    
-                    if (!window.globalUserData.addresses) {
-                        window.globalUserData.addresses = [];
-                        if (window.globalUserData.address || window.globalUserData.house) {
-                            window.globalUserData.addresses.push({
-                                label: 'Home', name: window.globalUserData.name || '',
-                                phone: window.globalUserData.phone || window.globalUser.phoneNumber,
-                                house: window.globalUserData.house || '', area: window.globalUserData.address || '', lat: '', lng: ''
-                            });
+                // onSnapshot का मतलब है: जैसे ही डेटाबेस में कुछ बदलेगा, ये फंक्शन अपने आप रन होगा!
+                onSnapshot(doc(db, "users", uid), (docSnap) => {
+                    if (docSnap.exists()) {
+                        window.globalUserData = docSnap.data();
+                        document.getElementById('profile-name-main').value = window.globalUserData.name || '';
+                        
+                        if (!window.globalUserData.addresses) {
+                            window.globalUserData.addresses = [];
+                            if (window.globalUserData.address || window.globalUserData.house) {
+                                window.globalUserData.addresses.push({
+                                    label: 'Home', name: window.globalUserData.name || '',
+                                    phone: window.globalUserData.phone || window.globalUser.phoneNumber,
+                                    house: window.globalUserData.house || '', area: window.globalUserData.address || '', lat: '', lng: ''
+                                });
+                            }
                         }
+                        
+                        window.selectedAddressIndex = window.globalUserData.defaultAddressIndex || 0;
+                        if(window.selectedAddressIndex >= window.globalUserData.addresses.length) window.selectedAddressIndex = 0;
+                        window.renderAddresses(); // एड्रेस तुरंत स्क्रीन पर अपडेट कर देगा
+                    } else {
+                        window.globalUserData = { name: '', phone: window.globalUser.phoneNumber, addresses: [], defaultAddressIndex: 0 };
+                        window.renderAddresses();
                     }
-                    
-                    window.selectedAddressIndex = window.globalUserData.defaultAddressIndex || 0;
-                    if(window.selectedAddressIndex >= window.globalUserData.addresses.length) window.selectedAddressIndex = 0;
-                    window.renderAddresses();
-                } else {
-                    window.globalUserData = { name: '', phone: window.globalUser.phoneNumber, addresses: [], defaultAddressIndex: 0 };
-                    window.renderAddresses();
-                }
+                });
+
                 window.loadPastOrders(uid);
             } catch(e) { console.error("Error fetching user", e); }
         }
@@ -2018,31 +2023,36 @@
 
             try {
                 await setDoc(doc(db, "users", window.globalUser.uid), { addresses: window.globalUserData.addresses, defaultAddressIndex: window.globalUserData.defaultAddressIndex, name: window.globalUserData.name || '' }, { merge: true });
-                window.hideAddAddressForm(); window.renderAddresses();
+                window.hideAddAddressForm(); 
+                // renderAddresses() की यहाँ ज़रूरत नहीं क्योंकि onSnapshot उसे अपने आप कॉल कर देगा!
                 document.getElementById('profile-msg').innerText = "Address saved! ✅"; document.getElementById('profile-msg').style.color = "#10b981";
                 setTimeout(() => { document.getElementById('profile-msg').innerText = ''; }, 3000);
             } catch(e) { msgBox.innerText = "Failed to save."; msgBox.style.color = "var(--active-brand-red)"; }
         };
 
-        window.loadPastOrders = async (uid) => {
+        // 🟢 REALTIME ORDERS SYNC 🟢
+        window.loadPastOrders = function(uid) {
             const listDiv = document.getElementById('order-history-list');
             try {
-                const querySnapshot = await getDocs(query(collection(db, "orders"), where("userId", "==", uid), orderBy("timestamp", "desc")));
-                if (querySnapshot.empty) { listDiv.innerHTML = '<p style="font-size: 0.85em; color: var(--text-muted); text-align: center; padding: 20px 0;">No past orders found. 🍦</p>'; return; }
+                const q = query(collection(db, "orders"), where("userId", "==", uid), orderBy("timestamp", "desc"));
                 
-                let html = ''; let count = 0;
-                querySnapshot.forEach((doc) => {
-                    if (count >= 10) return; const data = doc.data(); 
-                    const dateObj = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
-                    const dateStr = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-                    const timeStr = dateObj.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-                    let itemsHtml = '';
-                    if(data.itemsSummary) { data.itemsSummary.split(', ').forEach(item => { itemsHtml += `<div class="order-item-line"><span style="color:#cbd5e1;">▪</span> <span>${item}</span></div>`; }); }
+                onSnapshot(q, (querySnapshot) => {
+                    if (querySnapshot.empty) { listDiv.innerHTML = '<p style="font-size: 0.85em; color: var(--text-muted); text-align: center; padding: 20px 0;">No past orders found. 🍦</p>'; return; }
                     
-                    html += `<div class="order-history-card"><div class="order-header-row"><div class="order-history-date">📅 ${dateStr} <span class="order-history-time">${timeStr}</span></div><div class="order-history-total">₹${data.totalAmount}</div></div><div class="order-history-items">${itemsHtml}</div></div>`;
-                    count++;
+                    let html = ''; let count = 0;
+                    querySnapshot.forEach((doc) => {
+                        if (count >= 10) return; const data = doc.data(); 
+                        const dateObj = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
+                        const dateStr = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+                        const timeStr = dateObj.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+                        let itemsHtml = '';
+                        if(data.itemsSummary) { data.itemsSummary.split(', ').forEach(item => { itemsHtml += `<div class="order-item-line"><span style="color:#cbd5e1;">▪</span> <span>${item}</span></div>`; }); }
+                        
+                        html += `<div class="order-history-card"><div class="order-header-row"><div class="order-history-date">📅 ${dateStr} <span class="order-history-time">${timeStr}</span></div><div class="order-history-total">₹${data.totalAmount}</div></div><div class="order-history-items">${itemsHtml}</div></div>`;
+                        count++;
+                    });
+                    listDiv.innerHTML = html;
                 });
-                listDiv.innerHTML = html;
             } catch(e) { listDiv.innerHTML = '<p style="font-size: 0.85em; color: #e74c3c; text-align: center; padding:15px;">Failed to load orders.</p>'; }
         };
 
@@ -2064,12 +2074,11 @@
                     message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
                     
                     if (addr.lat && addr.lng) {
-                        message += `📍 *Location Link:* https://maps.google.com/?q=...{addr.lat},${addr.lng}\n`;
+                        message += `📍 *Location Link:* https://maps.google.com/?q=...?q=${addr.lat},${addr.lng}\n`;
                     }
                     
-                    addDoc(collection(db, "orders"), { userId: window.globalUser.uid, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() }).then(() => {
-                        window.loadPastOrders(window.globalUser.uid);
-                    });
+                    addDoc(collection(db, "orders"), { userId: window.globalUser.uid, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() });
+                    // loadPastOrders यहाँ कॉल करने की ज़रूरत नहीं, onSnapshot उसे अपने आप अपडेट कर देगा।
                 } else if (window.globalUser) { 
                     alert("Please add a delivery address in 'My Profile' before checking out!"); return;
                 } else { window.handleProfileClick(); return; }
