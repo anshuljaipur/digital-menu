@@ -98,21 +98,10 @@
 
         .landscape-search-sort { display: none; }
 
-        /* --- 2. TOP SECTION (BRANDS + SEARCH/SORT) 🟢 SMOOTH HIDE FIX 🟢 --- */
-        .top-nav-bar { 
-            display: flex; width: 100%; background: var(--card-bg); border-bottom: 1px solid var(--border-color); z-index: 9; flex-shrink: 0; 
-            max-height: 150px; overflow: hidden;
-            transition: max-height 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease, margin 0.6s ease, border-width 0.6s ease; 
-        }
-        .top-nav-bar.hidden-bar { 
-            max-height: 0 !important; 
-            opacity: 0 !important; 
-            border-bottom-width: 0 !important; 
-            margin: 0 !important; 
-            pointer-events: none; 
-        }
+        /* --- 2. TOP SECTION (BRANDS + SEARCH/SORT) --- */
+        .top-nav-bar { display: flex; width: 100%; background: var(--card-bg); border-bottom: 1px solid var(--border-color); z-index: 9; flex-shrink: 0; transition: 0.3s; }
         
-        .brands-wrapper { flex: 1; min-width: 0; display: flex; align-items: center; position: relative;}
+        .brands-wrapper { flex: 1; min-width: 0; display: flex; align-items: center; position: relative; transition: height 0.3s ease, opacity 0.3s ease, border 0.3s ease;}
         .brands-row { width: 100%; display: flex; justify-content: flex-start; overflow-x: auto; padding: 15px 20px; gap: 25px; scrollbar-width: none; box-sizing: border-box; scroll-behavior: smooth;}
         .brands-row::-webkit-scrollbar { display: none; }
         
@@ -350,7 +339,7 @@
         /* 🟢 DESKTOP FIXES 🟢 */
         @media (min-width: 1000px) {
             #mobile-search-sort { display: none !important; }
-            .controls-bar { margin: 0 -30px 15px -30px; padding: 15px 30px 5px 30px;}
+            .controls-bar { margin: 0 -30px 15px -30px; padding: 5px 30px 5px 30px; border-bottom: none;}
         }
 
         /* 📱 🔥 MOBILE PORTRAIT UI FIXES 🔥 📱 */
@@ -359,16 +348,19 @@
             .header-logo { height: 35px; }
             .hide-mobile-text { display: none; }
             
+            /* 🟢 HIDE REFRESH BUTTON ON MOBILE 🟢 */
             #refresh-btn { display: none !important; }
             
             .action-btn { padding: 6px 10px; font-size: 0.8em; }
 
             .search-sort-side { display: none !important; } 
+            .top-nav-bar { flex-direction: column; border-bottom: none; width: 100%;}
             
-            .top-nav-bar { flex-direction: column; width: 100%;}
-            
+            /* Squeeze Brands Panel smoothly */
             .brands-wrapper { 
                 border-bottom: 1px solid var(--border-color); width: 100%; 
+                max-height: 120px; overflow: hidden; 
+                transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
             } 
             
             .brands-row { padding: 12px 15px; gap: 15px; -webkit-overflow-scrolling: touch; border-bottom: none; }
@@ -377,6 +369,7 @@
 
             .main-layout { flex-direction: column; width: 100%; overflow-x: hidden; position: relative; } 
             
+            /* 🟢 COMPACT & FIXED MOBILE CATEGORIES 🟢 */
             .sidebar { 
                 position: sticky !important; 
                 top: 0 !important; 
@@ -405,7 +398,10 @@
                 width: auto !important; 
                 min-width: max-content !important;
             }
-            .cat-item.active { background: var(--glacier-blue) !important; border-color: var(--glacier-blue) !important; }
+            .cat-item.active {
+                background: var(--glacier-blue) !important;
+                border-color: var(--glacier-blue) !important;
+            }
             .cat-icon { display: none !important; } 
             .cat-name { font-size: 0.8em !important; font-weight: 600 !important; color: var(--text-main) !important; padding: 0 !important;}
             .cat-item.active .cat-name { color: white !important; }
@@ -415,13 +411,10 @@
 
             .content-area { width: 100%; padding: 0px 10px 10px 10px; overflow-x: hidden; box-sizing: border-box; }
             
-            /* 🟢 SEARCH BAR COVERAGE FIX 🟢 */
             .controls-bar { 
-                padding: 10px 12px 10px 12px; gap: 10px; 
-                margin: 0px -10px 15px -10px; width: calc(100% + 20px);
+                padding: 15px 12px 5px 12px; gap: 10px; 
+                margin: 0px -10px 10px -10px; width: calc(100% + 20px);
                 border-bottom: 1px solid var(--border-color);
-                background: var(--main-bg); 
-                z-index: 50;
             }
             .search-sort-wrapper { flex-wrap: nowrap; gap: 8px; }
             .control-chip { padding: 8px 10px; min-width: 0; border-radius: 12px;}
@@ -431,12 +424,14 @@
             .section-header { margin-bottom: 12px; padding-bottom: 8px; width: 100%; }
             .section-header h2 { font-size: 1.1em; }
             
+            /* 🟢 MOBILE GRID FIXES 🟢 */
             .menu-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; margin: 0; padding-bottom: 10px;}
             .menu-card { padding: 8px; border-radius: 12px; }
             .card-img-wrapper { height: 100px; margin-bottom: 20px; border-radius: 10px; } 
             .new-badge { top: -6px; left: -6px; font-size: 0.5em; padding: 3px 6px; }
             .red-discount-icon { top: -6px; right: -6px; font-size: 0.55em; padding: 3px 6px; }
             
+            /* 🟢 MOBILE BUTTON OVERLAP 🟢 */
             .btn-container { right: 8px; bottom: -14px; }
             .app-add-btn { width: 30px; height: 30px; font-size: 1.2em; }
             .app-qty-control { height: 30px; width: 75px; font-size: 0.85em; padding: 0 4px;}
@@ -480,14 +475,17 @@
             #mobile-search-sort { display: none !important; }
             .controls-bar { margin: 0 !important; padding: 0 !important; border-bottom: none !important; background: transparent !important; position: static !important; transform: none !important; width: 100%;}
             
-            /* 🟢 LANDSCAPE ALIGNMENT FIX 🟢 */
+            /* 🟢 PERFECT TOP NAV HIDE IN LANDSCAPE 🟢 */
             .top-nav-bar { 
                 width: calc(100% - 80px - env(safe-area-inset-left)) !important; 
                 margin-left: calc(80px + env(safe-area-inset-left)) !important;
                 padding: 0 !important; box-sizing: border-box; border-bottom: none !important; 
+                transition: max-height 0.4s ease, opacity 0.3s ease !important; overflow: hidden !important; 
             }
+            .top-nav-bar.hidden-landscape { max-height: 0 !important; opacity: 0 !important; border-bottom-width: 0 !important; margin: 0 !important; padding: 0 !important; pointer-events: none; }
             .brands-wrapper { border-bottom: 1px solid var(--border-color); width: 100% !important; }
             
+            /* 🟢 PERFECT LEFT SIDEBAR IN LANDSCAPE 🟢 */
             .sidebar { 
                 position: fixed !important; top: 50px !important; left: env(safe-area-inset-left) !important; width: 80px !important; height: calc(100dvh - 50px) !important; 
                 display: flex !important; flex-direction: column !important; box-shadow: 1px 0 5px rgba(0,0,0,0.05) !important; z-index: 100 !important; 
@@ -564,10 +562,14 @@
         <div class="brands-wrapper">
             <button id="btn-brand-left" class="brand-arrow left-arrow" onclick="scrollBrands(-1)">
                 <span class="arrow-icon">❮</span>
+                <span class="arrow-count" id="brand-count-left"></span>
             </button>
+            
             <div class="brands-row" id="brands-sidebar" onscroll="updateBrandArrows()"></div>
+            
             <button id="btn-brand-right" class="brand-arrow right-arrow" onclick="scrollBrands(1)">
                 <span class="arrow-icon">❯</span>
+                <span class="arrow-count" id="brand-count-right"></span>
             </button>
         </div>
 
@@ -598,7 +600,7 @@
         <main class="content-area" id="products-area">
             
             <div id="pull-refresh-indicator">
-                <div class="ptr-content"><span class="ptr-icon" style="display:inline-block; transition: transform 0.3s ease;">⬇️</span><span class="ptr-text">Pull down to refresh</span></div>
+                <div class="ptr-content"><span class="ptr-icon" style="display:inline-block; transition: transform 0.3s ease;">⬇️</span><span class="ptr-text">Pull for refresh.</span></div>
             </div>
 
             <div class="controls-bar">
@@ -653,7 +655,7 @@
             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
         </button>
         <button class="floating-cart-btn" id="floating-cart" onclick="toggleCart()">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#475569" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="9" cy="21" r="1"></circle>
                 <circle cx="20" cy="21" r="1"></circle>
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
@@ -703,10 +705,10 @@
     <div id="auth-modal" class="custom-modal" onclick="closeAuthModal()">
         <div class="modal-content-box" onclick="event.stopPropagation()">
             <div class="modal-header-row">
-                <h2>Login / Register</h2>
+                <h2>Welcome</h2>
                 <div class="close-modal-icon" onclick="closeAuthModal()">×</div>
             </div>
-            <p style="font-size: 0.9em; color: var(--text-muted); margin-bottom: 20px; margin-top: 0;">Enter your mobile number to get an OTP.</p>
+            <p style="font-size: 0.9em; color: var(--text-muted); margin-bottom: 20px; margin-top: 0;">Enter your mobile number to continue.</p>
             
             <div id="phone-input-section">
                 <label class="auth-label">Mobile Number</label>
@@ -714,14 +716,7 @@
                     <input type="text" value="+91" disabled style="width: 60px; padding: 14px; border: 2px solid var(--border-color); border-radius: 10px; background: var(--chip-bg); text-align: center; font-weight: bold; color: var(--text-main);">
                     <input type="number" id="phone-number" class="auth-input" placeholder="9876543210" style="flex: 1; margin-bottom: 0;">
                 </div>
-                <div id="recaptcha-container" style="margin-top: 10px;"></div>
-                <button class="auth-btn" id="send-otp-btn" onclick="sendOTP()" style="margin-top: 10px;">Send OTP</button>
-            </div>
-
-            <div id="otp-input-section" style="display: none;">
-                <label class="auth-label">Enter OTP</label>
-                <input type="number" id="otp-code" class="auth-input" placeholder="123456" style="letter-spacing: 2px; font-weight: bold; text-align: center;">
-                <button class="auth-btn" id="verify-otp-btn" onclick="verifyOTP()">Verify & Login</button>
+                <button class="auth-btn" id="login-btn" onclick="simpleLogin()" style="margin-top: 15px;">Continue</button>
             </div>
             <div id="auth-error" style="color: #e74c3c; font-size: 0.85em; font-weight: 600; margin-top: 10px; text-align: center;"></div>
         </div>
@@ -823,7 +818,6 @@
         let currentFilteredItems = []; let currentlyDisplayed = 0;
         let currentTheme = localStorage.getItem('glacier_theme') || 'auto';
         
-        // 🟢 ESCAPE KEY & OUTSIDE CLICK LISTENER 🟢
         document.addEventListener('keydown', function(event) {
             if (event.key === "Escape") {
                 document.querySelectorAll('.custom-modal').forEach(modal => {
@@ -839,7 +833,6 @@
             }
         });
 
-        // 🟢 CLEAR ALL FILTERS FUNCTION 🟢
         window.clearAllFilters = () => {
             ['desktop', 'mobile', 'landscape'].forEach(env => {
                 let sb = document.getElementById(`search-bar-${env}`);
@@ -928,78 +921,92 @@
             }, 100);
         });
 
-        // 🟢 NATIVE PULL TO REFRESH LOGIC 🟢
         const productsArea = document.getElementById('products-area');
         const pullIndicator = document.getElementById('pull-refresh-indicator');
-        let startY = 0; let isPulling = false;
+        let startY = 0; let isPulling = false; let ptrHeight = 0;
 
         if (productsArea && pullIndicator) {
             productsArea.addEventListener('touchstart', (e) => {
-                if (productsArea.scrollTop <= 0) { 
+                if (productsArea.scrollTop <= 5) { 
                     startY = e.touches[0].clientY; 
                     isPulling = true; 
+                    ptrHeight = 0;
                     pullIndicator.style.transition = 'none'; 
                 }
             }, {passive: true});
 
             productsArea.addEventListener('touchmove', (e) => {
                 if (!isPulling) return;
-                let y = e.touches[0].clientY; let dy = y - startY;
                 
-                if (dy > 0 && productsArea.scrollTop <= 0) {
-                    if (e.cancelable) e.preventDefault(); 
+                let y = e.touches[0].clientY; 
+                let dy = y - startY;
+                
+                if (dy > 0 && productsArea.scrollTop <= 5) {
+                    ptrHeight = dy * 0.4; 
                     
-                    pullIndicator.style.opacity = '1';
-                    pullIndicator.style.height = Math.min(dy, 80) + 'px';
-                    
-                    let icon = pullIndicator.querySelector('.ptr-icon');
-                    let text = pullIndicator.querySelector('.ptr-text');
-                    
-                    if(dy > 60) {
-                        if(icon) icon.style.transform = 'rotate(180deg)';
-                        if(text) text.innerText = 'Release to refresh';
-                    } else {
-                        if(icon) icon.style.transform = 'rotate(0deg)';
-                        if(text) text.innerText = 'Pull down to refresh'; 
+                    if (ptrHeight > 0) {
+                        if (e.cancelable) e.preventDefault(); 
+                        
+                        pullIndicator.style.opacity = '1';
+                        pullIndicator.style.height = Math.min(ptrHeight, 80) + 'px';
+                        pullIndicator.style.minHeight = Math.min(ptrHeight, 80) + 'px';
+                        
+                        let icon = pullIndicator.querySelector('.ptr-icon');
+                        let text = pullIndicator.querySelector('.ptr-text');
+                        
+                        if(ptrHeight > 50) {
+                            if(icon) icon.style.transform = 'rotate(180deg)';
+                            if(text) text.innerText = 'Release to refresh';
+                        } else {
+                            if(icon) icon.style.transform = 'rotate(0deg)';
+                            if(text) text.innerText = 'Pull for refresh.'; 
+                        }
                     }
+                } else {
+                    isPulling = false;
                 }
             }, {passive: false});
 
             productsArea.addEventListener('touchend', (e) => {
                 if (!isPulling) return;
                 isPulling = false;
-                pullIndicator.style.transition = 'height 0.3s ease, opacity 0.3s ease';
                 
-                let currentHeight = parseInt(pullIndicator.style.height) || 0;
+                pullIndicator.style.transition = 'height 0.3s ease, min-height 0.3s ease, opacity 0.3s ease';
                 
-                if (currentHeight >= 60) {
+                if (ptrHeight >= 50) {
                     pullIndicator.style.height = '60px';
+                    pullIndicator.style.minHeight = '60px';
+                    
                     let icon = pullIndicator.querySelector('.ptr-icon');
                     let text = pullIndicator.querySelector('.ptr-text');
                     
                     if(icon) { icon.style.transform = 'rotate(0deg)'; icon.innerHTML = '⏳'; }
-                    if(text) text.innerText = 'Loading'; 
+                    if(text) text.innerText = 'refreshing...'; 
                     
                     refreshMenu().then(() => { 
-                        pullIndicator.style.height = '0'; 
+                        pullIndicator.style.height = '0px'; 
+                        pullIndicator.style.minHeight = '0px';
                         pullIndicator.style.opacity = '0'; 
                         setTimeout(() => { 
                             if(icon) { icon.innerHTML = '⬇️'; icon.style.transform = 'rotate(0deg)'; }
-                            if(text) text.innerText = 'Pull down to refresh'; 
+                            if(text) text.innerText = 'Pull for refresh.'; 
                         }, 300);
                     });
                 } else { 
-                    pullIndicator.style.height = '0'; 
+                    pullIndicator.style.height = '0px'; 
+                    pullIndicator.style.minHeight = '0px';
                     pullIndicator.style.opacity = '0'; 
                 }
+                ptrHeight = 0;
             });
         }
 
-        let lastScrollY = 0; let showThreshold = 10; 
+        let lastScrollY = 0; let showThreshold = 20; 
         if(productsArea) {
             productsArea.addEventListener('scroll', function() {
-                const topNavBar = document.querySelector('.top-nav-bar'); 
+                const controlsBar = document.querySelector('.controls-bar');
                 const backToTop = document.getElementById('back-to-top');
+                const topNavBar = document.querySelector('.top-nav-bar'); 
 
                 if (currentlyDisplayed < currentFilteredItems.length) {
                     if (this.scrollTop + this.clientHeight >= this.scrollHeight - 300) {
@@ -1008,21 +1015,26 @@
                 }
 
                 if (window.innerWidth <= 999) {
+                    let isLandscape = window.matchMedia("(orientation: landscape)").matches;
                     let currentScrollY = this.scrollTop;
                     let scrollDiff = currentScrollY - lastScrollY;
 
-                    if (currentScrollY > 50) {
-                        if (scrollDiff > showThreshold) {
-                            if (topNavBar) topNavBar.classList.add('hidden-bar');
+                    if (currentScrollY > 60) {
+                        if (scrollDiff > 0) {
+                            if (isLandscape && topNavBar) topNavBar.classList.add('hidden-landscape');
+                            else if(controlsBar) controlsBar.style.top = '-160px'; 
                         } else if (scrollDiff < -showThreshold) {
-                            if (topNavBar) topNavBar.classList.remove('hidden-bar');
+                            if (isLandscape && topNavBar) topNavBar.classList.remove('hidden-landscape');
+                            else if(controlsBar) controlsBar.style.top = '0'; 
                         }
                     } else {
-                        if (topNavBar) topNavBar.classList.remove('hidden-bar');
+                        if (isLandscape && topNavBar) topNavBar.classList.remove('hidden-landscape');
+                        else if(controlsBar) controlsBar.style.top = '0'; 
                     }
                     lastScrollY = currentScrollY;
                 } else {
-                    if (topNavBar) topNavBar.classList.remove('hidden-bar');
+                    if(controlsBar) controlsBar.style.top = '0'; 
+                    if(topNavBar) topNavBar.classList.remove('hidden-landscape');
                 }
 
                 if(this.scrollTop > 400) { if(backToTop) backToTop.classList.add('visible'); } 
@@ -1167,7 +1179,6 @@
             return '';
         }
 
-        // 🟢 TOAST NOTIFICATION LOGIC 🟢
         function showToast(itemName) {
             const container = document.getElementById('toast-container');
             if(!container) return;
@@ -1181,7 +1192,6 @@
             setTimeout(() => { if(toast.parentElement) toast.remove(); }, 3000);
         }
 
-        // 🟢 SMOOTH BACKGROUND REFRESH 🟢
         async function refreshMenu() {
             const btn = document.getElementById('refresh-btn');
             if(btn) { btn.innerHTML = '⏳'; btn.style.pointerEvents = 'none'; btn.style.opacity = '0.5'; }
@@ -1438,7 +1448,6 @@
                 return isAvailable && matchesBrand && matchesCategory && matchesSearch && matchesTagFilter;
             });
 
-            // 🟢 ADVANCED SORTING LOGIC 🟢
             if (currentCategory === 'New Arrivals' && sortValue === 'default') {
                 filteredItems.sort((a, b) => {
                     let dateA = getLaunchDate(a); let dateB = getLaunchDate(b);
@@ -1613,7 +1622,6 @@
             });
         }
 
-        // 🟢 ADD TO CART + SHOW TOAST LOGIC 🟢
         function addToCart(name, price, brand) { 
             if(cart[name]) cart[name].qty += 1; 
             else cart[name] = { price: price, qty: 1, brand: brand }; 
@@ -1792,8 +1800,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, getDocs, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, collection, addDoc, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCZJj830ufepvh2fh_ehkPoOki_l3QcCew",
@@ -1808,17 +1816,41 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        window.globalUser = null; window.globalUserData = null; let confirmationResult = null;
+        window.globalUser = null; window.globalUserData = null;
         window.selectedAddressIndex = 0; window.newAddressType = 'Home';
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                window.globalUser = user; document.getElementById('nav-profile-text').innerText = "My Profile"; window.closeAuthModal();
+                window.globalUser = user; 
+                document.getElementById('nav-profile-text').innerText = "My Profile"; 
+                window.closeAuthModal();
                 window.fetchUserData(user.uid);
             } else {
-                window.globalUser = null; window.globalUserData = null; document.getElementById('nav-profile-text').innerText = "Login";
+                window.globalUser = null; 
+                window.globalUserData = null; 
+                document.getElementById('nav-profile-text').innerText = "Login";
             }
         });
+
+        // 🟢 SUPER FAST LOGIN SYSTEM 🟢
+        window.simpleLogin = async () => {
+            const phoneInput = document.getElementById('phone-number').value.trim();
+            const btn = document.getElementById('login-btn'); 
+            const errorDiv = document.getElementById('auth-error');
+            
+            if(phoneInput.length < 10) { errorDiv.innerText = "Please enter a valid 10-digit mobile number."; return; }
+            
+            btn.disabled = true; btn.innerText = "Logging in..."; errorDiv.innerText = "";
+            localStorage.setItem('glacier_phone', "+91" + phoneInput);
+            
+            try {
+                await signInAnonymously(auth);
+            } catch (error) {
+                btn.disabled = false; btn.innerText = "Continue"; 
+                errorDiv.innerText = "Error connecting to server. Please try again.";
+                console.error(error);
+            }
+        };
 
         window.fetchUserData = function(uid) {
             try {
@@ -1832,7 +1864,7 @@
                             if (window.globalUserData.address || window.globalUserData.house) {
                                 window.globalUserData.addresses.push({
                                     label: 'Home', name: window.globalUserData.name || '',
-                                    phone: window.globalUserData.phone || window.globalUser.phoneNumber,
+                                    phone: window.globalUserData.phone || localStorage.getItem('glacier_phone') || '',
                                     house: window.globalUserData.house || '', area: window.globalUserData.address || '', lat: '', lng: ''
                                 });
                             }
@@ -1842,7 +1874,10 @@
                         if(window.selectedAddressIndex >= window.globalUserData.addresses.length) window.selectedAddressIndex = 0;
                         window.renderAddresses(); 
                     } else {
-                        window.globalUserData = { name: '', phone: window.globalUser.phoneNumber, addresses: [], defaultAddressIndex: 0 };
+                        // 🟢 Create New Profile Instantly 🟢
+                        let savedPhone = localStorage.getItem('glacier_phone') || '';
+                        window.globalUserData = { name: '', phone: savedPhone, addresses: [], defaultAddressIndex: 0 };
+                        setDoc(doc(db, "users", uid), window.globalUserData);
                         window.renderAddresses();
                     }
                 });
@@ -1859,7 +1894,6 @@
             } else { 
                 document.getElementById('auth-modal').style.display = 'flex'; 
                 document.getElementById('auth-error').innerText = ''; 
-                window.setupRecaptcha(); 
             }
         };
 
@@ -1869,41 +1903,6 @@
             document.getElementById(`tab-${tabName}-content`).classList.add('active');
             document.getElementById(`tab-${tabName}-btn`).classList.add('active');
         }
-
-        window.setupRecaptcha = () => {
-            if(!window.recaptchaVerifier) { window.recaptchaVerifier = new RecaptchaVerifier(auth, 'send-otp-btn', { 'size': 'invisible' }); }
-        }
-
-        window.sendOTP = () => {
-            const phoneNumber = "+91" + document.getElementById('phone-number').value.trim();
-            const btn = document.getElementById('send-otp-btn'); 
-            const errorDiv = document.getElementById('auth-error');
-            
-            if(phoneNumber.length < 10) { errorDiv.innerText = "Please enter a valid 10-digit mobile number."; return; }
-            
-            btn.disabled = true; btn.innerText = "Sending OTP..."; errorDiv.innerText = "";
-            
-            signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier)
-            .then((result) => {
-                confirmationResult = result; 
-                document.getElementById('phone-input-section').style.display = 'none'; 
-                document.getElementById('otp-input-section').style.display = 'block';
-            })
-            .catch((error) => { 
-                btn.disabled = false; 
-                btn.innerText = "Send OTP"; 
-                // 🟢 यह लाइन हमें Firebase का असली एरर बताएगी 🟢
-                errorDiv.innerText = "Error: " + error.code; 
-                console.error("Firebase OTP Error:", error);
-            });
-        };
-
-        window.verifyOTP = () => {
-            const otp = document.getElementById('otp-code').value.trim(); const btn = document.getElementById('verify-otp-btn'); const errorDiv = document.getElementById('auth-error');
-            if(otp.length < 6) { errorDiv.innerText = "Enter a 6-digit OTP."; return; }
-            btn.disabled = true; btn.innerText = "Verifying..."; errorDiv.innerText = "";
-            confirmationResult.confirm(otp).catch((error) => { btn.disabled = false; btn.innerText = "Verify & Login"; errorDiv.innerText = "Invalid OTP. Please try again."; });
-        };
 
         window.saveMainName = async () => {
             if(!window.globalUser) return;
@@ -1979,7 +1978,14 @@
                 window.setAddrType('Home');
                 
                 document.getElementById('new-addr-name').value = window.globalUserData.name || '';
-                document.getElementById('new-addr-phone').value = window.globalUser ? window.globalUser.phoneNumber : '';
+                
+                // 🟢 Phone Autofill Fix 🟢
+                let defaultPhone = '';
+                if(window.globalUserData && window.globalUserData.phone) defaultPhone = window.globalUserData.phone.replace('+91', '');
+                else if(localStorage.getItem('glacier_phone')) defaultPhone = localStorage.getItem('glacier_phone').replace('+91', '');
+                
+                document.getElementById('new-addr-phone').value = defaultPhone;
+                
                 document.getElementById('new-addr-house').value = '';
                 document.getElementById('new-addr-area').value = '';
                 document.getElementById('new-addr-lat').value = '';
@@ -2062,7 +2068,7 @@
             } catch(e) { listDiv.innerHTML = '<p style="font-size: 0.85em; color: #e74c3c; text-align: center; padding:15px;">Failed to load orders.</p>'; }
         };
 
-        window.logout = () => { signOut(auth).then(() => { window.closeProfileModal(); window.location.reload(); }); };
+        window.logout = () => { signOut(auth).then(() => { localStorage.removeItem('glacier_phone'); window.closeProfileModal(); window.location.reload(); }); };
 
         window.checkout = async (method) => {
             if(Object.keys(cart).length === 0) return;
@@ -2080,7 +2086,7 @@
                     message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
                     
                     if (addr.lat && addr.lng) {
-                        message += `📍 *Location Link:* https://maps.google.com/?q=${addr.lat},${addr.lng}\n`;
+                        message += `📍 *Location Link:* https://maps.google.com/?q=...?q=${addr.lat},${addr.lng}\n`;
                     }
                     
                     addDoc(collection(db, "orders"), { userId: window.globalUser.uid, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() });
