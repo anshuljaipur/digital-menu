@@ -1876,13 +1876,26 @@
 
         window.sendOTP = () => {
             const phoneNumber = "+91" + document.getElementById('phone-number').value.trim();
-            const btn = document.getElementById('send-otp-btn'); const errorDiv = document.getElementById('auth-error');
+            const btn = document.getElementById('send-otp-btn'); 
+            const errorDiv = document.getElementById('auth-error');
+            
             if(phoneNumber.length < 10) { errorDiv.innerText = "Please enter a valid 10-digit mobile number."; return; }
             
             btn.disabled = true; btn.innerText = "Sending OTP..."; errorDiv.innerText = "";
-            signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier).then((result) => {
-                confirmationResult = result; document.getElementById('phone-input-section').style.display = 'none'; document.getElementById('otp-input-section').style.display = 'block';
-            }).catch((error) => { btn.disabled = false; btn.innerText = "Send OTP"; errorDiv.innerText = "Error sending OTP. Please try again."; });
+            
+            signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier)
+            .then((result) => {
+                confirmationResult = result; 
+                document.getElementById('phone-input-section').style.display = 'none'; 
+                document.getElementById('otp-input-section').style.display = 'block';
+            })
+            .catch((error) => { 
+                btn.disabled = false; 
+                btn.innerText = "Send OTP"; 
+                // 🟢 यह लाइन हमें Firebase का असली एरर बताएगी 🟢
+                errorDiv.innerText = "Error: " + error.code; 
+                console.error("Firebase OTP Error:", error);
+            });
         };
 
         window.verifyOTP = () => {
