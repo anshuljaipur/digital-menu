@@ -96,6 +96,22 @@
         .btn-profile { background: rgba(228, 77, 38, 0.1); color: var(--primary-color); border-color: rgba(228, 77, 38, 0.2); }
         .btn-profile:hover { background: var(--primary-color); color: white; }
 
+        /* 🟢 PROFILE DROPDOWN MENU CSS 🟢 */
+        .profile-dropdown-menu {
+            position: absolute; top: 45px; right: 0;
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 170px; display: flex; flex-direction: column; padding: 8px 0;
+            z-index: 2000; opacity: 0; visibility: hidden;
+            transform: translateY(-10px); transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .profile-dropdown-menu.active { opacity: 1; visibility: visible; transform: translateY(0); }
+        .dropdown-item {
+            padding: 12px 18px; font-size: 0.85em; font-weight: 600; color: var(--text-main);
+            cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px;
+        }
+        .dropdown-item:hover { background: var(--hover-bg); color: var(--glacier-blue); }
+
         .landscape-search-sort { display: none; }
 
         /* --- 2. TOP SECTION (BRANDS + SEARCH/SORT) --- */
@@ -129,7 +145,6 @@
         .left-arrow { left: 0; border-radius: 0 16px 16px 0; }
         .right-arrow { right: 0; border-radius: 16px 0 0 16px; }
         .arrow-icon { font-size: 1.4em; font-weight: 900; line-height: 1; text-shadow: none; } 
-        .arrow-count { font-size: 0.7em; font-weight: 800; color: #ffffff; margin-top: 2px; opacity: 0.9;}
         .brand-arrow:hover { background: var(--glacier-blue); opacity: 1; }
         [data-theme="dark"] .brand-arrow { background: rgba(31, 81, 198, 0.8); border-color: rgba(255,255,255,0.1); }
 
@@ -186,7 +201,6 @@
         .filter-tag-chip:hover { border-color: var(--glacier-blue); color: var(--text-main); }
         .filter-tag-chip.active { background: var(--glacier-blue); color: #fff; border-color: var(--glacier-blue); box-shadow: 0 4px 8px rgba(31,81,198,0.2); }
 
-        /* External Tags Container (For Landscape) */
         .tags-sidebar-landscape { display: none; }
 
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; width: 100%; }
@@ -485,7 +499,6 @@
             
             #toast-container { bottom: calc(20px + env(safe-area-inset-bottom)); }
 
-            /* Mobile tweaks for store card */
             .store-info-top { flex-direction: column; }
             .store-map-preview { width: 100%; height: 120px; }
             .store-actions { flex-direction: column; }
@@ -578,10 +591,19 @@
             <button class="action-btn" onclick="refreshMenu()" id="refresh-btn" title="Refresh Menu" style="font-size: 1.1em; padding: 6px 12px;">🔄</button>
             <button class="action-btn" onclick="cycleTheme()" id="theme-toggle-btn" title="Toggle Theme">🖥️</button>
             
-            <button class="action-btn btn-profile" onclick="handleProfileClick()" id="nav-profile-btn" style="padding: 6px 12px; gap: 6px;">
-                <span id="nav-profile-icon" style="display:flex; align-items:center; justify-content:center; font-size:1.1em;">👤</span>
-                <span class="hide-mobile-text" id="nav-profile-text">Login</span>
-            </button>
+            <div style="position: relative;" id="profile-dropdown-container">
+                <button class="action-btn btn-profile" onclick="handleProfileClick(event)" id="nav-profile-btn" style="padding: 6px 12px; gap: 6px;">
+                    <span id="nav-profile-icon" style="display:flex; align-items:center; justify-content:center; font-size:1.1em;">👤</span>
+                    <span class="hide-mobile-text" id="nav-profile-text">Login</span>
+                </button>
+                <div id="profile-dropdown" class="profile-dropdown-menu">
+                    <div class="dropdown-item" onclick="openProfileTab('profile')">👤 My Profile</div>
+                    <div class="dropdown-item" onclick="openProfileTab('profile')">📍 Addresses</div>
+                    <div class="dropdown-item" onclick="openProfileTab('orders')">🛍️ Past Orders</div>
+                    <div style="height: 1px; background: var(--border-color); margin: 5px 0;"></div>
+                    <div class="dropdown-item" onclick="logout()" style="color: var(--active-brand-red);">🚪 Logout</div>
+                </div>
+            </div>
             
             <button class="action-btn" onclick="shareWebsite()">📤 <span class="hide-mobile-text">Share</span></button>
         </div>
@@ -664,21 +686,22 @@
 
             <div id="load-more-container"></div>
 
-          <div class="store-location-card">
+            <div class="store-location-card">
                 <div class="store-info-top">
                     <div class="store-text">
                         <h3>📍 Visit Glacier Ice Cream</h3>
                         <p>A-12, Janta Store, University Marg,<br>Bapu Nagar, Jaipur, Rajasthan 302015</p>
                     </div>
                     <div class="store-map-preview">
-                        <iframe src="https://www.google.com/maps?q=26.8901148,75.8097553&z=15&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        <iframe src="https://maps.google.com/maps?q=26.8901148,75.8097553&hl=en&z=15&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                     </div>
                 </div>
                 <div class="store-actions">
-                    <a href="https://www.google.com/maps/dir/?api=1&destination=26.8901148,75.8097553&destination_place_id=ChIJ____v522bTkRKXEJpqCTRho" target="_blank" class="store-btn btn-directions">🗺️ Get Directions</a>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=26.8901148,75.8097553" target="_blank" class="store-btn btn-directions">🗺️ Get Directions</a>
                     <a href="tel:+919829610570" class="store-btn btn-call">📞 Call 98296 10570</a>
                 </div>
             </div>
+
             <div class="legal-footer">
                 <p class="legal-notice-vol">ℹ️ Volume & MRP subject to change. Please refer to actual packaging for final details.</p>
                 <p>© 2026 Glacier Ice Cream. All brand logos, names, and trademarks displayed on this menu are the property of their respective owners.</p>
@@ -695,7 +718,7 @@
             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
         </button>
         <button class="floating-cart-btn" id="floating-cart" onclick="toggleCart()">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#475569" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="9" cy="21" r="1"></circle>
                 <circle cx="20" cy="21" r="1"></circle>
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
@@ -850,8 +873,6 @@
                     </div>
                 </div>
 
-                <div id="profile-msg" style="font-size: 0.85em; margin-bottom: 15px; text-align: center; font-weight: 700;"></div>
-                <button class="checkout-btn btn-clear" style="margin-top:auto;" onclick="logout()">🚪 Logout</button>
             </div>
 
             <div id="tab-orders-content" class="modal-tab-content">
@@ -881,10 +902,17 @@
             }
         });
         
+        // 🟢 DOCUMENT CLICK FOR DROPDOWN AND MAP SUGGESTIONS 🟢
         document.addEventListener('click', function(e) {
             if (e.target.id !== 'map-search-input') {
                 const box = document.getElementById('search-suggestions');
                 if(box) box.style.display = 'none';
+            }
+            
+            const dropdown = document.getElementById('profile-dropdown');
+            const profileBtn = document.getElementById('nav-profile-btn');
+            if(dropdown && dropdown.classList.contains('active') && !dropdown.contains(e.target) && !profileBtn.contains(e.target)) {
+                dropdown.classList.remove('active');
             }
         });
 
@@ -1721,6 +1749,25 @@
         function closeAuthModal() { document.getElementById('auth-modal').style.display = 'none'; }
         function closeProfileModal() { document.getElementById('profile-modal').style.display = 'none'; }
         
+        // 🟢 DROPDOWN LOGIC 🟢
+        window.handleProfileClick = (e) => {
+            if(e) e.stopPropagation(); 
+            if (window.userDocId) { 
+                const dropdown = document.getElementById('profile-dropdown');
+                dropdown.classList.toggle('active');
+            } else { 
+                document.getElementById('auth-modal').style.display = 'flex'; 
+                document.getElementById('auth-error').innerText = ''; 
+            }
+        };
+
+        window.openProfileTab = (tabName) => {
+            document.getElementById('profile-dropdown').classList.remove('active');
+            document.getElementById('profile-modal').style.display = 'flex'; 
+            document.getElementById('profile-msg').innerText = ''; 
+            window.switchModalTab(tabName);
+        };
+        
         window.onload = loadData;
     </script>
 
@@ -1878,12 +1925,11 @@
                 window.globalUser = user; 
                 window.userDocId = user.uid; 
                 
-                // 🟢 Update Header with Profile Photo & Name 🟢
                 let displayName = "Guest";
                 let photoUrl = "https://placehold.co/100x100/1f51c6/ffffff?text=G";
                 
                 if(!user.isAnonymous && user.displayName) {
-                    displayName = user.displayName.split(' ')[0]; // सिर्फ First Name
+                    displayName = user.displayName.split(' ')[0]; // First Name Only
                     if(user.photoURL) photoUrl = user.photoURL;
                 }
 
@@ -1897,43 +1943,34 @@
                 window.globalUserData = null; 
                 window.userDocId = null;
                 
-                // Reset Header
                 document.getElementById('nav-profile-text').innerText = "Login";
                 document.getElementById('nav-profile-icon').innerHTML = '👤';
             }
         });
 
-        // 🟢 GOOGLE LOGIN SYSTEM 🟢
         window.googleLogin = async () => {
             const btn = document.getElementById('login-btn'); 
             const errorDiv = document.getElementById('auth-error');
-            
             btn.disabled = true; btn.innerHTML = "Connecting to Google... ⏳"; errorDiv.innerText = "";
-            
             try {
                 await signInWithPopup(auth, provider);
             } catch (error) {
                 btn.disabled = false; 
                 btn.innerHTML = `<svg viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg" style="margin-right: 12px;"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Continue with Google`; 
                 errorDiv.innerText = "Sign in cancelled or failed. Please try again.";
-                console.error(error);
             }
         };
 
-        // 🟢 GUEST LOGIN SYSTEM 🟢
         window.guestLogin = async () => {
             const btn = document.getElementById('guest-btn'); 
             const errorDiv = document.getElementById('auth-error');
-            
             btn.disabled = true; btn.innerHTML = "Continuing... ⏳"; errorDiv.innerText = "";
-            
             try {
                 await signInAnonymously(auth);
             } catch (error) {
                 btn.disabled = false; 
                 btn.innerHTML = "👤 Continue as Guest"; 
                 errorDiv.innerText = "Failed to continue as guest. Please try again.";
-                console.error(error);
             }
         };
 
@@ -1942,14 +1979,18 @@
                 onSnapshot(doc(db, "users", docId), (docSnap) => {
                     if (docSnap.exists()) {
                         window.globalUserData = docSnap.data();
-                        
                         if (!window.globalUserData.addresses) window.globalUserData.addresses = [];
-                        
                         window.selectedAddressIndex = window.globalUserData.defaultAddressIndex || 0;
                         if(window.selectedAddressIndex >= window.globalUserData.addresses.length) window.selectedAddressIndex = 0;
                         window.renderAddresses(); 
+                        
+                        // Sync Profile Modal Card Data
+                        if(window.globalUser) {
+                            document.getElementById('profile-user-name').innerText = window.globalUser.displayName || 'Guest User';
+                            document.getElementById('profile-user-email').innerText = window.globalUser.email || 'Temporary Session';
+                            document.getElementById('profile-user-avatar').src = window.globalUser.photoURL || 'https://placehold.co/100x100/1f51c6/ffffff?text=G';
+                        }
                     } else {
-                        // 🟢 Create New Profile Instantly 🟢
                         window.globalUserData = { 
                             name: window.globalUser.displayName || '', 
                             email: window.globalUser.email || '', 
@@ -1960,30 +2001,9 @@
                         window.renderAddresses();
                     }
                 });
-
                 window.loadPastOrders(docId);
-            } catch(e) { console.error("Error fetching user", e); }
+            } catch(e) {}
         }
-
-        window.handleProfileClick = () => {
-            if (window.globalUser) { 
-                // 🟢 Populating Data for Profile Card 🟢
-                let displayName = window.globalUser.displayName || 'Guest User';
-                let photoUrl = window.globalUser.photoURL || 'https://placehold.co/100x100/1f51c6/ffffff?text=G';
-                let emailText = window.globalUser.email || 'Temporary Session';
-                
-                document.getElementById('profile-user-name').innerText = displayName;
-                document.getElementById('profile-user-email').innerText = emailText;
-                document.getElementById('profile-user-avatar').src = photoUrl;
-
-                document.getElementById('profile-modal').style.display = 'flex'; 
-                document.getElementById('profile-msg').innerText = ''; 
-                window.switchModalTab('profile');
-            } else { 
-                document.getElementById('auth-modal').style.display = 'flex'; 
-                document.getElementById('auth-error').innerText = ''; 
-            }
-        };
 
         window.switchModalTab = (tabName) => {
             document.querySelectorAll('.modal-tab-content').forEach(el => el.classList.remove('active'));
@@ -2040,7 +2060,6 @@
                 window.setAddrType('Home');
                 
                 document.getElementById('new-addr-name').value = window.globalUserData.name || window.globalUser.displayName || '';
-                
                 let defaultPhone = '';
                 if(window.globalUserData && window.globalUserData.addresses && window.globalUserData.addresses.length > 0) {
                     defaultPhone = window.globalUserData.addresses[0].phone;
@@ -2119,10 +2138,16 @@
                     });
                     listDiv.innerHTML = html;
                 });
-            } catch(e) { listDiv.innerHTML = '<p style="font-size: 0.85em; color: #e74c3c; text-align: center; padding:15px;">Failed to load orders.</p>'; }
+            } catch(e) {}
         };
 
-        window.logout = () => { signOut(auth).then(() => { window.closeProfileModal(); window.location.reload(); }); };
+        window.logout = () => { 
+            signOut(auth).then(() => { 
+                document.getElementById('profile-dropdown').classList.remove('active');
+                window.closeProfileModal(); 
+                window.location.reload(); 
+            }); 
+        };
 
         window.checkout = async (method) => {
             if(Object.keys(cart).length === 0) return;
@@ -2138,7 +2163,7 @@
                     if(!addr) addr = window.globalUserData.addresses[0]; 
                     let fullDeliveryAddress = `${addr.house}, ${addr.area}`;
                     message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
-                    if (addr.lat && addr.lng) { message += `📍 *Location Link:* https://maps.google.com/?q=${addr.lat},${addr.lng}\n`; }
+                    if (addr.lat && addr.lng) { message += `📍 *Location Link:* https://www.google.com/maps/search/?api=1&query=${addr.lat},${addr.lng}\n`; }
                     addDoc(collection(db, "orders"), { userId: window.userDocId, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() });
                 } else if (window.globalUser) { 
                     alert("Please add a delivery address in 'My Profile' before checking out!"); return;
