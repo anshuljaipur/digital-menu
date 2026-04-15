@@ -716,7 +716,7 @@
             </div>
             <p style="font-size: 0.9em; color: var(--text-muted); margin-bottom: 25px; margin-top: 0;">Sign in to save your addresses and track orders across all devices.</p>
             
-            <div id="google-login-section" style="text-align: center;">
+            <div id="google-login-section" style="text-align: center; display: flex; flex-direction: column; gap: 15px;">
                 <button class="auth-btn" id="login-btn" onclick="googleLogin()" style="background: var(--card-bg); color: var(--text-main); border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                     <svg viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg" style="margin-right: 12px;">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -725,6 +725,16 @@
                         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                     </svg>
                     Continue with Google
+                </button>
+                
+                <div style="display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 0.85em; font-weight: 600;">
+                    <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+                    OR
+                    <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+                </div>
+                
+                <button class="auth-btn" id="guest-btn" onclick="guestLogin()" style="background: var(--chip-bg); color: var(--text-main); border: none; display: flex; align-items: center; justify-content: center; width: 100%; box-shadow: none;">
+                    👤 Continue as Guest
                 </button>
             </div>
             <div id="auth-error" style="color: var(--active-brand-red); font-size: 0.85em; font-weight: 600; margin-top: 15px; text-align: center;"></div>
@@ -970,7 +980,7 @@
                             if(text) text.innerText = 'Release to refresh';
                         } else {
                             if(icon) icon.style.transform = 'rotate(0deg)';
-                            if(text) text.innerText = 'Pull down to refresh'; 
+                            if(text) text.innerText = 'Pull for refresh.'; 
                         }
                     }
                 } else {
@@ -992,7 +1002,7 @@
                     let text = pullIndicator.querySelector('.ptr-text');
                     
                     if(icon) { icon.style.transform = 'rotate(0deg)'; icon.innerHTML = '⏳'; }
-                    if(text) text.innerText = 'Loading'; 
+                    if(text) text.innerText = 'refreshing...'; 
                     
                     refreshMenu().then(() => { 
                         pullIndicator.style.height = '0px'; 
@@ -1000,7 +1010,7 @@
                         pullIndicator.style.opacity = '0'; 
                         setTimeout(() => { 
                             if(icon) { icon.innerHTML = '⬇️'; icon.style.transform = 'rotate(0deg)'; }
-                            if(text) text.innerText = 'Pull down to refresh'; 
+                            if(text) text.innerText = 'Pull for refresh.'; 
                         }, 300);
                     });
                 } else { 
@@ -1805,7 +1815,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        // 🟢 NEW: signInAnonymously वापस इम्पोर्ट कर लिया है 🟢
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, collection, addDoc, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -1861,6 +1872,23 @@
             }
         };
 
+        // 🟢 NEW: GUEST LOGIN SYSTEM 🟢
+        window.guestLogin = async () => {
+            const btn = document.getElementById('guest-btn'); 
+            const errorDiv = document.getElementById('auth-error');
+            
+            btn.disabled = true; btn.innerHTML = "Continuing... ⏳"; errorDiv.innerText = "";
+            
+            try {
+                await signInAnonymously(auth);
+            } catch (error) {
+                btn.disabled = false; 
+                btn.innerHTML = "👤 Continue as Guest"; 
+                errorDiv.innerText = "Failed to continue as guest. Please try again.";
+                console.error(error);
+            }
+        };
+
         window.fetchUserData = function(docId) {
             try {
                 onSnapshot(doc(db, "users", docId), (docSnap) => {
@@ -1873,6 +1901,7 @@
                         if(window.selectedAddressIndex >= window.globalUserData.addresses.length) window.selectedAddressIndex = 0;
                         window.renderAddresses(); 
                     } else {
+                        // 🟢 Create New Profile Instantly 🟢
                         window.globalUserData = { 
                             name: window.globalUser.displayName || '', 
                             email: window.globalUser.email || '', 
@@ -1891,10 +1920,10 @@
         window.handleProfileClick = () => {
             if (window.globalUser) { 
                 
-                // 🟢 Populating Google Data to Profile Card 🟢
-                document.getElementById('profile-user-name').innerText = window.globalUser.displayName || 'Ice Cream Lover';
-                document.getElementById('profile-user-email').innerText = window.globalUser.email || '';
-                document.getElementById('profile-user-avatar').src = window.globalUser.photoURL || 'https://placehold.co/100x100/1f51c6/ffffff?text=User';
+                // 🟢 Populating Data (Works for both Google and Guest) 🟢
+                document.getElementById('profile-user-name').innerText = window.globalUser.displayName || 'Guest User';
+                document.getElementById('profile-user-email').innerText = window.globalUser.email || 'Temporary Session';
+                document.getElementById('profile-user-avatar').src = window.globalUser.photoURL || 'https://placehold.co/100x100/1f51c6/ffffff?text=Guest';
 
                 document.getElementById('profile-modal').style.display = 'flex'; 
                 document.getElementById('profile-msg').innerText = ''; 
