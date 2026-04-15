@@ -226,18 +226,27 @@
         .legal-footer p { margin: 5px 0; }
         .legal-notice-vol { color: var(--active-brand-red); font-size: 1.1em; font-weight: 700; margin-bottom: 12px !important;}
 
-        #bottom-cart-banner { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 600px; background: var(--glacier-blue); color: white; padding: 16px 25px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 1000; cursor: pointer; transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-sizing: border-box; }
-        #bottom-cart-banner.visible { bottom: 20px; }
-        .banner-left { display: flex; flex-direction: column; }
-        .banner-items { font-size: 0.8em; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; }
-        .banner-price { font-size: 1.3em; font-weight: 800; color: #fff;}
-        .banner-right { font-size: 1.1em; display: flex; align-items: center; gap: 8px; color: #e0e7ff;}
-
-        .floating-action-container { position: fixed; bottom: 85px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 999; pointer-events: none; }
+        /* 🟢 NEW FLOATING BUTTONS CSS (BACK TO TOP & CART) 🟢 */
+        .floating-action-container { position: fixed; bottom: 30px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 999; pointer-events: none; }
+        
         .floating-btn { background: var(--glacier-blue); color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(31,81,198,0.4); cursor: pointer; opacity: 0; transition: 0.3s ease; transform: translateY(20px); pointer-events: auto; border: none;}
         .floating-btn.visible { opacity: 1; transform: translateY(0); }
         .floating-btn:hover { background: #1a42a4; }
+
+        .floating-cart-btn { background: var(--active-brand-red); color: white; width: 45px; height: 45px; border-radius: 50%; display: none; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(231,76,60,0.4); cursor: pointer; transition: 0.3s ease; border: none; font-size: 1.2em; position: relative; pointer-events: auto;}
+        .floating-cart-btn.visible { display: flex; animation: popIn 0.3s ease; }
+        .floating-cart-btn:hover { transform: scale(1.05); background: #c0392b; }
         
+        .cart-badge { position: absolute; top: -5px; right: -5px; background: var(--text-main); color: var(--bg-color); font-size: 0.65em; font-weight: 800; min-width: 20px; height: 20px; border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-color); padding: 0 4px; box-sizing: border-box;}
+        
+        @keyframes popIn { 0% { transform: scale(0); } 80% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+        /* 🟢 TOAST NOTIFICATION CSS 🟢 */
+        #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 400px; align-items: center;}
+        .toast { background: var(--text-main); color: var(--bg-color); padding: 12px 20px; border-radius: 50px; font-size: 0.85em; font-weight: 600; box-shadow: 0 4px 15px rgba(0,0,0,0.2); animation: toastUp 0.3s ease, toastFade 0.3s ease 2.5s forwards; display: flex; align-items: center; gap: 8px; }
+        @keyframes toastUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes toastFade { from { opacity: 1; } to { opacity: 0; display: none; } }
+
         #mobile-cat-toggle { display: none; } 
 
         /* --- MODALS --- */
@@ -339,7 +348,6 @@
             .header-logo { height: 35px; }
             .hide-mobile-text { display: none; }
             
-            /* 🟢 HIDE REFRESH BUTTON ON MOBILE 🟢 */
             #refresh-btn { display: none !important; }
             
             .action-btn { padding: 6px 10px; font-size: 0.8em; }
@@ -347,7 +355,6 @@
             .search-sort-side { display: none !important; } 
             .top-nav-bar { flex-direction: column; border-bottom: none; width: 100%;}
             
-            /* Squeeze Brands Panel smoothly */
             .brands-wrapper { 
                 border-bottom: 1px solid var(--border-color); width: 100%; 
                 max-height: 120px; overflow: hidden; 
@@ -360,7 +367,6 @@
 
             .main-layout { flex-direction: column; width: 100%; overflow-x: hidden; position: relative; } 
             
-            /* 🟢 COMPACT & FIXED MOBILE CATEGORIES 🟢 */
             .sidebar { 
                 position: sticky !important; 
                 top: 0 !important; 
@@ -389,10 +395,7 @@
                 width: auto !important; 
                 min-width: max-content !important;
             }
-            .cat-item.active {
-                background: var(--glacier-blue) !important;
-                border-color: var(--glacier-blue) !important;
-            }
+            .cat-item.active { background: var(--glacier-blue) !important; border-color: var(--glacier-blue) !important; }
             .cat-icon { display: none !important; } 
             .cat-name { font-size: 0.8em !important; font-weight: 600 !important; color: var(--text-main) !important; padding: 0 !important;}
             .cat-item.active .cat-name { color: white !important; }
@@ -415,14 +418,12 @@
             .section-header { margin-bottom: 12px; padding-bottom: 8px; width: 100%; }
             .section-header h2 { font-size: 1.1em; }
             
-            /* 🟢 MOBILE GRID FIXES 🟢 */
             .menu-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; margin: 0; padding-bottom: 10px;}
             .menu-card { padding: 8px; border-radius: 12px; }
             .card-img-wrapper { height: 100px; margin-bottom: 20px; border-radius: 10px; } 
             .new-badge { top: -6px; left: -6px; font-size: 0.5em; padding: 3px 6px; }
             .red-discount-icon { top: -6px; right: -6px; font-size: 0.55em; padding: 3px 6px; }
             
-            /* 🟢 MOBILE BUTTON OVERLAP 🟢 */
             .btn-container { right: 8px; bottom: -14px; }
             .app-add-btn { width: 30px; height: 30px; font-size: 1.2em; }
             .app-qty-control { height: 30px; width: 75px; font-size: 0.85em; padding: 0 4px;}
@@ -443,17 +444,15 @@
             .auth-btn, .checkout-btn { margin-bottom: 10px; }
             @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-            #bottom-cart-banner { width: calc(100% - 30px - env(safe-area-inset-left) - env(safe-area-inset-right)); padding: 14px 20px; bottom: -100px; border-radius: 14px;}
-            #bottom-cart-banner.visible { bottom: calc(15px + env(safe-area-inset-bottom)); }
-            .banner-items { font-size: 0.75em; }
-            .banner-price { font-size: 1.2em; }
-            .banner-right { font-size: 1em; }
-
             #pd-modal-img { height: 180px; }
             #pd-modal-name { font-size: 1.2em; }
 
-            .floating-action-container { bottom: calc(85px + env(safe-area-inset-bottom)); right: calc(15px + env(safe-area-inset-right)); }
+            .floating-action-container { bottom: calc(30px + env(safe-area-inset-bottom)); right: calc(15px + env(safe-area-inset-right)); }
             .floating-btn { width: 40px; height: 40px; font-size: 1.1em;}
+            .floating-cart-btn { width: 40px; height: 40px; font-size: 1.1em; }
+            .cart-badge { width: 18px; height: 18px; font-size: 0.6em; top:-4px; right:-4px;}
+            
+            #toast-container { bottom: calc(20px + env(safe-area-inset-bottom)); }
         }
 
         /* 📱 🔥 LANDSCAPE MODE FIX (FOR MOBILE) 🔥 📱 */
@@ -468,7 +467,6 @@
             #mobile-search-sort { display: none !important; }
             .controls-bar { margin: 0 !important; padding: 0 !important; border-bottom: none !important; background: transparent !important; position: static !important; transform: none !important; width: 100%;}
             
-            /* 🟢 PERFECT TOP NAV HIDE IN LANDSCAPE 🟢 */
             .top-nav-bar { 
                 width: 100% !important; padding: 0 !important; box-sizing: border-box; border-bottom: none !important; 
                 transition: max-height 0.4s ease, opacity 0.3s ease !important; overflow: hidden !important; 
@@ -476,7 +474,6 @@
             .top-nav-bar.hidden-landscape { max-height: 0 !important; opacity: 0 !important; border-bottom-width: 0 !important; margin: 0 !important; padding: 0 !important; pointer-events: none; }
             .brands-wrapper { border-bottom: 1px solid var(--border-color); width: 100% !important; }
             
-            /* 🟢 PERFECT LEFT SIDEBAR IN LANDSCAPE 🟢 */
             .sidebar { 
                 position: fixed !important; top: 50px !important; left: env(safe-area-inset-left) !important; width: 80px !important; height: calc(100dvh - 50px) !important; 
                 display: flex !important; flex-direction: column !important; box-shadow: 1px 0 5px rgba(0,0,0,0.05) !important; z-index: 100 !important; 
@@ -493,13 +490,7 @@
             .content-area { padding-left: 10px !important; padding-right: 10px !important; width: 100% !important; }
             
             .menu-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
-            
             .tags-sidebar-landscape { display: none !important; } 
-            
-            #bottom-cart-banner { 
-                width: calc(100% - 80px - 20px - env(safe-area-inset-left) - env(safe-area-inset-right)) !important;
-                left: calc(80px + 10px + env(safe-area-inset-left)) !important; transform: none !important;
-            }
         }
 
         @media (max-width: 360px) {
@@ -641,17 +632,15 @@
 
     <aside class="tags-sidebar-landscape" id="tags-container-landscape"></aside>
 
-    <div id="bottom-cart-banner" onclick="toggleCart()">
-        <div class="banner-left">
-            <span class="banner-items" id="banner-qty">0 ITEMS</span>
-            <span class="banner-price">₹<span id="banner-total">0</span></span>
-        </div>
-        <div class="banner-right">View Cart ➔</div>
-    </div>
+    <div id="toast-container"></div>
 
     <div class="floating-action-container">
         <button class="floating-btn" id="back-to-top" onclick="document.getElementById('products-area').scrollTo({top:0, behavior:'smooth'})">
             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+        </button>
+        <button class="floating-cart-btn" id="floating-cart" onclick="toggleCart()">
+            🛒
+            <span class="cart-badge" id="cart-badge-count">0</span>
         </button>
     </div>
 
@@ -816,7 +805,6 @@
         let currentFilteredItems = []; let currentlyDisplayed = 0;
         let currentTheme = localStorage.getItem('glacier_theme') || 'auto';
         
-        // 🟢 ESCAPE KEY & OUTSIDE CLICK LISTENER 🟢
         document.addEventListener('keydown', function(event) {
             if (event.key === "Escape") {
                 document.querySelectorAll('.custom-modal').forEach(modal => {
@@ -832,7 +820,6 @@
             }
         });
 
-        // 🟢 CLEAR ALL FILTERS FUNCTION 🟢
         window.clearAllFilters = () => {
             ['desktop', 'mobile', 'landscape'].forEach(env => {
                 let sb = document.getElementById(`search-bar-${env}`);
@@ -921,7 +908,6 @@
             }, 100);
         });
 
-        // 🟢 NATIVE PULL TO REFRESH LOGIC 🟢
         const productsArea = document.getElementById('products-area');
         const pullIndicator = document.getElementById('pull-refresh-indicator');
         let startY = 0; let isPulling = false; let ptrHeight = 0;
@@ -943,13 +929,12 @@
                 let dy = y - startY;
                 
                 if (dy > 0 && productsArea.scrollTop <= 5) {
-                    ptrHeight = dy * 0.4; // friction
+                    ptrHeight = dy * 0.4; 
                     
                     if (ptrHeight > 0) {
-                        if (e.cancelable) e.preventDefault(); // Stop bounce
+                        if (e.cancelable) e.preventDefault(); 
                         
                         pullIndicator.style.opacity = '1';
-                        // Force height & min-height to beat flex-shrink
                         pullIndicator.style.height = Math.min(ptrHeight, 80) + 'px';
                         pullIndicator.style.minHeight = Math.min(ptrHeight, 80) + 'px';
                         
@@ -1181,7 +1166,23 @@
             return '';
         }
 
-        // 🟢 SMOOTH BACKGROUND REFRESH 🟢
+        // 🟢 TOAST NOTIFICATION LOGIC 🟢
+        function showToast(itemName) {
+            const container = document.getElementById('toast-container');
+            if(!container) return;
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<span>✅</span> <span>Added <b>${itemName}</b> to cart</span>`;
+            
+            container.appendChild(toast);
+            
+            // Remove after animation (2.5s delay + 0.3s fade)
+            setTimeout(() => { 
+                if(toast.parentElement) toast.remove(); 
+            }, 3000);
+        }
+
         async function refreshMenu() {
             const btn = document.getElementById('refresh-btn');
             if(btn) { btn.innerHTML = '⏳'; btn.style.pointerEvents = 'none'; btn.style.opacity = '0.5'; }
@@ -1375,10 +1376,7 @@
             });
             
             if (currentCategory.includes('New') && brandName !== 'All Brands') {
-                if (!allItems.some(i => i.brand === brandName && isNewArrival(i))) { 
-                    setCategory('All Items'); 
-                    return; 
-                }
+                if (!allItems.some(i => i.brand === brandName && isNewArrival(i))) { setCategory('All Items'); return; }
             }
             applyFilters();
             setTimeout(() => document.getElementById('products-area').scrollTop = 0, 10);
@@ -1466,7 +1464,6 @@
             document.getElementById('current-category-title').innerText = titlePrefix + titleText;
             document.getElementById('item-count').innerText = `${filteredItems.length} items`;
 
-            // 🟢 TOGGLE CLEAR FILTERS BUTTON 🟢
             let clearBtn = document.getElementById('clear-filters-btn');
             if (clearBtn) {
                 if (searchTerm !== '' || currentCategory !== 'All Items' || currentBrand !== 'All Brands' || currentTagFilter !== 'All' || sortValue !== 'default') {
@@ -1495,22 +1492,12 @@
 
         function getItemsPerPage() {
             let itemsPerRow = 4;
-            if (window.innerWidth <= 360) {
-                itemsPerRow = 2; 
-            } else if (window.innerWidth <= 999) {
-                if (window.matchMedia("(orientation: landscape)").matches) {
-                    itemsPerRow = 3;
-                } else {
-                    itemsPerRow = 2;
-                }
-            } else {
+            if (window.innerWidth <= 360) { itemsPerRow = 2; } 
+            else if (window.innerWidth <= 999) { itemsPerRow = window.matchMedia("(orientation: landscape)").matches ? 3 : 2; } 
+            else {
                 const grid = document.getElementById('main-menu-grid');
                 let gridWidth = grid.clientWidth;
-                if(gridWidth > 0) {
-                    itemsPerRow = Math.floor((gridWidth + 20) / 240); 
-                } else {
-                    itemsPerRow = Math.floor((window.innerWidth - 300) / 240) || 4;
-                }
+                itemsPerRow = gridWidth > 0 ? Math.floor((gridWidth + 20) / 240) : Math.floor((window.innerWidth - 300) / 240) || 4;
             }
             return Math.max(1, itemsPerRow) * 4; 
         }
@@ -1536,7 +1523,7 @@
                     tagsHTML = `<div class="card-tags-row">` + 
                                itemTagsArray.map(t => {
                                    let iconHTML = getTagIcon(t);
-                                   return `<span class="card-tag ${getTagStyle(t)}" title="${t}" style="width: 26px; height: 26px; padding: 3px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; cursor: help; overflow: hidden; background: #ffffff;">${iconHTML}</span>`;
+                                   return `<span class="card-tag ${getTagStyle(t)}" title="${t}" style="width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 1.1em; flex-shrink: 0; cursor: help;">${iconHTML}</span>`;
                                }).join('') + 
                                `</div>`;
                 }
@@ -1583,35 +1570,18 @@
             document.getElementById('pd-modal-name').innerText = item.name;
             document.getElementById('pd-modal-volume').innerText = volText || '';
 
-            let desc = '';
-            let ing = '';
-            
+            let desc = ''; let ing = '';
             for(let key in item) {
                 let cleanKey = String(key).toLowerCase().replace(/[^a-z]/g, '');
-                if(['description', 'desc', 'detail', 'details'].includes(cleanKey)) {
-                    if(item[key]) desc = String(item[key]).trim();
-                }
-                if(['ingredient', 'ingredients', 'composition'].includes(cleanKey)) {
-                    if(item[key]) ing = String(item[key]).trim();
-                }
+                if(['description', 'desc', 'detail', 'details'].includes(cleanKey)) { if(item[key]) desc = String(item[key]).trim(); }
+                if(['ingredient', 'ingredients', 'composition'].includes(cleanKey)) { if(item[key]) ing = String(item[key]).trim(); }
             }
             
             const descEl = document.getElementById('pd-modal-desc');
             const ingEl = document.getElementById('pd-modal-ingredients');
             
-            if(desc !== '') {
-                descEl.innerText = desc;
-                descEl.style.display = 'block';
-            } else {
-                descEl.style.display = 'none';
-            }
-            
-            if(ing !== '') {
-                ingEl.innerText = "*Note: " + ing;
-                ingEl.style.display = 'block';
-            } else {
-                ingEl.style.display = 'none';
-            }
+            if(desc !== '') { descEl.innerText = desc; descEl.style.display = 'block'; } else { descEl.style.display = 'none'; }
+            if(ing !== '') { ingEl.innerText = "*Note: " + ing; ingEl.style.display = 'block'; } else { ingEl.style.display = 'none'; }
 
             const priceWrap = document.getElementById('pd-modal-price-wrap');
             let priceHTML = discountNum > 0 ? `<span class="item-price">₹${item.price}</span> <span class="item-mrp" style="text-decoration:line-through; color:var(--text-muted); font-size:0.8em; margin-left:5px;">₹${item.mrp}</span>` : `<span class="item-price">₹${item.price}</span>`;
@@ -1627,9 +1597,7 @@
             document.getElementById('product-detail-modal').style.display = 'flex';
         }
 
-        window.closeProductDetailModal = () => {
-            document.getElementById('product-detail-modal').style.display = 'none';
-        }
+        window.closeProductDetailModal = () => { document.getElementById('product-detail-modal').style.display = 'none'; }
 
         function updateAddButtons() {
             allItems.forEach(item => {
@@ -1642,10 +1610,14 @@
             });
         }
 
+        // 🟢 ADD TO CART + SHOW TOAST LOGIC 🟢
         function addToCart(name, price, brand) { 
             if(cart[name]) cart[name].qty += 1; 
             else cart[name] = { price: price, qty: 1, brand: brand }; 
+            
             updateCartUI(); 
+            showToast(name); // 🟢 Show Notification 🟢
+            
             if(document.getElementById('product-detail-modal').style.display === 'flex') openProductDetail(name);
         }
 
@@ -1658,20 +1630,28 @@
             } 
         }
 
+        // 🟢 UPDATE CART UI (FLOATING BUTTON) 🟢
         function updateCartUI() {
-            const cartList = document.getElementById('cart-items-list'); const cartBanner = document.getElementById('bottom-cart-banner');
+            const cartList = document.getElementById('cart-items-list'); 
+            const floatingCartBtn = document.getElementById('floating-cart');
+            const badgeCount = document.getElementById('cart-badge-count');
+            
             let totalQty = 0; let totalPrice = 0; cartList.innerHTML = '';
             for (const [name, data] of Object.entries(cart)) {
                 totalQty += data.qty; const itemTotal = data.price * data.qty; totalPrice += itemTotal;
-                
                 let itemPriceHTML = `₹${itemTotal}`;
-
                 cartList.innerHTML += `<div class="cart-item"><div class="cart-item-details"><div style="font-size: 0.75em; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">${data.brand}</div><div style="font-weight: 600; color: var(--text-main);">${name}</div></div><div class="cart-item-controls"><button class="qty-btn" onclick="changeQty('${name.replace(/'/g, "\\'")}', -1)">-</button><span style="font-weight: 700;">${data.qty}</span><button class="qty-btn" onclick="changeQty('${name.replace(/'/g, "\\'")}', 1)">+</button></div><div class="cart-item-price">${itemPriceHTML}</div></div>`;
             }
             updateAddButtons();
             
-            if(totalQty > 0) { document.getElementById('banner-qty').innerText = `${totalQty} ITEM${totalQty > 1 ? 'S' : ''}`; document.getElementById('banner-total').innerText = totalPrice; cartBanner.classList.add('visible'); } 
-            else { cartList.innerHTML = '<p style="color:var(--text-muted); text-align: center; font-weight: 500;">Your cart is empty. 🍦</p>'; cartBanner.classList.remove('visible'); document.getElementById('cart-modal').style.display = 'none'; }
+            if(totalQty > 0) { 
+                badgeCount.innerText = totalQty; 
+                floatingCartBtn.classList.add('visible'); 
+            } else { 
+                cartList.innerHTML = '<p style="color:var(--text-muted); text-align: center; font-weight: 500;">Your cart is empty. 🍦</p>'; 
+                floatingCartBtn.classList.remove('visible'); 
+                document.getElementById('cart-modal').style.display = 'none'; 
+            }
             document.getElementById('cart-total-price').innerText = totalPrice;
         }
 
@@ -1686,9 +1666,7 @@
     </script>
 
     <script>
-        let map;
-        let marker;
-        let searchTimeout;
+        let map; let marker; let searchTimeout;
 
         function initLocationPicker() {
             document.getElementById('map-wrapper-parent').style.display = 'block';
@@ -1696,10 +1674,7 @@
             
             if (!map) {
                 map = L.map('map-container').setView([26.9124, 75.7873], 13); 
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap'
-                }).addTo(map);
-
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
                 marker = L.marker([26.9124, 75.7873], {draggable: true}).addTo(map);
                 
                 marker.on('dragend', function(event) {
@@ -1716,44 +1691,30 @@
                     getAddressFromCoords(e.latlng.lat, e.latlng.lng);
                 });
             }
-            
             setTimeout(() => { map.invalidateSize(); }, 300);
             getCurrentLocation();
         }
 
         function getCurrentLocation() {
+            document.getElementById('new-addr-area').value = "Locating you... 📍";
             if (navigator.geolocation) {
-                document.getElementById('new-addr-area').value = "Locating you... 📍";
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        
-                        document.getElementById('new-addr-lat').value = lat;
-                        document.getElementById('new-addr-lng').value = lng;
-
-                        map.setView([lat, lng], 16);
-                        marker.setLatLng([lat, lng]);
-                        getAddressFromCoords(lat, lng);
+                        const lat = position.coords.latitude; const lng = position.coords.longitude;
+                        document.getElementById('new-addr-lat').value = lat; document.getElementById('new-addr-lng').value = lng;
+                        map.setView([lat, lng], 16); marker.setLatLng([lat, lng]); getAddressFromCoords(lat, lng);
                     },
-                    (error) => {
-                        console.warn("Geolocation Error:", error.message);
-                        document.getElementById('new-addr-area').value = "Location access denied. Please search or tap on map.";
-                    },
-                    { enableHighAccuracy: true }
+                    (error) => { document.getElementById('new-addr-area').value = "Location access denied. Please search or tap on map."; },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                 );
-            }
+            } else { document.getElementById('new-addr-area').value = "GPS not supported. Please search or tap on map."; }
         }
 
         function handleSearchInput(event) {
             clearTimeout(searchTimeout);
             let query = event.target.value.trim();
             const suggestionBox = document.getElementById('search-suggestions');
-            
-            if (query.length < 3) {
-                suggestionBox.style.display = 'none';
-                return;
-            }
+            if (query.length < 3) { suggestionBox.style.display = 'none'; return; }
             
             searchTimeout = setTimeout(async () => {
                 try {
@@ -1769,56 +1730,33 @@
                             div.onclick = () => {
                                 document.getElementById('map-search-input').value = place.display_name;
                                 suggestionBox.style.display = 'none';
-                                
-                                let lat = parseFloat(place.lat);
-                                let lon = parseFloat(place.lon);
-                                
-                                document.getElementById('new-addr-lat').value = lat;
-                                document.getElementById('new-addr-lng').value = lon;
-
-                                map.setView([lat, lon], 16);
-                                marker.setLatLng([lat, lon]);
-                                getAddressFromCoords(lat, lon);
+                                let lat = parseFloat(place.lat); let lon = parseFloat(place.lon);
+                                document.getElementById('new-addr-lat').value = lat; document.getElementById('new-addr-lng').value = lon;
+                                map.setView([lat, lon], 16); marker.setLatLng([lat, lon]); getAddressFromCoords(lat, lon);
                             };
                             suggestionBox.appendChild(div);
                         });
                         suggestionBox.style.display = 'block';
-                    } else {
-                        suggestionBox.style.display = 'none';
-                    }
-                } catch (error) {
-                    console.error('Search error:', error);
-                }
+                    } else { suggestionBox.style.display = 'none'; }
+                } catch (error) {}
             }, 500); 
         }
 
         async function searchLocation() {
             const query = document.getElementById('map-search-input').value.trim();
             if(!query) return;
-            
             document.getElementById('search-suggestions').style.display = 'none';
             document.getElementById('new-addr-area').value = "Searching... 🔍";
             
             try {
                 let response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&countrycodes=in`);
                 let data = await response.json();
-                
                 if(data && data.length > 0) {
-                    let lat = data[0].lat;
-                    let lon = data[0].lon;
-                    
-                    document.getElementById('new-addr-lat').value = lat;
-                    document.getElementById('new-addr-lng').value = lon;
-
-                    map.setView([lat, lon], 16);
-                    marker.setLatLng([lat, lon]);
-                    getAddressFromCoords(lat, lon); 
-                } else {
-                    document.getElementById('new-addr-area').value = "Location not found. Try a different search.";
-                }
-            } catch(e) {
-                document.getElementById('new-addr-area').value = "Search error. Please try again.";
-            }
+                    let lat = data[0].lat; let lon = data[0].lon;
+                    document.getElementById('new-addr-lat').value = lat; document.getElementById('new-addr-lng').value = lon;
+                    map.setView([lat, lon], 16); marker.setLatLng([lat, lon]); getAddressFromCoords(lat, lon); 
+                } else { document.getElementById('new-addr-area').value = "Location not found. Try a different search."; }
+            } catch(e) { document.getElementById('new-addr-area').value = "Search error. Please try again."; }
         }
 
         async function getAddressFromCoords(lat, lng) {
@@ -1829,39 +1767,24 @@
                 
                 if(data && data.address) {
                     let addr = data.address;
-                    
-                    let road = addr.road || '';
-                    let neighborhood = addr.neighbourhood || '';
-                    let suburb = addr.suburb || '';
-                    let city = addr.city || addr.town || addr.county || '';
-                    let postcode = addr.postcode || '';
-
+                    let road = addr.road || ''; let neighborhood = addr.neighbourhood || ''; let suburb = addr.suburb || '';
+                    let city = addr.city || addr.town || addr.county || ''; let postcode = addr.postcode || '';
                     let area = [neighborhood, suburb].filter(Boolean).join(', ');
                     let parts = [road, area, city, postcode].filter(p => p.trim() !== '');
                     
                     let uniqueParts = [];
                     parts.forEach(p => {
                         let isDuplicate = uniqueParts.some(existing => existing.toLowerCase().includes(p.toLowerCase()) || p.toLowerCase().includes(existing.toLowerCase()));
-                        if (!isDuplicate) {
-                            uniqueParts.push(p);
-                        }
+                        if (!isDuplicate) uniqueParts.push(p);
                     });
 
                     document.getElementById('new-addr-area').value = uniqueParts.join(', ');
-                    
                     const houseField = document.getElementById('new-addr-house');
-                    houseField.style.borderColor = 'var(--active-brand-red)';
-                    houseField.focus();
+                    houseField.style.borderColor = 'var(--active-brand-red)'; houseField.focus();
                     setTimeout(() => { houseField.style.borderColor = 'var(--border-color)'; }, 3000);
-                    
-                } else if(data && data.display_name) {
-                    document.getElementById('new-addr-area').value = data.display_name;
-                } else {
-                    document.getElementById('new-addr-area').value = "Area not found. Please type manually.";
-                }
-            } catch (e) {
-                document.getElementById('new-addr-area').value = "Error fetching location. Please type manually.";
-            }
+                } else if(data && data.display_name) { document.getElementById('new-addr-area').value = data.display_name; } 
+                else { document.getElementById('new-addr-area').value = "Area not found. Please type manually."; }
+            } catch (e) { document.getElementById('new-addr-area').value = "Error fetching location. Please type manually."; }
         }
     </script>
 
@@ -1884,13 +1807,11 @@
         const db = getFirestore(app);
 
         window.globalUser = null; window.globalUserData = null; let confirmationResult = null;
-        
-        window.selectedAddressIndex = 0;
-        window.newAddressType = 'Home';
+        window.selectedAddressIndex = 0; window.newAddressType = 'Home';
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                window.globalUser = user; document.getElementById('nav-profile-text').innerText = "My Profile"; closeAuthModal();
+                window.globalUser = user; document.getElementById('nav-profile-text').innerText = "My Profile"; window.closeAuthModal();
                 await fetchUserData(user.uid);
             } else {
                 window.globalUser = null; window.globalUserData = null; document.getElementById('nav-profile-text').innerText = "Login";
@@ -1908,22 +1829,15 @@
                         window.globalUserData.addresses = [];
                         if (window.globalUserData.address || window.globalUserData.house) {
                             window.globalUserData.addresses.push({
-                                label: 'Home',
-                                name: window.globalUserData.name || '',
+                                label: 'Home', name: window.globalUserData.name || '',
                                 phone: window.globalUserData.phone || window.globalUser.phoneNumber,
-                                house: window.globalUserData.house || '',
-                                area: window.globalUserData.address || '',
-                                lat: '',
-                                lng: ''
+                                house: window.globalUserData.house || '', area: window.globalUserData.address || '', lat: '', lng: ''
                             });
                         }
                     }
                     
                     window.selectedAddressIndex = window.globalUserData.defaultAddressIndex || 0;
-                    if(window.selectedAddressIndex >= window.globalUserData.addresses.length) {
-                        window.selectedAddressIndex = 0;
-                    }
-                    
+                    if(window.selectedAddressIndex >= window.globalUserData.addresses.length) window.selectedAddressIndex = 0;
                     window.renderAddresses();
                 } else {
                     window.globalUserData = { name: '', phone: window.globalUser.phoneNumber, addresses: [], defaultAddressIndex: 0 };
@@ -1938,8 +1852,7 @@
                 document.getElementById('profile-modal').style.display = 'flex'; 
                 document.getElementById('profile-msg').innerText = ''; 
                 window.switchModalTab('profile');
-            } 
-            else { 
+            } else { 
                 document.getElementById('auth-modal').style.display = 'flex'; 
                 document.getElementById('auth-error').innerText = ''; 
                 window.setupRecaptcha(); 
@@ -1981,18 +1894,15 @@
             window.globalUserData.name = name;
             await setDoc(doc(db, "users", window.globalUser.uid), { name: name }, { merge: true });
             let msg = document.getElementById('main-name-msg');
-            msg.innerText = "Name saved! ✅";
-            msg.style.color = "#10b981";
+            msg.innerText = "Name saved! ✅"; msg.style.color = "#10b981";
             setTimeout(() => { msg.innerText = ''; }, 3000);
         }
 
         window.renderAddresses = () => {
-            const container = document.getElementById('addresses-container');
-            container.innerHTML = '';
+            const container = document.getElementById('addresses-container'); container.innerHTML = '';
             
             if(!window.globalUserData || !window.globalUserData.addresses || window.globalUserData.addresses.length === 0) {
-                container.innerHTML = '<p style="font-size:0.85em; color:var(--text-muted); text-align:center; padding:10px 0;">No addresses saved yet. Add one to order!</p>';
-                return;
+                container.innerHTML = '<p style="font-size:0.85em; color:var(--text-muted); text-align:center; padding:10px 0;">No addresses saved yet. Add one to order!</p>'; return;
             }
 
             window.globalUserData.addresses.forEach((addr, index) => {
@@ -2015,13 +1925,8 @@
         }
 
         window.selectAddress = async (index) => {
-            window.selectedAddressIndex = index;
-            window.globalUserData.defaultAddressIndex = index;
-            window.renderAddresses();
-            
-            if(window.globalUser) {
-                await setDoc(doc(db, "users", window.globalUser.uid), { defaultAddressIndex: index }, { merge: true });
-            }
+            window.selectedAddressIndex = index; window.globalUserData.defaultAddressIndex = index; window.renderAddresses();
+            if(window.globalUser) { await setDoc(doc(db, "users", window.globalUser.uid), { defaultAddressIndex: index }, { merge: true }); }
         }
 
         window.setAddrType = (type) => {
@@ -2045,7 +1950,6 @@
                 document.getElementById('new-addr-phone').value = addr.phone;
                 document.getElementById('new-addr-house').value = addr.house;
                 document.getElementById('new-addr-area').value = addr.area;
-                
                 document.getElementById('new-addr-lat').value = addr.lat || '';
                 document.getElementById('new-addr-lng').value = addr.lng || '';
                 
@@ -2061,7 +1965,6 @@
                 document.getElementById('new-addr-phone').value = window.globalUser ? window.globalUser.phoneNumber : '';
                 document.getElementById('new-addr-house').value = '';
                 document.getElementById('new-addr-area').value = '';
-                
                 document.getElementById('new-addr-lat').value = '';
                 document.getElementById('new-addr-lng').value = '';
                 
@@ -2084,125 +1987,59 @@
                 window.selectedAddressIndex = Math.max(0, window.globalUserData.addresses.length - 1);
             }
             window.globalUserData.defaultAddressIndex = window.selectedAddressIndex;
-            
             window.renderAddresses();
             
             if(window.globalUser) {
-                await setDoc(doc(db, "users", window.globalUser.uid), { 
-                    addresses: window.globalUserData.addresses,
-                    defaultAddressIndex: window.globalUserData.defaultAddressIndex
-                }, { merge: true });
+                await setDoc(doc(db, "users", window.globalUser.uid), { addresses: window.globalUserData.addresses, defaultAddressIndex: window.globalUserData.defaultAddressIndex }, { merge: true });
             }
         }
 
         window.saveNewAddress = async () => {
             if(!window.globalUser) return;
             
-            const name = document.getElementById('new-addr-name').value.trim();
-            const phone = document.getElementById('new-addr-phone').value.trim();
-            const house = document.getElementById('new-addr-house').value.trim();
-            const area = document.getElementById('new-addr-area').value.trim();
+            const name = document.getElementById('new-addr-name').value.trim(); const phone = document.getElementById('new-addr-phone').value.trim();
+            const house = document.getElementById('new-addr-house').value.trim(); const area = document.getElementById('new-addr-area').value.trim();
             const editIndex = parseInt(document.getElementById('edit-addr-index').value);
-            
-            const lat = document.getElementById('new-addr-lat').value;
-            const lng = document.getElementById('new-addr-lng').value;
-            
+            const lat = document.getElementById('new-addr-lat').value; const lng = document.getElementById('new-addr-lng').value;
             let msgBox = document.getElementById('addr-msg');
             
-            if(!name || !phone || !house || !area) {
-                msgBox.innerText = "Please fill all the details marked with *";
-                msgBox.style.color = "var(--active-brand-red)";
-                return;
-            }
-
-            msgBox.innerText = "Saving...";
-            msgBox.style.color = "var(--text-muted)";
+            if(!name || !phone || !house || !area) { msgBox.innerText = "Please fill all details (*)"; msgBox.style.color = "var(--active-brand-red)"; return; }
+            msgBox.innerText = "Saving..."; msgBox.style.color = "var(--text-muted)";
             
-            let newAddrObj = {
-                label: window.newAddressType,
-                name: name,
-                phone: phone,
-                house: house,
-                area: area,
-                lat: lat,
-                lng: lng
-            };
-
+            let newAddrObj = { label: window.newAddressType, name: name, phone: phone, house: house, area: area, lat: lat, lng: lng };
             if(!window.globalUserData.addresses) window.globalUserData.addresses = [];
 
-            if(editIndex >= 0) {
-                window.globalUserData.addresses[editIndex] = newAddrObj;
-            } else {
-                window.globalUserData.addresses.push(newAddrObj);
-                window.selectedAddressIndex = window.globalUserData.addresses.length - 1; 
-                window.globalUserData.defaultAddressIndex = window.selectedAddressIndex;
-            }
+            if(editIndex >= 0) { window.globalUserData.addresses[editIndex] = newAddrObj; } 
+            else { window.globalUserData.addresses.push(newAddrObj); window.selectedAddressIndex = window.globalUserData.addresses.length - 1; window.globalUserData.defaultAddressIndex = window.selectedAddressIndex; }
 
             try {
-                await setDoc(doc(db, "users", window.globalUser.uid), { 
-                    addresses: window.globalUserData.addresses,
-                    defaultAddressIndex: window.globalUserData.defaultAddressIndex,
-                    name: window.globalUserData.name || ''
-                }, { merge: true });
-                
-                window.hideAddAddressForm();
-                window.renderAddresses();
-                document.getElementById('profile-msg').innerText = "Address saved successfully! ✅";
-                document.getElementById('profile-msg').style.color = "#10b981";
+                await setDoc(doc(db, "users", window.globalUser.uid), { addresses: window.globalUserData.addresses, defaultAddressIndex: window.globalUserData.defaultAddressIndex, name: window.globalUserData.name || '' }, { merge: true });
+                window.hideAddAddressForm(); window.renderAddresses();
+                document.getElementById('profile-msg').innerText = "Address saved! ✅"; document.getElementById('profile-msg').style.color = "#10b981";
                 setTimeout(() => { document.getElementById('profile-msg').innerText = ''; }, 3000);
-                
-            } catch(e) { 
-                msgBox.innerText = "Failed to save."; 
-                msgBox.style.color = "var(--active-brand-red)"; 
-            }
+            } catch(e) { msgBox.innerText = "Failed to save."; msgBox.style.color = "var(--active-brand-red)"; }
         };
 
         window.loadPastOrders = async (uid) => {
             const listDiv = document.getElementById('order-history-list');
             try {
                 const querySnapshot = await getDocs(query(collection(db, "orders"), where("userId", "==", uid), orderBy("timestamp", "desc")));
+                if (querySnapshot.empty) { listDiv.innerHTML = '<p style="font-size: 0.85em; color: var(--text-muted); text-align: center; padding: 20px 0;">No past orders found. 🍦</p>'; return; }
                 
-                if (querySnapshot.empty) { 
-                    listDiv.innerHTML = '<p style="font-size: 0.85em; color: var(--text-muted); text-align: center; padding: 20px 0;">No past orders found. 🍦</p>'; 
-                    return; 
-                }
-                
-                let html = '';
-                let count = 0;
+                let html = ''; let count = 0;
                 querySnapshot.forEach((doc) => {
-                    if (count >= 10) return;
-                    const data = doc.data(); 
-                    
+                    if (count >= 10) return; const data = doc.data(); 
                     const dateObj = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
                     const dateStr = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
                     const timeStr = dateObj.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-                    
                     let itemsHtml = '';
-                    if(data.itemsSummary) {
-                        const itemsArray = data.itemsSummary.split(', ');
-                        itemsArray.forEach(item => {
-                            itemsHtml += `<div class="order-item-line"><span style="color:#cbd5e1;">▪</span> <span>${item}</span></div>`;
-                        });
-                    }
+                    if(data.itemsSummary) { data.itemsSummary.split(', ').forEach(item => { itemsHtml += `<div class="order-item-line"><span style="color:#cbd5e1;">▪</span> <span>${item}</span></div>`; }); }
                     
-                    html += `
-                        <div class="order-history-card">
-                            <div class="order-header-row">
-                                <div class="order-history-date">📅 ${dateStr} <span class="order-history-time">${timeStr}</span></div>
-                                <div class="order-history-total">₹${data.totalAmount}</div>
-                            </div>
-                            <div class="order-history-items">
-                                ${itemsHtml}
-                            </div>
-                        </div>
-                    `;
+                    html += `<div class="order-history-card"><div class="order-header-row"><div class="order-history-date">📅 ${dateStr} <span class="order-history-time">${timeStr}</span></div><div class="order-history-total">₹${data.totalAmount}</div></div><div class="order-history-items">${itemsHtml}</div></div>`;
                     count++;
                 });
                 listDiv.innerHTML = html;
-            } catch(e) { 
-                listDiv.innerHTML = '<p style="font-size: 0.85em; color: #e74c3c; text-align: center; padding:15px;">Failed to load orders. Please check connection.</p>'; 
-                console.error(e); 
-            }
+            } catch(e) { listDiv.innerHTML = '<p style="font-size: 0.85em; color: #e74c3c; text-align: center; padding:15px;">Failed to load orders.</p>'; }
         };
 
         window.logout = () => { signOut(auth).then(() => { window.closeProfileModal(); window.location.reload(); }); };
@@ -2217,15 +2054,13 @@
                 }
                 
                 if (window.globalUser && window.globalUserData && window.globalUserData.addresses && window.globalUserData.addresses.length > 0) {
-                    
                     let addr = window.globalUserData.addresses[window.selectedAddressIndex];
                     if(!addr) addr = window.globalUserData.addresses[0]; 
-                    
                     let fullDeliveryAddress = `${addr.house}, ${addr.area}`;
                     message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
                     
                     if (addr.lat && addr.lng) {
-                        message += `📍 *Location Link:* https://maps.google.com/?q=LAT,LNG...{addr.lat},${addr.lng}\n`;
+                        message += `📍 *Location Link:* https://maps.google.com/?q=...{addr.lat},${addr.lng}\n`;
                     }
                     
                     addDoc(collection(db, "orders"), { userId: window.globalUser.uid, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() }).then(() => {
