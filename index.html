@@ -150,8 +150,8 @@
         /* 🟢 PERFECTED PULL TO REFRESH INDICATOR 🟢 */
         #pull-refresh-indicator { 
             text-align: center; color: var(--glacier-blue); font-weight: 700; font-size: 0.9em; 
-            height: 0px; overflow: hidden; display: flex; align-items: center; justify-content: center; 
-            width: 100%; background: transparent; opacity: 0; 
+            height: 0px; min-height: 0px; overflow: hidden; display: flex; align-items: center; justify-content: center; 
+            width: 100%; background: transparent; opacity: 0; flex-shrink: 0; 
         }
         .ptr-content { display: flex; align-items: center; gap: 8px; padding: 15px; }
         .ptr-icon { font-size: 1.4em; display: inline-block; transition: transform 0.3s ease; }
@@ -943,13 +943,15 @@
                 let dy = y - startY;
                 
                 if (dy > 0 && productsArea.scrollTop <= 5) {
-                    ptrHeight = dy * 0.4; 
+                    ptrHeight = dy * 0.4; // friction
                     
                     if (ptrHeight > 0) {
-                        if (e.cancelable) e.preventDefault(); 
+                        if (e.cancelable) e.preventDefault(); // Stop bounce
                         
                         pullIndicator.style.opacity = '1';
+                        // Force height & min-height to beat flex-shrink
                         pullIndicator.style.height = Math.min(ptrHeight, 80) + 'px';
+                        pullIndicator.style.minHeight = Math.min(ptrHeight, 80) + 'px';
                         
                         let icon = pullIndicator.querySelector('.ptr-icon');
                         let text = pullIndicator.querySelector('.ptr-text');
@@ -971,10 +973,12 @@
                 if (!isPulling) return;
                 isPulling = false;
                 
-                pullIndicator.style.transition = 'height 0.3s ease, opacity 0.3s ease';
+                pullIndicator.style.transition = 'height 0.3s ease, min-height 0.3s ease, opacity 0.3s ease';
                 
                 if (ptrHeight >= 50) {
                     pullIndicator.style.height = '60px';
+                    pullIndicator.style.minHeight = '60px';
+                    
                     let icon = pullIndicator.querySelector('.ptr-icon');
                     let text = pullIndicator.querySelector('.ptr-text');
                     
@@ -982,7 +986,8 @@
                     if(text) text.innerText = 'refreshing...'; 
                     
                     refreshMenu().then(() => { 
-                        pullIndicator.style.height = '0'; 
+                        pullIndicator.style.height = '0px'; 
+                        pullIndicator.style.minHeight = '0px';
                         pullIndicator.style.opacity = '0'; 
                         setTimeout(() => { 
                             if(icon) { icon.innerHTML = '⬇️'; icon.style.transform = 'rotate(0deg)'; }
@@ -990,9 +995,11 @@
                         }, 300);
                     });
                 } else { 
-                    pullIndicator.style.height = '0'; 
+                    pullIndicator.style.height = '0px'; 
+                    pullIndicator.style.minHeight = '0px';
                     pullIndicator.style.opacity = '0'; 
                 }
+                ptrHeight = 0;
             });
         }
 
@@ -1368,7 +1375,10 @@
             });
             
             if (currentCategory.includes('New') && brandName !== 'All Brands') {
-                if (!allItems.some(i => i.brand === brandName && isNewArrival(i))) { setCategory('All Items'); return; }
+                if (!allItems.some(i => i.brand === brandName && isNewArrival(i))) { 
+                    setCategory('All Items'); 
+                    return; 
+                }
             }
             applyFilters();
             setTimeout(() => document.getElementById('products-area').scrollTop = 0, 10);
@@ -1485,12 +1495,22 @@
 
         function getItemsPerPage() {
             let itemsPerRow = 4;
-            if (window.innerWidth <= 360) { itemsPerRow = 2; } 
-            else if (window.innerWidth <= 999) { itemsPerRow = window.matchMedia("(orientation: landscape)").matches ? 3 : 2; } 
-            else {
+            if (window.innerWidth <= 360) {
+                itemsPerRow = 2; 
+            } else if (window.innerWidth <= 999) {
+                if (window.matchMedia("(orientation: landscape)").matches) {
+                    itemsPerRow = 3;
+                } else {
+                    itemsPerRow = 2;
+                }
+            } else {
                 const grid = document.getElementById('main-menu-grid');
                 let gridWidth = grid.clientWidth;
-                itemsPerRow = gridWidth > 0 ? Math.floor((gridWidth + 20) / 240) : Math.floor((window.innerWidth - 300) / 240) || 4;
+                if(gridWidth > 0) {
+                    itemsPerRow = Math.floor((gridWidth + 20) / 240); 
+                } else {
+                    itemsPerRow = Math.floor((window.innerWidth - 300) / 240) || 4;
+                }
             }
             return Math.max(1, itemsPerRow) * 4; 
         }
@@ -1563,18 +1583,35 @@
             document.getElementById('pd-modal-name').innerText = item.name;
             document.getElementById('pd-modal-volume').innerText = volText || '';
 
-            let desc = ''; let ing = '';
+            let desc = '';
+            let ing = '';
+            
             for(let key in item) {
                 let cleanKey = String(key).toLowerCase().replace(/[^a-z]/g, '');
-                if(['description', 'desc', 'detail', 'details'].includes(cleanKey)) { if(item[key]) desc = String(item[key]).trim(); }
-                if(['ingredient', 'ingredients', 'composition'].includes(cleanKey)) { if(item[key]) ing = String(item[key]).trim(); }
+                if(['description', 'desc', 'detail', 'details'].includes(cleanKey)) {
+                    if(item[key]) desc = String(item[key]).trim();
+                }
+                if(['ingredient', 'ingredients', 'composition'].includes(cleanKey)) {
+                    if(item[key]) ing = String(item[key]).trim();
+                }
             }
             
             const descEl = document.getElementById('pd-modal-desc');
             const ingEl = document.getElementById('pd-modal-ingredients');
             
-            if(desc !== '') { descEl.innerText = desc; descEl.style.display = 'block'; } else { descEl.style.display = 'none'; }
-            if(ing !== '') { ingEl.innerText = "*Note: " + ing; ingEl.style.display = 'block'; } else { ingEl.style.display = 'none'; }
+            if(desc !== '') {
+                descEl.innerText = desc;
+                descEl.style.display = 'block';
+            } else {
+                descEl.style.display = 'none';
+            }
+            
+            if(ing !== '') {
+                ingEl.innerText = "*Note: " + ing;
+                ingEl.style.display = 'block';
+            } else {
+                ingEl.style.display = 'none';
+            }
 
             const priceWrap = document.getElementById('pd-modal-price-wrap');
             let priceHTML = discountNum > 0 ? `<span class="item-price">₹${item.price}</span> <span class="item-mrp" style="text-decoration:line-through; color:var(--text-muted); font-size:0.8em; margin-left:5px;">₹${item.mrp}</span>` : `<span class="item-price">₹${item.price}</span>`;
@@ -1590,7 +1627,9 @@
             document.getElementById('product-detail-modal').style.display = 'flex';
         }
 
-        window.closeProductDetailModal = () => { document.getElementById('product-detail-modal').style.display = 'none'; }
+        window.closeProductDetailModal = () => {
+            document.getElementById('product-detail-modal').style.display = 'none';
+        }
 
         function updateAddButtons() {
             allItems.forEach(item => {
@@ -1604,14 +1643,18 @@
         }
 
         function addToCart(name, price, brand) { 
-            if(cart[name]) cart[name].qty += 1; else cart[name] = { price: price, qty: 1, brand: brand }; 
-            updateCartUI(); if(document.getElementById('product-detail-modal').style.display === 'flex') openProductDetail(name);
+            if(cart[name]) cart[name].qty += 1; 
+            else cart[name] = { price: price, qty: 1, brand: brand }; 
+            updateCartUI(); 
+            if(document.getElementById('product-detail-modal').style.display === 'flex') openProductDetail(name);
         }
 
         function changeQty(name, delta) { 
             if(cart[name]) { 
-                cart[name].qty += delta; if(cart[name].qty <= 0) delete cart[name]; 
-                updateCartUI(); if(document.getElementById('product-detail-modal').style.display === 'flex') openProductDetail(name);
+                cart[name].qty += delta; 
+                if(cart[name].qty <= 0) delete cart[name]; 
+                updateCartUI(); 
+                if(document.getElementById('product-detail-modal').style.display === 'flex') openProductDetail(name);
             } 
         }
 
@@ -1620,7 +1663,9 @@
             let totalQty = 0; let totalPrice = 0; cartList.innerHTML = '';
             for (const [name, data] of Object.entries(cart)) {
                 totalQty += data.qty; const itemTotal = data.price * data.qty; totalPrice += itemTotal;
+                
                 let itemPriceHTML = `₹${itemTotal}`;
+
                 cartList.innerHTML += `<div class="cart-item"><div class="cart-item-details"><div style="font-size: 0.75em; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">${data.brand}</div><div style="font-weight: 600; color: var(--text-main);">${name}</div></div><div class="cart-item-controls"><button class="qty-btn" onclick="changeQty('${name.replace(/'/g, "\\'")}', -1)">-</button><span style="font-weight: 700;">${data.qty}</span><button class="qty-btn" onclick="changeQty('${name.replace(/'/g, "\\'")}', 1)">+</button></div><div class="cart-item-price">${itemPriceHTML}</div></div>`;
             }
             updateAddButtons();
@@ -1637,8 +1682,13 @@
         function closeAuthModal() { document.getElementById('auth-modal').style.display = 'none'; }
         function closeProfileModal() { document.getElementById('profile-modal').style.display = 'none'; }
         
-        // 🟢 LEAFLET MAP LOGIC (FREE OPENSTREETMAP) 🟢
-        let map; let marker; let searchTimeout;
+        window.onload = loadData;
+    </script>
+
+    <script>
+        let map;
+        let marker;
+        let searchTimeout;
 
         function initLocationPicker() {
             document.getElementById('map-wrapper-parent').style.display = 'block';
@@ -1646,7 +1696,10 @@
             
             if (!map) {
                 map = L.map('map-container').setView([26.9124, 75.7873], 13); 
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
+
                 marker = L.marker([26.9124, 75.7873], {draggable: true}).addTo(map);
                 
                 marker.on('dragend', function(event) {
@@ -1663,30 +1716,44 @@
                     getAddressFromCoords(e.latlng.lat, e.latlng.lng);
                 });
             }
+            
             setTimeout(() => { map.invalidateSize(); }, 300);
             getCurrentLocation();
         }
 
         function getCurrentLocation() {
-            document.getElementById('new-addr-area').value = "Locating you... 📍";
             if (navigator.geolocation) {
+                document.getElementById('new-addr-area').value = "Locating you... 📍";
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        const lat = position.coords.latitude; const lng = position.coords.longitude;
-                        document.getElementById('new-addr-lat').value = lat; document.getElementById('new-addr-lng').value = lng;
-                        map.setView([lat, lng], 16); marker.setLatLng([lat, lng]); getAddressFromCoords(lat, lng);
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        document.getElementById('new-addr-lat').value = lat;
+                        document.getElementById('new-addr-lng').value = lng;
+
+                        map.setView([lat, lng], 16);
+                        marker.setLatLng([lat, lng]);
+                        getAddressFromCoords(lat, lng);
                     },
-                    (error) => { document.getElementById('new-addr-area').value = "Location access denied. Please search or tap on map."; },
-                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                    (error) => {
+                        console.warn("Geolocation Error:", error.message);
+                        document.getElementById('new-addr-area').value = "Location access denied. Please search or tap on map.";
+                    },
+                    { enableHighAccuracy: true }
                 );
-            } else { document.getElementById('new-addr-area').value = "GPS not supported. Please search or tap on map."; }
+            }
         }
 
         function handleSearchInput(event) {
             clearTimeout(searchTimeout);
             let query = event.target.value.trim();
             const suggestionBox = document.getElementById('search-suggestions');
-            if (query.length < 3) { suggestionBox.style.display = 'none'; return; }
+            
+            if (query.length < 3) {
+                suggestionBox.style.display = 'none';
+                return;
+            }
             
             searchTimeout = setTimeout(async () => {
                 try {
@@ -1702,33 +1769,56 @@
                             div.onclick = () => {
                                 document.getElementById('map-search-input').value = place.display_name;
                                 suggestionBox.style.display = 'none';
-                                let lat = parseFloat(place.lat); let lon = parseFloat(place.lon);
-                                document.getElementById('new-addr-lat').value = lat; document.getElementById('new-addr-lng').value = lon;
-                                map.setView([lat, lon], 16); marker.setLatLng([lat, lon]); getAddressFromCoords(lat, lon);
+                                
+                                let lat = parseFloat(place.lat);
+                                let lon = parseFloat(place.lon);
+                                
+                                document.getElementById('new-addr-lat').value = lat;
+                                document.getElementById('new-addr-lng').value = lon;
+
+                                map.setView([lat, lon], 16);
+                                marker.setLatLng([lat, lon]);
+                                getAddressFromCoords(lat, lon);
                             };
                             suggestionBox.appendChild(div);
                         });
                         suggestionBox.style.display = 'block';
-                    } else { suggestionBox.style.display = 'none'; }
-                } catch (error) {}
+                    } else {
+                        suggestionBox.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Search error:', error);
+                }
             }, 500); 
         }
 
         async function searchLocation() {
             const query = document.getElementById('map-search-input').value.trim();
             if(!query) return;
+            
             document.getElementById('search-suggestions').style.display = 'none';
             document.getElementById('new-addr-area').value = "Searching... 🔍";
             
             try {
                 let response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&countrycodes=in`);
                 let data = await response.json();
+                
                 if(data && data.length > 0) {
-                    let lat = data[0].lat; let lon = data[0].lon;
-                    document.getElementById('new-addr-lat').value = lat; document.getElementById('new-addr-lng').value = lon;
-                    map.setView([lat, lon], 16); marker.setLatLng([lat, lon]); getAddressFromCoords(lat, lon); 
-                } else { document.getElementById('new-addr-area').value = "Location not found. Try a different search."; }
-            } catch(e) { document.getElementById('new-addr-area').value = "Search error. Please try again."; }
+                    let lat = data[0].lat;
+                    let lon = data[0].lon;
+                    
+                    document.getElementById('new-addr-lat').value = lat;
+                    document.getElementById('new-addr-lng').value = lon;
+
+                    map.setView([lat, lon], 16);
+                    marker.setLatLng([lat, lon]);
+                    getAddressFromCoords(lat, lon); 
+                } else {
+                    document.getElementById('new-addr-area').value = "Location not found. Try a different search.";
+                }
+            } catch(e) {
+                document.getElementById('new-addr-area').value = "Search error. Please try again.";
+            }
         }
 
         async function getAddressFromCoords(lat, lng) {
@@ -1739,27 +1829,40 @@
                 
                 if(data && data.address) {
                     let addr = data.address;
-                    let road = addr.road || ''; let neighborhood = addr.neighbourhood || ''; let suburb = addr.suburb || '';
-                    let city = addr.city || addr.town || addr.county || ''; let postcode = addr.postcode || '';
+                    
+                    let road = addr.road || '';
+                    let neighborhood = addr.neighbourhood || '';
+                    let suburb = addr.suburb || '';
+                    let city = addr.city || addr.town || addr.county || '';
+                    let postcode = addr.postcode || '';
+
                     let area = [neighborhood, suburb].filter(Boolean).join(', ');
                     let parts = [road, area, city, postcode].filter(p => p.trim() !== '');
                     
                     let uniqueParts = [];
                     parts.forEach(p => {
                         let isDuplicate = uniqueParts.some(existing => existing.toLowerCase().includes(p.toLowerCase()) || p.toLowerCase().includes(existing.toLowerCase()));
-                        if (!isDuplicate) uniqueParts.push(p);
+                        if (!isDuplicate) {
+                            uniqueParts.push(p);
+                        }
                     });
 
                     document.getElementById('new-addr-area').value = uniqueParts.join(', ');
+                    
                     const houseField = document.getElementById('new-addr-house');
-                    houseField.style.borderColor = 'var(--active-brand-red)'; houseField.focus();
+                    houseField.style.borderColor = 'var(--active-brand-red)';
+                    houseField.focus();
                     setTimeout(() => { houseField.style.borderColor = 'var(--border-color)'; }, 3000);
-                } else if(data && data.display_name) { document.getElementById('new-addr-area').value = data.display_name; } 
-                else { document.getElementById('new-addr-area').value = "Area not found. Please type manually."; }
-            } catch (e) { document.getElementById('new-addr-area').value = "Error fetching location. Please type manually."; }
+                    
+                } else if(data && data.display_name) {
+                    document.getElementById('new-addr-area').value = data.display_name;
+                } else {
+                    document.getElementById('new-addr-area').value = "Area not found. Please type manually.";
+                }
+            } catch (e) {
+                document.getElementById('new-addr-area').value = "Error fetching location. Please type manually.";
+            }
         }
-        
-        window.onload = loadData;
     </script>
 
     <script type="module">
@@ -1781,11 +1884,13 @@
         const db = getFirestore(app);
 
         window.globalUser = null; window.globalUserData = null; let confirmationResult = null;
-        window.selectedAddressIndex = 0; window.newAddressType = 'Home';
+        
+        window.selectedAddressIndex = 0;
+        window.newAddressType = 'Home';
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                window.globalUser = user; document.getElementById('nav-profile-text').innerText = "My Profile"; window.closeAuthModal();
+                window.globalUser = user; document.getElementById('nav-profile-text').innerText = "My Profile"; closeAuthModal();
                 await fetchUserData(user.uid);
             } else {
                 window.globalUser = null; window.globalUserData = null; document.getElementById('nav-profile-text').innerText = "Login";
@@ -1803,15 +1908,22 @@
                         window.globalUserData.addresses = [];
                         if (window.globalUserData.address || window.globalUserData.house) {
                             window.globalUserData.addresses.push({
-                                label: 'Home', name: window.globalUserData.name || '',
+                                label: 'Home',
+                                name: window.globalUserData.name || '',
                                 phone: window.globalUserData.phone || window.globalUser.phoneNumber,
-                                house: window.globalUserData.house || '', area: window.globalUserData.address || '', lat: '', lng: ''
+                                house: window.globalUserData.house || '',
+                                area: window.globalUserData.address || '',
+                                lat: '',
+                                lng: ''
                             });
                         }
                     }
                     
                     window.selectedAddressIndex = window.globalUserData.defaultAddressIndex || 0;
-                    if(window.selectedAddressIndex >= window.globalUserData.addresses.length) window.selectedAddressIndex = 0;
+                    if(window.selectedAddressIndex >= window.globalUserData.addresses.length) {
+                        window.selectedAddressIndex = 0;
+                    }
+                    
                     window.renderAddresses();
                 } else {
                     window.globalUserData = { name: '', phone: window.globalUser.phoneNumber, addresses: [], defaultAddressIndex: 0 };
@@ -1826,7 +1938,8 @@
                 document.getElementById('profile-modal').style.display = 'flex'; 
                 document.getElementById('profile-msg').innerText = ''; 
                 window.switchModalTab('profile');
-            } else { 
+            } 
+            else { 
                 document.getElementById('auth-modal').style.display = 'flex'; 
                 document.getElementById('auth-error').innerText = ''; 
                 window.setupRecaptcha(); 
@@ -1868,15 +1981,18 @@
             window.globalUserData.name = name;
             await setDoc(doc(db, "users", window.globalUser.uid), { name: name }, { merge: true });
             let msg = document.getElementById('main-name-msg');
-            msg.innerText = "Name saved! ✅"; msg.style.color = "#10b981";
+            msg.innerText = "Name saved! ✅";
+            msg.style.color = "#10b981";
             setTimeout(() => { msg.innerText = ''; }, 3000);
         }
 
         window.renderAddresses = () => {
-            const container = document.getElementById('addresses-container'); container.innerHTML = '';
+            const container = document.getElementById('addresses-container');
+            container.innerHTML = '';
             
             if(!window.globalUserData || !window.globalUserData.addresses || window.globalUserData.addresses.length === 0) {
-                container.innerHTML = '<p style="font-size:0.85em; color:var(--text-muted); text-align:center; padding:10px 0;">No addresses saved yet. Add one to order!</p>'; return;
+                container.innerHTML = '<p style="font-size:0.85em; color:var(--text-muted); text-align:center; padding:10px 0;">No addresses saved yet. Add one to order!</p>';
+                return;
             }
 
             window.globalUserData.addresses.forEach((addr, index) => {
@@ -1899,8 +2015,13 @@
         }
 
         window.selectAddress = async (index) => {
-            window.selectedAddressIndex = index; window.globalUserData.defaultAddressIndex = index; window.renderAddresses();
-            if(window.globalUser) { await setDoc(doc(db, "users", window.globalUser.uid), { defaultAddressIndex: index }, { merge: true }); }
+            window.selectedAddressIndex = index;
+            window.globalUserData.defaultAddressIndex = index;
+            window.renderAddresses();
+            
+            if(window.globalUser) {
+                await setDoc(doc(db, "users", window.globalUser.uid), { defaultAddressIndex: index }, { merge: true });
+            }
         }
 
         window.setAddrType = (type) => {
@@ -1924,6 +2045,7 @@
                 document.getElementById('new-addr-phone').value = addr.phone;
                 document.getElementById('new-addr-house').value = addr.house;
                 document.getElementById('new-addr-area').value = addr.area;
+                
                 document.getElementById('new-addr-lat').value = addr.lat || '';
                 document.getElementById('new-addr-lng').value = addr.lng || '';
                 
@@ -1939,6 +2061,7 @@
                 document.getElementById('new-addr-phone').value = window.globalUser ? window.globalUser.phoneNumber : '';
                 document.getElementById('new-addr-house').value = '';
                 document.getElementById('new-addr-area').value = '';
+                
                 document.getElementById('new-addr-lat').value = '';
                 document.getElementById('new-addr-lng').value = '';
                 
@@ -1961,59 +2084,125 @@
                 window.selectedAddressIndex = Math.max(0, window.globalUserData.addresses.length - 1);
             }
             window.globalUserData.defaultAddressIndex = window.selectedAddressIndex;
+            
             window.renderAddresses();
             
             if(window.globalUser) {
-                await setDoc(doc(db, "users", window.globalUser.uid), { addresses: window.globalUserData.addresses, defaultAddressIndex: window.globalUserData.defaultAddressIndex }, { merge: true });
+                await setDoc(doc(db, "users", window.globalUser.uid), { 
+                    addresses: window.globalUserData.addresses,
+                    defaultAddressIndex: window.globalUserData.defaultAddressIndex
+                }, { merge: true });
             }
         }
 
         window.saveNewAddress = async () => {
             if(!window.globalUser) return;
             
-            const name = document.getElementById('new-addr-name').value.trim(); const phone = document.getElementById('new-addr-phone').value.trim();
-            const house = document.getElementById('new-addr-house').value.trim(); const area = document.getElementById('new-addr-area').value.trim();
+            const name = document.getElementById('new-addr-name').value.trim();
+            const phone = document.getElementById('new-addr-phone').value.trim();
+            const house = document.getElementById('new-addr-house').value.trim();
+            const area = document.getElementById('new-addr-area').value.trim();
             const editIndex = parseInt(document.getElementById('edit-addr-index').value);
-            const lat = document.getElementById('new-addr-lat').value; const lng = document.getElementById('new-addr-lng').value;
+            
+            const lat = document.getElementById('new-addr-lat').value;
+            const lng = document.getElementById('new-addr-lng').value;
+            
             let msgBox = document.getElementById('addr-msg');
             
-            if(!name || !phone || !house || !area) { msgBox.innerText = "Please fill all details (*)"; msgBox.style.color = "var(--active-brand-red)"; return; }
-            msgBox.innerText = "Saving..."; msgBox.style.color = "var(--text-muted)";
+            if(!name || !phone || !house || !area) {
+                msgBox.innerText = "Please fill all the details marked with *";
+                msgBox.style.color = "var(--active-brand-red)";
+                return;
+            }
+
+            msgBox.innerText = "Saving...";
+            msgBox.style.color = "var(--text-muted)";
             
-            let newAddrObj = { label: window.newAddressType, name: name, phone: phone, house: house, area: area, lat: lat, lng: lng };
+            let newAddrObj = {
+                label: window.newAddressType,
+                name: name,
+                phone: phone,
+                house: house,
+                area: area,
+                lat: lat,
+                lng: lng
+            };
+
             if(!window.globalUserData.addresses) window.globalUserData.addresses = [];
 
-            if(editIndex >= 0) { window.globalUserData.addresses[editIndex] = newAddrObj; } 
-            else { window.globalUserData.addresses.push(newAddrObj); window.selectedAddressIndex = window.globalUserData.addresses.length - 1; window.globalUserData.defaultAddressIndex = window.selectedAddressIndex; }
+            if(editIndex >= 0) {
+                window.globalUserData.addresses[editIndex] = newAddrObj;
+            } else {
+                window.globalUserData.addresses.push(newAddrObj);
+                window.selectedAddressIndex = window.globalUserData.addresses.length - 1; 
+                window.globalUserData.defaultAddressIndex = window.selectedAddressIndex;
+            }
 
             try {
-                await setDoc(doc(db, "users", window.globalUser.uid), { addresses: window.globalUserData.addresses, defaultAddressIndex: window.globalUserData.defaultAddressIndex, name: window.globalUserData.name || '' }, { merge: true });
-                window.hideAddAddressForm(); window.renderAddresses();
-                document.getElementById('profile-msg').innerText = "Address saved! ✅"; document.getElementById('profile-msg').style.color = "#10b981";
+                await setDoc(doc(db, "users", window.globalUser.uid), { 
+                    addresses: window.globalUserData.addresses,
+                    defaultAddressIndex: window.globalUserData.defaultAddressIndex,
+                    name: window.globalUserData.name || ''
+                }, { merge: true });
+                
+                window.hideAddAddressForm();
+                window.renderAddresses();
+                document.getElementById('profile-msg').innerText = "Address saved successfully! ✅";
+                document.getElementById('profile-msg').style.color = "#10b981";
                 setTimeout(() => { document.getElementById('profile-msg').innerText = ''; }, 3000);
-            } catch(e) { msgBox.innerText = "Failed to save."; msgBox.style.color = "var(--active-brand-red)"; }
+                
+            } catch(e) { 
+                msgBox.innerText = "Failed to save."; 
+                msgBox.style.color = "var(--active-brand-red)"; 
+            }
         };
 
         window.loadPastOrders = async (uid) => {
             const listDiv = document.getElementById('order-history-list');
             try {
                 const querySnapshot = await getDocs(query(collection(db, "orders"), where("userId", "==", uid), orderBy("timestamp", "desc")));
-                if (querySnapshot.empty) { listDiv.innerHTML = '<p style="font-size: 0.85em; color: var(--text-muted); text-align: center; padding: 20px 0;">No past orders found. 🍦</p>'; return; }
                 
-                let html = ''; let count = 0;
+                if (querySnapshot.empty) { 
+                    listDiv.innerHTML = '<p style="font-size: 0.85em; color: var(--text-muted); text-align: center; padding: 20px 0;">No past orders found. 🍦</p>'; 
+                    return; 
+                }
+                
+                let html = '';
+                let count = 0;
                 querySnapshot.forEach((doc) => {
-                    if (count >= 10) return; const data = doc.data(); 
+                    if (count >= 10) return;
+                    const data = doc.data(); 
+                    
                     const dateObj = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
                     const dateStr = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
                     const timeStr = dateObj.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-                    let itemsHtml = '';
-                    if(data.itemsSummary) { data.itemsSummary.split(', ').forEach(item => { itemsHtml += `<div class="order-item-line"><span style="color:#cbd5e1;">▪</span> <span>${item}</span></div>`; }); }
                     
-                    html += `<div class="order-history-card"><div class="order-header-row"><div class="order-history-date">📅 ${dateStr} <span class="order-history-time">${timeStr}</span></div><div class="order-history-total">₹${data.totalAmount}</div></div><div class="order-history-items">${itemsHtml}</div></div>`;
+                    let itemsHtml = '';
+                    if(data.itemsSummary) {
+                        const itemsArray = data.itemsSummary.split(', ');
+                        itemsArray.forEach(item => {
+                            itemsHtml += `<div class="order-item-line"><span style="color:#cbd5e1;">▪</span> <span>${item}</span></div>`;
+                        });
+                    }
+                    
+                    html += `
+                        <div class="order-history-card">
+                            <div class="order-header-row">
+                                <div class="order-history-date">📅 ${dateStr} <span class="order-history-time">${timeStr}</span></div>
+                                <div class="order-history-total">₹${data.totalAmount}</div>
+                            </div>
+                            <div class="order-history-items">
+                                ${itemsHtml}
+                            </div>
+                        </div>
+                    `;
                     count++;
                 });
                 listDiv.innerHTML = html;
-            } catch(e) { listDiv.innerHTML = '<p style="font-size: 0.85em; color: #e74c3c; text-align: center; padding:15px;">Failed to load orders.</p>'; }
+            } catch(e) { 
+                listDiv.innerHTML = '<p style="font-size: 0.85em; color: #e74c3c; text-align: center; padding:15px;">Failed to load orders. Please check connection.</p>'; 
+                console.error(e); 
+            }
         };
 
         window.logout = () => { signOut(auth).then(() => { window.closeProfileModal(); window.location.reload(); }); };
@@ -2028,8 +2217,10 @@
                 }
                 
                 if (window.globalUser && window.globalUserData && window.globalUserData.addresses && window.globalUserData.addresses.length > 0) {
+                    
                     let addr = window.globalUserData.addresses[window.selectedAddressIndex];
                     if(!addr) addr = window.globalUserData.addresses[0]; 
+                    
                     let fullDeliveryAddress = `${addr.house}, ${addr.area}`;
                     message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
                     
