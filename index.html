@@ -233,6 +233,20 @@
 
         #load-more-container { text-align: center; margin: 10px 0 30px 0; display: none; width: 100%; }
 
+        /* 🟢 STORE LOCATION SECTION CSS 🟢 */
+        .store-location-card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color); padding: 20px; margin: 20px 0 30px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 15px;}
+        .store-info-top { display: flex; gap: 15px; align-items: stretch; justify-content: space-between; }
+        .store-text { flex: 1; }
+        .store-text h3 { margin: 0 0 8px 0; font-size: 1.1em; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 6px;}
+        .store-text p { margin: 0; font-size: 0.85em; color: var(--text-muted); line-height: 1.5; font-weight: 500;}
+        .store-map-preview { width: 120px; height: 90px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); flex-shrink: 0; background: var(--chip-bg);}
+        .store-actions { display: flex; gap: 10px; width: 100%; }
+        .store-btn { flex: 1; display: flex; justify-content: center; align-items: center; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 0.9em; text-decoration: none; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.05);}
+        .btn-directions { background: var(--glacier-blue); color: white; border: none;}
+        .btn-directions:hover { background: #1a42a4; transform: translateY(-2px);}
+        .btn-call { background: #10b981; color: white; border: none;}
+        .btn-call:hover { background: #059669; transform: translateY(-2px);}
+
         .legal-footer { text-align: center; font-size: 0.7em; color: var(--text-muted); padding: 30px 15px 40px 15px; margin-top: auto; font-weight: 500; border-top: 1px dashed var(--border-color); width: 100%;}
         .legal-footer p { margin: 5px 0; }
         .legal-notice-vol { color: var(--active-brand-red); font-size: 1.1em; font-weight: 700; margin-bottom: 12px !important;}
@@ -410,10 +424,7 @@
                 width: auto !important; 
                 min-width: max-content !important;
             }
-            .cat-item.active {
-                background: var(--glacier-blue) !important;
-                border-color: var(--glacier-blue) !important;
-            }
+            .cat-item.active { background: var(--glacier-blue) !important; border-color: var(--glacier-blue) !important; }
             .cat-icon { display: none !important; } 
             .cat-name { font-size: 0.8em !important; font-weight: 600 !important; color: var(--text-main) !important; padding: 0 !important;}
             .cat-item.active .cat-name { color: white !important; }
@@ -473,6 +484,11 @@
             .cart-badge { width: 18px; height: 18px; font-size: 0.6em; top:-4px; right:-4px;}
             
             #toast-container { bottom: calc(20px + env(safe-area-inset-bottom)); }
+
+            /* Mobile tweaks for store card */
+            .store-info-top { flex-direction: column; }
+            .store-map-preview { width: 100%; height: 120px; }
+            .store-actions { flex-direction: column; }
         }
 
         /* 📱 🔥 LANDSCAPE MODE FIX (FOR MOBILE) 🔥 📱 */
@@ -647,6 +663,22 @@
             <div class="menu-grid" id="main-menu-grid"></div>
 
             <div id="load-more-container"></div>
+
+            <div class="store-location-card">
+                <div class="store-info-top">
+                    <div class="store-text">
+                        <h3>📍 Visit Glacier Ice Cream</h3>
+                        <p>A-12, Janta Store, University Marg,<br>Bapu Nagar, Jaipur, Rajasthan 302015</p>
+                    </div>
+                    <div class="store-map-preview">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3558.468756912345!2d75.80718037526978!3d26.890119561081335!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396db69dfbfdfdfd%3A0x1a4627a0a6277129!2sGlacier%20Ice%20Cream%20Parlour!5e0!3m2!1sen!2sin!4v1715000000000!5m2!1sen!2sin" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                </div>
+                <div class="store-actions">
+                    <a href="https://maps.google.com/?q=Glacier+Ice+Cream+Parlor,+A-12,+Janta+Store,+Bapu+Nagar,+Jaipur" target="_blank" class="store-btn btn-directions">🗺️ Get Directions</a>
+                    <a href="tel:+919829610570" class="store-btn btn-call">📞 Call 98296 10570</a>
+                </div>
+            </div>
 
             <div class="legal-footer">
                 <p class="legal-notice-vol">ℹ️ Volume & MRP subject to change. Please refer to actual packaging for final details.</p>
@@ -1847,7 +1879,7 @@
                 window.globalUser = user; 
                 window.userDocId = user.uid; 
                 
-                // 🟢 NEW: Update Header with Profile Photo & Name 🟢
+                // 🟢 Update Header with Profile Photo & Name 🟢
                 let displayName = "Guest";
                 let photoUrl = "https://placehold.co/100x100/1f51c6/ffffff?text=G";
                 
