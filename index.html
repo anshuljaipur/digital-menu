@@ -196,7 +196,7 @@
 
         #load-more-container { text-align: center; margin: 10px 0 30px 0; display: none; width: 100%; }
 
-        /* 🟢 STORE LOCATION SECTION CSS 🟢 */
+        /* 🟢 1. FIXED: STORE LOCATION SECTION CSS 🟢 */
         .store-location-card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color); padding: 20px; margin: 20px 0 30px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 15px;}
         .store-info-top { display: flex; gap: 15px; align-items: stretch; justify-content: space-between; }
         .store-text { flex: 1; }
@@ -577,11 +577,11 @@
                         <p>A-12, Janta Store, University Marg,<br>Bapu Nagar, Jaipur, Rajasthan 302015</p>
                     </div>
                     <div class="store-map-preview">
-                        <iframe src="https://www.google.com/maps?q=LAT,LNG" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        <iframe src="https://maps.google.com/maps?q=Glacier%20Ice%20Cream%20Janta%20Store%20Jaipur&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                     </div>
                 </div>
                 <div class="store-actions">
-                    <a href="https://maps.google.com/?q=..." target="_blank" class="store-btn btn-directions">🗺️ Get Directions</a>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=26.8901148,75.8097553" target="_blank" class="store-btn btn-directions">🗺️ Get Directions</a>
                     <a href="tel:+919829610570" class="store-btn btn-call">📞 Call 98296 10570</a>
                 </div>
             </div>
@@ -743,19 +743,19 @@
                     <input type="number" id="new-addr-phone" class="auth-input" placeholder="Contact No. *" style="background:var(--card-bg); flex:1;">
                 </div>
 
-                <button id="open-map-btn" class="action-btn" onclick="initLocationPicker()" style="width:100%; justify-content:center; margin-bottom:10px; background:var(--card-bg); border-color:var(--glacier-blue); color:var(--glacier-blue);">📍 Auto-Locate on Map</button>
+                <button id="open-map-btn" class="action-btn" onclick="window.initLocationPicker()" style="width:100%; justify-content:center; margin-bottom:10px; background:var(--card-bg); border-color:var(--glacier-blue); color:var(--glacier-blue);">📍 Auto-Locate on Map</button>
                 
                 <div id="map-wrapper-parent" style="display:none; width: 100%; margin-bottom: 10px;">
                     <div style="display: flex; gap: 8px; margin-bottom: 8px;">
                         <div style="position: relative; flex: 1;">
-                            <input type="text" id="map-search-input" class="auth-input" placeholder="Search area or city..." style="width:100%; margin-bottom:0; padding:10px; font-size:0.85em; background:var(--card-bg);" oninput="handleSearchInput(event)" onkeypress="if(event.key==='Enter') searchLocation()">
+                            <input type="text" id="map-search-input" class="auth-input" placeholder="Search area or city..." style="width:100%; margin-bottom:0; padding:10px; font-size:0.85em; background:var(--card-bg);" oninput="window.handleSearchInput(event)" onkeypress="if(event.key==='Enter') window.searchLocation()">
                             <div id="search-suggestions" style="display:none; position:absolute; top:100%; left:0; width:100%; background:var(--card-bg); border:1px solid var(--border-color); border-radius:8px; z-index:2000; max-height:160px; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-top:4px;"></div>
                         </div>
-                        <button class="auth-btn" onclick="searchLocation()" style="width:auto; padding:10px 15px; font-size:0.9em; margin:0;">🔍</button>
+                        <button class="auth-btn" onclick="window.searchLocation()" style="width:auto; padding:10px 15px; font-size:0.9em; margin:0;">🔍</button>
                     </div>
                     <div style="position: relative; width: 100%;">
                         <div id="map-container" style="height: 180px; border-radius: 10px; overflow: hidden; border: 2px solid var(--border-color);"></div>
-                        <button id="locate-me-btn" onclick="event.preventDefault(); getCurrentLocation();" style="position: absolute; bottom: 15px; right: 10px; z-index: 9999; background: white; border: 2px solid var(--border-color); border-radius: 8px; width: 38px; height: 38px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.3); font-size: 1.4em; display: flex; align-items: center; justify-content: center; padding: 0;" title="My Location">🎯</button>
+                        <button id="locate-me-btn" onclick="event.preventDefault(); window.getCurrentLocation();" style="position: absolute; bottom: 15px; right: 10px; z-index: 9999; background: white; border: 2px solid var(--border-color); border-radius: 8px; width: 38px; height: 38px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.3); font-size: 1.4em; display: flex; align-items: center; justify-content: center; padding: 0;" title="My Location">🎯</button>
                     </div>
                 </div>
 
@@ -1149,6 +1149,7 @@
             setTimeout(() => { if(toast.parentElement) toast.remove(); }, 3000);
         }
 
+        // 🟢 BIRTHDAY BLASTER LOGIC 🟢
         window.checkAndShowBirthday = (dobString, name) => {
             if (!dobString) return;
             if (sessionStorage.getItem('glacier_bday_wished')) return; 
@@ -1406,6 +1407,7 @@
         function getDiscount(item) { let m = parseFloat(item.mrp); let p = parseFloat(item.price); if (m && !isNaN(m) && m > p) return ((m - p) / m) * 100; return 0; }
         function extractVolumeText(name) { const match = name.match(/(\d+\s*(ml|l|ltr|gm|g|kg))/i); return match ? match[0] : ''; }
 
+        // 🟢 FIXED: SORTING LOGIC WITH ALL OPTIONS 🟢
         function applyFilters() {
             const gridWrapper = document.getElementById('main-menu-grid'); 
             const statusMsg = document.getElementById('status-msg');
@@ -1442,7 +1444,6 @@
                 return isAvailable && matchesBrand && matchesCategory && matchesSearch && matchesTagFilter;
             });
 
-            // 🟢 FIXED: SORTING LOGIC EXACT MATCH 🟢
             if (currentCategory === 'New Arrivals' && sortValue === 'default') {
                 filteredItems.sort((a, b) => {
                     let dateA = getLaunchDate(a); let dateB = getLaunchDate(b);
@@ -1662,6 +1663,7 @@
         window.clearCart = () => { if(Object.keys(cart).length === 0) return; if(confirm("Are you sure you want to clear your cart?")) { cart = {}; updateCartUI(); } }
         window.shareWebsite = () => { if(navigator.share) navigator.share({title:'Glacier Ice Cream', text:'Order your favorite Ice Cream online! 🍦', url:window.location.href}); }
 
+        // 🟢 DROPDOWN & SPECIFIC MODALS LOGIC 🟢
         window.openSpecificModal = (modalId) => {
             const dropdown = document.getElementById('profile-dropdown');
             if(dropdown) dropdown.classList.remove('active');
@@ -1692,27 +1694,31 @@
             document.getElementById('map-wrapper-parent').style.display = 'block';
             document.getElementById('open-map-btn').style.display = 'none'; 
             
-            if (!map) {
-                map = L.map('map-container').setView([26.9124, 75.7873], 13); 
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
-                marker = L.marker([26.9124, 75.7873], {draggable: true}).addTo(map);
+            if (!window.addressMap) {
+                window.addressMap = L.map('map-container').setView([26.9124, 75.7873], 13); 
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(window.addressMap);
+                window.addressMarker = L.marker([26.9124, 75.7873], {draggable: true}).addTo(window.addressMap);
                 
-                marker.on('dragend', function(event) {
-                    var position = marker.getLatLng();
+                window.addressMarker.on('dragend', function(event) {
+                    var position = window.addressMarker.getLatLng();
                     document.getElementById('new-addr-lat').value = position.lat;
                     document.getElementById('new-addr-lng').value = position.lng;
                     window.getAddressFromCoords(position.lat, position.lng);
                 });
 
-                map.on('click', function(e) {
-                    marker.setLatLng(e.latlng);
+                window.addressMap.on('click', function(e) {
+                    window.addressMarker.setLatLng(e.latlng);
                     document.getElementById('new-addr-lat').value = e.latlng.lat;
                     document.getElementById('new-addr-lng').value = e.latlng.lng;
                     window.getAddressFromCoords(e.latlng.lat, e.latlng.lng);
                 });
             }
-            setTimeout(() => { map.invalidateSize(); }, 300);
-            window.getCurrentLocation();
+            
+            // 🟢 CRITICAL: Allow container to become visible before rendering map tiles
+            setTimeout(() => { 
+                window.addressMap.invalidateSize(); 
+                window.getCurrentLocation();
+            }, 400);
         }
 
         window.getCurrentLocation = () => {
@@ -1722,7 +1728,7 @@
                     (position) => {
                         const lat = position.coords.latitude; const lng = position.coords.longitude;
                         document.getElementById('new-addr-lat').value = lat; document.getElementById('new-addr-lng').value = lng;
-                        map.setView([lat, lng], 16); marker.setLatLng([lat, lng]); window.getAddressFromCoords(lat, lng);
+                        window.addressMap.setView([lat, lng], 16); window.addressMarker.setLatLng([lat, lng]); window.getAddressFromCoords(lat, lng);
                     },
                     (error) => { document.getElementById('new-addr-area').value = "Location access denied. Please search or tap on map."; },
                     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -1752,7 +1758,7 @@
                                 suggestionBox.style.display = 'none';
                                 let lat = parseFloat(place.lat); let lon = parseFloat(place.lon);
                                 document.getElementById('new-addr-lat').value = lat; document.getElementById('new-addr-lng').value = lon;
-                                map.setView([lat, lon], 16); marker.setLatLng([lat, lon]); window.getAddressFromCoords(lat, lon);
+                                window.addressMap.setView([lat, lon], 16); window.addressMarker.setLatLng([lat, lon]); window.getAddressFromCoords(lat, lon);
                             };
                             suggestionBox.appendChild(div);
                         });
@@ -1774,7 +1780,7 @@
                 if(data && data.length > 0) {
                     let lat = data[0].lat; let lon = data[0].lon;
                     document.getElementById('new-addr-lat').value = lat; document.getElementById('new-addr-lng').value = lon;
-                    map.setView([lat, lon], 16); marker.setLatLng([lat, lon]); window.getAddressFromCoords(lat, lon); 
+                    window.addressMap.setView([lat, lon], 16); window.addressMarker.setLatLng([lat, lon]); window.getAddressFromCoords(lat, lon); 
                 } else { document.getElementById('new-addr-area').value = "Location not found. Try a different search."; }
             } catch(e) { document.getElementById('new-addr-area').value = "Search error. Please try again."; }
         }
@@ -1842,7 +1848,7 @@
                 let photoUrl = "https://placehold.co/100x100/1f51c6/ffffff?text=G";
                 
                 if(!user.isAnonymous && user.displayName) {
-                    displayName = user.displayName.split(' ')[0]; // First Name Only
+                    displayName = user.displayName.split(' ')[0];
                     if(user.photoURL) photoUrl = user.photoURL;
                 }
 
@@ -1906,7 +1912,6 @@
                         if(window.selectedAddressIndex >= window.globalUserData.addresses.length) window.selectedAddressIndex = 0;
                         window.renderAddresses(); 
                         
-                        // 🟢 TRIGGER BIRTHDAY BLASTER IF MATCHES 🟢
                         if (window.globalUserData.dob) {
                             window.checkAndShowBirthday(window.globalUserData.dob, window.globalUserData.name || window.globalUser.displayName);
                         }
@@ -1976,6 +1981,7 @@
             }
         };
 
+        // 🟢 FIXED: ADDRESS RENDERING WITH FIXED IMAGE MAP THUMBNAIL 🟢
         window.renderAddresses = () => {
             const container = document.getElementById('addresses-container'); container.innerHTML = '';
             if(!window.globalUserData || !window.globalUserData.addresses || window.globalUserData.addresses.length === 0) {
@@ -1986,13 +1992,18 @@
                 let icon = addr.label === 'Home' ? '🏠' : (addr.label === 'Work' ? '💼' : '📍');
                 
                 let lat = addr.lat || '26.9124'; let lng = addr.lng || '75.7873';
-                let mapIframe = `<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3558.4234!2d75.8075!3d26.8901!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396db69dfbfdfdfd%3A0x1a4627a0a6277129!2sGlacier%20Ice%20Cream%20Parlour!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin{lat},${lng}&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0; pointer-events:none;"></iframe>`;
+                // FAST STATIC IMAGE URL + CSS MARKER
+                let mapThumbnail = `
+                    <div style="width: 100%; height: 100%; background: url('https://a.tile.openstreetmap.org/15/23416/13851.png') center/cover; display: flex; align-items: center; justify-content: center; position: relative;">
+                        <div style="font-size: 1.8em; filter: drop-shadow(0 3px 4px rgba(0,0,0,0.4)); margin-top: -10px;">📍</div>
+                    </div>
+                `;
                 
                 let cardHTML = `
                     <div class="address-card ${isSelected ? 'selected' : ''}" onclick="window.selectAddress(${index})">
                         <div style="display:flex; gap: 15px; align-items: center; margin-bottom: 10px;">
                             <div style="width: 70px; height: 70px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); flex-shrink: 0; background: var(--chip-bg);">
-                                ${mapIframe}
+                                ${mapThumbnail}
                             </div>
                             <div style="flex: 1; min-width:0;">
                                 <div class="addr-label">${icon} ${addr.label}</div>
@@ -2123,7 +2134,7 @@
                     });
                     listDiv.innerHTML = html;
                 });
-            } catch(e) {}
+            } catch(e) { listDiv.innerHTML = '<p style="font-size: 0.85em; color: #e74c3c; text-align: center; padding:15px;">Failed to load orders.</p>'; }
         };
 
         window.logout = () => { 
@@ -2150,7 +2161,7 @@
                     if(!addr) addr = window.globalUserData.addresses[0]; 
                     let fullDeliveryAddress = `${addr.house}, ${addr.area}`;
                     message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
-                    if (addr.lat && addr.lng) { message += `📍 *Location Link:* https://www.google.com/maps?q=LAT,LNG{addr.lat},${addr.lng}\n`; }
+                    if (addr.lat && addr.lng) { message += `📍 *Location Link:* https://maps.google.com/?q=${addr.lat},${addr.lng}\n`; }
                     addDoc(collection(db, "orders"), { userId: window.userDocId, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() });
                 } else if (window.globalUser) { 
                     alert("Please add a delivery address in 'Addresses' before checking out!"); return;
