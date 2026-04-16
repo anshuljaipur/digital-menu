@@ -173,7 +173,7 @@
         .content-area::-webkit-scrollbar { width: 8px; }
         .content-area::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
 
-        /* 🟢 PERFECTED PULL TO REFRESH INDICATOR 🟢 */
+        /* 🟢 PULL TO REFRESH INDICATOR 🟢 */
         #pull-refresh-indicator { 
             text-align: center; color: var(--glacier-blue); font-weight: 700; font-size: 0.9em; 
             height: 0px; min-height: 0px; overflow: hidden; display: flex; align-items: center; justify-content: center; 
@@ -265,7 +265,7 @@
         .legal-footer p { margin: 5px 0; }
         .legal-notice-vol { color: var(--active-brand-red); font-size: 1.1em; font-weight: 700; margin-bottom: 12px !important;}
 
-        /* 🟢 FLOATING BUTTONS CSS (BACK TO TOP & CART) 🟢 */
+        /* 🟢 FLOATING BUTTONS CSS 🟢 */
         .floating-action-container { position: fixed; bottom: 30px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 999; pointer-events: none; }
         
         .floating-btn { background: var(--glacier-blue); color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(31,81,198,0.4); cursor: pointer; opacity: 0; transition: 0.3s ease; transform: translateY(20px); pointer-events: auto; border: none;}
@@ -285,8 +285,6 @@
         .toast { background: var(--text-main); color: var(--bg-color); padding: 12px 20px; border-radius: 50px; font-size: 0.85em; font-weight: 600; box-shadow: 0 4px 15px rgba(0,0,0,0.2); animation: toastUp 0.3s ease, toastFade 0.3s ease 2.5s forwards; display: flex; align-items: center; gap: 8px; }
         @keyframes toastUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes toastFade { from { opacity: 1; } to { opacity: 0; display: none; } }
-
-        #mobile-cat-toggle { display: none; } 
 
         /* --- MODALS --- */
         .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: var(--overlay-bg); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
@@ -313,14 +311,13 @@
         .auth-input:focus { border-color: var(--glacier-blue); }
         .auth-label { font-size: 0.85em; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.5px;}
         
-        /* 🟢 GOOGLE PROFILE CARD CSS 🟢 */
         .profile-user-card { display: flex; align-items: center; gap: 18px; background: var(--hover-bg); padding: 18px; border-radius: 16px; border: 1px solid var(--border-color); margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);}
         .profile-user-avatar { width: 65px; height: 65px; border-radius: 50%; object-fit: cover; border: 2px solid var(--glacier-blue); background: var(--card-bg); flex-shrink: 0; box-shadow: 0 4px 10px rgba(31,81,198,0.2);}
         .profile-user-info { display: flex; flex-direction: column; overflow: hidden; }
         .profile-user-name { margin: 0 0 4px 0; font-size: 1.15em; font-weight: 800; color: var(--text-main); white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
         .profile-user-email { margin: 0; font-size: 0.85em; color: var(--text-muted); white-space: nowrap; text-overflow: ellipsis; overflow: hidden; font-weight: 500; }
 
-        #order-history-list { max-height: 280px; overflow-y: auto; padding: 5px; scrollbar-width: thin; }
+        #order-history-list { overflow-y: auto; padding: 5px; scrollbar-width: thin; }
         #order-history-list::-webkit-scrollbar { width: 6px; }
         #order-history-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
         .order-history-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: 0.2s;}
@@ -332,14 +329,6 @@
         .order-history-items { color: var(--text-muted); font-size: 0.85em; line-height: 1.6; margin: 0; }
         .order-item-line { display: flex; gap: 8px; margin-bottom: 4px; align-items: flex-start; }
 
-        #modal-tab-bar { display: flex; width: 100%; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; flex-shrink: 0;}
-        .modal-tab { flex: 1; text-align: center; padding: 12px; font-weight: 700; font-size: 0.95em; color: var(--text-muted); cursor: pointer; transition: 0.2s; position: relative;}
-        .modal-tab:hover { color: var(--glacier-blue); background: var(--hover-bg); border-radius: 10px 10px 0 0;}
-        .modal-tab.active { color: var(--glacier-blue); }
-        .modal-tab.active::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 2px; background: var(--glacier-blue); border-radius: 2px;}
-        .modal-tab-content { display: none; }
-        .modal-tab-content.active { display: flex; flex-direction: column; }
-
         /* PRODUCT DETAIL CSS */
         #pd-modal-img { width: 100%; height: 220px; object-fit: contain; mix-blend-mode: multiply; margin-bottom: 20px; background: #fff; border-radius: 12px; padding: 10px; box-sizing: border-box;}
         [data-theme="dark"] #pd-modal-img { background: #e2e8f0; mix-blend-mode: normal; }
@@ -349,15 +338,9 @@
         .pd-brand-name { font-weight: 700; color: var(--text-muted); font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; }
         #pd-modal-name { font-size: 1.4em; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.3; }
         #pd-modal-volume { font-size: 0.9em; color: var(--text-muted); font-weight: 500; margin-bottom: 20px; margin-top: 5px; }
-        
         .pd-desc-text { margin: 5px 0 15px 0; font-size: 0.9em; color: var(--text-muted); line-height: 1.5; display: none; }
         .pd-ing-text { margin: 0 0 15px 0; font-size: 0.8em; color: var(--active-brand-red); font-style: italic; line-height: 1.4; display: none; font-weight: 500;}
-        
         .pd-bottom-row { display: flex; justify-content: space-between; align-items: center; border-top: 2px solid var(--border-color); padding-top: 20px; margin-top: auto; }
-
-        /* 🗺️ LEAFLET MAP CUSTOM CSS 🗺️ */
-        .leaflet-container { z-index: 1 !important; font-family: 'Poppins', sans-serif; }
-        .leaflet-control-attribution { display: none; }
 
         /* 🟢 MULTI-ADDRESS CSS 🟢 */
         .address-card { border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; position: relative; background: var(--card-bg); box-shadow: 0 2px 5px rgba(0,0,0,0.02);}
@@ -390,71 +373,28 @@
             header { padding: 10px 15px; height: 55px; }
             .header-logo { height: 35px; }
             .hide-mobile-text { display: none; }
-            
             #refresh-btn { display: none !important; }
-            
             .action-btn { padding: 6px 10px; font-size: 0.8em; }
 
             .search-sort-side { display: none !important; } 
             .top-nav-bar { flex-direction: column; border-bottom: none; width: 100%;}
             
-            .brands-wrapper { 
-                border-bottom: 1px solid var(--border-color); width: 100%; 
-                max-height: 120px; overflow: hidden; 
-                transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
-            } 
-            
+            .brands-wrapper { border-bottom: 1px solid var(--border-color); width: 100%; max-height: 120px; overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;} 
             .brands-row { padding: 12px 15px; gap: 15px; -webkit-overflow-scrolling: touch; border-bottom: none; }
             .brand-icon { width: 55px; height: 55px; }
             .brand-name { font-size: 0.55em; }
 
             .main-layout { flex-direction: column; width: 100%; overflow-x: hidden; position: relative; } 
             
-            .sidebar { 
-                position: sticky !important; 
-                top: 0 !important; 
-                left: 0 !important; 
-                width: 100% !important; 
-                height: auto !important;
-                flex-direction: row !important; 
-                padding: 10px 15px !important;
-                border-right: none !important; 
-                border-bottom: 1px solid var(--border-color) !important; 
-                background: var(--main-bg) !important;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
-                overflow-x: auto !important; 
-                overflow-y: hidden !important; 
-                z-index: 95 !important;
-                gap: 10px !important;
-                scroll-behavior: smooth;
-            }
-            .cat-item { 
-                flex-direction: row !important; 
-                gap: 6px !important; 
-                padding: 6px 14px !important; 
-                border-radius: 50px !important; 
-                border: 1px solid var(--border-color) !important;
-                background: var(--card-bg) !important;
-                width: auto !important; 
-                min-width: max-content !important;
-            }
+            .sidebar { position: sticky !important; top: 0 !important; left: 0 !important; width: 100% !important; height: auto !important; flex-direction: row !important; padding: 10px 15px !important; border-right: none !important; border-bottom: 1px solid var(--border-color) !important; background: var(--main-bg) !important; box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important; overflow-x: auto !important; overflow-y: hidden !important; z-index: 95 !important; gap: 10px !important; scroll-behavior: smooth;}
+            .cat-item { flex-direction: row !important; gap: 6px !important; padding: 6px 14px !important; border-radius: 50px !important; border: 1px solid var(--border-color) !important; background: var(--card-bg) !important; width: auto !important; min-width: max-content !important;}
             .cat-item.active { background: var(--glacier-blue) !important; border-color: var(--glacier-blue) !important; }
             .cat-icon { display: none !important; } 
             .cat-name { font-size: 0.8em !important; font-weight: 600 !important; color: var(--text-main) !important; padding: 0 !important;}
             .cat-item.active .cat-name { color: white !important; }
             
-            #mobile-cat-toggle { display: none !important; }
-            #sidebar-overlay { display: none !important; }
-
             .content-area { width: 100%; padding: 0px 10px 10px 10px; overflow-x: hidden; box-sizing: border-box; }
-            
-            .controls-bar { 
-                padding: 10px 12px 10px 12px; gap: 10px; 
-                margin: 0px -10px 15px -10px; width: calc(100% + 20px);
-                border-bottom: 1px solid var(--border-color);
-                background: var(--main-bg); 
-                z-index: 50;
-            }
+            .controls-bar { padding: 10px 12px 10px 12px; gap: 10px; margin: 0px -10px 15px -10px; width: calc(100% + 20px); border-bottom: 1px solid var(--border-color); background: var(--main-bg); z-index: 50;}
             .search-sort-wrapper { flex-wrap: nowrap; gap: 8px; }
             .control-chip { padding: 8px 10px; min-width: 0; border-radius: 12px;}
             .control-chip:first-child { flex: 1.8; }
@@ -468,7 +408,6 @@
             .card-img-wrapper { height: 100px; margin-bottom: 20px; border-radius: 10px; } 
             .new-badge { top: -6px; left: -6px; font-size: 0.5em; padding: 3px 6px; }
             .red-discount-icon { top: -6px; right: -6px; font-size: 0.55em; padding: 3px 6px; }
-            
             .btn-container { right: 8px; bottom: -14px; }
             .app-add-btn { width: 30px; height: 30px; font-size: 1.2em; }
             .app-qty-control { height: 30px; width: 75px; font-size: 0.85em; padding: 0 4px;}
@@ -476,7 +415,6 @@
 
             .brand-tag { font-size: 0.5em; margin-bottom: 3px; }
             .item-name { font-size: 0.8em; min-height: 28px; margin-bottom: 4px; line-height: 1.2;}
-            
             .vol-price-row { padding-top: 8px; }
             .item-volume { font-size: 0.75em; margin: 0; }
             .price-row { gap: 4px; }
@@ -496,7 +434,6 @@
             .floating-btn { width: 40px; height: 40px; font-size: 1.1em;}
             .floating-cart-btn { width: 40px; height: 40px; font-size: 1.1em; }
             .cart-badge { width: 18px; height: 18px; font-size: 0.6em; top:-4px; right:-4px;}
-            
             #toast-container { bottom: calc(20px + env(safe-area-inset-bottom)); }
 
             .store-info-top { flex-direction: column; }
@@ -516,21 +453,11 @@
             #mobile-search-sort { display: none !important; }
             .controls-bar { margin: 0 !important; padding: 0 !important; border-bottom: none !important; background: transparent !important; position: static !important; transform: none !important; width: 100%;}
             
-            .top-nav-bar { 
-                width: calc(100% - 80px - env(safe-area-inset-left)) !important; 
-                margin-left: calc(80px + env(safe-area-inset-left)) !important;
-                padding: 0 !important; box-sizing: border-box; border-bottom: none !important; 
-                transition: max-height 0.4s ease, opacity 0.3s ease !important; overflow: hidden !important; 
-            }
+            .top-nav-bar { width: calc(100% - 80px - env(safe-area-inset-left)) !important; margin-left: calc(80px + env(safe-area-inset-left)) !important; padding: 0 !important; box-sizing: border-box; border-bottom: none !important; transition: max-height 0.4s ease, opacity 0.3s ease !important; overflow: hidden !important; }
             .top-nav-bar.hidden-landscape { max-height: 0 !important; opacity: 0 !important; border-bottom-width: 0 !important; margin: 0 !important; padding: 0 !important; pointer-events: none; }
             .brands-wrapper { border-bottom: 1px solid var(--border-color); width: 100% !important; }
             
-            .sidebar { 
-                position: fixed !important; top: 50px !important; left: env(safe-area-inset-left) !important; width: 80px !important; height: calc(100dvh - 50px) !important; 
-                display: flex !important; flex-direction: column !important; box-shadow: 1px 0 5px rgba(0,0,0,0.05) !important; z-index: 100 !important; 
-                padding: 10px 5px 20px 5px !important; overflow-y: auto !important; overflow-x: hidden !important; border-right: 1px solid var(--border-color) !important; 
-                background: var(--card-bg) !important;
-            }
+            .sidebar { position: fixed !important; top: 50px !important; left: env(safe-area-inset-left) !important; width: 80px !important; height: calc(100dvh - 50px) !important; display: flex !important; flex-direction: column !important; box-shadow: 1px 0 5px rgba(0,0,0,0.05) !important; z-index: 100 !important; padding: 10px 5px 20px 5px !important; overflow-y: auto !important; overflow-x: hidden !important; border-right: 1px solid var(--border-color) !important; background: var(--card-bg) !important;}
             .cat-item { flex-direction: column !important; padding: 10px 5px !important; width: 100% !important; border-radius: 12px !important; gap: 4px !important; background: transparent !important;}
             .cat-item.active { background: rgba(31,81,198,0.1) !important; }
             .cat-icon { display: flex !important; font-size: 1.5em !important; margin-bottom: 2px !important; }
@@ -597,9 +524,9 @@
                     <span class="hide-mobile-text" id="nav-profile-text">Login</span>
                 </button>
                 <div id="profile-dropdown" class="profile-dropdown-menu">
-                    <div class="dropdown-item" onclick="openProfileTab('profile')">👤 My Profile</div>
-                    <div class="dropdown-item" onclick="openProfileTab('profile')">📍 Addresses</div>
-                    <div class="dropdown-item" onclick="openProfileTab('orders')">🛍️ Past Orders</div>
+                    <div class="dropdown-item" onclick="openSpecificModal('my-profile-modal')">👤 My Profile</div>
+                    <div class="dropdown-item" onclick="openSpecificModal('addresses-modal')">📍 Addresses</div>
+                    <div class="dropdown-item" onclick="openSpecificModal('orders-modal')">🛍️ Past Orders</div>
                     <div style="height: 1px; background: var(--border-color); margin: 5px 0;"></div>
                     <div class="dropdown-item" onclick="logout()" style="color: var(--active-brand-red);">🚪 Logout</div>
                 </div>
@@ -693,7 +620,7 @@
                         <p>A-12, Janta Store, University Marg,<br>Bapu Nagar, Jaipur, Rajasthan 302015</p>
                     </div>
                     <div class="store-map-preview">
-                        <iframe src="https://maps.google.com/maps?q=26.8901148,75.8097553&hl=en&z=15&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        <iframe src="https://maps.google.com/maps?q=26.8901148,75.8097553&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                     </div>
                 </div>
                 <div class="store-actions">
@@ -727,10 +654,10 @@
         </button>
     </div>
 
-    <div id="product-detail-modal" class="custom-modal" onclick="closeProductDetailModal()">
+    <div id="product-detail-modal" class="custom-modal" onclick="closeSpecificModal('product-detail-modal')">
         <div class="modal-content-box" onclick="event.stopPropagation()" style="padding-bottom: 25px;">
             <div style="display: flex; justify-content: flex-end; margin-bottom: -10px;">
-                <div class="close-modal-icon" onclick="closeProductDetailModal()">×</div>
+                <div class="close-modal-icon" onclick="closeSpecificModal('product-detail-modal')">×</div>
             </div>
             <img id="pd-modal-img" src="" alt="Ice Cream">
             
@@ -765,11 +692,11 @@
         </div>
     </div>
 
-    <div id="auth-modal" class="custom-modal" onclick="closeAuthModal()">
+    <div id="auth-modal" class="custom-modal" onclick="closeSpecificModal('auth-modal')">
         <div class="modal-content-box" onclick="event.stopPropagation()">
             <div class="modal-header-row">
                 <h2>Welcome</h2>
-                <div class="close-modal-icon" onclick="closeAuthModal()">×</div>
+                <div class="close-modal-icon" onclick="closeSpecificModal('auth-modal')">×</div>
             </div>
             <p style="font-size: 0.9em; color: var(--text-muted); margin-bottom: 25px; margin-top: 0;">Sign in to save your addresses and track orders across all devices.</p>
             
@@ -798,89 +725,108 @@
         </div>
     </div>
 
-    <div id="profile-modal" class="custom-modal" onclick="closeProfileModal()">
+    <div id="my-profile-modal" class="custom-modal" onclick="closeSpecificModal('my-profile-modal')">
         <div class="modal-content-box" onclick="event.stopPropagation()">
-            <div class="modal-header-row" style="border-bottom:none; margin-bottom:0; padding-bottom:5px;">
-                <h2>My Account</h2>
-                <div class="close-modal-icon" onclick="closeProfileModal()">×</div>
-            </div>
-
-            <div id="modal-tab-bar">
-                <div class="modal-tab active" onclick="switchModalTab('profile')" id="tab-profile-btn">👤 Profile</div>
-                <div class="modal-tab" onclick="switchModalTab('orders')" id="tab-orders-btn">🛍️ Past Orders</div>
+            <div class="modal-header-row">
+                <h2>My Profile</h2>
+                <div class="close-modal-icon" onclick="closeSpecificModal('my-profile-modal')">×</div>
             </div>
             
-            <div id="tab-profile-content" class="modal-tab-content active">
-                
-                <div class="profile-user-card">
-                    <img id="profile-user-avatar" class="profile-user-avatar" src="" alt="Profile" referrerpolicy="no-referrer">
-                    <div class="profile-user-info">
-                        <h3 id="profile-user-name" class="profile-user-name">User Name</h3>
-                        <p id="profile-user-email" class="profile-user-email">user@example.com</p>
-                    </div>
+            <div class="profile-user-card" style="margin-bottom: 25px;">
+                <img id="profile-user-avatar" class="profile-user-avatar" src="" alt="Profile" referrerpolicy="no-referrer">
+                <div class="profile-user-info">
+                    <h3 id="profile-user-name" class="profile-user-name">User Name</h3>
+                    <p id="profile-user-email" class="profile-user-email">user@example.com</p>
                 </div>
-                
-                <div id="address-list-view">
-                    <label class="auth-label" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:8px; margin-bottom:12px;">
-                        Saved Addresses
-                        <button class="action-btn" onclick="showAddAddressForm()" style="padding: 4px 12px; font-size:0.8em; border-color:var(--glacier-blue); color:var(--glacier-blue);">+ Add</button>
-                    </label>
-                    <div id="addresses-container"></div>
-                </div>
-
-                <div id="add-address-form" style="display:none; background: var(--chip-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border-color);">
-                    <h4 style="margin-top:0; margin-bottom:15px; font-size:1em; color:var(--text-main);" id="addr-form-title">Add New Address</h4>
-                    
-                    <div class="type-selector" id="addr-type-selector">
-                        <span class="type-badge active" id="badge-Home" onclick="setAddrType('Home')">🏠 Home</span>
-                        <span class="type-badge" id="badge-Work" onclick="setAddrType('Work')">💼 Work</span>
-                        <span class="type-badge" id="badge-Other" onclick="setAddrType('Other')">📍 Other</span>
-                    </div>
-
-                    <input type="hidden" id="edit-addr-index" value="-1">
-                    <input type="hidden" id="new-addr-lat" value="">
-                    <input type="hidden" id="new-addr-lng" value="">
-                    
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" id="new-addr-name" class="auth-input" placeholder="Receiver's Name *" style="background:var(--card-bg); flex:1;">
-                        <input type="number" id="new-addr-phone" class="auth-input" placeholder="Contact No. *" style="background:var(--card-bg); flex:1;">
-                    </div>
-
-                    <button id="open-map-btn" class="action-btn" onclick="initLocationPicker()" style="width:100%; justify-content:center; margin-bottom:10px; background:var(--card-bg); border-color:var(--glacier-blue); color:var(--glacier-blue);">📍 Auto-Locate on Map</button>
-                    
-                    <div id="map-wrapper-parent" style="display:none; width: 100%; margin-bottom: 10px;">
-                        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                            <div style="position: relative; flex: 1;">
-                                <input type="text" id="map-search-input" class="auth-input" placeholder="Search area or city..." style="width:100%; margin-bottom:0; padding:10px; font-size:0.85em; background:var(--card-bg);" oninput="handleSearchInput(event)" onkeypress="if(event.key==='Enter') searchLocation()">
-                                <div id="search-suggestions" style="display:none; position:absolute; top:100%; left:0; width:100%; background:var(--card-bg); border:1px solid var(--border-color); border-radius:8px; z-index:2000; max-height:160px; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-top:4px;"></div>
-                            </div>
-                            <button class="auth-btn" onclick="searchLocation()" style="width:auto; padding:10px 15px; font-size:0.9em; margin:0;">🔍</button>
-                        </div>
-                        <div style="position: relative; width: 100%;">
-                            <div id="map-container" style="height: 180px; border-radius: 10px; overflow: hidden; border: 2px solid var(--border-color);"></div>
-                            <button id="locate-me-btn" onclick="event.preventDefault(); getCurrentLocation();" style="position: absolute; bottom: 15px; right: 10px; z-index: 9999; background: white; border: 2px solid var(--border-color); border-radius: 8px; width: 38px; height: 38px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.3); font-size: 1.4em; display: flex; align-items: center; justify-content: center; padding: 0;" title="My Location">🎯</button>
-                        </div>
-                    </div>
-
-                    <input type="text" id="new-addr-house" class="auth-input" placeholder="House / Flat / Block No. *" style="background:var(--card-bg);">
-                    <textarea id="new-addr-area" class="auth-input" rows="2" placeholder="Area / Street / Landmark (Auto-filled by Map) *" style="background:var(--card-bg);"></textarea>
-
-                    <div id="addr-msg" style="font-size: 0.85em; margin-bottom: 15px; text-align: center; font-weight: 700;"></div>
-
-                    <div style="display:flex; gap:10px;">
-                        <button class="auth-btn" style="flex:1; padding: 12px;" onclick="saveNewAddress()">Save</button>
-                        <button class="auth-btn" style="flex:1; padding: 12px; background:var(--card-bg); color:var(--text-main); border: 1px solid var(--border-color); box-shadow:none;" onclick="hideAddAddressForm()">Cancel</button>
-                    </div>
-                </div>
-
             </div>
 
-            <div id="tab-orders-content" class="modal-tab-content">
-                <div id="order-history-list">
-                    <p style="font-size: 0.85em; color: var(--text-muted); text-align: center;">Loading orders...</p>
-                </div>
-                <p style="font-size:0.8em; color:var(--text-muted); text-align:center; margin-top:15px; border-top:1px solid var(--border-color); padding-top:10px;">Only last 10 orders are shown locally.</p>
+            <label class="auth-label">Full Name</label>
+            <input type="text" id="profile-name-main" class="auth-input" placeholder="e.g. Rahul Sharma">
+
+            <label class="auth-label">Date of Birth</label>
+            <input type="date" id="profile-dob" class="auth-input" style="color: var(--text-main);">
+
+            <label class="auth-label">Gender</label>
+            <div class="type-selector" id="gender-selector" style="margin-bottom: 20px;">
+                <span class="type-badge" id="gender-Male" onclick="setGender('Male')">👨 Male</span>
+                <span class="type-badge" id="gender-Female" onclick="setGender('Female')">👩 Female</span>
+                <span class="type-badge" id="gender-Other" onclick="setGender('Other')">⚧ Other</span>
             </div>
+
+            <div id="profile-save-msg" style="font-size: 0.85em; margin-bottom: 15px; text-align: center; font-weight: 700;"></div>
+            <button class="auth-btn" onclick="saveProfileData()">Save Profile</button>
+        </div>
+    </div>
+
+    <div id="addresses-modal" class="custom-modal" onclick="closeSpecificModal('addresses-modal')">
+        <div class="modal-content-box" onclick="event.stopPropagation()">
+            <div class="modal-header-row">
+                <h2>Saved Addresses</h2>
+                <div class="close-modal-icon" onclick="closeSpecificModal('addresses-modal')">×</div>
+            </div>
+
+            <div id="address-list-view">
+                <button class="auth-btn" onclick="showAddAddressForm()" style="margin-bottom: 20px; background: var(--chip-bg); color: var(--glacier-blue); border: 2px dashed var(--glacier-blue); box-shadow: none;">+ Add New Address</button>
+                <div id="addresses-container"></div>
+            </div>
+
+            <div id="add-address-form" style="display:none; background: var(--chip-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border-color);">
+                <h4 style="margin-top:0; margin-bottom:15px; font-size:1em; color:var(--text-main);" id="addr-form-title">Add New Address</h4>
+                
+                <div class="type-selector" id="addr-type-selector">
+                    <span class="type-badge active" id="badge-Home" onclick="setAddrType('Home')">🏠 Home</span>
+                    <span class="type-badge" id="badge-Work" onclick="setAddrType('Work')">💼 Work</span>
+                    <span class="type-badge" id="badge-Other" onclick="setAddrType('Other')">📍 Other</span>
+                </div>
+
+                <input type="hidden" id="edit-addr-index" value="-1">
+                <input type="hidden" id="new-addr-lat" value="">
+                <input type="hidden" id="new-addr-lng" value="">
+                
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="new-addr-name" class="auth-input" placeholder="Receiver's Name *" style="background:var(--card-bg); flex:1;">
+                    <input type="number" id="new-addr-phone" class="auth-input" placeholder="Contact No. *" style="background:var(--card-bg); flex:1;">
+                </div>
+
+                <button id="open-map-btn" class="action-btn" onclick="initLocationPicker()" style="width:100%; justify-content:center; margin-bottom:10px; background:var(--card-bg); border-color:var(--glacier-blue); color:var(--glacier-blue);">📍 Auto-Locate on Map</button>
+                
+                <div id="map-wrapper-parent" style="display:none; width: 100%; margin-bottom: 10px;">
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                        <div style="position: relative; flex: 1;">
+                            <input type="text" id="map-search-input" class="auth-input" placeholder="Search area or city..." style="width:100%; margin-bottom:0; padding:10px; font-size:0.85em; background:var(--card-bg);" oninput="handleSearchInput(event)" onkeypress="if(event.key==='Enter') searchLocation()">
+                            <div id="search-suggestions" style="display:none; position:absolute; top:100%; left:0; width:100%; background:var(--card-bg); border:1px solid var(--border-color); border-radius:8px; z-index:2000; max-height:160px; overflow-y:auto; box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-top:4px;"></div>
+                        </div>
+                        <button class="auth-btn" onclick="searchLocation()" style="width:auto; padding:10px 15px; font-size:0.9em; margin:0;">🔍</button>
+                    </div>
+                    <div style="position: relative; width: 100%;">
+                        <div id="map-container" style="height: 180px; border-radius: 10px; overflow: hidden; border: 2px solid var(--border-color);"></div>
+                        <button id="locate-me-btn" onclick="event.preventDefault(); getCurrentLocation();" style="position: absolute; bottom: 15px; right: 10px; z-index: 9999; background: white; border: 2px solid var(--border-color); border-radius: 8px; width: 38px; height: 38px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.3); font-size: 1.4em; display: flex; align-items: center; justify-content: center; padding: 0;" title="My Location">🎯</button>
+                    </div>
+                </div>
+
+                <input type="text" id="new-addr-house" class="auth-input" placeholder="House / Flat / Block No. *" style="background:var(--card-bg);">
+                <textarea id="new-addr-area" class="auth-input" rows="2" placeholder="Area / Street / Landmark (Auto-filled by Map) *" style="background:var(--card-bg);"></textarea>
+
+                <div id="addr-msg" style="font-size: 0.85em; margin-bottom: 15px; text-align: center; font-weight: 700;"></div>
+
+                <div style="display:flex; gap:10px;">
+                    <button class="auth-btn" style="flex:1; padding: 12px;" onclick="saveNewAddress()">Save</button>
+                    <button class="auth-btn" style="flex:1; padding: 12px; background:var(--card-bg); color:var(--text-main); border: 1px solid var(--border-color); box-shadow:none;" onclick="hideAddAddressForm()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="orders-modal" class="custom-modal" onclick="closeSpecificModal('orders-modal')">
+        <div class="modal-content-box" onclick="event.stopPropagation()">
+            <div class="modal-header-row">
+                <h2>Past Orders</h2>
+                <div class="close-modal-icon" onclick="closeSpecificModal('orders-modal')">×</div>
+            </div>
+            <div id="order-history-list" style="max-height: 400px;">
+                <p style="font-size: 0.85em; color: var(--text-muted); text-align: center;">Loading orders...</p>
+            </div>
+            <p style="font-size:0.8em; color:var(--text-muted); text-align:center; margin-top:15px; border-top:1px solid var(--border-color); padding-top:10px;">Only last 10 orders are shown locally.</p>
         </div>
     </div>
 
@@ -1683,10 +1629,8 @@
                 btnWrap.innerHTML = `<div class="app-add-btn" style="height:40px; border-radius:10px; width:auto; padding:0 20px; font-size:1em; font-weight:bold;" onclick="event.stopPropagation(); addToCart('${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.brand ? item.brand.replace(/'/g, "\\'") : ''}')">+ ADD</div>`;
             }
 
-            document.getElementById('product-detail-modal').style.display = 'flex';
+            window.openSpecificModal('product-detail-modal');
         }
-
-        window.closeProductDetailModal = () => { document.getElementById('product-detail-modal').style.display = 'none'; }
 
         function updateAddButtons() {
             allItems.forEach(item => {
@@ -1746,152 +1690,24 @@
         function clearCart() { if(Object.keys(cart).length === 0) return; if(confirm("Are you sure you want to clear your cart?")) { cart = {}; updateCartUI(); } }
         function shareWebsite() { if(navigator.share) navigator.share({title:'Glacier Ice Cream', text:'Order your favorite Ice Cream online! 🍦', url:window.location.href}); }
 
-        function closeAuthModal() { document.getElementById('auth-modal').style.display = 'none'; }
-        function closeProfileModal() { document.getElementById('profile-modal').style.display = 'none'; }
-        
-        // 🟢 DROPDOWN LOGIC 🟢
-        window.handleProfileClick = (e) => {
-            if(e) e.stopPropagation(); 
-            if (window.userDocId) { 
-                const dropdown = document.getElementById('profile-dropdown');
-                dropdown.classList.toggle('active');
-            } else { 
-                document.getElementById('auth-modal').style.display = 'flex'; 
-                document.getElementById('auth-error').innerText = ''; 
-            }
+        // 🟢 DROPDOWN & MODAL LOGIC 🟢
+        window.openSpecificModal = (modalId) => {
+            const dropdown = document.getElementById('profile-dropdown');
+            if(dropdown) dropdown.classList.remove('active');
+            document.getElementById(modalId).style.display = 'flex';
+            
+            if(modalId === 'my-profile-modal') document.getElementById('profile-save-msg').innerText = '';
+            if(modalId === 'addresses-modal') document.getElementById('addr-msg').innerText = '';
         };
 
-        window.openProfileTab = (tabName) => {
-            document.getElementById('profile-dropdown').classList.remove('active');
-            document.getElementById('profile-modal').style.display = 'flex'; 
-            document.getElementById('profile-msg').innerText = ''; 
-            window.switchModalTab(tabName);
+        window.closeSpecificModal = (modalId) => {
+            document.getElementById(modalId).style.display = 'none';
         };
+
+        window.closeAuthModal = () => { document.getElementById('auth-modal').style.display = 'none'; }
+        window.closeProfileModal = () => { document.querySelectorAll('.custom-modal').forEach(m => m.style.display = 'none'); }
         
         window.onload = loadData;
-    </script>
-
-    <script>
-        let map; let marker; let searchTimeout;
-
-        function initLocationPicker() {
-            document.getElementById('map-wrapper-parent').style.display = 'block';
-            document.getElementById('open-map-btn').style.display = 'none'; 
-            
-            if (!map) {
-                map = L.map('map-container').setView([26.9124, 75.7873], 13); 
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
-                marker = L.marker([26.9124, 75.7873], {draggable: true}).addTo(map);
-                
-                marker.on('dragend', function(event) {
-                    var position = marker.getLatLng();
-                    document.getElementById('new-addr-lat').value = position.lat;
-                    document.getElementById('new-addr-lng').value = position.lng;
-                    getAddressFromCoords(position.lat, position.lng);
-                });
-
-                map.on('click', function(e) {
-                    marker.setLatLng(e.latlng);
-                    document.getElementById('new-addr-lat').value = e.latlng.lat;
-                    document.getElementById('new-addr-lng').value = e.latlng.lng;
-                    getAddressFromCoords(e.latlng.lat, e.latlng.lng);
-                });
-            }
-            setTimeout(() => { map.invalidateSize(); }, 300);
-            getCurrentLocation();
-        }
-
-        function getCurrentLocation() {
-            document.getElementById('new-addr-area').value = "Locating you... 📍";
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const lat = position.coords.latitude; const lng = position.coords.longitude;
-                        document.getElementById('new-addr-lat').value = lat; document.getElementById('new-addr-lng').value = lng;
-                        map.setView([lat, lng], 16); marker.setLatLng([lat, lng]); getAddressFromCoords(lat, lng);
-                    },
-                    (error) => { document.getElementById('new-addr-area').value = "Location access denied. Please search or tap on map."; },
-                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                );
-            } else { document.getElementById('new-addr-area').value = "GPS not supported. Please search or tap on map."; }
-        }
-
-        function handleSearchInput(event) {
-            clearTimeout(searchTimeout);
-            let query = event.target.value.trim();
-            const suggestionBox = document.getElementById('search-suggestions');
-            if (query.length < 3) { suggestionBox.style.display = 'none'; return; }
-            
-            searchTimeout = setTimeout(async () => {
-                try {
-                    let response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=in`);
-                    let data = await response.json();
-                    
-                    if (data && data.length > 0) {
-                        suggestionBox.innerHTML = '';
-                        data.forEach(place => {
-                            let div = document.createElement('div');
-                            div.className = 'suggestion-item';
-                            div.innerText = place.display_name;
-                            div.onclick = () => {
-                                document.getElementById('map-search-input').value = place.display_name;
-                                suggestionBox.style.display = 'none';
-                                let lat = parseFloat(place.lat); let lon = parseFloat(place.lon);
-                                document.getElementById('new-addr-lat').value = lat; document.getElementById('new-addr-lng').value = lon;
-                                map.setView([lat, lon], 16); marker.setLatLng([lat, lon]); getAddressFromCoords(lat, lon);
-                            };
-                            suggestionBox.appendChild(div);
-                        });
-                        suggestionBox.style.display = 'block';
-                    } else { suggestionBox.style.display = 'none'; }
-                } catch (error) {}
-            }, 500); 
-        }
-
-        async function searchLocation() {
-            const query = document.getElementById('map-search-input').value.trim();
-            if(!query) return;
-            document.getElementById('search-suggestions').style.display = 'none';
-            document.getElementById('new-addr-area').value = "Searching... 🔍";
-            
-            try {
-                let response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&countrycodes=in`);
-                let data = await response.json();
-                if(data && data.length > 0) {
-                    let lat = data[0].lat; let lon = data[0].lon;
-                    document.getElementById('new-addr-lat').value = lat; document.getElementById('new-addr-lng').value = lon;
-                    map.setView([lat, lon], 16); marker.setLatLng([lat, lon]); getAddressFromCoords(lat, lon); 
-                } else { document.getElementById('new-addr-area').value = "Location not found. Try a different search."; }
-            } catch(e) { document.getElementById('new-addr-area').value = "Search error. Please try again."; }
-        }
-
-        async function getAddressFromCoords(lat, lng) {
-            document.getElementById('new-addr-area').value = "Fetching exact area... ⏳";
-            try {
-                let response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
-                let data = await response.json();
-                
-                if(data && data.address) {
-                    let addr = data.address;
-                    let road = addr.road || ''; let neighborhood = addr.neighbourhood || ''; let suburb = addr.suburb || '';
-                    let city = addr.city || addr.town || addr.county || ''; let postcode = addr.postcode || '';
-                    let area = [neighborhood, suburb].filter(Boolean).join(', ');
-                    let parts = [road, area, city, postcode].filter(p => p.trim() !== '');
-                    
-                    let uniqueParts = [];
-                    parts.forEach(p => {
-                        let isDuplicate = uniqueParts.some(existing => existing.toLowerCase().includes(p.toLowerCase()) || p.toLowerCase().includes(existing.toLowerCase()));
-                        if (!isDuplicate) uniqueParts.push(p);
-                    });
-
-                    document.getElementById('new-addr-area').value = uniqueParts.join(', ');
-                    const houseField = document.getElementById('new-addr-house');
-                    houseField.style.borderColor = 'var(--active-brand-red)'; houseField.focus();
-                    setTimeout(() => { houseField.style.borderColor = 'var(--border-color)'; }, 3000);
-                } else if(data && data.display_name) { document.getElementById('new-addr-area').value = data.display_name; } 
-                else { document.getElementById('new-addr-area').value = "Area not found. Please type manually."; }
-            } catch (e) { document.getElementById('new-addr-area').value = "Error fetching location. Please type manually."; }
-        }
     </script>
 
     <script type="module">
@@ -1979,17 +1795,20 @@
                 onSnapshot(doc(db, "users", docId), (docSnap) => {
                     if (docSnap.exists()) {
                         window.globalUserData = docSnap.data();
+                        
+                        document.getElementById('profile-name-main').value = window.globalUserData.name || '';
+                        document.getElementById('profile-dob').value = window.globalUserData.dob || '';
+                        if(window.globalUserData.gender) window.setGender(window.globalUserData.gender);
+                        else {
+                            window.currentGender = '';
+                            document.querySelectorAll('#gender-selector .type-badge').forEach(b => b.classList.remove('active'));
+                        }
+                        
                         if (!window.globalUserData.addresses) window.globalUserData.addresses = [];
                         window.selectedAddressIndex = window.globalUserData.defaultAddressIndex || 0;
                         if(window.selectedAddressIndex >= window.globalUserData.addresses.length) window.selectedAddressIndex = 0;
                         window.renderAddresses(); 
                         
-                        // Sync Profile Modal Card Data
-                        if(window.globalUser) {
-                            document.getElementById('profile-user-name').innerText = window.globalUser.displayName || 'Guest User';
-                            document.getElementById('profile-user-email').innerText = window.globalUser.email || 'Temporary Session';
-                            document.getElementById('profile-user-avatar').src = window.globalUser.photoURL || 'https://placehold.co/100x100/1f51c6/ffffff?text=G';
-                        }
                     } else {
                         window.globalUserData = { 
                             name: window.globalUser.displayName || '', 
@@ -2001,16 +1820,59 @@
                         window.renderAddresses();
                     }
                 });
+
                 window.loadPastOrders(docId);
             } catch(e) {}
         }
 
-        window.switchModalTab = (tabName) => {
-            document.querySelectorAll('.modal-tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.modal-tab').forEach(el => el.classList.remove('active'));
-            document.getElementById(`tab-${tabName}-content`).classList.add('active');
-            document.getElementById(`tab-${tabName}-btn`).classList.add('active');
-        }
+        window.handleProfileClick = (e) => {
+            if(e) e.stopPropagation();
+            if (window.globalUser) { 
+                document.getElementById('profile-user-name').innerText = window.globalUser.displayName || window.globalUserData?.name || 'Guest User';
+                document.getElementById('profile-user-email').innerText = window.globalUser.email || 'Temporary Session';
+                document.getElementById('profile-user-avatar').src = window.globalUser.photoURL || 'https://placehold.co/100x100/1f51c6/ffffff?text=G';
+                
+                document.getElementById('profile-dropdown').classList.toggle('active');
+            } else { 
+                document.getElementById('auth-modal').style.display = 'flex'; 
+                document.getElementById('auth-error').innerText = ''; 
+            }
+        };
+
+        window.currentGender = '';
+        window.setGender = (g) => {
+            window.currentGender = g;
+            document.querySelectorAll('#gender-selector .type-badge').forEach(b => b.classList.remove('active'));
+            if(document.getElementById('gender-'+g)) document.getElementById('gender-'+g).classList.add('active');
+        };
+
+        window.saveProfileData = async () => {
+            if(!window.userDocId) return;
+            const name = document.getElementById('profile-name-main').value.trim();
+            const dob = document.getElementById('profile-dob').value;
+            const gender = window.currentGender;
+
+            window.globalUserData.name = name;
+            window.globalUserData.dob = dob;
+            window.globalUserData.gender = gender;
+
+            let msg = document.getElementById('profile-save-msg');
+            msg.innerText = "Saving..."; msg.style.color = "var(--text-muted)";
+
+            try {
+                await setDoc(doc(db, "users", window.userDocId), { name: name, dob: dob, gender: gender }, { merge: true });
+                
+                if(name) {
+                    document.getElementById('nav-profile-text').innerText = name.split(' ')[0];
+                    document.getElementById('profile-user-name').innerText = name;
+                }
+
+                msg.innerText = "Profile saved! ✅"; msg.style.color = "#10b981";
+                setTimeout(() => { msg.innerText = ''; }, 3000);
+            } catch(e) {
+                msg.innerText = "Failed to save."; msg.style.color = "var(--active-brand-red)";
+            }
+        };
 
         window.renderAddresses = () => {
             const container = document.getElementById('addresses-container'); container.innerHTML = '';
@@ -2020,7 +1882,28 @@
             window.globalUserData.addresses.forEach((addr, index) => {
                 let isSelected = index === window.selectedAddressIndex;
                 let icon = addr.label === 'Home' ? '🏠' : (addr.label === 'Work' ? '💼' : '📍');
-                let cardHTML = `<div class="address-card ${isSelected ? 'selected' : ''}" onclick="selectAddress(${index})"><div class="addr-label">${icon} ${addr.label}</div><div class="addr-details">${addr.house}, ${addr.area}</div><div class="addr-contact">Receiver: ${addr.name} | 📞 ${addr.phone}</div><div class="addr-actions"><button class="addr-btn" onclick="event.stopPropagation(); showAddAddressForm(${index})" style="color:var(--glacier-blue);">EDIT</button><button class="addr-btn" onclick="event.stopPropagation(); deleteAddress(${index})">DELETE</button></div></div>`;
+                
+                // 🟢 MAP THUMBNAIL LOGIC 🟢
+                let lat = addr.lat || '26.9124'; let lng = addr.lng || '75.7873';
+                let mapIframe = `<iframe src="https://maps.google.com/maps?q=${lat},${lng}&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0; pointer-events:none;"></iframe>`;
+                
+                let cardHTML = `
+                    <div class="address-card ${isSelected ? 'selected' : ''}" onclick="selectAddress(${index})">
+                        <div style="display:flex; gap: 15px; align-items: center; margin-bottom: 10px;">
+                            <div style="width: 70px; height: 70px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); flex-shrink: 0; background: var(--chip-bg);">
+                                ${mapIframe}
+                            </div>
+                            <div style="flex: 1; min-width:0;">
+                                <div class="addr-label">${icon} ${addr.label}</div>
+                                <div class="addr-details" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${addr.house}, ${addr.area}</div>
+                                <div class="addr-contact">Receiver: ${addr.name}<br>📞 ${addr.phone}</div>
+                            </div>
+                        </div>
+                        <div class="addr-actions" style="margin-top: 5px; padding-top: 10px;">
+                            <button class="addr-btn" onclick="event.stopPropagation(); showAddAddressForm(${index})" style="color:var(--glacier-blue);">EDIT</button>
+                            <button class="addr-btn" onclick="event.stopPropagation(); deleteAddress(${index})">DELETE</button>
+                        </div>
+                    </div>`;
                 container.insertAdjacentHTML('beforeend', cardHTML);
             });
         }
@@ -2114,8 +1997,8 @@
             try {
                 await setDoc(doc(db, "users", window.userDocId), { addresses: window.globalUserData.addresses, defaultAddressIndex: window.globalUserData.defaultAddressIndex, name: window.globalUserData.name || '' }, { merge: true });
                 window.hideAddAddressForm(); 
-                document.getElementById('profile-msg').innerText = "Address saved! ✅"; document.getElementById('profile-msg').style.color = "#10b981";
-                setTimeout(() => { document.getElementById('profile-msg').innerText = ''; }, 3000);
+                document.getElementById('addr-msg').innerText = "Address saved! ✅"; document.getElementById('addr-msg').style.color = "#10b981";
+                setTimeout(() => { document.getElementById('addr-msg').innerText = ''; }, 3000);
             } catch(e) { msgBox.innerText = "Failed to save."; msgBox.style.color = "var(--active-brand-red)"; }
         };
 
@@ -2138,7 +2021,7 @@
                     });
                     listDiv.innerHTML = html;
                 });
-            } catch(e) {}
+            } catch(e) { listDiv.innerHTML = '<p style="font-size: 0.85em; color: #e74c3c; text-align: center; padding:15px;">Failed to load orders.</p>'; }
         };
 
         window.logout = () => { 
@@ -2163,7 +2046,7 @@
                     if(!addr) addr = window.globalUserData.addresses[0]; 
                     let fullDeliveryAddress = `${addr.house}, ${addr.area}`;
                     message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
-                    if (addr.lat && addr.lng) { message += `📍 *Location Link:* https://www.google.com/maps/search/?api=1&query=${addr.lat},${addr.lng}\n`; }
+                    if (addr.lat && addr.lng) { message += `📍 *Location Link:* https://www.google.com/maps?q=LAT,LNG{addr.lat},${addr.lng}\n`; }
                     addDoc(collection(db, "orders"), { userId: window.userDocId, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() });
                 } else if (window.globalUser) { 
                     alert("Please add a delivery address in 'My Profile' before checking out!"); return;
