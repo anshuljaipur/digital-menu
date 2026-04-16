@@ -1981,7 +1981,7 @@
             }
         };
 
-        // 🟢 FIXED: ADDRESS RENDERING WITH FIXED IMAGE MAP THUMBNAIL 🟢
+       // 🟢 FIXED: DYNAMIC MAP IMAGE THUMBNAIL LOGIC 🟢
         window.renderAddresses = () => {
             const container = document.getElementById('addresses-container'); container.innerHTML = '';
             if(!window.globalUserData || !window.globalUserData.addresses || window.globalUserData.addresses.length === 0) {
@@ -1991,10 +1991,18 @@
                 let isSelected = index === window.selectedAddressIndex;
                 let icon = addr.label === 'Home' ? '🏠' : (addr.label === 'Work' ? '💼' : '📍');
                 
-                let lat = addr.lat || '26.9124'; let lng = addr.lng || '75.7873';
-                // FAST STATIC IMAGE URL + CSS MARKER
+                // 🟢 लैटिट्यूड (lat) और लोंगिट्यूड (lng) से असली Map Image निकालना 🟢
+                let lat = parseFloat(addr.lat) || 26.9124; 
+                let lng = parseFloat(addr.lng) || 75.7873;
+                let zoom = 15;
+                let x = Math.floor((lng + 180) / 360 * Math.pow(2, zoom));
+                let y = Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom));
+                
+                // यह हर अलग लोकेशन के लिए एक नई और असली मैप इमेज जनरेट करेगा
+                let dynamicTileUrl = `https://a.tile.openstreetmap.org/${zoom}/${x}/${y}.png`;
+                
                 let mapThumbnail = `
-                    <div style="width: 100%; height: 100%; background: url('https://a.tile.openstreetmap.org/15/23416/13851.png') center/cover; display: flex; align-items: center; justify-content: center; position: relative;">
+                    <div style="width: 100%; height: 100%; background: url('${dynamicTileUrl}') center/cover; display: flex; align-items: center; justify-content: center; position: relative;">
                         <div style="font-size: 1.8em; filter: drop-shadow(0 3px 4px rgba(0,0,0,0.4)); margin-top: -10px;">📍</div>
                     </div>
                 `;
@@ -2019,7 +2027,6 @@
                 container.insertAdjacentHTML('beforeend', cardHTML);
             });
         }
-
         window.selectAddress = async (index) => {
             window.selectedAddressIndex = index; window.globalUserData.defaultAddressIndex = index; window.renderAddresses();
             if(window.userDocId) { await setDoc(doc(db, "users", window.userDocId), { defaultAddressIndex: index }, { merge: true }); }
