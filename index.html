@@ -107,8 +107,7 @@
         .landscape-search-sort { display: none; }
 
         /* --- 2. TOP SECTION (BRANDS + SEARCH/SORT) --- */
-        .top-nav-bar { display: flex; width: 100%; background: var(--card-bg); border-bottom: 1px solid var(--border-color); z-index: 9; flex-shrink: 0; max-height: 150px; overflow: hidden; transition: max-height 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease, margin 0.6s ease, border-width 0.6s ease; }
-        .top-nav-bar.hidden-bar { max-height: 0 !important; opacity: 0 !important; border-bottom-width: 0 !important; margin: 0 !important; pointer-events: none; }
+        .top-nav-bar { display: flex; width: 100%; background: var(--card-bg); border-bottom: 1px solid var(--border-color); z-index: 9; flex-shrink: 0; max-height: 150px; overflow: hidden; transition: opacity 0.5s ease; }
         .brands-wrapper { flex: 1; min-width: 0; display: flex; align-items: center; position: relative;}
         .brands-row { width: 100%; display: flex; justify-content: flex-start; overflow-x: auto; padding: 15px 20px; gap: 25px; scrollbar-width: none; box-sizing: border-box; scroll-behavior: smooth;}
         .brands-row::-webkit-scrollbar { display: none; }
@@ -196,7 +195,7 @@
 
         #load-more-container { text-align: center; margin: 10px 0 30px 0; display: none; width: 100%; }
 
-        /* 🟢 1. FIXED: STORE LOCATION SECTION CSS 🟢 */
+        /* 🟢 FIXED STORE LOCATION SECTION CSS 🟢 */
         .store-location-card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color); padding: 20px; margin: 20px 0 30px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 15px;}
         .store-info-top { display: flex; gap: 15px; align-items: stretch; justify-content: space-between; }
         .store-text { flex: 1; }
@@ -319,33 +318,69 @@
             .controls-bar { margin: 0 -30px 15px -30px; padding: 5px 30px 5px 30px; border-bottom: none;}
         }
 
-        /* 📱 🔥 MOBILE PORTRAIT UI FIXES 🔥 📱 */
+        /* 📱 🔥 100% FIXED MOBILE NATIVE SCROLL (ZERO JITTER) 🔥 📱 */
         @media (max-width: 999px) {
-            header { padding: 10px 15px; height: 55px; }
+            html, body {
+                overflow: auto !important;
+                overflow-x: hidden !important;
+                height: auto !important;
+                position: relative !important;
+                overscroll-behavior-y: none; /* Prevents Chrome Native Pull-to-refresh */
+            }
+            
+            header { 
+                padding: 10px 15px; height: 55px; 
+                position: sticky; top: 0; z-index: 1000;
+            }
             .header-logo { height: 35px; }
             .hide-mobile-text { display: none; }
             #refresh-btn { display: none !important; }
             .action-btn { padding: 6px 10px; font-size: 0.8em; }
 
             .search-sort-side { display: none !important; } 
-            .top-nav-bar { flex-direction: column; border-bottom: none; width: 100%;}
             
-            .brands-wrapper { border-bottom: 1px solid var(--border-color); width: 100%; max-height: 120px; overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;} 
+            /* No height animation needed. Scrolls natively! */
+            .top-nav-bar { 
+                flex-direction: column; border-bottom: none; width: 100%;
+                transition: none !important; max-height: none !important; opacity: 1 !important;
+            }
+            .brands-wrapper { border-bottom: 1px solid var(--border-color); width: 100%; } 
             .brands-row { padding: 12px 15px; gap: 15px; -webkit-overflow-scrolling: touch; border-bottom: none; }
             .brand-icon { width: 55px; height: 55px; }
             .brand-name { font-size: 0.55em; }
 
-            .main-layout { flex-direction: column; width: 100%; overflow-x: hidden; position: relative; } 
+            .main-layout { 
+                flex-direction: column; width: 100%; overflow-x: hidden; position: relative; 
+                overflow: visible !important; height: auto !important;
+            } 
             
-            .sidebar { position: sticky !important; top: 0 !important; left: 0 !important; width: 100% !important; height: auto !important; flex-direction: row !important; padding: 10px 15px !important; border-right: none !important; border-bottom: 1px solid var(--border-color) !important; background: var(--main-bg) !important; box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important; overflow-x: auto !important; overflow-y: hidden !important; z-index: 95 !important; gap: 10px !important; scroll-behavior: smooth;}
+            .sidebar { 
+                position: sticky !important; 
+                top: 55px !important; 
+                left: 0 !important; width: 100% !important; height: auto !important; 
+                flex-direction: row !important; padding: 10px 15px !important; 
+                border-right: none !important; border-bottom: 1px solid var(--border-color) !important; 
+                background: var(--main-bg) !important; box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important; 
+                overflow-x: auto !important; overflow-y: hidden !important; z-index: 995 !important; 
+                gap: 10px !important; scroll-behavior: smooth;
+            }
             .cat-item { flex-direction: row !important; gap: 6px !important; padding: 6px 14px !important; border-radius: 50px !important; border: 1px solid var(--border-color) !important; background: var(--card-bg) !important; width: auto !important; min-width: max-content !important;}
             .cat-item.active { background: var(--glacier-blue) !important; border-color: var(--glacier-blue) !important; }
             .cat-icon { display: none !important; } 
             .cat-name { font-size: 0.8em !important; font-weight: 600 !important; color: var(--text-main) !important; padding: 0 !important;}
             .cat-item.active .cat-name { color: white !important; }
             
-            .content-area { width: 100%; padding: 0px 10px 10px 10px; overflow-x: hidden; box-sizing: border-box; }
-            .controls-bar { padding: 10px 12px 10px 12px; gap: 10px; margin: 0px -10px 15px -10px; width: calc(100% + 20px); border-bottom: 1px solid var(--border-color); background: var(--main-bg); z-index: 50;}
+            .content-area { 
+                width: 100%; padding: 0px 10px 10px 10px; overflow-x: hidden; box-sizing: border-box; 
+                overflow: visible !important; height: auto !important;
+            }
+            
+            .controls-bar { 
+                padding: 10px 12px 10px 12px; gap: 10px; margin: 0px -10px 15px -10px; 
+                width: calc(100% + 20px); border-bottom: 1px solid var(--border-color); 
+                background: var(--main-bg); 
+                position: sticky !important; top: 107px !important; z-index: 990 !important;
+            }
             .search-sort-wrapper { flex-wrap: nowrap; gap: 8px; }
             .control-chip { padding: 8px 10px; min-width: 0; border-radius: 12px;}
             .control-chip:first-child { flex: 1.8; }
@@ -404,8 +439,7 @@
             #mobile-search-sort { display: none !important; }
             .controls-bar { margin: 0 !important; padding: 0 !important; border-bottom: none !important; background: transparent !important; position: static !important; transform: none !important; width: 100%;}
             
-            .top-nav-bar { width: calc(100% - 80px - env(safe-area-inset-left)) !important; margin-left: calc(80px + env(safe-area-inset-left)) !important; padding: 0 !important; box-sizing: border-box; border-bottom: none !important; transition: max-height 0.4s ease, opacity 0.3s ease !important; overflow: hidden !important; }
-            .top-nav-bar.hidden-landscape { max-height: 0 !important; opacity: 0 !important; border-bottom-width: 0 !important; margin: 0 !important; padding: 0 !important; pointer-events: none; }
+            .top-nav-bar { width: calc(100% - 80px - env(safe-area-inset-left)) !important; margin-left: calc(80px + env(safe-area-inset-left)) !important; padding: 0 !important; box-sizing: border-box; border-bottom: none !important; transition: none !important; overflow: hidden !important; }
             .brands-wrapper { border-bottom: 1px solid var(--border-color); width: 100% !important; }
             
             .sidebar { position: fixed !important; top: 50px !important; left: env(safe-area-inset-left) !important; width: 80px !important; height: calc(100dvh - 50px) !important; display: flex !important; flex-direction: column !important; box-shadow: 1px 0 5px rgba(0,0,0,0.05) !important; z-index: 100 !important; padding: 10px 5px 20px 5px !important; overflow-y: auto !important; overflow-x: hidden !important; border-right: 1px solid var(--border-color) !important; background: var(--card-bg) !important;}
@@ -419,7 +453,6 @@
             .content-area { padding-left: 10px !important; padding-right: 10px !important; width: 100% !important; }
             
             .menu-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
-            .tags-sidebar-landscape { display: none !important; } 
         }
 
         @media (max-width: 360px) {
@@ -577,7 +610,7 @@
                         <p>A-12, Janta Store, University Marg,<br>Bapu Nagar, Jaipur, Rajasthan 302015</p>
                     </div>
                     <div class="store-map-preview">
-                        <iframe src="https://maps.google.com/maps?q=Glacier%20Ice%20Cream%20Janta%20Store%20Jaipur&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        <iframe src="https://maps.google.com/maps?q=26.8901148,75.8097553&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                     </div>
                 </div>
                 <div class="store-actions">
@@ -596,7 +629,7 @@
     <div id="toast-container"></div>
 
     <div class="floating-action-container">
-        <button class="floating-btn" id="back-to-top" onclick="document.getElementById('products-area').scrollTo({top:0, behavior:'smooth'})">
+        <button class="floating-btn" id="back-to-top" onclick="window.scrollTo({top:0, behavior:'smooth'}); document.getElementById('products-area').scrollTo({top:0, behavior:'smooth'});">
             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
         </button>
         <button class="floating-cart-btn" id="floating-cart" onclick="toggleCart()">
@@ -861,7 +894,10 @@
             });
 
             applyFilters();
-            setTimeout(() => document.getElementById('products-area').scrollTop = 0, 10);
+            setTimeout(() => {
+                if(window.innerWidth <= 999) { window.scrollTo(0,0); }
+                else { document.getElementById('products-area').scrollTop = 0; }
+            }, 10);
         };
 
         function applyTheme(theme) {
@@ -904,13 +940,37 @@
             }, 100);
         });
 
+        // 🟢 NATIVE MOBILE SCROLL LOGIC FIX 🟢
         const productsArea = document.getElementById('products-area');
         const pullIndicator = document.getElementById('pull-refresh-indicator');
         let startY = 0; let isPulling = false; let ptrHeight = 0;
 
-        if (productsArea && pullIndicator) {
-            productsArea.addEventListener('touchstart', (e) => {
-                if (productsArea.scrollTop <= 5) { 
+        function handleScroll() {
+            let scrollTop = window.innerWidth <= 999 ? window.scrollY : productsArea.scrollTop;
+            let scrollHeight = window.innerWidth <= 999 ? document.documentElement.scrollHeight : productsArea.scrollHeight;
+            let clientHeight = window.innerWidth <= 999 ? window.innerHeight : productsArea.clientHeight;
+
+            if (currentlyDisplayed < currentFilteredItems.length) {
+                if (scrollTop + clientHeight >= scrollHeight - 300) {
+                    renderMoreItems();
+                }
+            }
+
+            const backToTop = document.getElementById('back-to-top');
+            if(scrollTop > 400) { if(backToTop) backToTop.classList.add('visible'); } 
+            else { if(backToTop) backToTop.classList.remove('visible'); }
+        }
+        
+        if (productsArea) {
+            productsArea.addEventListener('scroll', handleScroll);
+        }
+        window.addEventListener('scroll', handleScroll);
+
+        // 🟢 PULL TO REFRESH FIX FOR NATIVE SCROLL 🟢
+        if (pullIndicator) {
+            document.addEventListener('touchstart', (e) => {
+                let scrollTop = window.innerWidth <= 999 ? window.scrollY : (productsArea ? productsArea.scrollTop : 0);
+                if (scrollTop <= 5) { 
                     startY = e.touches[0].clientY; 
                     isPulling = true; 
                     ptrHeight = 0;
@@ -918,10 +978,14 @@
                 }
             }, {passive: true});
 
-            productsArea.addEventListener('touchmove', (e) => {
+            document.addEventListener('touchmove', (e) => {
                 if (!isPulling) return;
+                
+                let scrollTop = window.innerWidth <= 999 ? window.scrollY : (productsArea ? productsArea.scrollTop : 0);
+                if (scrollTop > 5) { isPulling = false; return; }
+                
                 let y = e.touches[0].clientY; let dy = y - startY;
-                if (dy > 0 && productsArea.scrollTop <= 5) {
+                if (dy > 0) {
                     ptrHeight = dy * 0.4; 
                     if (ptrHeight > 0) {
                         if (e.cancelable) e.preventDefault(); 
@@ -941,7 +1005,7 @@
                 } else { isPulling = false; }
             }, {passive: false});
 
-            productsArea.addEventListener('touchend', (e) => {
+            document.addEventListener('touchend', (e) => {
                 if (!isPulling) return;
                 isPulling = false;
                 pullIndicator.style.transition = 'height 0.3s ease, min-height 0.3s ease, opacity 0.3s ease';
@@ -961,41 +1025,6 @@
                     pullIndicator.style.height = '0px'; pullIndicator.style.minHeight = '0px'; pullIndicator.style.opacity = '0'; 
                 }
                 ptrHeight = 0;
-            });
-        }
-
-        let lastScrollY = 0; let showThreshold = 10; 
-        if(productsArea) {
-            productsArea.addEventListener('scroll', function() {
-                const topNavBar = document.querySelector('.top-nav-bar'); 
-                const backToTop = document.getElementById('back-to-top');
-
-                if (currentlyDisplayed < currentFilteredItems.length) {
-                    if (this.scrollTop + this.clientHeight >= this.scrollHeight - 300) {
-                        renderMoreItems();
-                    }
-                }
-
-                if (window.innerWidth <= 999) {
-                    let currentScrollY = this.scrollTop;
-                    let scrollDiff = currentScrollY - lastScrollY;
-
-                    if (currentScrollY > 50) {
-                        if (scrollDiff > showThreshold) {
-                            if (topNavBar) topNavBar.classList.add('hidden-bar');
-                        } else if (scrollDiff < -showThreshold) {
-                            if (topNavBar) topNavBar.classList.remove('hidden-bar');
-                        }
-                    } else {
-                        if (topNavBar) topNavBar.classList.remove('hidden-bar');
-                    }
-                    lastScrollY = currentScrollY;
-                } else {
-                    if (topNavBar) topNavBar.classList.remove('hidden-bar');
-                }
-
-                if(this.scrollTop > 400) { if(backToTop) backToTop.classList.add('visible'); } 
-                else { if(backToTop) backToTop.classList.remove('visible'); }
             });
         }
 
@@ -1149,7 +1178,6 @@
             setTimeout(() => { if(toast.parentElement) toast.remove(); }, 3000);
         }
 
-        // 🟢 BIRTHDAY BLASTER LOGIC 🟢
         window.checkAndShowBirthday = (dobString, name) => {
             if (!dobString) return;
             if (sessionStorage.getItem('glacier_bday_wished')) return; 
@@ -1369,7 +1397,10 @@
                 } else btn.classList.remove('active');
             });
             applyFilters();
-            setTimeout(() => document.getElementById('products-area').scrollTop = 0, 10);
+            setTimeout(() => {
+                if(window.innerWidth <= 999) { window.scrollTo(0,0); }
+                else { document.getElementById('products-area').scrollTop = 0; }
+            }, 10);
         }
 
         function setBrand(brandName) {
@@ -1387,7 +1418,10 @@
                 if (!allItems.some(i => i.brand === brandName && isNewArrival(i))) { setCategory('All Items'); return; }
             }
             applyFilters();
-            setTimeout(() => document.getElementById('products-area').scrollTop = 0, 10);
+            setTimeout(() => {
+                if(window.innerWidth <= 999) { window.scrollTo(0,0); }
+                else { document.getElementById('products-area').scrollTop = 0; }
+            }, 10);
         }
 
         function setTagFilter(tag) {
@@ -1400,14 +1434,16 @@
                 }
             });
             applyFilters();
-            setTimeout(() => document.getElementById('products-area').scrollTop = 0, 10);
+            setTimeout(() => {
+                if(window.innerWidth <= 999) { window.scrollTo(0,0); }
+                else { document.getElementById('products-area').scrollTop = 0; }
+            }, 10);
         }
 
         function getVolume(name) { let total = 0; let match; const regex = /(\d+)\s*(ml|l|ltr|gm|g|kg)/gi; while ((match = regex.exec(name)) !== null) { let val = parseFloat(match[1]); let unit = match[2].toLowerCase(); if (unit === 'l' || unit === 'ltr' || unit === 'kg') val *= 1000; total += val; } return total; }
         function getDiscount(item) { let m = parseFloat(item.mrp); let p = parseFloat(item.price); if (m && !isNaN(m) && m > p) return ((m - p) / m) * 100; return 0; }
         function extractVolumeText(name) { const match = name.match(/(\d+\s*(ml|l|ltr|gm|g|kg))/i); return match ? match[0] : ''; }
 
-        // 🟢 FIXED: SORTING LOGIC WITH ALL OPTIONS 🟢
         function applyFilters() {
             const gridWrapper = document.getElementById('main-menu-grid'); 
             const statusMsg = document.getElementById('status-msg');
@@ -1663,7 +1699,6 @@
         window.clearCart = () => { if(Object.keys(cart).length === 0) return; if(confirm("Are you sure you want to clear your cart?")) { cart = {}; updateCartUI(); } }
         window.shareWebsite = () => { if(navigator.share) navigator.share({title:'Glacier Ice Cream', text:'Order your favorite Ice Cream online! 🍦', url:window.location.href}); }
 
-        // 🟢 DROPDOWN & SPECIFIC MODALS LOGIC 🟢
         window.openSpecificModal = (modalId) => {
             const dropdown = document.getElementById('profile-dropdown');
             if(dropdown) dropdown.classList.remove('active');
@@ -1714,7 +1749,6 @@
                 });
             }
             
-            // 🟢 CRITICAL: Allow container to become visible before rendering map tiles
             setTimeout(() => { 
                 window.addressMap.invalidateSize(); 
                 window.getCurrentLocation();
@@ -1981,7 +2015,7 @@
             }
         };
 
-       // 🟢 FIXED: DYNAMIC MAP IMAGE THUMBNAIL LOGIC 🟢
+        // 🟢 FIXED DYNAMIC MAP THUMBNAIL LOGIC 🟢
         window.renderAddresses = () => {
             const container = document.getElementById('addresses-container'); container.innerHTML = '';
             if(!window.globalUserData || !window.globalUserData.addresses || window.globalUserData.addresses.length === 0) {
@@ -1991,14 +2025,12 @@
                 let isSelected = index === window.selectedAddressIndex;
                 let icon = addr.label === 'Home' ? '🏠' : (addr.label === 'Work' ? '💼' : '📍');
                 
-                // 🟢 लैटिट्यूड (lat) और लोंगिट्यूड (lng) से असली Map Image निकालना 🟢
                 let lat = parseFloat(addr.lat) || 26.9124; 
                 let lng = parseFloat(addr.lng) || 75.7873;
                 let zoom = 15;
                 let x = Math.floor((lng + 180) / 360 * Math.pow(2, zoom));
                 let y = Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom));
                 
-                // यह हर अलग लोकेशन के लिए एक नई और असली मैप इमेज जनरेट करेगा
                 let dynamicTileUrl = `https://a.tile.openstreetmap.org/${zoom}/${x}/${y}.png`;
                 
                 let mapThumbnail = `
@@ -2027,6 +2059,7 @@
                 container.insertAdjacentHTML('beforeend', cardHTML);
             });
         }
+
         window.selectAddress = async (index) => {
             window.selectedAddressIndex = index; window.globalUserData.defaultAddressIndex = index; window.renderAddresses();
             if(window.userDocId) { await setDoc(doc(db, "users", window.userDocId), { defaultAddressIndex: index }, { merge: true }); }
@@ -2141,7 +2174,7 @@
                     });
                     listDiv.innerHTML = html;
                 });
-            } catch(e) { listDiv.innerHTML = '<p style="font-size: 0.85em; color: #e74c3c; text-align: center; padding:15px;">Failed to load orders.</p>'; }
+            } catch(e) {}
         };
 
         window.logout = () => { 
@@ -2168,7 +2201,7 @@
                     if(!addr) addr = window.globalUserData.addresses[0]; 
                     let fullDeliveryAddress = `${addr.house}, ${addr.area}`;
                     message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
-                    if (addr.lat && addr.lng) { message += `📍 *Location Link:* https://maps.google.com/?q=${addr.lat},${addr.lng}\n`; }
+                    if (addr.lat && addr.lng) { message += `📍 *Location Link:* https://maps.google.com/?q={addr.lat},${addr.lng}\n`; }
                     addDoc(collection(db, "orders"), { userId: window.userDocId, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() });
                 } else if (window.globalUser) { 
                     alert("Please add a delivery address in 'Addresses' before checking out!"); return;
