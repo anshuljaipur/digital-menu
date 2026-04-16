@@ -83,6 +83,7 @@
         .btn-profile { background: rgba(228, 77, 38, 0.1); color: var(--primary-color); border-color: rgba(228, 77, 38, 0.2); }
         .btn-profile:hover { background: var(--primary-color); color: white; }
 
+        /* 🟢 PROFILE DROPDOWN MENU CSS 🟢 */
         .profile-dropdown-menu { position: absolute; top: 50px; right: 0; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 180px; display: flex; flex-direction: column; padding: 8px 0; z-index: 2000; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
         .profile-dropdown-menu.active { opacity: 1; visibility: visible; transform: translateY(0); }
         .dropdown-item { padding: 12px 18px; font-size: 0.85em; font-weight: 600; color: var(--text-main); cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
@@ -90,7 +91,7 @@
 
         .landscape-search-sort { display: none; }
 
-        /* --- 2. TOP SECTION --- */
+        /* --- 2. TOP SECTION (BRANDS + SEARCH/SORT) --- */
         .top-nav-bar { display: flex; width: 100%; background: var(--card-bg); border-bottom: 1px solid var(--border-color); z-index: 9; flex-shrink: 0; max-height: 150px; overflow: hidden; transition: opacity 0.5s ease; }
         .brands-wrapper { flex: 1; min-width: 0; display: flex; align-items: center; position: relative;}
         .brands-row { width: 100%; display: flex; justify-content: flex-start; overflow-x: auto; padding: 15px 20px; gap: 25px; scrollbar-width: none; box-sizing: border-box; scroll-behavior: smooth;}
@@ -147,6 +148,7 @@
         .section-header h2 { margin: 0; font-size: 1.4em; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
         .section-count { font-size: 0.9em; font-weight: 500; color: var(--text-muted); }
 
+        /* 🟢 PREMIUM PRODUCT GRID & CARD CSS 🟢 */
         .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; align-items: start; padding-bottom: 20px; box-sizing: border-box; width: 100%;}
         .menu-card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color); display: flex; flex-direction: column; position: relative; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s; height: 100%; box-sizing: border-box;}
         .menu-card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.1); transform: translateY(-3px); }
@@ -177,6 +179,7 @@
 
         #load-more-container { text-align: center; margin: 10px 0 30px 0; display: none; width: 100%; }
 
+        /* 🟢 STORE LOCATION SECTION CSS 🟢 */
         .store-location-card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color); padding: 20px; margin: 20px 0 30px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 15px;}
         .store-info-top { display: flex; gap: 15px; align-items: stretch; justify-content: space-between; }
         .store-text { flex: 1; }
@@ -199,18 +202,27 @@
         .fab-main { width: 55px; height: 55px; border-radius: 50%; background: linear-gradient(135deg, var(--glacier-blue), #1a42a4); color: white; font-size: 1.8em; border: none; box-shadow: 0 6px 20px rgba(31,81,198,0.4); cursor: pointer; display: flex; align-items: center; justify-content: center; pointer-events: auto; transition: transform 0.2s; z-index: 2; -webkit-tap-highlight-color: transparent;}
         .fab-main:active { transform: scale(0.9); }
         .fab-main.open { transform: rotate(45deg); background: var(--active-brand-red); box-shadow: 0 6px 20px rgba(231,76,60,0.4);}
-        
         .fab-menu { display: flex; flex-direction: column-reverse; gap: 15px; pointer-events: auto; position: absolute; bottom: 70px; }
         .fab-item { width: 45px; height: 45px; border-radius: 50%; background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2em; opacity: 0; transform: translateY(20px) scale(0.5); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; pointer-events: none;}
-        
         #fab-container.active .fab-item { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto;}
         #fab-container.active .fab-item:nth-child(1) { transition-delay: 0.05s; }
         #fab-container.active .fab-item:nth-child(2) { transition-delay: 0.1s; }
         #fab-container.active .fab-item:nth-child(3) { transition-delay: 0.15s; }
         #fab-container.active .fab-item:nth-child(4) { transition-delay: 0.2s; }
-        
         .fab-label { position: absolute; right: 55px; background: rgba(15, 23, 42, 0.8); color: white; padding: 6px 12px; border-radius: 8px; font-size: 0.75em; font-weight: 600; opacity: 0; pointer-events: none; white-space: nowrap; transition: 0.3s; backdrop-filter: blur(4px);}
         #fab-container.active .fab-label { opacity: 1; }
+
+        /* 🟢 BACK TO TOP BUTTON (RESTORED & FIXED POSITION) 🟢 */
+        .back-to-top-btn { position: fixed; bottom: 160px; right: 20px; background: var(--glacier-blue); color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(31,81,198,0.4); cursor: pointer; opacity: 0; transition: 0.3s ease; transform: translateY(20px); pointer-events: none; border: none; z-index: 9997;}
+        .back-to-top-btn.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .back-to-top-btn:hover { background: #1a42a4; }
+
+        /* 🟢 FLOATING CART BUTTON 🟢 */
+        .floating-cart-btn { position: fixed; bottom: 20px; right: 20px; background: var(--primary-color); color: #475569; width: 55px; height: 55px; border-radius: 50%; display: none; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(228, 77, 38, 0.4); cursor: pointer; transition: 0.3s ease; border: none; font-size: 1.2em; z-index: 9997; pointer-events: auto;}
+        .floating-cart-btn.visible { display: flex; animation: popIn 0.3s ease; }
+        .floating-cart-btn:hover { transform: scale(1.05); background: #d34320; }
+        .cart-badge { position: absolute; top: -5px; right: -5px; background: var(--text-main); color: var(--bg-color); font-size: 0.7em; font-weight: 800; min-width: 22px; height: 22px; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-color); padding: 0 4px; box-sizing: border-box;}
+        @keyframes popIn { 0% { transform: scale(0); } 80% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
         /* 🟢 GRID SELECTOR FOR BOTTOM SHEETS 🟢 */
         .grid-selector { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; max-height: 50vh; overflow-y: auto; padding: 5px; scrollbar-width: none;}
@@ -220,12 +232,6 @@
         .grid-sel-icon { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; font-size: 2em; border-radius: 50%; background: #fff; border: 1px solid var(--border-color); }
         .grid-sel-icon img, .grid-sel-icon svg { width: 100%; height: 100%; object-fit: contain; transform: scale(0.85); border-radius: 50%;}
         .grid-sel-name { font-size: 0.75em; font-weight: 700; color: var(--text-main); }
-
-        .floating-cart-btn { position: fixed; bottom: 30px; right: 20px; background: var(--primary-color); color: #475569; width: 55px; height: 55px; border-radius: 50%; display: none; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(228, 77, 38, 0.4); cursor: pointer; transition: 0.3s ease; border: none; font-size: 1.2em; z-index: 9997; pointer-events: auto;}
-        .floating-cart-btn.visible { display: flex; animation: popIn 0.3s ease; }
-        .floating-cart-btn:hover { transform: scale(1.05); background: #d34320; }
-        .cart-badge { position: absolute; top: -5px; right: -5px; background: var(--text-main); color: var(--bg-color); font-size: 0.7em; font-weight: 800; min-width: 22px; height: 22px; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-color); padding: 0 4px; box-sizing: border-box;}
-        @keyframes popIn { 0% { transform: scale(0); } 80% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
         .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 99999; background: var(--text-main); color: var(--bg-color); padding: 12px 20px; border-radius: 50px; font-size: 0.85em; font-weight: 600; box-shadow: 0 4px 15px rgba(0,0,0,0.2); animation: toastUp 0.3s ease, toastFade 0.3s ease 2.5s forwards; display: flex; align-items: center; gap: 8px; }
         @keyframes toastUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -278,6 +284,7 @@
         .order-history-items { color: var(--text-muted); font-size: 0.85em; line-height: 1.6; margin: 0; }
         .order-item-line { display: flex; gap: 8px; margin-bottom: 4px; align-items: flex-start; }
 
+        /* PRODUCT DETAIL CSS */
         #pd-modal-img { width: 100%; height: 220px; object-fit: contain; mix-blend-mode: multiply; margin-bottom: 20px; background: #fff; border-radius: 12px; padding: 10px; box-sizing: border-box;}
         [data-theme="dark"] #pd-modal-img { background: #e2e8f0; mix-blend-mode: normal; }
         .pd-modal-brand-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
@@ -290,6 +297,7 @@
         .pd-ing-text { margin: 0 0 15px 0; font-size: 0.8em; color: var(--active-brand-red); font-style: italic; line-height: 1.4; display: none; font-weight: 500;}
         .pd-bottom-row { display: flex; justify-content: space-between; align-items: center; border-top: 2px solid var(--border-color); padding-top: 20px; margin-top: auto; }
 
+        /* 🟢 MULTI-ADDRESS CSS 🟢 */
         .address-card { border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; position: relative; background: var(--card-bg); box-shadow: 0 2px 5px rgba(0,0,0,0.02);}
         .address-card:hover { border-color: var(--glacier-blue); transform: translateY(-2px);}
         .address-card.selected { border-color: var(--glacier-blue); background: var(--hover-bg); border-width: 2px; padding: 11px;}
@@ -308,6 +316,7 @@
         .suggestion-item:last-child { border-bottom: none; }
         .suggestion-item:hover { background: var(--hover-bg); color: var(--glacier-blue); font-weight: 600; }
 
+        /* 🟢 DESKTOP FIXES 🟢 */
         @media (min-width: 1000px) {
             #mobile-search-sort { display: none !important; }
             .controls-bar { margin: 0 -30px 15px -30px; padding: 5px 30px 5px 30px; border-bottom: none;}
@@ -444,10 +453,10 @@
         
         <div class="landscape-search-sort">
             <div class="control-chip">
-                🔍 <input type="text" id="search-bar-landscape" placeholder="Search..." onkeyup="syncInputs('landscape')">
+                🔍 <input type="text" id="search-bar-landscape" placeholder="Search..." onkeyup="window.syncInputs('landscape')">
             </div>
             <div class="control-chip">
-                ↕️ <select id="sort-dropdown-landscape" onchange="syncInputs('landscape')">
+                ↕️ <select id="sort-dropdown-landscape" onchange="window.syncInputs('landscape')">
                     <option value="default">Sort by relevance</option>
                     <option value="brand">Brand name wise</option>
                     <option value="category">Item category wise</option>
@@ -461,44 +470,44 @@
         </div>
 
         <div class="header-actions">
-            <button class="action-btn" onclick="refreshMenu()" id="refresh-btn" title="Refresh Menu" style="font-size: 1.1em; padding: 6px 12px;">🔄</button>
-            <button class="action-btn" onclick="cycleTheme()" id="theme-toggle-btn" title="Toggle Theme">🖥️</button>
+            <button class="action-btn" onclick="window.refreshMenu()" id="refresh-btn" title="Refresh Menu" style="font-size: 1.1em; padding: 6px 12px;">🔄</button>
+            <button class="action-btn" onclick="window.cycleTheme()" id="theme-toggle-btn" title="Toggle Theme">🖥️</button>
             
             <div style="position: relative;" id="profile-dropdown-container">
-                <button class="action-btn btn-profile" onclick="handleProfileClick(event)" id="nav-profile-btn" style="padding: 6px 12px; gap: 6px;">
+                <button class="action-btn btn-profile" onclick="window.handleProfileClick(event)" id="nav-profile-btn" style="padding: 6px 12px; gap: 6px;">
                     <span id="nav-profile-icon" style="display:flex; align-items:center; justify-content:center; font-size:1.1em;">👤</span>
                     <span class="hide-mobile-text" id="nav-profile-text">Login</span>
                 </button>
                 <div id="profile-dropdown" class="profile-dropdown-menu">
-                    <div class="dropdown-item" onclick="openSpecificModal('my-profile-modal')">👤 My Profile</div>
-                    <div class="dropdown-item" onclick="openSpecificModal('addresses-modal')">📍 Addresses</div>
-                    <div class="dropdown-item" onclick="openSpecificModal('orders-modal')">🛍️ Past Orders</div>
+                    <div class="dropdown-item" onclick="window.openSpecificModal('my-profile-modal')">👤 My Profile</div>
+                    <div class="dropdown-item" onclick="window.openSpecificModal('addresses-modal')">📍 Addresses</div>
+                    <div class="dropdown-item" onclick="window.openSpecificModal('orders-modal')">🛍️ Past Orders</div>
                     <div style="height: 1px; background: var(--border-color); margin: 5px 0;"></div>
-                    <div class="dropdown-item" onclick="logout()" style="color: var(--active-brand-red);">🚪 Logout</div>
+                    <div class="dropdown-item" onclick="window.logout()" style="color: var(--active-brand-red);">🚪 Logout</div>
                 </div>
             </div>
             
-            <button class="action-btn" onclick="shareWebsite()">📤 <span class="hide-mobile-text">Share</span></button>
+            <button class="action-btn" onclick="window.shareWebsite()">📤 <span class="hide-mobile-text">Share</span></button>
         </div>
     </header>
 
     <div class="top-nav-bar">
         <div class="brands-wrapper">
-            <button id="btn-brand-left" class="brand-arrow left-arrow" onclick="scrollBrands(-1)">
+            <button id="btn-brand-left" class="brand-arrow left-arrow" onclick="window.scrollBrands(-1)">
                 <span class="arrow-icon">❮</span>
             </button>
-            <div class="brands-row" id="brands-sidebar" onscroll="updateBrandArrows()"></div>
-            <button id="btn-brand-right" class="brand-arrow right-arrow" onclick="scrollBrands(1)">
+            <div class="brands-row" id="brands-sidebar" onscroll="window.updateBrandArrows()"></div>
+            <button id="btn-brand-right" class="brand-arrow right-arrow" onclick="window.scrollBrands(1)">
                 <span class="arrow-icon">❯</span>
             </button>
         </div>
 
         <div class="search-sort-side" id="desktop-search-sort">
             <div class="control-chip">
-                🔍 <input type="text" id="search-bar-desktop" placeholder="Search ice creams..." onkeyup="syncInputs('desktop')">
+                🔍 <input type="text" id="search-bar-desktop" placeholder="Search ice creams..." onkeyup="window.syncInputs('desktop')">
             </div>
             <div class="control-chip">
-                ↕️ <select id="sort-dropdown-desktop" onchange="syncInputs('desktop')">
+                ↕️ <select id="sort-dropdown-desktop" onchange="window.syncInputs('desktop')">
                     <option value="default">Sort by relevance</option>
                     <option value="brand">Brand name wise</option>
                     <option value="category">Item category wise</option>
@@ -526,10 +535,10 @@
             <div class="controls-bar">
                 <div class="search-sort-wrapper" id="mobile-search-sort">
                     <div class="control-chip">
-                        🔍 <input type="text" id="search-bar-mobile" placeholder="Search ice creams..." onkeyup="syncInputs('mobile')">
+                        🔍 <input type="text" id="search-bar-mobile" placeholder="Search ice creams..." onkeyup="window.syncInputs('mobile')">
                     </div>
                     <div class="control-chip">
-                        ↕️ <select id="sort-dropdown-mobile" onchange="syncInputs('mobile')">
+                        ↕️ <select id="sort-dropdown-mobile" onchange="window.syncInputs('mobile')">
                             <option value="default">Sort by relevance</option>
                             <option value="brand">Brand name wise</option>
                             <option value="category">Item category wise</option>
@@ -548,7 +557,7 @@
             <div class="section-header">
                 <h2 id="current-category-title">All Items</h2>
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <button id="clear-filters-btn" onclick="clearAllFilters()" class="action-btn" style="display:none; padding: 4px 10px; font-size: 0.75em; border-color: var(--active-brand-red); color: var(--active-brand-red);">✖ Clear</button>
+                    <button id="clear-filters-btn" onclick="window.clearAllFilters()" class="action-btn" style="display:none; padding: 4px 10px; font-size: 0.75em; border-color: var(--active-brand-red); color: var(--active-brand-red);">✖ Clear</button>
                     <span class="section-count" id="item-count">0 items</span>
                 </div>
             </div>
@@ -584,35 +593,39 @@
 
     <div id="fab-container">
         <div class="fab-menu">
-            <button class="fab-item" onclick="openSpecificModal('mobile-category-modal')">🍨<span class="fab-label">Categories</span></button>
-            <button class="fab-item" onclick="openSpecificModal('mobile-brand-modal')">🏷️<span class="fab-label">Brands</span></button>
+            <button class="fab-item" onclick="window.openSpecificModal('mobile-category-modal')">🍨<span class="fab-label">Categories</span></button>
+            <button class="fab-item" onclick="window.openSpecificModal('mobile-brand-modal')">🏷️<span class="fab-label">Brands</span></button>
             <a href="https://www.google.com/maps/dir/?api=1&destination=26.8901148,75.8097553&destination_place_id=ChIJ____v522bTkRKXEJpqCTRho" target="_blank" class="fab-item" style="text-decoration:none;">🗺️<span class="fab-label">Directions</span></a>
             <a href="tel:+919829610570" class="fab-item" style="text-decoration:none;">📞<span class="fab-label">Call Us</span></a>
         </div>
-        <button class="fab-main" id="fab-main-btn" onclick="toggleFab()">✨</button>
+        <button class="fab-main" id="fab-main-btn" onclick="window.toggleFab()">✨</button>
     </div>
 
-    <div id="mobile-category-modal" class="custom-modal bottom-sheet" onclick="closeSpecificModal('mobile-category-modal')">
+    <div id="mobile-category-modal" class="custom-modal bottom-sheet" onclick="window.closeSpecificModal('mobile-category-modal')">
         <div class="modal-content-box" onclick="event.stopPropagation()">
             <div class="modal-header-row" style="margin-bottom: 10px;">
                 <h2>Select Category</h2>
-                <div class="close-modal-icon" onclick="closeSpecificModal('mobile-category-modal')">×</div>
+                <div class="close-modal-icon" onclick="window.closeSpecificModal('mobile-category-modal')">×</div>
             </div>
             <div class="grid-selector" id="fab-category-grid"></div>
         </div>
     </div>
 
-    <div id="mobile-brand-modal" class="custom-modal bottom-sheet" onclick="closeSpecificModal('mobile-brand-modal')">
+    <div id="mobile-brand-modal" class="custom-modal bottom-sheet" onclick="window.closeSpecificModal('mobile-brand-modal')">
         <div class="modal-content-box" onclick="event.stopPropagation()">
             <div class="modal-header-row" style="margin-bottom: 10px;">
                 <h2>Select Brand</h2>
-                <div class="close-modal-icon" onclick="closeSpecificModal('mobile-brand-modal')">×</div>
+                <div class="close-modal-icon" onclick="window.closeSpecificModal('mobile-brand-modal')">×</div>
             </div>
             <div class="grid-selector" id="fab-brand-grid"></div>
         </div>
     </div>
 
-    <button class="floating-cart-btn" id="floating-cart" onclick="toggleCart()">
+    <button class="back-to-top-btn" id="back-to-top" onclick="window.scrollTo({top:0, behavior:'smooth'}); document.getElementById('products-area').scrollTo({top:0, behavior:'smooth'});">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+    </button>
+
+    <button class="floating-cart-btn" id="floating-cart" onclick="window.toggleCart()">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="9" cy="21" r="1"></circle>
             <circle cx="20" cy="21" r="1"></circle>
@@ -623,10 +636,10 @@
 
     <div id="toast-container"></div>
 
-    <div id="product-detail-modal" class="custom-modal" onclick="closeSpecificModal('product-detail-modal')">
+    <div id="product-detail-modal" class="custom-modal" onclick="window.closeSpecificModal('product-detail-modal')">
         <div class="modal-content-box" onclick="event.stopPropagation()" style="padding-bottom: 25px;">
             <div style="display: flex; justify-content: flex-end; margin-bottom: -10px;">
-                <div class="close-modal-icon" onclick="closeSpecificModal('product-detail-modal')">×</div>
+                <div class="close-modal-icon" onclick="window.closeSpecificModal('product-detail-modal')">×</div>
             </div>
             <img id="pd-modal-img" src="" alt="Ice Cream">
             
@@ -648,29 +661,29 @@
         </div>
     </div>
 
-    <div id="cart-modal" class="custom-modal" onclick="toggleCart()">
+    <div id="cart-modal" class="custom-modal" onclick="window.toggleCart()">
         <div class="modal-content-box" onclick="event.stopPropagation()">
             <div class="modal-header-row">
                 <h2>Your Cart</h2>
-                <div class="close-modal-icon" onclick="toggleCart()">×</div>
+                <div class="close-modal-icon" onclick="window.toggleCart()">×</div>
             </div>
             <div id="cart-items-list"></div>
             <div class="cart-total">Total: ₹<span id="cart-total-price">0</span></div>
-            <button id="checkout-wa" class="checkout-btn btn-wa" onclick="checkout('whatsapp')">📱 Order on WhatsApp</button>
-            <button class="checkout-btn btn-clear" onclick="clearCart()">🗑️ Clear Cart</button>
+            <button id="checkout-wa" class="checkout-btn btn-wa" onclick="window.checkout('whatsapp')">📱 Order on WhatsApp</button>
+            <button class="checkout-btn btn-clear" onclick="window.clearCart()">🗑️ Clear Cart</button>
         </div>
     </div>
 
-    <div id="auth-modal" class="custom-modal" onclick="closeSpecificModal('auth-modal')">
+    <div id="auth-modal" class="custom-modal" onclick="window.closeSpecificModal('auth-modal')">
         <div class="modal-content-box" onclick="event.stopPropagation()">
             <div class="modal-header-row">
                 <h2>Welcome</h2>
-                <div class="close-modal-icon" onclick="closeSpecificModal('auth-modal')">×</div>
+                <div class="close-modal-icon" onclick="window.closeSpecificModal('auth-modal')">×</div>
             </div>
             <p style="font-size: 0.9em; color: var(--text-muted); margin-bottom: 25px; margin-top: 0;">Sign in to save your addresses and track orders across all devices.</p>
             
             <div id="google-login-section" style="text-align: center; display: flex; flex-direction: column; gap: 15px;">
-                <button class="auth-btn" id="login-btn" onclick="googleLogin()" style="background: var(--card-bg); color: var(--text-main); border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                <button class="auth-btn" id="login-btn" onclick="window.googleLogin()" style="background: var(--card-bg); color: var(--text-main); border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                     <svg viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg" style="margin-right: 12px;">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -686,7 +699,7 @@
                     <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
                 </div>
                 
-                <button class="auth-btn" id="guest-btn" onclick="guestLogin()" style="background: var(--chip-bg); color: var(--text-main); border: none; display: flex; align-items: center; justify-content: center; width: 100%; box-shadow: none;">
+                <button class="auth-btn" id="guest-btn" onclick="window.guestLogin()" style="background: var(--chip-bg); color: var(--text-main); border: none; display: flex; align-items: center; justify-content: center; width: 100%; box-shadow: none;">
                     👤 Continue as Guest
                 </button>
             </div>
@@ -694,11 +707,11 @@
         </div>
     </div>
 
-    <div id="my-profile-modal" class="custom-modal" onclick="closeSpecificModal('my-profile-modal')">
+    <div id="my-profile-modal" class="custom-modal" onclick="window.closeSpecificModal('my-profile-modal')">
         <div class="modal-content-box" onclick="event.stopPropagation()">
             <div class="modal-header-row">
                 <h2>My Profile</h2>
-                <div class="close-modal-icon" onclick="closeSpecificModal('my-profile-modal')">×</div>
+                <div class="close-modal-icon" onclick="window.closeSpecificModal('my-profile-modal')">×</div>
             </div>
             
             <div class="profile-user-card" style="margin-bottom: 25px;">
@@ -717,25 +730,25 @@
 
             <label class="auth-label">Gender</label>
             <div class="type-selector" id="gender-selector" style="margin-bottom: 20px;">
-                <span class="type-badge" id="gender-Male" onclick="setGender('Male')">👨 Male</span>
-                <span class="type-badge" id="gender-Female" onclick="setGender('Female')">👩 Female</span>
-                <span class="type-badge" id="gender-Other" onclick="setGender('Other')">⚧ Other</span>
+                <span class="type-badge" id="gender-Male" onclick="window.setGender('Male')">👨 Male</span>
+                <span class="type-badge" id="gender-Female" onclick="window.setGender('Female')">👩 Female</span>
+                <span class="type-badge" id="gender-Other" onclick="window.setGender('Other')">⚧ Other</span>
             </div>
 
             <div id="profile-save-msg" style="font-size: 0.85em; margin-bottom: 15px; text-align: center; font-weight: 700;"></div>
-            <button class="auth-btn" onclick="saveProfileData()">Save Profile</button>
+            <button class="auth-btn" onclick="window.saveProfileData()">Save Profile</button>
         </div>
     </div>
 
-    <div id="addresses-modal" class="custom-modal" onclick="closeSpecificModal('addresses-modal')">
+    <div id="addresses-modal" class="custom-modal" onclick="window.closeSpecificModal('addresses-modal')">
         <div class="modal-content-box" onclick="event.stopPropagation()">
             <div class="modal-header-row">
                 <h2>Saved Addresses</h2>
-                <div class="close-modal-icon" onclick="closeSpecificModal('addresses-modal')">×</div>
+                <div class="close-modal-icon" onclick="window.closeSpecificModal('addresses-modal')">×</div>
             </div>
 
             <div id="address-list-view">
-                <button class="auth-btn" onclick="showAddAddressForm()" style="margin-bottom: 20px; background: var(--chip-bg); color: var(--glacier-blue); border: 2px dashed var(--glacier-blue); box-shadow: none;">+ Add New Address</button>
+                <button class="auth-btn" onclick="window.showAddAddressForm()" style="margin-bottom: 20px; background: var(--chip-bg); color: var(--glacier-blue); border: 2px dashed var(--glacier-blue); box-shadow: none;">+ Add New Address</button>
                 <div id="addresses-container"></div>
             </div>
 
@@ -743,9 +756,9 @@
                 <h4 style="margin-top:0; margin-bottom:15px; font-size:1em; color:var(--text-main);" id="addr-form-title">Add New Address</h4>
                 
                 <div class="type-selector" id="addr-type-selector">
-                    <span class="type-badge active" id="badge-Home" onclick="setAddrType('Home')">🏠 Home</span>
-                    <span class="type-badge" id="badge-Work" onclick="setAddrType('Work')">💼 Work</span>
-                    <span class="type-badge" id="badge-Other" onclick="setAddrType('Other')">📍 Other</span>
+                    <span class="type-badge active" id="badge-Home" onclick="window.setAddrType('Home')">🏠 Home</span>
+                    <span class="type-badge" id="badge-Work" onclick="window.setAddrType('Work')">💼 Work</span>
+                    <span class="type-badge" id="badge-Other" onclick="window.setAddrType('Other')">📍 Other</span>
                 </div>
 
                 <input type="hidden" id="edit-addr-index" value="-1">
@@ -779,18 +792,18 @@
                 <div id="addr-msg" style="font-size: 0.85em; margin-bottom: 15px; text-align: center; font-weight: 700;"></div>
 
                 <div style="display:flex; gap:10px;">
-                    <button class="auth-btn" style="flex:1; padding: 12px;" onclick="saveNewAddress()">Save</button>
-                    <button class="auth-btn" style="flex:1; padding: 12px; background:var(--card-bg); color:var(--text-main); border: 1px solid var(--border-color); box-shadow:none;" onclick="hideAddAddressForm()">Cancel</button>
+                    <button class="auth-btn" style="flex:1; padding: 12px;" onclick="window.saveNewAddress()">Save</button>
+                    <button class="auth-btn" style="flex:1; padding: 12px; background:var(--card-bg); color:var(--text-main); border: 1px solid var(--border-color); box-shadow:none;" onclick="window.hideAddAddressForm()">Cancel</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="orders-modal" class="custom-modal" onclick="closeSpecificModal('orders-modal')">
+    <div id="orders-modal" class="custom-modal" onclick="window.closeSpecificModal('orders-modal')">
         <div class="modal-content-box" onclick="event.stopPropagation()">
             <div class="modal-header-row">
                 <h2>Past Orders</h2>
-                <div class="close-modal-icon" onclick="closeSpecificModal('orders-modal')">×</div>
+                <div class="close-modal-icon" onclick="window.closeSpecificModal('orders-modal')">×</div>
             </div>
             <div id="order-history-list" style="max-height: 400px; overflow-y: auto; padding: 5px; scrollbar-width: thin;">
                 <p style="font-size: 0.85em; color: var(--text-muted); text-align: center;">Loading orders...</p>
@@ -799,6 +812,8 @@
         </div>
     </div>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
     <script>
         const googleSheetUrl = "https://script.google.com/macros/s/AKfycbwq17hSzF9mgPqqKw8FDVWFktoxpugpZNKYRjc6hmTSOKxQm4fY2jC1talNoEpMdDQ/exec"; 
         const WHATSAPP_NUMBER = "919829610570"; 
@@ -806,35 +821,6 @@
         let allItems = []; let currentCategory = 'All Items'; let currentBrand = 'All Brands'; let currentTagFilter = 'All'; let cart = {}; 
         let currentFilteredItems = []; let currentlyDisplayed = 0;
         let currentTheme = localStorage.getItem('glacier_theme') || 'auto';
-        
-        document.addEventListener('keydown', function(event) {
-            if (event.key === "Escape") {
-                document.querySelectorAll('.custom-modal').forEach(modal => {
-                    if(modal.style.display === 'flex') modal.style.display = 'none';
-                });
-            }
-        });
-        
-        document.addEventListener('click', function(e) {
-            if (e.target.id !== 'map-search-input') {
-                const box = document.getElementById('search-suggestions');
-                if(box) box.style.display = 'none';
-            }
-            
-            const dropdown = document.getElementById('profile-dropdown');
-            const profileBtn = document.getElementById('nav-profile-btn');
-            if(dropdown && dropdown.classList.contains('active') && !dropdown.contains(e.target) && !profileBtn.contains(e.target)) {
-                dropdown.classList.remove('active');
-            }
-
-            // Close FAB if clicked outside
-            const fab = document.getElementById('fab-container');
-            const fabMain = document.getElementById('fab-main-btn');
-            if (fab && fab.classList.contains('active') && !fab.contains(e.target) && e.target !== fabMain) {
-                fab.classList.remove('active');
-                fabMain.classList.remove('open');
-            }
-        });
 
         window.clearAllFilters = () => {
             ['desktop', 'mobile', 'landscape'].forEach(env => {
@@ -880,41 +866,41 @@
                 else btn.classList.remove('active');
             });
 
-            applyFilters();
+            window.applyFilters();
             setTimeout(() => {
                 if(window.innerWidth <= 999) { window.scrollTo(0,0); }
                 else { document.getElementById('products-area').scrollTop = 0; }
             }, 10);
         };
 
-        function applyTheme(theme) {
+        window.applyTheme = (theme) => {
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             if (theme === 'dark' || (theme === 'auto' && prefersDark)) {
                 document.documentElement.setAttribute('data-theme', 'dark');
             } else {
                 document.documentElement.removeAttribute('data-theme');
             }
-            updateThemeIcon();
+            window.updateThemeIcon();
         }
 
-        function cycleTheme() {
+        window.cycleTheme = () => {
             if(currentTheme === 'light') currentTheme = 'dark';
             else if(currentTheme === 'dark') currentTheme = 'auto';
             else currentTheme = 'light';
             localStorage.setItem('glacier_theme', currentTheme);
-            applyTheme(currentTheme);
+            window.applyTheme(currentTheme);
         }
 
-        function updateThemeIcon() {
+        window.updateThemeIcon = () => {
             const btn = document.getElementById('theme-toggle-btn');
             if(currentTheme === 'light') btn.innerText = '☀️';
             else if(currentTheme === 'dark') btn.innerText = '🌙';
             else btn.innerText = '🖥️';
         }
 
-        applyTheme(currentTheme);
+        window.applyTheme(currentTheme);
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-            if(currentTheme === 'auto') applyTheme('auto');
+            if(currentTheme === 'auto') window.applyTheme('auto');
         });
 
         window.addEventListener('orientationchange', () => {
@@ -923,14 +909,78 @@
                 document.body.offsetHeight; 
                 document.body.style.display = '';
                 window.scrollTo(0, 0);
-                updateBrandArrows();
+                window.updateBrandArrows();
             }, 100);
         });
+
+        // 🟢 DRAGGABLE FAB LOGIC 🟢
+        window.toggleFab = () => {
+            const fab = document.getElementById('fab-container');
+            const mainBtn = document.getElementById('fab-main-btn');
+            fab.classList.toggle('active');
+            mainBtn.classList.toggle('open');
+        };
+
+        const fab = document.getElementById('fab-container');
+        const fabMain = document.getElementById('fab-main-btn');
+        let isDraggingFab = false; let fabStartX, fabStartY, initialFabX, initialFabY; let hasMovedFab = false;
+
+        if(fabMain && fab) {
+            fabMain.addEventListener('touchstart', (e) => {
+                initialFabX = fab.offsetLeft; initialFabY = fab.offsetTop;
+                fabStartX = e.touches[0].clientX; fabStartY = e.touches[0].clientY;
+                isDraggingFab = true; hasMovedFab = false;
+                fab.style.transition = 'none';
+            }, {passive: true});
+
+            fabMain.addEventListener('touchmove', (e) => {
+                if (!isDraggingFab) return;
+                const dx = e.touches[0].clientX - fabStartX; const dy = e.touches[0].clientY - fabStartY;
+                if (Math.abs(dx) > 5 || Math.abs(dy) > 5) hasMovedFab = true;
+                let newX = initialFabX + dx; let newY = initialFabY + dy;
+                const maxX = window.innerWidth - fab.offsetWidth; const maxY = window.innerHeight - fab.offsetHeight;
+                newX = Math.max(0, Math.min(newX, maxX)); newY = Math.max(0, Math.min(newY, maxY));
+                fab.style.left = newX + 'px'; fab.style.top = newY + 'px'; fab.style.right = 'auto'; fab.style.bottom = 'auto';
+                const labels = document.querySelectorAll('.fab-label');
+                if (newX < window.innerWidth / 2) { labels.forEach(l => { l.style.right = 'auto'; l.style.left = '55px'; }); } 
+                else { labels.forEach(l => { l.style.left = 'auto'; l.style.right = '55px'; }); }
+            }, {passive: false});
+
+            fabMain.addEventListener('touchend', (e) => {
+                isDraggingFab = false;
+                fab.style.transition = 'top 0.3s, left 0.3s';
+                let currentX = fab.offsetLeft;
+                if (currentX < window.innerWidth / 2) { fab.style.left = '20px'; } 
+                else { fab.style.left = (window.innerWidth - fab.offsetWidth - 20) + 'px'; }
+                if (hasMovedFab) { e.preventDefault(); }
+            });
+        }
+
+        window.openSpecificModal = (modalId) => {
+            const dropdown = document.getElementById('profile-dropdown');
+            if(dropdown) dropdown.classList.remove('active');
+            
+            document.getElementById(modalId).style.display = 'flex';
+            
+            if(modalId === 'my-profile-modal') {
+                const msg = document.getElementById('profile-save-msg');
+                if(msg) msg.innerText = '';
+            }
+            if(modalId === 'addresses-modal') {
+                const msg = document.getElementById('addr-msg');
+                if(msg) msg.innerText = '';
+            }
+        };
+
+        window.closeSpecificModal = (modalId) => {
+            document.getElementById(modalId).style.display = 'none';
+        };
 
         const productsArea = document.getElementById('products-area');
         const pullIndicator = document.getElementById('pull-refresh-indicator');
         let startY = 0; let isPulling = false; let ptrHeight = 0;
 
+        // 🟢 FIXED: SCROLL HANDLING FOR BACK-TO-TOP 🟢
         function handleScroll() {
             let scrollTop = window.innerWidth <= 999 ? window.scrollY : productsArea.scrollTop;
             let scrollHeight = window.innerWidth <= 999 ? document.documentElement.scrollHeight : productsArea.scrollHeight;
@@ -938,18 +988,18 @@
 
             if (currentlyDisplayed < currentFilteredItems.length) {
                 if (scrollTop + clientHeight >= scrollHeight - 300) {
-                    renderMoreItems();
+                    window.renderMoreItems();
                 }
             }
 
             const backToTop = document.getElementById('back-to-top');
-            if(scrollTop > 400) { if(backToTop) backToTop.classList.add('visible'); } 
-            else { if(backToTop) backToTop.classList.remove('visible'); }
+            if(backToTop) {
+                if(scrollTop > 400) { backToTop.classList.add('visible'); } 
+                else { backToTop.classList.remove('visible'); }
+            }
         }
         
-        if (productsArea) {
-            productsArea.addEventListener('scroll', handleScroll);
-        }
+        if (productsArea) { productsArea.addEventListener('scroll', handleScroll); }
         window.addEventListener('scroll', handleScroll);
 
         if (pullIndicator) {
@@ -999,7 +1049,7 @@
                     let icon = pullIndicator.querySelector('.ptr-icon'); let text = pullIndicator.querySelector('.ptr-text');
                     if(icon) { icon.style.transform = 'rotate(0deg)'; icon.innerHTML = '⏳'; }
                     if(text) text.innerText = 'Loading'; 
-                    refreshMenu().then(() => { 
+                    window.refreshMenu().then(() => { 
                         pullIndicator.style.height = '0px'; pullIndicator.style.minHeight = '0px'; pullIndicator.style.opacity = '0'; 
                         setTimeout(() => { 
                             if(icon) { icon.innerHTML = '⬇️'; icon.style.transform = 'rotate(0deg)'; }
@@ -1013,7 +1063,7 @@
             });
         }
 
-        function updateBrandArrows() {
+        window.updateBrandArrows = () => {
             const row = document.getElementById('brands-sidebar');
             if(!row) return;
             const items = row.querySelectorAll('.brand-item');
@@ -1042,7 +1092,7 @@
         window.scrollBrands = (dir) => {
             const row = document.getElementById('brands-sidebar');
             if(row) row.scrollBy({ left: dir * 150, behavior: 'smooth' });
-            setTimeout(updateBrandArrows, 300);
+            setTimeout(window.updateBrandArrows, 300);
         }
 
         window.syncInputs = (source) => {
@@ -1056,7 +1106,7 @@
                     if(sortEl) sortEl.value = sortVal;
                 }
             });
-            applyFilters();
+            window.applyFilters();
         }
 
         const brandImageLinks = {
@@ -1072,7 +1122,7 @@
             "frubon": "https://i.postimg.cc/0y5Q0rM3/logo_fb.png"
         };
 
-        function getBrandLogo(brandName) {
+        window.getBrandLogo = (brandName) => {
             if(!brandName) return '';
             const b = brandName.toLowerCase(); let matchedImg = '';
             for (let key in brandImageLinks) { if (b.includes(key)) { matchedImg = brandImageLinks[key]; break; } }
@@ -1081,9 +1131,9 @@
             return `<svg viewBox="0 0 100 100" style="width:100%; height:100%; background:var(--chip-bg);"><text x="50" y="55" font-size="34" fill="var(--text-muted)" font-weight="bold" font-family="Montserrat, sans-serif" text-anchor="middle" dominant-baseline="middle">${text}</text></svg>`;
         }
 
-        function protectImages(e) { if (e.target.tagName === 'IMG' || e.target.tagName === 'svg') { e.preventDefault(); return false; } return true; }
+        window.protectImages = (e) => { if (e.target.tagName === 'IMG' || e.target.tagName === 'svg') { e.preventDefault(); return false; } return true; }
 
-        function getLaunchDate(item) {
+        window.getLaunchDate = (item) => {
             let dateStr = null;
             for (let key in item) {
                 let cleanKey = String(key).toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -1111,8 +1161,8 @@
             return { year: year, month: month };
         }
 
-        function isNewArrival(item) {
-            let launchData = getLaunchDate(item);
+        window.isNewArrival = (item) => {
+            let launchData = window.getLaunchDate(item);
             if (!launchData) return false;
             let now = new Date();
             let currentYear = now.getFullYear();
@@ -1121,13 +1171,13 @@
             return monthsDiff >= -2 && monthsDiff <= 3; 
         }
 
-        function getItemTags(item) {
+        window.getItemTags = (item) => {
             let tagString = item.tags || item.Tags || item.TAGS || '';
             if (!tagString) return [];
             return String(tagString).split(',').map(t => t.trim()).filter(t => t.length > 0);
         }
 
-        function getTagStyle(tag) {
+        window.getTagStyle = (tag) => {
             let t = tag.toLowerCase();
             if(t.includes('vegan')) return 'tag-style-vegan';
             if(t.includes('sugar')) return 'tag-style-sugarfree';
@@ -1135,35 +1185,65 @@
             return 'tag-style-default';
         }
 
-        function getTagIcon(tag) {
+        window.getTagIcon = (tag) => {
             let t = tag.toLowerCase();
             let imgUrl = '';
-            
             if (t.includes('vegan')) imgUrl = 'https://i.postimg.cc/mD5dDdW4/vegan.png';
             else if (t.includes('diet') || t.includes('fast') || t.includes('vrat') || t.includes('guilt')) imgUrl = 'https://i.postimg.cc/wvGWvWYY/diet_icon.png';
             else if (t.includes('sugar')) imgUrl = 'https://i.postimg.cc/MTFsTsJ2/sficon.png';
             else if (t.includes('fruit')) imgUrl = 'https://i.postimg.cc/rmPhmhXB/fruit.png';
-
-            if (imgUrl) {
-                return `<img src="${imgUrl}" style="width: 16px; height: 16px; object-fit: contain; vertical-align: middle;" alt="icon">`;
-            }
+            if (imgUrl) { return `<img src="${imgUrl}" style="width: 16px; height: 16px; object-fit: contain; vertical-align: middle;" alt="icon">`; }
             return '';
         }
 
-        function showToast(itemName) {
+        window.showToast = (itemName) => {
             const container = document.getElementById('toast-container');
             if(!container) return;
-            
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.innerHTML = `<span>✅</span> <span>Added <b>${itemName}</b> to cart</span>`;
-            
             container.appendChild(toast);
-            
             setTimeout(() => { if(toast.parentElement) toast.remove(); }, 3000);
         }
 
-        async function refreshMenu() {
+        window.checkAndShowBirthday = (dobString, name) => {
+            if (!dobString) return;
+            if (sessionStorage.getItem('glacier_bday_wished')) return; 
+            
+            const today = new Date();
+            const dob = new Date(dobString);
+            
+            if (today.getDate() === dob.getDate() && today.getMonth() === dob.getMonth()) {
+                sessionStorage.setItem('glacier_bday_wished', 'true');
+                
+                const overlay = document.getElementById('birthday-overlay');
+                const nameEl = document.getElementById('bday-name');
+                const firstName = name ? name.split(' ')[0] : 'Friend';
+                
+                nameEl.innerText = `Happy Birthday,\n${firstName}! 🎉`;
+                overlay.style.display = 'flex';
+                
+                if(typeof confetti !== 'undefined') {
+                    let duration = 3 * 1000;
+                    let animationEnd = Date.now() + duration;
+                    let defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 99999999, colors: ['#e44d26', '#1f51c6', '#f8b400', '#ffffff'] };
+                    let interval = setInterval(function() {
+                        let timeLeft = animationEnd - Date.now();
+                        if (timeLeft <= 0) return clearInterval(interval);
+                        let particleCount = 50 * (timeLeft / duration);
+                        confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * (0.3 - 0.1) + 0.1, y: Math.random() - 0.2 } }));
+                        confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * (0.9 - 0.7) + 0.7, y: Math.random() - 0.2 } }));
+                    }, 250);
+                }
+                
+                setTimeout(() => {
+                    overlay.style.opacity = '0';
+                    setTimeout(() => overlay.style.display = 'none', 500);
+                }, 4500);
+            }
+        };
+
+        window.refreshMenu = async () => {
             const btn = document.getElementById('refresh-btn');
             if(btn) { btn.innerHTML = '⏳'; btn.style.pointerEvents = 'none'; btn.style.opacity = '0.5'; }
             
@@ -1177,43 +1257,28 @@
                 
                 if (Array.isArray(newData)) {
                     allItems = newData; 
-                    
-                    let savedCat = currentCategory;
-                    let savedBrand = currentBrand;
-                    let savedTag = currentTagFilter;
-                    
-                    setupAppUI(); 
-                    
-                    currentCategory = savedCat;
-                    currentBrand = savedBrand;
-                    currentTagFilter = savedTag;
+                    window.setupAppUI(); 
                     
                     document.querySelectorAll('.cat-item').forEach(btn => {
                         const name = btn.querySelector('.cat-name').innerText.trim();
-                        if (name.toLowerCase() === currentCategory.toLowerCase() || (currentCategory.includes('New') && name.includes('New'))) {
-                            btn.classList.add('active');
-                        } else btn.classList.remove('active');
+                        if (name.toLowerCase() === currentCategory.toLowerCase() || (currentCategory.includes('New') && name.includes('New'))) { btn.classList.add('active'); } else btn.classList.remove('active');
                     });
                     document.querySelectorAll('.brand-item').forEach(btn => {
                         const name = btn.querySelector('.brand-name').innerText.trim();
                         let matchName = currentBrand === 'All Brands' ? 'ALL' : currentBrand.toUpperCase();
-                        if (name === matchName) btn.classList.add('active');
-                        else btn.classList.remove('active');
+                        if (name === matchName) btn.classList.add('active'); else btn.classList.remove('active');
                     });
                     document.querySelectorAll('.filter-tag-chip').forEach(btn => {
-                        if(btn.getAttribute('data-tag') === currentTagFilter) btn.classList.add('active');
-                        else btn.classList.remove('active');
+                        if(btn.getAttribute('data-tag') === currentTagFilter) btn.classList.add('active'); else btn.classList.remove('active');
                     });
 
-                    applyFilters();
+                    window.applyFilters();
                 }
 
                 if (window.globalUser && typeof window.fetchUserData === 'function') {
                     await window.fetchUserData(window.userDocId);
                 }
-            } catch(e) { 
-                console.error("Refresh Error:", e); 
-            }
+            } catch(e) { console.error("Refresh Error:", e); }
             
             if(btn) { btn.innerHTML = '🔄'; btn.style.pointerEvents = 'auto'; btn.style.opacity = '1'; }
         }
@@ -1235,11 +1300,11 @@
 
                 if(!Array.isArray(allItems) && allItems.error) throw new Error("Apps Script Error: " + allItems.error);
                 if(!allItems || allItems.length === 0) { 
-                    statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="clearAllFilters()" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
+                    statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="window.clearAllFilters()" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
                     if(loadingBar) loadingBar.style.width = '100%'; return; 
                 }
                 
-                setupAppUI(); applyFilters();
+                window.setupAppUI(); window.applyFilters();
                 if(loadingBar) loadingBar.style.width = '100%'; 
                 
                 setTimeout(() => {
@@ -1251,7 +1316,7 @@
                     }
                     if(loadingBar) loadingBar.style.opacity = '0'; 
                     statusMsg.style.display='none'; 
-                    updateBrandArrows(); 
+                    window.updateBrandArrows(); 
                 }, 800);
 
             } catch (error) { 
@@ -1264,8 +1329,7 @@
             }
         }
 
-        // 🟢 POPULATE FAB GRIDS 🟢
-        function setupAppUI() {
+        window.setupAppUI = () => {
             const sidebar = document.getElementById('category-sidebar');
             const fabCategoryGrid = document.getElementById('fab-category-grid');
             sidebar.innerHTML = ''; 
@@ -1289,23 +1353,18 @@
                     else iconHTML = '🍨';
                 }
                 
-                // Sidebar Item
                 const div = document.createElement('div'); 
                 div.className = `cat-item ${cat === currentCategory ? 'active' : ''}`;
-                div.onclick = () => setCategory(cat); div.innerHTML = `<div class="cat-icon">${iconHTML}</div><div class="cat-name">${name}</div>`;
+                div.onclick = () => window.setCategory(cat); div.innerHTML = `<div class="cat-icon">${iconHTML}</div><div class="cat-name">${name}</div>`;
                 sidebar.appendChild(div);
 
-                // FAB Grid Item
                 if(fabCategoryGrid) {
                     let fabCatDiv = document.createElement('div');
                     fabCatDiv.className = `grid-sel-item ${cat === currentCategory ? 'active' : ''}`;
-                    fabCatDiv.onclick = () => { setCategory(cat); window.closeSpecificModal('mobile-category-modal'); document.getElementById('fab-container').classList.remove('active'); document.getElementById('fab-main-btn').classList.remove('open'); };
+                    fabCatDiv.onclick = () => { window.setCategory(cat); window.closeSpecificModal('mobile-category-modal'); document.getElementById('fab-container').classList.remove('active'); document.getElementById('fab-main-btn').classList.remove('open'); };
                     let displayIcon = iconHTML;
-                    if(iconHTML === '✨' || iconHTML === '🍨' || iconHTML === '📦' || iconHTML === '🍦' || iconHTML === '🍰' || iconHTML === '🍧') {
-                        displayIcon = `<div style="font-size:2em; line-height:1;">${iconHTML}</div>`;
-                    } else {
-                        displayIcon = `<div class="grid-sel-icon">${iconHTML}</div>`;
-                    }
+                    if(iconHTML === '✨' || iconHTML === '🍨' || iconHTML === '📦' || iconHTML === '🍦' || iconHTML === '🍰' || iconHTML === '🍧') { displayIcon = `<div style="font-size:2em; line-height:1;">${iconHTML}</div>`; } 
+                    else { displayIcon = `<div class="grid-sel-icon">${iconHTML}</div>`; }
                     fabCatDiv.innerHTML = `${displayIcon}<div class="grid-sel-name">${name}</div>`;
                     fabCategoryGrid.appendChild(fabCatDiv);
                 }
@@ -1318,37 +1377,32 @@
             
             const brands = ['All Brands', ...new Set(allItems.map(item => item.brand).filter(b => b))];
             brands.forEach(brand => {
-                let iconHTML = brand === 'All Brands' ? `<svg viewBox="0 0 100 100" style="width:100%; height:100%; background:var(--chip-bg);"><text x="50" y="55" font-size="28" fill="var(--glacier-blue)" font-weight="bold" font-family="Montserrat, sans-serif" text-anchor="middle" dominant-baseline="middle">ALL</text></svg>` : getBrandLogo(brand);
+                let iconHTML = brand === 'All Brands' ? `<svg viewBox="0 0 100 100" style="width:100%; height:100%; background:var(--chip-bg);"><text x="50" y="55" font-size="28" fill="var(--glacier-blue)" font-weight="bold" font-family="Montserrat, sans-serif" text-anchor="middle" dominant-baseline="middle">ALL</text></svg>` : window.getBrandLogo(brand);
                 
-                // Sidebar Item
                 const div = document.createElement('div'); 
                 div.className = `brand-item ${brand === currentBrand ? 'active' : ''}`;
-                div.onclick = () => setBrand(brand); div.innerHTML = `<div class="brand-icon">${iconHTML}</div><div class="brand-name">${brand === 'All Brands' ? 'All' : brand}</div>`;
+                div.onclick = () => window.setBrand(brand); div.innerHTML = `<div class="brand-icon">${iconHTML}</div><div class="brand-name">${brand === 'All Brands' ? 'All' : brand}</div>`;
                 brandSidebar.appendChild(div);
 
-                // FAB Grid Item
                 if(fabBrandGrid) {
                     let fabBrandDiv = document.createElement('div');
                     fabBrandDiv.className = `grid-sel-item ${brand === currentBrand ? 'active' : ''}`;
-                    fabBrandDiv.onclick = () => { setBrand(brand); window.closeSpecificModal('mobile-brand-modal'); document.getElementById('fab-container').classList.remove('active'); document.getElementById('fab-main-btn').classList.remove('open');};
+                    fabBrandDiv.onclick = () => { window.setBrand(brand); window.closeSpecificModal('mobile-brand-modal'); document.getElementById('fab-container').classList.remove('active'); document.getElementById('fab-main-btn').classList.remove('open');};
                     fabBrandDiv.innerHTML = `<div class="grid-sel-icon" style="padding:4px;">${iconHTML}</div><div class="grid-sel-name">${brand === 'All Brands' ? 'All' : brand}</div>`;
                     fabBrandGrid.appendChild(fabBrandDiv);
                 }
             });
 
             let allTags = new Set();
-            allItems.forEach(item => {
-                getItemTags(item).forEach(t => allTags.add(t));
-            });
+            allItems.forEach(item => { window.getItemTags(item).forEach(t => allTags.add(t)); });
             
             if(allTags.size > 0) {
-                let tagsHTML = `<div class="filter-tag-chip ${currentTagFilter === 'All' ? 'active' : ''}" data-tag="All" onclick="setTagFilter('All')">All</div>`;
+                let tagsHTML = `<div class="filter-tag-chip ${currentTagFilter === 'All' ? 'active' : ''}" data-tag="All" onclick="window.setTagFilter('All')">All</div>`;
                 Array.from(allTags).sort().forEach(tag => {
                     let safeTag = tag.replace(/'/g, "\\'");
                     let isActive = currentTagFilter === tag ? 'active' : '';
-                    tagsHTML += `<div class="filter-tag-chip ${isActive}" data-tag="${safeTag}" onclick="setTagFilter('${safeTag}')">${tag}</div>`;
+                    tagsHTML += `<div class="filter-tag-chip ${isActive}" data-tag="${safeTag}" onclick="window.setTagFilter('${safeTag}')">${tag}</div>`;
                 });
-                
                 const ptContainer = document.getElementById('tags-container-portrait');
                 const lsContainer = document.getElementById('tags-container-landscape');
                 if(ptContainer) ptContainer.innerHTML = tagsHTML;
@@ -1358,10 +1412,10 @@
                 document.getElementById('tags-container-landscape').style.display = 'none';
             }
 
-            window.addEventListener('resize', () => { updateBrandArrows(); });
+            window.addEventListener('resize', () => { window.updateBrandArrows(); });
         }
 
-        function setCategory(categoryName) {
+        window.setCategory = (categoryName) => {
             currentCategory = categoryName; const container = document.getElementById('category-sidebar');
             document.querySelectorAll('.cat-item').forEach(btn => {
                 const name = btn.querySelector('.cat-name').innerText.trim();
@@ -1377,7 +1431,6 @@
                 } else btn.classList.remove('active');
             });
 
-            // Update FAB Grid
             const fabGrid = document.getElementById('fab-category-grid');
             if(fabGrid) {
                 fabGrid.querySelectorAll('.grid-sel-item').forEach(btn => {
@@ -1387,14 +1440,11 @@
                 });
             }
 
-            applyFilters();
-            setTimeout(() => {
-                if(window.innerWidth <= 999) { window.scrollTo(0,0); }
-                else { document.getElementById('products-area').scrollTop = 0; }
-            }, 10);
+            window.applyFilters();
+            setTimeout(() => { if(window.innerWidth <= 999) { window.scrollTo(0,0); } else { document.getElementById('products-area').scrollTop = 0; } }, 10);
         }
 
-        function setBrand(brandName) {
+        window.setBrand = (brandName) => {
             currentBrand = brandName; const container = document.getElementById('brands-sidebar');
             document.querySelectorAll('.brand-item').forEach(btn => {
                 const name = btn.querySelector('.brand-name').innerText.trim();
@@ -1405,7 +1455,6 @@
                 } else btn.classList.remove('active');
             });
 
-            // Update FAB Grid
             const fabGrid = document.getElementById('fab-brand-grid');
             if(fabGrid) {
                 fabGrid.querySelectorAll('.grid-sel-item').forEach(btn => {
@@ -1417,36 +1466,27 @@
             }
             
             if (currentCategory.includes('New') && brandName !== 'All Brands') {
-                if (!allItems.some(i => i.brand === brandName && isNewArrival(i))) { setCategory('All Items'); return; }
+                if (!allItems.some(i => i.brand === brandName && window.isNewArrival(i))) { window.setCategory('All Items'); return; }
             }
-            applyFilters();
-            setTimeout(() => {
-                if(window.innerWidth <= 999) { window.scrollTo(0,0); }
-                else { document.getElementById('products-area').scrollTop = 0; }
-            }, 10);
+            window.applyFilters();
+            setTimeout(() => { if(window.innerWidth <= 999) { window.scrollTo(0,0); } else { document.getElementById('products-area').scrollTop = 0; } }, 10);
         }
 
-        function setTagFilter(tag) {
+        window.setTagFilter = (tag) => {
             currentTagFilter = tag;
             document.querySelectorAll('.filter-tag-chip').forEach(btn => {
-                if(btn.getAttribute('data-tag') === tag) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
-                }
+                if(btn.getAttribute('data-tag') === tag) { btn.classList.add('active'); } 
+                else { btn.classList.remove('active'); }
             });
-            applyFilters();
-            setTimeout(() => {
-                if(window.innerWidth <= 999) { window.scrollTo(0,0); }
-                else { document.getElementById('products-area').scrollTop = 0; }
-            }, 10);
+            window.applyFilters();
+            setTimeout(() => { if(window.innerWidth <= 999) { window.scrollTo(0,0); } else { document.getElementById('products-area').scrollTop = 0; } }, 10);
         }
 
-        function getVolume(name) { let total = 0; let match; const regex = /(\d+)\s*(ml|l|ltr|gm|g|kg)/gi; while ((match = regex.exec(name)) !== null) { let val = parseFloat(match[1]); let unit = match[2].toLowerCase(); if (unit === 'l' || unit === 'ltr' || unit === 'kg') val *= 1000; total += val; } return total; }
-        function getDiscount(item) { let m = parseFloat(item.mrp); let p = parseFloat(item.price); if (m && !isNaN(m) && m > p) return ((m - p) / m) * 100; return 0; }
-        function extractVolumeText(name) { const match = name.match(/(\d+\s*(ml|l|ltr|gm|g|kg))/i); return match ? match[0] : ''; }
+        window.getVolume = (name) => { let total = 0; let match; const regex = /(\d+)\s*(ml|l|ltr|gm|g|kg)/gi; while ((match = regex.exec(name)) !== null) { let val = parseFloat(match[1]); let unit = match[2].toLowerCase(); if (unit === 'l' || unit === 'ltr' || unit === 'kg') val *= 1000; total += val; } return total; }
+        window.getDiscount = (item) => { let m = parseFloat(item.mrp); let p = parseFloat(item.price); if (m && !isNaN(m) && m > p) return ((m - p) / m) * 100; return 0; }
+        window.extractVolumeText = (name) => { const match = name.match(/(\d+\s*(ml|l|ltr|gm|g|kg))/i); return match ? match[0] : ''; }
 
-        function applyFilters() {
+        window.applyFilters = () => {
             const gridWrapper = document.getElementById('main-menu-grid'); 
             const statusMsg = document.getElementById('status-msg');
             
@@ -1465,7 +1505,7 @@
                 const isAvailable = String(item.available).toLowerCase() === 'yes' || item.available === true;
                 const matchesBrand = currentBrand === 'All Brands' || item.brand === currentBrand;
                 let matchesCategory = currentCategory === 'All Items' ? true : 
-                                      (currentCategory === 'New Arrivals' ? isNewArrival(item) : 
+                                      (currentCategory === 'New Arrivals' ? window.isNewArrival(item) : 
                                       (item.category || 'More Favorites') === currentCategory);
                                       
                 if (searchTerm !== '') matchesCategory = true;
@@ -1476,7 +1516,7 @@
                     matchesSearch = searchWords.every(word => textToSearch.includes(word));
                 }
 
-                const itemTags = getItemTags(item);
+                const itemTags = window.getItemTags(item);
                 const matchesTagFilter = currentTagFilter === 'All' ? true : itemTags.includes(currentTagFilter);
 
                 return isAvailable && matchesBrand && matchesCategory && matchesSearch && matchesTagFilter;
@@ -1484,7 +1524,7 @@
 
             if (currentCategory === 'New Arrivals' && sortValue === 'default') {
                 filteredItems.sort((a, b) => {
-                    let dateA = getLaunchDate(a); let dateB = getLaunchDate(b);
+                    let dateA = window.getLaunchDate(a); let dateB = window.getLaunchDate(b);
                     let valA = dateA ? (dateA.year * 12 + dateA.month) : 0;
                     let valB = dateB ? (dateB.year * 12 + dateB.month) : 0;
                     return valB - valA;
@@ -1492,8 +1532,8 @@
             } else {
                 if (sortValue === 'price-low-high') filteredItems.sort((a, b) => a.price - b.price); 
                 else if (sortValue === 'price-high-low') filteredItems.sort((a, b) => b.price - a.price); 
-                else if (sortValue === 'size-low-high') filteredItems.sort((a, b) => getVolume(a.name) - getVolume(b.name)); 
-                else if (sortValue === 'size-high-low') filteredItems.sort((a, b) => getVolume(b.name) - getVolume(a.name)); 
+                else if (sortValue === 'size-low-high') filteredItems.sort((a, b) => window.getVolume(a.name) - window.getVolume(b.name)); 
+                else if (sortValue === 'size-high-low') filteredItems.sort((a, b) => window.getVolume(b.name) - window.getVolume(a.name)); 
                 else if (sortValue === 'brand') filteredItems.sort((a, b) => String(a.brand || '').localeCompare(String(b.brand || '')));
                 else if (sortValue === 'category') filteredItems.sort((a, b) => String(a.category || '').localeCompare(String(b.category || '')));
                 else if (sortValue === 'ingredients') filteredItems.sort((a, b) => {
@@ -1527,16 +1567,16 @@
             
             if (filteredItems.length === 0) { 
                 if(loadMore) loadMore.style.display = 'none';
-                statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="clearAllFilters()" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
+                statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="window.clearAllFilters()" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
                 statusMsg.style.display = 'block'; 
                 return; 
             }
 
             statusMsg.style.display = 'none'; 
-            renderMoreItems();
+            window.renderMoreItems();
         }
 
-        function getItemsPerPage() {
+        window.getItemsPerPage = () => {
             let itemsPerRow = 4;
             if (window.innerWidth <= 360) { itemsPerRow = 2; } 
             else if (window.innerWidth <= 999) { itemsPerRow = window.matchMedia("(orientation: landscape)").matches ? 3 : 2; } 
@@ -1548,36 +1588,36 @@
             return Math.max(1, itemsPerRow) * 4; 
         }
 
-        function renderMoreItems() {
+        window.renderMoreItems = () => {
             const gridWrapper = document.getElementById('main-menu-grid');
             let newHTML = '';
             
-            let itemsPerPage = getItemsPerPage();
+            let itemsPerPage = window.getItemsPerPage();
             let itemsToRender = currentFilteredItems.slice(currentlyDisplayed, currentlyDisplayed + itemsPerPage);
 
             itemsToRender.forEach((item, index) => {
                 if(!item.name) return;
-                const safeName = item.name.replace(/[^a-zA-Z0-9]/g, '_'); const volText = extractVolumeText(item.name);
+                const safeName = item.name.replace(/[^a-zA-Z0-9]/g, '_'); const volText = window.extractVolumeText(item.name);
                 let displayName = item.name.replace(volText, '').trim() || item.name;
-                let discountNum = getDiscount(item);
+                let discountNum = window.getDiscount(item);
                 
                 let priceHTML = discountNum > 0 ? `<div class="price-row"><span class="item-price">₹${item.price}</span><span class="item-mrp">₹${item.mrp}</span></div>` : `<div class="price-row"><span class="item-price">₹${item.price}</span></div>`;
                 
                 let tagsHTML = '';
-                const itemTagsArray = getItemTags(item);
+                const itemTagsArray = window.getItemTags(item);
                 if(itemTagsArray.length > 0) {
                     tagsHTML = `<div class="card-tags-row">` + 
                                itemTagsArray.map(t => {
-                                   let iconHTML = getTagIcon(t);
-                                   return `<span class="card-tag ${getTagStyle(t)}" title="${t}" style="width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 1.1em; flex-shrink: 0; cursor: help;">${iconHTML}</span>`;
+                                   let iconHTML = window.getTagIcon(t);
+                                   return `<span class="card-tag ${window.getTagStyle(t)}" title="${t}" style="width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 1.1em; flex-shrink: 0; cursor: help;">${iconHTML}</span>`;
                                }).join('') + 
                                `</div>`;
                 }
 
                 newHTML += `
-                    <div class="menu-card" onclick="openProductDetail('${item.name.replace(/'/g, "\\'")}')">
+                    <div class="menu-card" onclick="window.openProductDetail('${item.name.replace(/'/g, "\\'")}')">
                         <div class="card-img-wrapper skeleton-bg">
-                            ${isNewArrival(item) ? `<div class="new-badge">✨ NEW</div>` : ''}
+                            ${window.isNewArrival(item) ? `<div class="new-badge">✨ NEW</div>` : ''}
                             ${discountNum > 0 ? `<div class="red-discount-icon">⬇</div>` : ''}
                             <img src="${item.img}" referrerpolicy="no-referrer" loading="lazy" decoding="async" style="opacity: 0; transition: opacity 0.3s ease-in-out;" onload="this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';" onerror="this.onerror=null; this.src='https://placehold.co/300x220/f4f6f9/a0a0a0?text=No+Image'; this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';">
                             
@@ -1599,19 +1639,19 @@
             gridWrapper.insertAdjacentHTML('beforeend', newHTML);
             currentlyDisplayed += itemsToRender.length;
             
-            updateAddButtons();
+            window.updateAddButtons();
         }
 
         window.openProductDetail = (itemName) => {
             const item = allItems.find(i => i.name === itemName);
             if(!item) return;
 
-            const volText = extractVolumeText(item.name);
+            const volText = window.extractVolumeText(item.name);
             const displayName = item.name.replace(volText, '').trim() || item.name;
-            const discountNum = getDiscount(item);
+            const discountNum = window.getDiscount(item);
 
             document.getElementById('pd-modal-img').src = item.img;
-            document.getElementById('pd-modal-brand-logo').innerHTML = getBrandLogo(item.brand);
+            document.getElementById('pd-modal-brand-logo').innerHTML = window.getBrandLogo(item.brand);
             document.getElementById('pd-modal-brand-name').innerText = item.brand;
             document.getElementById('pd-modal-name').innerText = item.name;
             document.getElementById('pd-modal-volume').innerText = volText || '';
@@ -1635,21 +1675,21 @@
 
             const btnWrap = document.getElementById('pd-modal-btn-wrap');
             if (cart[item.name]) {
-                btnWrap.innerHTML = `<div class="app-qty-control" style="height:40px; width:100px; font-size:1.1em;"><button onclick="event.stopPropagation(); changeQty('${item.name.replace(/'/g, "\\'")}', -1)">−</button><span>${cart[item.name].qty}</span><button onclick="event.stopPropagation(); changeQty('${item.name.replace(/'/g, "\\'")}', 1)">+</button></div>`;
+                btnWrap.innerHTML = `<div class="app-qty-control" style="height:40px; width:100px; font-size:1.1em;"><button onclick="event.stopPropagation(); window.changeQty('${item.name.replace(/'/g, "\\'")}', -1)">−</button><span>${cart[item.name].qty}</span><button onclick="event.stopPropagation(); window.changeQty('${item.name.replace(/'/g, "\\'")}', 1)">+</button></div>`;
             } else {
-                btnWrap.innerHTML = `<div class="app-add-btn" style="height:40px; border-radius:10px; width:auto; padding:0 20px; font-size:1em; font-weight:bold;" onclick="event.stopPropagation(); addToCart('${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.brand ? item.brand.replace(/'/g, "\\'") : ''}')">+ ADD</div>`;
+                btnWrap.innerHTML = `<div class="app-add-btn" style="height:40px; border-radius:10px; width:auto; padding:0 20px; font-size:1em; font-weight:bold;" onclick="event.stopPropagation(); window.addToCart('${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.brand ? item.brand.replace(/'/g, "\\'") : ''}')">+ ADD</div>`;
             }
 
             window.openSpecificModal('product-detail-modal');
         }
 
-        function updateAddButtons() {
+        window.updateAddButtons = () => {
             allItems.forEach(item => {
                 if(!item.name) return;
                 const safeName = item.name.replace(/[^a-zA-Z0-9]/g, '_'); const wrap = document.getElementById(`add-wrap-${safeName}`);
                 if (wrap) {
-                    if (cart[item.name]) wrap.innerHTML = `<div class="app-qty-control"><button onclick="event.stopPropagation(); changeQty('${item.name.replace(/'/g, "\\'")}', -1)">−</button><span>${cart[item.name].qty}</span><button onclick="event.stopPropagation(); changeQty('${item.name.replace(/'/g, "\\'")}', 1)">+</button></div>`;
-                    else wrap.innerHTML = `<div class="app-add-btn" onclick="event.stopPropagation(); addToCart('${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.brand ? item.brand.replace(/'/g, "\\'") : ''}')">+</div>`;
+                    if (cart[item.name]) wrap.innerHTML = `<div class="app-qty-control"><button onclick="event.stopPropagation(); window.changeQty('${item.name.replace(/'/g, "\\'")}', -1)">−</button><span>${cart[item.name].qty}</span><button onclick="event.stopPropagation(); window.changeQty('${item.name.replace(/'/g, "\\'")}', 1)">+</button></div>`;
+                    else wrap.innerHTML = `<div class="app-add-btn" onclick="event.stopPropagation(); window.addToCart('${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.brand ? item.brand.replace(/'/g, "\\'") : ''}')">+</div>`;
                 }
             });
         }
@@ -1658,22 +1698,22 @@
             if(cart[name]) cart[name].qty += 1; 
             else cart[name] = { price: price, qty: 1, brand: brand }; 
             
-            updateCartUI(); 
-            showToast(name); 
+            window.updateCartUI(); 
+            window.showToast(name); 
             
-            if(document.getElementById('product-detail-modal').style.display === 'flex') openProductDetail(name);
+            if(document.getElementById('product-detail-modal').style.display === 'flex') window.openProductDetail(name);
         }
 
         window.changeQty = (name, delta) => { 
             if(cart[name]) { 
                 cart[name].qty += delta; 
                 if(cart[name].qty <= 0) delete cart[name]; 
-                updateCartUI(); 
-                if(document.getElementById('product-detail-modal').style.display === 'flex') openProductDetail(name);
+                window.updateCartUI(); 
+                if(document.getElementById('product-detail-modal').style.display === 'flex') window.openProductDetail(name);
             } 
         }
 
-        function updateCartUI() {
+        window.updateCartUI = () => {
             const cartList = document.getElementById('cart-items-list'); 
             const floatingCartBtn = document.getElementById('floating-cart');
             const badgeCount = document.getElementById('cart-badge-count');
@@ -1682,9 +1722,9 @@
             for (const [name, data] of Object.entries(cart)) {
                 totalQty += data.qty; const itemTotal = data.price * data.qty; totalPrice += itemTotal;
                 let itemPriceHTML = `₹${itemTotal}`;
-                cartList.innerHTML += `<div class="cart-item"><div class="cart-item-details"><div style="font-size: 0.75em; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">${data.brand}</div><div style="font-weight: 600; color: var(--text-main);">${name}</div></div><div class="cart-item-controls"><button class="qty-btn" onclick="changeQty('${name.replace(/'/g, "\\'")}', -1)">-</button><span style="font-weight: 700;">${data.qty}</span><button class="qty-btn" onclick="changeQty('${name.replace(/'/g, "\\'")}', 1)">+</button></div><div class="cart-item-price">${itemPriceHTML}</div></div>`;
+                cartList.innerHTML += `<div class="cart-item"><div class="cart-item-details"><div style="font-size: 0.75em; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">${data.brand}</div><div style="font-weight: 600; color: var(--text-main);">${name}</div></div><div class="cart-item-controls"><button class="qty-btn" onclick="window.changeQty('${name.replace(/'/g, "\\'")}', -1)">-</button><span style="font-weight: 700;">${data.qty}</span><button class="qty-btn" onclick="window.changeQty('${name.replace(/'/g, "\\'")}', 1)">+</button></div><div class="cart-item-price">${itemPriceHTML}</div></div>`;
             }
-            updateAddButtons();
+            window.updateAddButtons();
             
             if(totalQty > 0) { 
                 badgeCount.innerText = totalQty; 
@@ -1698,96 +1738,8 @@
         }
 
         window.toggleCart = () => { if(Object.keys(cart).length === 0) return; const modal = document.getElementById('cart-modal'); modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex'; }
-        window.clearCart = () => { if(Object.keys(cart).length === 0) return; if(confirm("Are you sure you want to clear your cart?")) { cart = {}; updateCartUI(); } }
+        window.clearCart = () => { if(Object.keys(cart).length === 0) return; if(confirm("Are you sure you want to clear your cart?")) { cart = {}; window.updateCartUI(); } }
         window.shareWebsite = () => { if(navigator.share) navigator.share({title:'Glacier Ice Cream', text:'Order your favorite Ice Cream online! 🍦', url:window.location.href}); }
-
-        // 🟢 DRAGGABLE FAB LOGIC 🟢
-        window.toggleFab = () => {
-            const fab = document.getElementById('fab-container');
-            const mainBtn = document.getElementById('fab-main-btn');
-            fab.classList.toggle('active');
-            mainBtn.classList.toggle('open');
-        };
-
-        const fab = document.getElementById('fab-container');
-        const fabMain = document.getElementById('fab-main-btn');
-        let isDraggingFab = false;
-        let fabStartX, fabStartY, initialFabX, initialFabY;
-        let hasMovedFab = false;
-
-        if(fabMain && fab) {
-            fabMain.addEventListener('touchstart', (e) => {
-                initialFabX = fab.offsetLeft;
-                initialFabY = fab.offsetTop;
-                fabStartX = e.touches[0].clientX;
-                fabStartY = e.touches[0].clientY;
-                isDraggingFab = true;
-                hasMovedFab = false;
-                fab.style.transition = 'none';
-            }, {passive: true});
-
-            fabMain.addEventListener('touchmove', (e) => {
-                if (!isDraggingFab) return;
-                const dx = e.touches[0].clientX - fabStartX;
-                const dy = e.touches[0].clientY - fabStartY;
-                
-                if (Math.abs(dx) > 5 || Math.abs(dy) > 5) hasMovedFab = true;
-
-                let newX = initialFabX + dx;
-                let newY = initialFabY + dy;
-
-                const maxX = window.innerWidth - fab.offsetWidth;
-                const maxY = window.innerHeight - fab.offsetHeight;
-                newX = Math.max(0, Math.min(newX, maxX));
-                newY = Math.max(0, Math.min(newY, maxY));
-
-                fab.style.left = newX + 'px';
-                fab.style.top = newY + 'px';
-                fab.style.right = 'auto';
-                fab.style.bottom = 'auto';
-
-                const labels = document.querySelectorAll('.fab-label');
-                if (newX < window.innerWidth / 2) {
-                    labels.forEach(l => { l.style.right = 'auto'; l.style.left = '55px'; });
-                } else {
-                    labels.forEach(l => { l.style.left = 'auto'; l.style.right = '55px'; });
-                }
-            }, {passive: false});
-
-            fabMain.addEventListener('touchend', (e) => {
-                isDraggingFab = false;
-                fab.style.transition = 'top 0.3s, left 0.3s';
-                
-                let currentX = fab.offsetLeft;
-                if (currentX < window.innerWidth / 2) {
-                    fab.style.left = '20px';
-                } else {
-                    fab.style.left = (window.innerWidth - fab.offsetWidth - 20) + 'px';
-                }
-                
-                if (hasMovedFab) { e.preventDefault(); }
-            });
-        }
-
-        window.openSpecificModal = (modalId) => {
-            const dropdown = document.getElementById('profile-dropdown');
-            if(dropdown) dropdown.classList.remove('active');
-            
-            document.getElementById(modalId).style.display = 'flex';
-            
-            if(modalId === 'my-profile-modal') {
-                const msg = document.getElementById('profile-save-msg');
-                if(msg) msg.innerText = '';
-            }
-            if(modalId === 'addresses-modal') {
-                const msg = document.getElementById('addr-msg');
-                if(msg) msg.innerText = '';
-            }
-        };
-
-        window.closeSpecificModal = (modalId) => {
-            document.getElementById(modalId).style.display = 'none';
-        };
 
         window.onload = loadData;
     </script>
@@ -1818,7 +1770,6 @@
                     window.getAddressFromCoords(e.latlng.lat, e.latlng.lng);
                 });
             }
-            
             setTimeout(() => { 
                 window.addressMap.invalidateSize(); 
                 window.getCurrentLocation();
@@ -2085,6 +2036,7 @@
             }
         };
 
+        // 🟢 FIXED: DYNAMIC MAP IMAGE THUMBNAILS 🟢
         window.renderAddresses = () => {
             const container = document.getElementById('addresses-container'); container.innerHTML = '';
             if(!window.globalUserData || !window.globalUserData.addresses || window.globalUserData.addresses.length === 0) {
@@ -2099,7 +2051,6 @@
                 let zoom = 15;
                 let x = Math.floor((lng + 180) / 360 * Math.pow(2, zoom));
                 let y = Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom));
-                
                 let dynamicTileUrl = `https://a.tile.openstreetmap.org/${zoom}/${x}/${y}.png`;
                 
                 let mapThumbnail = `
@@ -2164,13 +2115,11 @@
                 window.setAddrType('Home');
                 
                 document.getElementById('new-addr-name').value = window.globalUserData.name || window.globalUser.displayName || '';
-                
                 let defaultPhone = '';
                 if(window.globalUserData && window.globalUserData.addresses && window.globalUserData.addresses.length > 0) {
                     defaultPhone = window.globalUserData.addresses[0].phone;
                 }
                 document.getElementById('new-addr-phone').value = defaultPhone;
-                
                 document.getElementById('new-addr-house').value = '';
                 document.getElementById('new-addr-area').value = '';
                 document.getElementById('new-addr-lat').value = '';
@@ -2243,7 +2192,7 @@
                     });
                     listDiv.innerHTML = html;
                 });
-            } catch(e) { listDiv.innerHTML = '<p style="font-size: 0.85em; color: #e74c3c; text-align: center; padding:15px;">Failed to load orders.</p>'; }
+            } catch(e) {}
         };
 
         window.logout = () => { 
