@@ -51,9 +51,16 @@
         }
 
         /* 🚨 GLOBAL RESET & LOCK (FIXED OVERFLOW & ZOOM) 🚨 */
-        * { box-sizing: border-box; touch-action: manipulation; } 
+        * { 
+            box-sizing: border-box; 
+            touch-action: manipulation; 
+        } 
         
-        html { -webkit-text-size-adjust: 100%; width: 100%; height: 100%; } 
+        html { 
+            -webkit-text-size-adjust: 100%; 
+            width: 100%; 
+            height: 100%; 
+        } 
         
         html, body { 
             margin: 0; padding: 0; 
@@ -73,11 +80,21 @@
         select option { background-color: var(--card-bg); color: var(--text-main); }
         img { -webkit-user-drag: none; user-drag: none; pointer-events: none; }
         
-        .skeleton-bg { background: linear-gradient(90deg, var(--chip-bg) 25%, var(--border-color) 50%, var(--chip-bg) 75%) !important; background-size: 200% 100% !important; animation: shimmer 1.5s infinite linear !important; }
+        .skeleton-bg { 
+            background: linear-gradient(90deg, var(--chip-bg) 25%, var(--border-color) 50%, var(--chip-bg) 75%) !important; 
+            background-size: 200% 100% !important; 
+            animation: shimmer 1.5s infinite linear !important; 
+        }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
         /* 🌟 SPLASH SCREEN 🌟 */
-        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: linear-gradient(135deg, var(--glacier-blue), #1a42a4); z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease; }
+        #splash-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; 
+            background: linear-gradient(135deg, var(--glacier-blue), #1a42a4); 
+            z-index: 999999; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; 
+            transition: opacity 0.5s ease, visibility 0.5s ease; 
+        }
         .splash-content { text-align: center; color: white; }
         .splash-icon { font-size: 5em; animation: bounce-scoop 0.8s infinite alternate cubic-bezier(0.4, 0, 0.2, 1); margin-bottom: 15px; }
         .splash-title { font-family: 'Montserrat', sans-serif; font-size: 2.2em; font-weight: 800; letter-spacing: 1px; margin: 0; text-shadow: 0 4px 10px rgba(0,0,0,0.2); }
@@ -85,54 +102,78 @@
         @keyframes bounce-scoop { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(-25px) scale(1.05); } }
         @keyframes pulse-text { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
-        #loading-bar { position: fixed; top: 0; left: 0; height: 4px; background-color: var(--glacier-blue); width: 0%; z-index: 9999; transition: width 0.3s ease, opacity 0.5s ease; box-shadow: 0 2px 5px rgba(31,81,198, 0.5); }
+        #loading-bar { 
+            position: fixed; top: 0; left: 0; height: 4px; 
+            background-color: var(--glacier-blue); width: 0%; z-index: 9999; 
+            transition: width 0.3s ease, opacity 0.5s ease; 
+            box-shadow: 0 2px 5px rgba(31,81,198, 0.5); 
+        }
 
         /* --- 1. HEADER --- */
-        header { background: var(--card-bg); padding: 12px 25px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; z-index: 100; flex-shrink: 0; height: 65px; box-sizing: border-box; transition: 0.3s; width: 100%;}
+        header { 
+            background: var(--card-bg); padding: 12px 25px; 
+            border-bottom: 1px solid var(--border-color); 
+            display: flex; justify-content: space-between; align-items: center; 
+            z-index: 100; flex-shrink: 0; height: 65px; box-sizing: border-box; 
+            transition: 0.3s; width: 100%;
+        }
         .header-logo { height: 45px; width: auto; object-fit: contain; }
         .header-actions { display: flex; gap: 10px; align-items: center; }
-        .action-btn { font-family: 'Poppins', sans-serif; border: 1px solid var(--border-color); padding: 8px 14px; border-radius: 50px; font-weight: 600; font-size: 0.85em; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; background: var(--card-bg); color: var(--text-main); }
+        .action-btn { 
+            font-family: 'Poppins', sans-serif; border: 1px solid var(--border-color); 
+            padding: 8px 14px; border-radius: 50px; font-weight: 600; font-size: 0.85em; 
+            cursor: pointer; transition: 0.2s; display: flex; align-items: center; 
+            gap: 6px; background: var(--card-bg); color: var(--text-main); 
+        }
         .action-btn:hover { background: var(--hover-bg); border-color: var(--glacier-blue); }
         .btn-profile { background: rgba(228, 77, 38, 0.1); color: var(--primary-color); border-color: rgba(228, 77, 38, 0.2); }
         .btn-profile:hover { background: var(--primary-color); color: white; }
 
-        /* 🟢 PROFILE DROPDOWN MENU CSS 🟢 */
+        /* 🟢 NEW: PROFILE DROPDOWN MENU CSS 🟢 */
         .profile-dropdown-menu {
-            position: absolute; top: 45px; right: 0;
+            position: absolute; top: 50px; right: 0;
             background: var(--card-bg); border: 1px solid var(--border-color);
             border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            width: 170px; display: flex; flex-direction: column; padding: 8px 0;
+            width: 180px; display: flex; flex-direction: column; padding: 8px 0;
             z-index: 2000; opacity: 0; visibility: hidden;
             transform: translateY(-10px); transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
         }
-        .profile-dropdown-menu.active { opacity: 1; visibility: visible; transform: translateY(0); }
+        .profile-dropdown-menu.active { 
+            opacity: 1; visibility: visible; transform: translateY(0); 
+        }
         .dropdown-item {
             padding: 12px 18px; font-size: 0.85em; font-weight: 600; color: var(--text-main);
             cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px;
         }
-        .dropdown-item:hover { background: var(--hover-bg); color: var(--glacier-blue); }
+        .dropdown-item:hover { 
+            background: var(--hover-bg); color: var(--glacier-blue); 
+        }
 
         .landscape-search-sort { display: none; }
 
         /* --- 2. TOP SECTION (BRANDS + SEARCH/SORT) --- */
         .top-nav-bar { 
-            display: flex; width: 100%; background: var(--card-bg); border-bottom: 1px solid var(--border-color); z-index: 9; flex-shrink: 0; 
+            display: flex; width: 100%; background: var(--card-bg); 
+            border-bottom: 1px solid var(--border-color); z-index: 9; flex-shrink: 0; 
             max-height: 150px; overflow: hidden;
             transition: max-height 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease, margin 0.6s ease, border-width 0.6s ease; 
         }
         .top-nav-bar.hidden-bar { 
-            max-height: 0 !important; 
-            opacity: 0 !important; 
-            border-bottom-width: 0 !important; 
-            margin: 0 !important; 
-            pointer-events: none; 
+            max-height: 0 !important; opacity: 0 !important; 
+            border-bottom-width: 0 !important; margin: 0 !important; pointer-events: none; 
         }
         
         .brands-wrapper { flex: 1; min-width: 0; display: flex; align-items: center; position: relative;}
-        .brands-row { width: 100%; display: flex; justify-content: flex-start; overflow-x: auto; padding: 15px 20px; gap: 25px; scrollbar-width: none; box-sizing: border-box; scroll-behavior: smooth;}
+        .brands-row { 
+            width: 100%; display: flex; justify-content: flex-start; overflow-x: auto; 
+            padding: 15px 20px; gap: 25px; scrollbar-width: none; box-sizing: border-box; scroll-behavior: smooth;
+        }
         .brands-row::-webkit-scrollbar { display: none; }
         
-        .search-sort-side { display: flex; flex-direction: column; width: 320px; padding: 10px 20px; gap: 8px; border-left: 1px solid var(--border-color); justify-content: center; }
+        .search-sort-side { 
+            display: flex; flex-direction: column; width: 320px; padding: 10px 20px; 
+            gap: 8px; border-left: 1px solid var(--border-color); justify-content: center; 
+        }
         .search-sort-side .control-chip { padding: 6px 15px; margin: 0; min-width: auto; flex: 1;}
 
         .brand-arrow { 
@@ -173,7 +214,7 @@
         .content-area::-webkit-scrollbar { width: 8px; }
         .content-area::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
 
-        /* 🟢 PULL TO REFRESH INDICATOR 🟢 */
+        /* 🟢 PERFECTED PULL TO REFRESH INDICATOR 🟢 */
         #pull-refresh-indicator { 
             text-align: center; color: var(--glacier-blue); font-weight: 700; font-size: 0.9em; 
             height: 0px; min-height: 0px; overflow: hidden; display: flex; align-items: center; justify-content: center; 
@@ -247,8 +288,12 @@
 
         #load-more-container { text-align: center; margin: 10px 0 30px 0; display: none; width: 100%; }
 
-        /* 🟢 STORE LOCATION SECTION CSS 🟢 */
-        .store-location-card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color); padding: 20px; margin: 20px 0 30px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 15px;}
+        /* 🟢 NEW: STORE LOCATION SECTION CSS 🟢 */
+        .store-location-card { 
+            background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color); 
+            padding: 20px; margin: 20px 0 30px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); 
+            display: flex; flex-direction: column; gap: 15px;
+        }
         .store-info-top { display: flex; gap: 15px; align-items: stretch; justify-content: space-between; }
         .store-text { flex: 1; }
         .store-text h3 { margin: 0 0 8px 0; font-size: 1.1em; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 6px;}
@@ -311,12 +356,14 @@
         .auth-input:focus { border-color: var(--glacier-blue); }
         .auth-label { font-size: 0.85em; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.5px;}
         
+        /* 🟢 PROFILE CARD CSS 🟢 */
         .profile-user-card { display: flex; align-items: center; gap: 18px; background: var(--hover-bg); padding: 18px; border-radius: 16px; border: 1px solid var(--border-color); margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);}
         .profile-user-avatar { width: 65px; height: 65px; border-radius: 50%; object-fit: cover; border: 2px solid var(--glacier-blue); background: var(--card-bg); flex-shrink: 0; box-shadow: 0 4px 10px rgba(31,81,198,0.2);}
         .profile-user-info { display: flex; flex-direction: column; overflow: hidden; }
         .profile-user-name { margin: 0 0 4px 0; font-size: 1.15em; font-weight: 800; color: var(--text-main); white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
         .profile-user-email { margin: 0; font-size: 0.85em; color: var(--text-muted); white-space: nowrap; text-overflow: ellipsis; overflow: hidden; font-weight: 500; }
 
+        /* 🟢 PAST ORDERS CSS 🟢 */
         #order-history-list { overflow-y: auto; padding: 5px; scrollbar-width: thin; }
         #order-history-list::-webkit-scrollbar { width: 6px; }
         #order-history-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
@@ -357,7 +404,7 @@
         .type-badge { padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 50px; font-size: 0.8em; cursor: pointer; color: var(--text-muted); font-weight: 600; background: var(--card-bg);}
         .type-badge.active { background: var(--glacier-blue); color: white; border-color: var(--glacier-blue); box-shadow: 0 4px 10px rgba(31,81,198,0.2);}
 
-        /* 🟢 SEARCH SUGGESTION CSS 🟢 */
+        /* SEARCH SUGGESTION CSS */
         .suggestion-item { padding: 10px 12px; font-size: 0.8em; color: var(--text-main); cursor: pointer; border-bottom: 1px solid var(--border-color); text-align: left; line-height: 1.4; }
         .suggestion-item:last-child { border-bottom: none; }
         .suggestion-item:hover { background: var(--hover-bg); color: var(--glacier-blue); font-weight: 600; }
@@ -468,7 +515,6 @@
             .content-area { padding-left: 10px !important; padding-right: 10px !important; width: 100% !important; }
             
             .menu-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
-            .tags-sidebar-landscape { display: none !important; } 
         }
 
         @media (max-width: 360px) {
@@ -505,11 +551,8 @@
                     <option value="default">Sort by relevance</option>
                     <option value="brand">Brand name wise</option>
                     <option value="category">Item category wise</option>
-                    <option value="ingredients">Ingredients wise</option>
                     <option value="price-low-high">Price: Low - High</option>
                     <option value="price-high-low">Price: High - Low</option>
-                    <option value="size-low-high">Size: Small - Large</option>
-                    <option value="size-high-low">Size: Large - Small</option>
                 </select>
             </div>
         </div>
@@ -556,11 +599,8 @@
                     <option value="default">Sort by relevance</option>
                     <option value="brand">Brand name wise</option>
                     <option value="category">Item category wise</option>
-                    <option value="ingredients">Ingredients wise</option>
                     <option value="price-low-high">Price: Low - High</option>
                     <option value="price-high-low">Price: High - Low</option>
-                    <option value="size-low-high">Size: Small - Large</option>
-                    <option value="size-high-low">Size: Large - Small</option>
                 </select>
             </div>
         </div>
@@ -587,11 +627,8 @@
                             <option value="default">Sort by relevance</option>
                             <option value="brand">Brand name wise</option>
                             <option value="category">Item category wise</option>
-                            <option value="ingredients">Ingredients wise</option>
                             <option value="price-low-high">Price: Low - High</option>
                             <option value="price-high-low">Price: High - Low</option>
-                            <option value="size-low-high">Size: Small - Large</option>
-                            <option value="size-high-low">Size: Large - Small</option>
                         </select>
                     </div>
                 </div>
@@ -620,11 +657,11 @@
                         <p>A-12, Janta Store, University Marg,<br>Bapu Nagar, Jaipur, Rajasthan 302015</p>
                     </div>
                     <div class="store-map-preview">
-                        <iframe src="https://maps.google.com/maps?q=26.8901148,75.8097553&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        <iframe src="https://www.google.com/maps?q=LAT,LNG" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                     </div>
                 </div>
                 <div class="store-actions">
-                    <a href="https://www.google.com/maps/dir/?api=1&destination=26.8901148,75.8097553" target="_blank" class="store-btn btn-directions">🗺️ Get Directions</a>
+                    <a href="https://maps.google.com/?q=..." target="_blank" class="store-btn btn-directions">🗺️ Get Directions</a>
                     <a href="tel:+919829610570" class="store-btn btn-call">📞 Call 98296 10570</a>
                 </div>
             </div>
@@ -635,8 +672,6 @@
             </div>
         </main>
     </div>
-
-    <aside class="tags-sidebar-landscape" id="tags-container-landscape"></aside>
 
     <div id="toast-container"></div>
 
@@ -823,7 +858,7 @@
                 <h2>Past Orders</h2>
                 <div class="close-modal-icon" onclick="closeSpecificModal('orders-modal')">×</div>
             </div>
-            <div id="order-history-list" style="max-height: 400px;">
+            <div id="order-history-list" style="max-height: 400px; overflow-y: auto; padding: 5px; scrollbar-width: thin;">
                 <p style="font-size: 0.85em; color: var(--text-muted); text-align: center;">Loading orders...</p>
             </div>
             <p style="font-size:0.8em; color:var(--text-muted); text-align:center; margin-top:15px; border-top:1px solid var(--border-color); padding-top:10px;">Only last 10 orders are shown locally.</p>
@@ -848,7 +883,6 @@
             }
         });
         
-        // 🟢 DOCUMENT CLICK FOR DROPDOWN AND MAP SUGGESTIONS 🟢
         document.addEventListener('click', function(e) {
             if (e.target.id !== 'map-search-input') {
                 const box = document.getElementById('search-suggestions');
@@ -966,23 +1000,16 @@
 
             productsArea.addEventListener('touchmove', (e) => {
                 if (!isPulling) return;
-                
-                let y = e.touches[0].clientY; 
-                let dy = y - startY;
-                
+                let y = e.touches[0].clientY; let dy = y - startY;
                 if (dy > 0 && productsArea.scrollTop <= 5) {
                     ptrHeight = dy * 0.4; 
-                    
                     if (ptrHeight > 0) {
                         if (e.cancelable) e.preventDefault(); 
-                        
                         pullIndicator.style.opacity = '1';
                         pullIndicator.style.height = Math.min(ptrHeight, 80) + 'px';
                         pullIndicator.style.minHeight = Math.min(ptrHeight, 80) + 'px';
-                        
                         let icon = pullIndicator.querySelector('.ptr-icon');
                         let text = pullIndicator.querySelector('.ptr-text');
-                        
                         if(ptrHeight > 50) {
                             if(icon) icon.style.transform = 'rotate(180deg)';
                             if(text) text.innerText = 'Release to refresh';
@@ -991,40 +1018,27 @@
                             if(text) text.innerText = 'Pull down to refresh'; 
                         }
                     }
-                } else {
-                    isPulling = false;
-                }
+                } else { isPulling = false; }
             }, {passive: false});
 
             productsArea.addEventListener('touchend', (e) => {
                 if (!isPulling) return;
                 isPulling = false;
-                
                 pullIndicator.style.transition = 'height 0.3s ease, min-height 0.3s ease, opacity 0.3s ease';
-                
                 if (ptrHeight >= 50) {
-                    pullIndicator.style.height = '60px';
-                    pullIndicator.style.minHeight = '60px';
-                    
-                    let icon = pullIndicator.querySelector('.ptr-icon');
-                    let text = pullIndicator.querySelector('.ptr-text');
-                    
+                    pullIndicator.style.height = '60px'; pullIndicator.style.minHeight = '60px';
+                    let icon = pullIndicator.querySelector('.ptr-icon'); let text = pullIndicator.querySelector('.ptr-text');
                     if(icon) { icon.style.transform = 'rotate(0deg)'; icon.innerHTML = '⏳'; }
                     if(text) text.innerText = 'Loading'; 
-                    
                     refreshMenu().then(() => { 
-                        pullIndicator.style.height = '0px'; 
-                        pullIndicator.style.minHeight = '0px';
-                        pullIndicator.style.opacity = '0'; 
+                        pullIndicator.style.height = '0px'; pullIndicator.style.minHeight = '0px'; pullIndicator.style.opacity = '0'; 
                         setTimeout(() => { 
                             if(icon) { icon.innerHTML = '⬇️'; icon.style.transform = 'rotate(0deg)'; }
                             if(text) text.innerText = 'Pull down to refresh'; 
                         }, 300);
                     });
                 } else { 
-                    pullIndicator.style.height = '0px'; 
-                    pullIndicator.style.minHeight = '0px';
-                    pullIndicator.style.opacity = '0'; 
+                    pullIndicator.style.height = '0px'; pullIndicator.style.minHeight = '0px'; pullIndicator.style.opacity = '0'; 
                 }
                 ptrHeight = 0;
             });
@@ -1632,6 +1646,8 @@
             window.openSpecificModal('product-detail-modal');
         }
 
+        window.closeProductDetailModal = () => { document.getElementById('product-detail-modal').style.display = 'none'; }
+
         function updateAddButtons() {
             allItems.forEach(item => {
                 if(!item.name) return;
@@ -1643,7 +1659,7 @@
             });
         }
 
-        function addToCart(name, price, brand) { 
+        window.addToCart = (name, price, brand) => { 
             if(cart[name]) cart[name].qty += 1; 
             else cart[name] = { price: price, qty: 1, brand: brand }; 
             
@@ -1653,7 +1669,7 @@
             if(document.getElementById('product-detail-modal').style.display === 'flex') openProductDetail(name);
         }
 
-        function changeQty(name, delta) { 
+        window.changeQty = (name, delta) => { 
             if(cart[name]) { 
                 cart[name].qty += delta; 
                 if(cart[name].qty <= 0) delete cart[name]; 
@@ -1686,28 +1702,155 @@
             document.getElementById('cart-total-price').innerText = totalPrice;
         }
 
-        function toggleCart() { if(Object.keys(cart).length === 0) return; const modal = document.getElementById('cart-modal'); modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex'; }
-        function clearCart() { if(Object.keys(cart).length === 0) return; if(confirm("Are you sure you want to clear your cart?")) { cart = {}; updateCartUI(); } }
-        function shareWebsite() { if(navigator.share) navigator.share({title:'Glacier Ice Cream', text:'Order your favorite Ice Cream online! 🍦', url:window.location.href}); }
+        window.toggleCart = () => { if(Object.keys(cart).length === 0) return; const modal = document.getElementById('cart-modal'); modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex'; }
+        window.clearCart = () => { if(Object.keys(cart).length === 0) return; if(confirm("Are you sure you want to clear your cart?")) { cart = {}; updateCartUI(); } }
+        window.shareWebsite = () => { if(navigator.share) navigator.share({title:'Glacier Ice Cream', text:'Order your favorite Ice Cream online! 🍦', url:window.location.href}); }
 
-        // 🟢 DROPDOWN & MODAL LOGIC 🟢
+        // 🟢 DROPDOWN & SPECIFIC MODALS LOGIC 🟢
         window.openSpecificModal = (modalId) => {
             const dropdown = document.getElementById('profile-dropdown');
             if(dropdown) dropdown.classList.remove('active');
+            
             document.getElementById(modalId).style.display = 'flex';
             
-            if(modalId === 'my-profile-modal') document.getElementById('profile-save-msg').innerText = '';
-            if(modalId === 'addresses-modal') document.getElementById('addr-msg').innerText = '';
+            if(modalId === 'my-profile-modal') {
+                const msg = document.getElementById('profile-save-msg');
+                if(msg) msg.innerText = '';
+            }
+            if(modalId === 'addresses-modal') {
+                const msg = document.getElementById('addr-msg');
+                if(msg) msg.innerText = '';
+            }
         };
 
         window.closeSpecificModal = (modalId) => {
             document.getElementById(modalId).style.display = 'none';
         };
 
-        window.closeAuthModal = () => { document.getElementById('auth-modal').style.display = 'none'; }
-        window.closeProfileModal = () => { document.querySelectorAll('.custom-modal').forEach(m => m.style.display = 'none'); }
-        
         window.onload = loadData;
+    </script>
+
+    <script>
+        let map; let marker; let searchTimeout;
+
+        window.initLocationPicker = () => {
+            document.getElementById('map-wrapper-parent').style.display = 'block';
+            document.getElementById('open-map-btn').style.display = 'none'; 
+            
+            if (!map) {
+                map = L.map('map-container').setView([26.9124, 75.7873], 13); 
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+                marker = L.marker([26.9124, 75.7873], {draggable: true}).addTo(map);
+                
+                marker.on('dragend', function(event) {
+                    var position = marker.getLatLng();
+                    document.getElementById('new-addr-lat').value = position.lat;
+                    document.getElementById('new-addr-lng').value = position.lng;
+                    window.getAddressFromCoords(position.lat, position.lng);
+                });
+
+                map.on('click', function(e) {
+                    marker.setLatLng(e.latlng);
+                    document.getElementById('new-addr-lat').value = e.latlng.lat;
+                    document.getElementById('new-addr-lng').value = e.latlng.lng;
+                    window.getAddressFromCoords(e.latlng.lat, e.latlng.lng);
+                });
+            }
+            setTimeout(() => { map.invalidateSize(); }, 300);
+            window.getCurrentLocation();
+        }
+
+        window.getCurrentLocation = () => {
+            document.getElementById('new-addr-area').value = "Locating you... 📍";
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude; const lng = position.coords.longitude;
+                        document.getElementById('new-addr-lat').value = lat; document.getElementById('new-addr-lng').value = lng;
+                        map.setView([lat, lng], 16); marker.setLatLng([lat, lng]); window.getAddressFromCoords(lat, lng);
+                    },
+                    (error) => { document.getElementById('new-addr-area').value = "Location access denied. Please search or tap on map."; },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            } else { document.getElementById('new-addr-area').value = "GPS not supported. Please search or tap on map."; }
+        }
+
+        window.handleSearchInput = (event) => {
+            clearTimeout(searchTimeout);
+            let query = event.target.value.trim();
+            const suggestionBox = document.getElementById('search-suggestions');
+            if (query.length < 3) { suggestionBox.style.display = 'none'; return; }
+            
+            searchTimeout = setTimeout(async () => {
+                try {
+                    let response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=in`);
+                    let data = await response.json();
+                    
+                    if (data && data.length > 0) {
+                        suggestionBox.innerHTML = '';
+                        data.forEach(place => {
+                            let div = document.createElement('div');
+                            div.className = 'suggestion-item';
+                            div.innerText = place.display_name;
+                            div.onclick = () => {
+                                document.getElementById('map-search-input').value = place.display_name;
+                                suggestionBox.style.display = 'none';
+                                let lat = parseFloat(place.lat); let lon = parseFloat(place.lon);
+                                document.getElementById('new-addr-lat').value = lat; document.getElementById('new-addr-lng').value = lon;
+                                map.setView([lat, lon], 16); marker.setLatLng([lat, lon]); window.getAddressFromCoords(lat, lon);
+                            };
+                            suggestionBox.appendChild(div);
+                        });
+                        suggestionBox.style.display = 'block';
+                    } else { suggestionBox.style.display = 'none'; }
+                } catch (error) {}
+            }, 500); 
+        }
+
+        window.searchLocation = async () => {
+            const query = document.getElementById('map-search-input').value.trim();
+            if(!query) return;
+            document.getElementById('search-suggestions').style.display = 'none';
+            document.getElementById('new-addr-area').value = "Searching... 🔍";
+            
+            try {
+                let response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&countrycodes=in`);
+                let data = await response.json();
+                if(data && data.length > 0) {
+                    let lat = data[0].lat; let lon = data[0].lon;
+                    document.getElementById('new-addr-lat').value = lat; document.getElementById('new-addr-lng').value = lon;
+                    map.setView([lat, lon], 16); marker.setLatLng([lat, lon]); window.getAddressFromCoords(lat, lon); 
+                } else { document.getElementById('new-addr-area').value = "Location not found. Try a different search."; }
+            } catch(e) { document.getElementById('new-addr-area').value = "Search error. Please try again."; }
+        }
+
+        window.getAddressFromCoords = async (lat, lng) => {
+            document.getElementById('new-addr-area').value = "Fetching exact area... ⏳";
+            try {
+                let response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+                let data = await response.json();
+                
+                if(data && data.address) {
+                    let addr = data.address;
+                    let road = addr.road || ''; let neighborhood = addr.neighbourhood || ''; let suburb = addr.suburb || '';
+                    let city = addr.city || addr.town || addr.county || ''; let postcode = addr.postcode || '';
+                    let area = [neighborhood, suburb].filter(Boolean).join(', ');
+                    let parts = [road, area, city, postcode].filter(p => p.trim() !== '');
+                    
+                    let uniqueParts = [];
+                    parts.forEach(p => {
+                        let isDuplicate = uniqueParts.some(existing => existing.toLowerCase().includes(p.toLowerCase()) || p.toLowerCase().includes(existing.toLowerCase()));
+                        if (!isDuplicate) uniqueParts.push(p);
+                    });
+
+                    document.getElementById('new-addr-area').value = uniqueParts.join(', ');
+                    const houseField = document.getElementById('new-addr-house');
+                    houseField.style.borderColor = 'var(--active-brand-red)'; houseField.focus();
+                    setTimeout(() => { houseField.style.borderColor = 'var(--border-color)'; }, 3000);
+                } else if(data && data.display_name) { document.getElementById('new-addr-area').value = data.display_name; } 
+                else { document.getElementById('new-addr-area').value = "Area not found. Please type manually."; }
+            } catch (e) { document.getElementById('new-addr-area').value = "Error fetching location. Please type manually."; }
+        }
     </script>
 
     <script type="module">
@@ -1752,7 +1895,7 @@
                 document.getElementById('nav-profile-text').innerText = displayName;
                 document.getElementById('nav-profile-icon').innerHTML = `<img src="${photoUrl}" style="width: 22px; height: 22px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" referrerpolicy="no-referrer">`;
                 
-                window.closeAuthModal();
+                window.closeSpecificModal('auth-modal');
                 window.fetchUserData(window.userDocId);
             } else {
                 window.globalUser = null; 
@@ -1883,12 +2026,12 @@
                 let isSelected = index === window.selectedAddressIndex;
                 let icon = addr.label === 'Home' ? '🏠' : (addr.label === 'Work' ? '💼' : '📍');
                 
-                // 🟢 MAP THUMBNAIL LOGIC 🟢
+                // 🟢 MAP THUMBNAIL LOGIC (REAL EMBED URL) 🟢
                 let lat = addr.lat || '26.9124'; let lng = addr.lng || '75.7873';
                 let mapIframe = `<iframe src="https://maps.google.com/maps?q=${lat},${lng}&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0; pointer-events:none;"></iframe>`;
                 
                 let cardHTML = `
-                    <div class="address-card ${isSelected ? 'selected' : ''}" onclick="selectAddress(${index})">
+                    <div class="address-card ${isSelected ? 'selected' : ''}" onclick="window.selectAddress(${index})">
                         <div style="display:flex; gap: 15px; align-items: center; margin-bottom: 10px;">
                             <div style="width: 70px; height: 70px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); flex-shrink: 0; background: var(--chip-bg);">
                                 ${mapIframe}
@@ -1900,8 +2043,8 @@
                             </div>
                         </div>
                         <div class="addr-actions" style="margin-top: 5px; padding-top: 10px;">
-                            <button class="addr-btn" onclick="event.stopPropagation(); showAddAddressForm(${index})" style="color:var(--glacier-blue);">EDIT</button>
-                            <button class="addr-btn" onclick="event.stopPropagation(); deleteAddress(${index})">DELETE</button>
+                            <button class="addr-btn" onclick="event.stopPropagation(); window.showAddAddressForm(${index})" style="color:var(--glacier-blue);">EDIT</button>
+                            <button class="addr-btn" onclick="event.stopPropagation(); window.deleteAddress(${index})">DELETE</button>
                         </div>
                     </div>`;
                 container.insertAdjacentHTML('beforeend', cardHTML);
@@ -1943,6 +2086,7 @@
                 window.setAddrType('Home');
                 
                 document.getElementById('new-addr-name').value = window.globalUserData.name || window.globalUser.displayName || '';
+                
                 let defaultPhone = '';
                 if(window.globalUserData && window.globalUserData.addresses && window.globalUserData.addresses.length > 0) {
                     defaultPhone = window.globalUserData.addresses[0].phone;
@@ -2027,7 +2171,9 @@
         window.logout = () => { 
             signOut(auth).then(() => { 
                 document.getElementById('profile-dropdown').classList.remove('active');
-                window.closeProfileModal(); 
+                window.closeSpecificModal('my-profile-modal');
+                window.closeSpecificModal('addresses-modal');
+                window.closeSpecificModal('orders-modal');
                 window.location.reload(); 
             }); 
         };
@@ -2046,10 +2192,10 @@
                     if(!addr) addr = window.globalUserData.addresses[0]; 
                     let fullDeliveryAddress = `${addr.house}, ${addr.area}`;
                     message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
-                    if (addr.lat && addr.lng) { message += `📍 *Location Link:* https://www.google.com/maps?q=LAT,LNG{addr.lat},${addr.lng}\n`; }
+                    if (addr.lat && addr.lng) { message += `📍 *Location Link:* https://maps.google.com/?cid=1893363011545559337&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQ{addr.lat},${addr.lng}\n`; }
                     addDoc(collection(db, "orders"), { userId: window.userDocId, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() });
                 } else if (window.globalUser) { 
-                    alert("Please add a delivery address in 'My Profile' before checking out!"); return;
+                    alert("Please add a delivery address in 'Addresses' before checking out!"); return;
                 } else { window.handleProfileClick(); return; }
 
                 message += `\n*Total Amount: ₹${total}*\n\n_Please confirm my order._`;
