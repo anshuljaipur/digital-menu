@@ -156,8 +156,9 @@
         [data-theme="dark"] .card-img-wrapper { background: #e2e8f0; } 
         .new-badge { position: absolute; top: -8px; left: -8px; background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; font-size: 0.6em; font-weight: 800; padding: 4px 10px; border-radius: 8px; z-index: 5; box-shadow: 0 4px 10px rgba(142,68,173,0.3); text-transform: uppercase; letter-spacing: 0.5px; }
         .red-discount-icon { position: absolute; top: -8px; right: -8px; background: var(--active-brand-red); color: white; font-size: 0.7em; font-weight: 800; padding: 4px 8px; border-radius: 8px; z-index: 5; box-shadow: 0 4px 10px rgba(231,76,60,0.3); }
-        
         .btn-container { position: absolute; right: 12px; bottom: -18px; z-index: 10; }
+        
+        /* 🟢 CARD ADD TO CART BUTTONS 🟢 */
         .app-add-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); color: var(--glacier-blue); border: 1px solid var(--border-color); font-size: 1.6em; font-weight: 500; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: 0.2s; line-height: 1; padding-bottom: 2px; position: relative; z-index: 15;}
         .app-add-btn:hover { border-color: var(--glacier-blue); background: var(--hover-bg); transform: scale(1.05); color: var(--glacier-blue);}
         .app-qty-control { height: 36px; width: 90px; background: var(--card-bg); color: var(--glacier-blue); border-radius: 50px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-weight: 700; font-size: 1em; box-sizing: border-box; position: relative; z-index: 15;}
@@ -180,6 +181,7 @@
 
         #load-more-container { text-align: center; margin: 10px 0 30px 0; display: none; width: 100%; }
 
+        /* 🟢 STORE LOCATION SECTION CSS 🟢 */
         .store-location-card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color); padding: 20px; margin: 20px 0 30px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 15px;}
         .store-info-top { display: flex; gap: 15px; align-items: stretch; justify-content: space-between; }
         .store-text { flex: 1; }
@@ -248,7 +250,7 @@
         @keyframes popInBday { to { transform: scale(1); } }
         @keyframes fadeUpBday { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- MODALS --- */
+        /* --- 🟢 MODAL Z-INDEX (TOP PRIORITY) 🟢 --- */
         .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: var(--overlay-bg); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
         .modal-content-box { background: var(--card-bg); color: var(--text-main); padding: 30px; border-radius: 24px; width: 90%; max-width: 450px; max-height: 90dvh; overflow-y: auto; box-sizing: border-box; animation: scaleUp 0.3s ease-out; display: flex; flex-direction: column; position: relative; border: 1px solid var(--border-color);}
         @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -320,12 +322,14 @@
         .suggestion-item:last-child { border-bottom: none; }
         .suggestion-item:hover { background: var(--hover-bg); color: var(--glacier-blue); font-weight: 600; }
 
+        /* 🟢 DESKTOP FIXES 🟢 */
         @media (min-width: 1000px) {
             #mobile-search-sort { display: none !important; }
             .controls-bar { margin: 0 -30px 15px -30px; padding: 5px 30px 5px 30px; border-bottom: none;}
+            #fab-container { display: none !important; }
         }
 
-        /* 📱 🔥 NATIVE MOBILE SCROLL 🔥 📱 */
+        /* 📱 🔥 MOBILE PORTRAIT UI FIXES 🔥 📱 */
         @media (max-width: 999px) {
             html, body { overflow: auto !important; overflow-x: hidden !important; height: auto !important; position: relative !important; overscroll-behavior-y: none; }
             header { padding: 10px 15px; height: 55px; position: sticky; top: 0; z-index: 1000;}
@@ -390,7 +394,7 @@
             #pd-modal-img { height: 180px; }
             #pd-modal-name { font-size: 1.2em; }
 
-            /* 🟢 FIXED: BOTTOM BUTTONS SPACING 🟢 */
+            /* 🟢 SPACING FIXES 🟢 */
             .floating-cart-btn { bottom: calc(25px + env(safe-area-inset-bottom)); right: calc(15px + env(safe-area-inset-right)); width: 55px; height: 55px; font-size: 1.2em;}
             .back-to-top-btn { bottom: calc(95px + env(safe-area-inset-bottom)); right: calc(15px + env(safe-area-inset-right)); width: 45px; height: 45px; font-size: 1.1em;}
             .cart-badge { width: 18px; height: 18px; font-size: 0.6em; top:-4px; right:-4px;}
@@ -424,6 +428,7 @@
             .main-layout { margin-left: calc(80px + env(safe-area-inset-left)) !important; width: calc(100% - 80px - env(safe-area-inset-left)) !important; flex-direction: row !important; }
             .content-area { padding-left: 10px !important; padding-right: 10px !important; width: 100% !important; }
             .menu-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
+            #fab-container { display: none !important; }
         }
 
         @media (max-width: 360px) {
@@ -977,7 +982,8 @@
             fabMain.addEventListener('touchend', (e) => {
                 isDraggingFab = false;
                 fab.style.transition = 'top 0.3s, left 0.3s';
-                let currentX = fab.getBoundingClientRect().left;
+                // 🟢 FIXED: NaN Calculation Avoidance 🟢
+                let currentX = parseFloat(fab.style.left) || 0;
                 if (currentX < window.innerWidth / 2) { 
                     fab.style.left = '15px'; 
                 } else { 
@@ -1470,10 +1476,7 @@
             }
 
             window.applyFilters();
-            setTimeout(() => {
-                if(window.innerWidth <= 999) { window.scrollTo(0,0); }
-                else { document.getElementById('products-area').scrollTop = 0; }
-            }, 10);
+            setTimeout(() => { if(window.innerWidth <= 999) { window.scrollTo(0,0); } else { document.getElementById('products-area').scrollTop = 0; } }, 10);
         }
 
         window.setBrand = (brandName) => {
@@ -1501,10 +1504,7 @@
                 if (!allItems.some(i => i.brand === brandName && window.isNewArrival(i))) { window.setCategory('All Items'); return; }
             }
             window.applyFilters();
-            setTimeout(() => {
-                if(window.innerWidth <= 999) { window.scrollTo(0,0); }
-                else { document.getElementById('products-area').scrollTop = 0; }
-            }, 10);
+            setTimeout(() => { if(window.innerWidth <= 999) { window.scrollTo(0,0); } else { document.getElementById('products-area').scrollTop = 0; } }, 10);
         }
 
         window.setTagFilter = (tag) => {
@@ -1514,10 +1514,7 @@
                 else { btn.classList.remove('active'); }
             });
             window.applyFilters();
-            setTimeout(() => {
-                if(window.innerWidth <= 999) { window.scrollTo(0,0); }
-                else { document.getElementById('products-area').scrollTop = 0; }
-            }, 10);
+            setTimeout(() => { if(window.innerWidth <= 999) { window.scrollTo(0,0); } else { document.getElementById('products-area').scrollTop = 0; } }, 10);
         }
 
         window.getVolume = (name) => { let total = 0; let match; const regex = /(\d+)\s*(ml|l|ltr|gm|g|kg)/gi; while ((match = regex.exec(name)) !== null) { let val = parseFloat(match[1]); let unit = match[2].toLowerCase(); if (unit === 'l' || unit === 'ltr' || unit === 'kg') val *= 1000; total += val; } return total; }
@@ -1809,6 +1806,7 @@
                 });
             }
             
+            // 🟢 FIXED: DELAY TO LOAD MAP PROPERLY 🟢
             setTimeout(() => { window.addressMap.invalidateSize(true); }, 100);
             setTimeout(() => { 
                 window.addressMap.invalidateSize(true); 
@@ -1943,7 +1941,7 @@
                 let photoUrl = "https://placehold.co/100x100/1f51c6/ffffff?text=G";
                 
                 if(!user.isAnonymous && user.displayName) {
-                    displayName = user.displayName.split(' ')[0]; // First Name Only
+                    displayName = user.displayName.split(' ')[0];
                     if(user.photoURL) photoUrl = user.photoURL;
                 }
 
@@ -2007,7 +2005,6 @@
                         if(window.selectedAddressIndex >= window.globalUserData.addresses.length) window.selectedAddressIndex = 0;
                         window.renderAddresses(); 
                         
-                        // 🟢 TRIGGER BIRTHDAY BLASTER IF MATCHES 🟢
                         if (window.globalUserData.dob) {
                             window.checkAndShowBirthday(window.globalUserData.dob, window.globalUserData.name || window.globalUser.displayName);
                         }
