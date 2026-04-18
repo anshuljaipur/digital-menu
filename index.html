@@ -52,7 +52,7 @@
             --overlay-bg: rgba(0, 0, 0, 0.8);
         }
 
-        /* 🚨 GLOBAL RESET & APP-SHELL SCROLL 🚨 */
+        /* 🚨 GLOBAL RESET 🚨 */
         * { box-sizing: border-box; touch-action: manipulation; } 
         html { -webkit-text-size-adjust: 100%; width: 100%; height: 100%; } 
         
@@ -139,6 +139,10 @@
         .content-area { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 0px 30px 20px 30px; scroll-behavior: smooth; box-sizing: border-box; position: relative; overscroll-behavior-y: none; -webkit-overflow-scrolling: touch; width: 100%; }
         .content-area::-webkit-scrollbar { width: 8px; }
         .content-area::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+
+        #pull-refresh-indicator { text-align: center; color: var(--glacier-blue); font-weight: 700; font-size: 0.9em; height: 0px; min-height: 0px; overflow: hidden; display: flex; align-items: center; justify-content: center; width: 100%; background: transparent; opacity: 0; flex-shrink: 0; }
+        .ptr-content { display: flex; align-items: center; gap: 8px; padding: 15px; }
+        .ptr-icon { font-size: 1.4em; display: inline-block; transition: transform 0.3s ease; }
 
         .controls-bar { position: sticky; top: 0; z-index: 50; background: var(--main-bg); display: flex; flex-direction: column; gap: 10px; margin: 0px -30px 15px -30px; padding: 15px 30px 5px 30px; transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s; }
         .search-sort-wrapper { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; width: 100%; }
@@ -334,7 +338,7 @@
         /* 🟢 DESKTOP FIXES 🟢 */
         @media (min-width: 1000px) {
             #mobile-search-sort { display: none !important; }
-            .controls-bar { margin: 0 -30px 15px -30px; padding: 5px 30px 5px 30px; border-bottom: none;}
+            .controls-bar { margin: 0 -30px 15px -30px; padding: 5px 30px 5px 30px; border-bottom: none; position: sticky; top: 65px; z-index: 50;}
             #fab-container { display: none !important; }
             .sidebar { position: sticky; top: 65px; height: calc(100vh - 65px); }
         }
@@ -351,7 +355,7 @@
                 height: auto !important; 
                 min-height: 100dvh !important; 
                 display: block !important; 
-                overscroll-behavior-y: auto !important; /* Enables Chrome Pull to refresh */
+                overscroll-behavior-y: auto !important; 
             }
             
             /* 🟢 FULL PAGE MODALS 🟢 */
@@ -366,7 +370,7 @@
             }
             .bottom-sheet .modal-content-box { margin-top: auto; margin-bottom: 0; }
 
-            header { padding: 10px 15px; height: 55px; position: sticky; top: 0; z-index: 1000;}
+            header { padding: 10px 15px; height: 55px; position: sticky; top: 0; z-index: 1000; flex-shrink: 0;}
             .header-logo { height: 35px; }
             .hide-mobile-text { display: none; }
             #refresh-btn { display: none !important; }
@@ -428,7 +432,7 @@
             #pd-modal-img { height: 180px; }
             #pd-modal-name { font-size: 1.2em; }
 
-            /* 🟢 SPACING FIXES 🟢 */
+            /* 🟢 FIXED: FLOATING BUTTONS SPACING 🟢 */
             .floating-cart-btn { bottom: calc(25px + env(safe-area-inset-bottom)); right: 15px; width: 55px; height: 55px; font-size: 1.2em;}
             .back-to-top-btn { bottom: calc(95px + env(safe-area-inset-bottom)); right: 20px; width: 45px; height: 45px; font-size: 1.1em;}
             .cart-badge { width: 18px; height: 18px; font-size: 0.6em; top:-4px; right:-4px;}
@@ -616,11 +620,11 @@
                         <p>A-12, Janta Store, University Marg,<br>Bapu Nagar, Jaipur, Rajasthan 302015</p>
                     </div>
                     <div class="store-map-preview">
-                        <iframe src="https://maps.google.com/maps?q=Glacier%20Ice%20Cream%20Parlour%20Jaipur&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        <iframe src="https://maps.google.com/maps?q=26.8901148,75.8097553&t=&z=16&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                     </div>
                 </div>
                 <div class="store-actions">
-                    <a href="https://maps.app.goo.gl/wJ13Yw6i5r6Cg4nE8" target="_blank" class="store-btn btn-directions">🗺️ Get Directions</a>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=26.8901148,75.8097553" target="_blank" class="store-btn btn-directions">🗺️ Get Directions</a>
                     <a href="tel:+919829610570" class="store-btn btn-call">📞 Call 98296 10570</a>
                 </div>
             </div>
@@ -636,7 +640,7 @@
         <div class="fab-menu">
             <button class="fab-item" onclick="window.openSpecificModal('mobile-category-modal')">🍨<span class="fab-label">Categories</span></button>
             <button class="fab-item" onclick="window.openSpecificModal('mobile-brand-modal')">🏷️<span class="fab-label">Brands</span></button>
-            <a href="https://maps.app.goo.gl/wJ13Yw6i5r6Cg4nE8" target="_blank" class="fab-item" style="text-decoration:none;">🗺️<span class="fab-label">Directions</span></a>
+            <a href="https://www.google.com/maps/dir/?api=1&destination=26.8901148,75.8097553" target="_blank" class="fab-item" style="text-decoration:none;">🗺️<span class="fab-label">Directions</span></a>
             <a href="tel:+919829610570" class="fab-item" style="text-decoration:none;">📞<span class="fab-label">Call Us</span></a>
         </div>
         <button class="fab-main" id="fab-main-btn" onclick="window.toggleFab()">✨</button>
@@ -967,7 +971,7 @@
             }, 100);
         });
 
-        // 🟢 DRAGGABLE FAB LOGIC (FIXED) 🟢
+        // 🟢 DRAGGABLE FAB LOGIC 🟢
         window.toggleFab = () => {
             const fab = document.getElementById('fab-container');
             const mainBtn = document.getElementById('fab-main-btn');
@@ -1026,9 +1030,11 @@
                 isDraggingFab = false;
                 fab.style.transition = 'top 0.3s, left 0.3s';
                 
-                // FIXED: Use getBoundingClientRect to avoid NaN when not moved
-                let currentX = fab.getBoundingClientRect().left;
-                
+                let currentX = parseFloat(fab.style.left);
+                if (isNaN(currentX)) {
+                    currentX = fab.getBoundingClientRect().left;
+                }
+
                 if (currentX < window.innerWidth / 2) { 
                     fab.style.left = '15px'; 
                 } else { 
@@ -1068,17 +1074,20 @@
             }
         });
 
+        const productsArea = document.getElementById('products-area');
         let lastScrollY = window.scrollY || document.documentElement.scrollTop; 
         let showThreshold = 10;
 
-        // 🟢 FIXED NATIVE SCROLL HANDLING & DOUBLE LOAD RANGE 🟢
+        // 🟢 FIXED: SMART SCROLL DETECTOR (Desktop vs Mobile) 🟢
         function handleScroll() {
-            let scrollTop = window.scrollY || document.documentElement.scrollTop;
-            let scrollHeight = document.documentElement.scrollHeight;
-            let clientHeight = window.innerHeight;
+            let isMobile = window.innerWidth <= 999;
+            
+            let scrollTop = isMobile ? (window.scrollY || document.documentElement.scrollTop) : (productsArea ? productsArea.scrollTop : 0);
+            let scrollHeight = isMobile ? document.documentElement.scrollHeight : (productsArea ? productsArea.scrollHeight : 0);
+            let clientHeight = isMobile ? window.innerHeight : (productsArea ? productsArea.clientHeight : 0);
 
             if (currentlyDisplayed < currentFilteredItems.length) {
-                // Load items when we are 1500px away from the bottom (no delay feel)
+                // Load items when we are 1500px away from the bottom
                 if (scrollTop + clientHeight >= scrollHeight - 1500) {
                     window.renderMoreItems();
                 }
@@ -1090,7 +1099,7 @@
                 else { backToTop.classList.remove('visible'); }
             }
             
-            if (window.innerWidth <= 999) {
+            if (isMobile) {
                 const topNavBar = document.querySelector('.top-nav-bar');
                 let scrollDiff = scrollTop - lastScrollY;
                 if (scrollTop > 50) {
@@ -1106,6 +1115,7 @@
             }
         }
         
+        if (productsArea) { productsArea.addEventListener('scroll', handleScroll); }
         window.addEventListener('scroll', handleScroll);
 
         window.updateBrandArrows = () => {
@@ -1645,6 +1655,7 @@
             window.renderMoreItems();
         }
 
+        // 🟢 FIXED: INCREASED ITEMS PER PAGE FOR NO DELAY LAZY LOAD 🟢
         window.getItemsPerPage = () => {
             let itemsPerRow = 4;
             if (window.innerWidth <= 360) { itemsPerRow = 2; } 
@@ -1654,7 +1665,7 @@
                 let gridWidth = grid.clientWidth;
                 itemsPerRow = gridWidth > 0 ? Math.floor((gridWidth + 20) / 240) : Math.floor((window.innerWidth - 300) / 240) || 4;
             }
-            return Math.max(1, itemsPerRow) * 8; 
+            return Math.max(1, itemsPerRow) * 8; // DOUBLE LOAD AMOUNT
         }
 
         window.renderMoreItems = () => {
@@ -1998,7 +2009,7 @@
                 let photoUrl = "https://placehold.co/100x100/1f51c6/ffffff?text=G";
                 
                 if(!user.isAnonymous && user.displayName) {
-                    displayName = user.displayName.split(' ')[0];
+                    displayName = user.displayName.split(' ')[0]; // First Name Only
                     if(user.photoURL) photoUrl = user.photoURL;
                 }
 
@@ -2062,6 +2073,7 @@
                         if(window.selectedAddressIndex >= window.globalUserData.addresses.length) window.selectedAddressIndex = 0;
                         window.renderAddresses(); 
                         
+                        // 🟢 TRIGGER BIRTHDAY BLASTER IF MATCHES 🟢
                         if (window.globalUserData.dob) {
                             window.checkAndShowBirthday(window.globalUserData.dob, window.globalUserData.name || window.globalUser.displayName);
                         }
@@ -2316,7 +2328,7 @@
                     if(!addr) addr = window.globalUserData.addresses[0]; 
                     let fullDeliveryAddress = `${addr.house}, ${addr.area}`;
                     message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
-                    if (addr.lat && addr.lng) { message += `📍 *Location Link:* https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3558.6214562402126!2d75.8097553!3d26.8901148!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396db6007e2c9497%3A0xc3c55986ec6dd35!2sGlacier%20Ice%20Cream%20Parlor!5e0!3m2!1sen!2sin!4v1713508492000!5m2!1sen!2sin{addr.lat},${addr.lng}\n`; }
+                    if (addr.lat && addr.lng) { message += `📍 *Location Link:* https://maps.google.com/maps?q=26.8901148,75.8097553&t=&z=16&ie=UTF8&iwloc=&output=embed{addr.lat},${addr.lng}\n`; }
                     addDoc(collection(db, "orders"), { userId: window.userDocId, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() });
                 } else if (window.globalUser) { 
                     alert("Please add a delivery address in 'Addresses' before checking out!"); return;
