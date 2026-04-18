@@ -52,10 +52,21 @@
             --overlay-bg: rgba(0, 0, 0, 0.8);
         }
 
-        /* 🚨 GLOBAL RESET & LOCK (FIXED OVERFLOW & ZOOM) 🚨 */
+        /* 🚨 GLOBAL RESET & APP-SHELL LOCK (FIXED SCROLL ISSUE) 🚨 */
         * { box-sizing: border-box; touch-action: manipulation; } 
         html { -webkit-text-size-adjust: 100%; width: 100%; height: 100%; } 
-        html, body { margin: 0; padding: 0; width: 100%; max-width: 100%; height: 100%; height: 100dvh; overflow: hidden !important; overscroll-behavior: none; background-color: var(--bg-color); color: var(--text-main); font-family: 'Poppins', sans-serif; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; right: 0; bottom: 0; transition: background-color 0.3s ease, color 0.3s ease; }
+        
+        html, body { 
+            margin: 0; padding: 0; width: 100%; max-width: 100%; 
+            height: 100%; height: 100dvh; 
+            overflow: hidden !important; 
+            overscroll-behavior: none; 
+            background-color: var(--bg-color); color: var(--text-main); 
+            font-family: 'Poppins', sans-serif; display: flex; flex-direction: column; 
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+            transition: background-color 0.3s ease, color 0.3s ease; 
+        }
+
         input, select, textarea { font-size: 16px !important; max-width: 100%; }
         select option { background-color: var(--card-bg); color: var(--text-main); }
         img { -webkit-user-drag: none; user-drag: none; pointer-events: none; }
@@ -156,9 +167,8 @@
         [data-theme="dark"] .card-img-wrapper { background: #e2e8f0; } 
         .new-badge { position: absolute; top: -8px; left: -8px; background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; font-size: 0.6em; font-weight: 800; padding: 4px 10px; border-radius: 8px; z-index: 5; box-shadow: 0 4px 10px rgba(142,68,173,0.3); text-transform: uppercase; letter-spacing: 0.5px; }
         .red-discount-icon { position: absolute; top: -8px; right: -8px; background: var(--active-brand-red); color: white; font-size: 0.7em; font-weight: 800; padding: 4px 8px; border-radius: 8px; z-index: 5; box-shadow: 0 4px 10px rgba(231,76,60,0.3); }
-        .btn-container { position: absolute; right: 12px; bottom: -18px; z-index: 10; }
         
-        /* 🟢 CARD ADD TO CART BUTTONS 🟢 */
+        .btn-container { position: absolute; right: 12px; bottom: -18px; z-index: 10; }
         .app-add-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); color: var(--glacier-blue); border: 1px solid var(--border-color); font-size: 1.6em; font-weight: 500; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: 0.2s; line-height: 1; padding-bottom: 2px; position: relative; z-index: 15;}
         .app-add-btn:hover { border-color: var(--glacier-blue); background: var(--hover-bg); transform: scale(1.05); color: var(--glacier-blue);}
         .app-qty-control { height: 36px; width: 90px; background: var(--card-bg); color: var(--glacier-blue); border-radius: 50px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-weight: 700; font-size: 1em; box-sizing: border-box; position: relative; z-index: 15;}
@@ -181,7 +191,6 @@
 
         #load-more-container { text-align: center; margin: 10px 0 30px 0; display: none; width: 100%; }
 
-        /* 🟢 STORE LOCATION SECTION CSS 🟢 */
         .store-location-card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color); padding: 20px; margin: 20px 0 30px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 15px;}
         .store-info-top { display: flex; gap: 15px; align-items: stretch; justify-content: space-between; }
         .store-text { flex: 1; }
@@ -238,10 +247,11 @@
         .grid-sel-icon img, .grid-sel-icon svg { width: 100%; height: 100%; object-fit: contain; transform: scale(0.85); border-radius: 50%;}
         .grid-sel-name { font-size: 0.75em; font-weight: 700; color: var(--text-main); }
 
-        /* 🟢 FIXED: TOAST NOTIFICATION CSS 🟢 */
-        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 99999; background: var(--text-main); color: var(--bg-color); padding: 12px 20px; border-radius: 50px; font-size: 0.85em; font-weight: 600; box-shadow: 0 4px 15px rgba(0,0,0,0.2); animation: toastUp 0.3s ease, toastFade 0.3s ease 2.5s forwards; display: flex; align-items: center; gap: 8px; }
-        @keyframes toastUp { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
-        @keyframes toastFade { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, 0); display: none; } }
+        /* 🟢 FIXED: TOAST NOTIFICATION CSS (CENTERED) 🟢 */
+        #toast-container { position: fixed; bottom: 20px; left: 0; right: 0; z-index: 99999; display: flex; flex-direction: column; align-items: center; gap: 10px; pointer-events: none; }
+        .toast { background: var(--text-main); color: var(--bg-color); padding: 12px 20px; border-radius: 50px; font-size: 0.85em; font-weight: 600; box-shadow: 0 4px 15px rgba(0,0,0,0.2); animation: toastUp 0.3s ease, toastFade 0.3s ease 2.5s forwards; display: flex; align-items: center; gap: 8px; }
+        @keyframes toastUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes toastFade { from { opacity: 1; } to { opacity: 0; display: none; } }
 
         .bday-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: rgba(15, 23, 42, 0.85); z-index: 9999999; display: none; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; backdrop-filter: blur(5px); transition: opacity 0.5s ease; }
         .bday-icon { font-size: 6em; animation: popInBday 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; transform: scale(0); }
@@ -331,32 +341,36 @@
 
         /* 📱 🔥 MOBILE PORTRAIT UI FIXES 🔥 📱 */
         @media (max-width: 999px) {
-            html, body { overflow: auto !important; overflow-x: hidden !important; height: auto !important; position: relative !important; overscroll-behavior-y: none; }
-            header { padding: 10px 15px; height: 55px; position: sticky; top: 0; z-index: 1000;}
+            
+            /* 🟢 FIXED: ROCK SOLID INTERNAL NATIVE SCROLL 🟢 */
+            html, body { position: fixed !important; overflow: hidden !important; height: 100% !important; height: 100dvh !important; }
+            header { padding: 10px 15px; height: 55px; position: relative; z-index: 1000; flex-shrink: 0;}
             .header-logo { height: 35px; }
             .hide-mobile-text { display: none; }
             #refresh-btn { display: none !important; }
             .action-btn { padding: 6px 10px; font-size: 0.8em; }
 
             .search-sort-side { display: none !important; } 
-            .top-nav-bar { flex-direction: column; border-bottom: none; width: 100%; transition: none !important; max-height: none !important; opacity: 1 !important;}
+            .top-nav-bar { flex-direction: column; border-bottom: none; width: 100%; transition: none !important; max-height: none !important; opacity: 1 !important; flex-shrink: 0;}
             
             .brands-wrapper { border-bottom: 1px solid var(--border-color); width: 100%; } 
             .brands-row { padding: 12px 15px; gap: 15px; -webkit-overflow-scrolling: touch; border-bottom: none; }
             .brand-icon { width: 55px; height: 55px; }
             .brand-name { font-size: 0.55em; }
 
-            .main-layout { flex-direction: column; width: 100%; overflow-x: hidden; position: relative; overflow: visible !important; height: auto !important;} 
+            .main-layout { flex-direction: column; width: 100%; overflow: hidden; position: relative; flex: 1; } 
             
-            .sidebar { position: sticky !important; top: 55px !important; left: 0 !important; width: 100% !important; height: auto !important; flex-direction: row !important; padding: 10px 15px !important; border-right: none !important; border-bottom: 1px solid var(--border-color) !important; background: var(--main-bg) !important; box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important; overflow-x: auto !important; overflow-y: hidden !important; z-index: 995 !important; gap: 10px !important; scroll-behavior: smooth;}
+            .sidebar { position: relative !important; width: 100% !important; height: auto !important; flex-direction: row !important; padding: 10px 15px !important; border-right: none !important; border-bottom: 1px solid var(--border-color) !important; background: var(--main-bg) !important; box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important; overflow-x: auto !important; overflow-y: hidden !important; z-index: 995 !important; gap: 10px !important; scroll-behavior: smooth; flex-shrink: 0;}
             .cat-item { flex-direction: row !important; gap: 6px !important; padding: 6px 14px !important; border-radius: 50px !important; border: 1px solid var(--border-color) !important; background: var(--card-bg) !important; width: auto !important; min-width: max-content !important;}
             .cat-item.active { background: var(--glacier-blue) !important; border-color: var(--glacier-blue) !important; }
             .cat-icon { display: none !important; } 
             .cat-name { font-size: 0.8em !important; font-weight: 600 !important; color: var(--text-main) !important; padding: 0 !important;}
             .cat-item.active .cat-name { color: white !important; }
             
-            .content-area { width: 100%; padding: 0px 10px 10px 10px; overflow-x: hidden; box-sizing: border-box; overflow: visible !important; height: auto !important;}
-            .controls-bar { padding: 10px 12px 10px 12px; gap: 10px; margin: 0px -10px 15px -10px; width: calc(100% + 20px); border-bottom: 1px solid var(--border-color); background: var(--main-bg); position: sticky !important; top: 107px !important; z-index: 990 !important;}
+            /* The only thing that scrolls */
+            .content-area { width: 100%; padding: 0px 10px 120px 10px; overflow-x: hidden; overflow-y: auto !important; -webkit-overflow-scrolling: touch; box-sizing: border-box; flex: 1;}
+            
+            .controls-bar { padding: 10px 12px 10px 12px; gap: 10px; margin: 0px -10px 15px -10px; width: calc(100% + 20px); border-bottom: 1px solid var(--border-color); background: var(--main-bg); position: sticky !important; top: 0px !important; z-index: 990 !important;}
             .search-sort-wrapper { flex-wrap: nowrap; gap: 8px; }
             .control-chip { padding: 8px 10px; min-width: 0; border-radius: 12px;}
             .control-chip:first-child { flex: 1.8; }
@@ -394,9 +408,9 @@
             #pd-modal-img { height: 180px; }
             #pd-modal-name { font-size: 1.2em; }
 
-            /* 🟢 SPACING FIXES 🟢 */
-            .floating-cart-btn { bottom: calc(25px + env(safe-area-inset-bottom)); right: calc(15px + env(safe-area-inset-right)); width: 55px; height: 55px; font-size: 1.2em;}
-            .back-to-top-btn { bottom: calc(95px + env(safe-area-inset-bottom)); right: calc(15px + env(safe-area-inset-right)); width: 45px; height: 45px; font-size: 1.1em;}
+            /* 🟢 FIXED: FLOATING BUTTONS SPACING 🟢 */
+            .floating-cart-btn { bottom: calc(25px + env(safe-area-inset-bottom)); right: 15px; width: 55px; height: 55px; font-size: 1.2em;}
+            .back-to-top-btn { bottom: calc(95px + env(safe-area-inset-bottom)); right: 20px; width: 45px; height: 45px; font-size: 1.1em;}
             .cart-badge { width: 18px; height: 18px; font-size: 0.6em; top:-4px; right:-4px;}
             
             .store-info-top { flex-direction: column; }
@@ -406,7 +420,7 @@
 
         /* 📱 🔥 LANDSCAPE MODE FIX 🔥 📱 */
         @media (max-width: 999px) and (orientation: landscape) {
-            header { padding: 5px calc(15px + env(safe-area-inset-right)) 5px calc(15px + env(safe-area-inset-left)); height: 50px; position: sticky; top:0; z-index:1000;}
+            header { padding: 5px calc(15px + env(safe-area-inset-right)) 5px calc(15px + env(safe-area-inset-left)); height: 50px; position: relative; z-index:1000;}
             .header-logo { height: 28px; }
             .landscape-search-sort { display: flex !important; flex: 1; align-items: center; justify-content: center; gap: 10px; margin: 0 15px; }
             .landscape-search-sort .control-chip { background: var(--main-bg); border: 1px solid var(--border-color); border-radius: 50px; padding: 4px 12px; display: flex; align-items: center; flex: 1; max-width: 250px; height: 32px;}
@@ -586,11 +600,11 @@
                         <p>A-12, Janta Store, University Marg,<br>Bapu Nagar, Jaipur, Rajasthan 302015</p>
                     </div>
                     <div class="store-map-preview">
-                        <iframe src="https://maps.google.com/maps?q=26.8901148,75.8097553&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        <iframe src="https://maps.google.com/maps?q=Glacier+Ice+Cream+Parlor,+A-12,+Janta+Store,+Bapu+Nagar,+Jaipur&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                     </div>
                 </div>
                 <div class="store-actions">
-                    <a href="https://www.google.com/maps/dir/?api=1&destination=26.8901148,75.8097553" target="_blank" class="store-btn btn-directions">🗺️ Get Directions</a>
+                    <a href="https://maps.google.com/?daddr=Glacier+Ice+Cream+Parlor,+A-12,+Janta+Store,+Bapu+Nagar,+Jaipur" target="_blank" class="store-btn btn-directions">🗺️ Get Directions</a>
                     <a href="tel:+919829610570" class="store-btn btn-call">📞 Call 98296 10570</a>
                 </div>
             </div>
@@ -606,7 +620,7 @@
         <div class="fab-menu">
             <button class="fab-item" onclick="window.openSpecificModal('mobile-category-modal')">🍨<span class="fab-label">Categories</span></button>
             <button class="fab-item" onclick="window.openSpecificModal('mobile-brand-modal')">🏷️<span class="fab-label">Brands</span></button>
-            <a href="https://www.google.com/maps/dir/?api=1&destination=26.8901148,75.8097553" target="_blank" class="fab-item" style="text-decoration:none;">🗺️<span class="fab-label">Directions</span></a>
+            <a href="https://maps.google.com/?daddr=Glacier+Ice+Cream+Parlor,+A-12,+Janta+Store,+Bapu+Nagar,+Jaipur" target="_blank" class="fab-item" style="text-decoration:none;">🗺️<span class="fab-label">Directions</span></a>
             <a href="tel:+919829610570" class="fab-item" style="text-decoration:none;">📞<span class="fab-label">Call Us</span></a>
         </div>
         <button class="fab-main" id="fab-main-btn" onclick="window.toggleFab()">✨</button>
@@ -632,7 +646,7 @@
         </div>
     </div>
 
-    <button class="back-to-top-btn" id="back-to-top" onclick="window.scrollTo({top:0, behavior:'smooth'}); document.getElementById('products-area').scrollTo({top:0, behavior:'smooth'});">
+    <button class="back-to-top-btn" id="back-to-top" onclick="document.getElementById('products-area').scrollTo({top:0, behavior:'smooth'});">
         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
     </button>
 
@@ -877,6 +891,7 @@
                 else btn.classList.remove('active');
             });
 
+            window.updateUrlParams();
             window.applyFilters();
             setTimeout(() => {
                 if(window.innerWidth <= 999) { window.scrollTo(0,0); }
@@ -982,8 +997,12 @@
             fabMain.addEventListener('touchend', (e) => {
                 isDraggingFab = false;
                 fab.style.transition = 'top 0.3s, left 0.3s';
-                // 🟢 FIXED: NaN Calculation Avoidance 🟢
-                let currentX = parseFloat(fab.style.left) || 0;
+                
+                let currentX = parseFloat(fab.style.left);
+                if (isNaN(currentX)) {
+                    currentX = fab.getBoundingClientRect().left;
+                }
+
                 if (currentX < window.innerWidth / 2) { 
                     fab.style.left = '15px'; 
                 } else { 
@@ -1016,10 +1035,11 @@
         const pullIndicator = document.getElementById('pull-refresh-indicator');
         let startY = 0; let isPulling = false; let ptrHeight = 0;
 
+        // 🟢 SCROLL HANDLING MOVED ENTIRELY TO productsArea 🟢
         function handleScroll() {
-            let scrollTop = window.innerWidth <= 999 ? window.scrollY : productsArea.scrollTop;
-            let scrollHeight = window.innerWidth <= 999 ? document.documentElement.scrollHeight : productsArea.scrollHeight;
-            let clientHeight = window.innerWidth <= 999 ? window.innerHeight : productsArea.clientHeight;
+            let scrollTop = productsArea ? productsArea.scrollTop : 0;
+            let scrollHeight = productsArea ? productsArea.scrollHeight : 0;
+            let clientHeight = productsArea ? productsArea.clientHeight : 0;
 
             if (currentlyDisplayed < currentFilteredItems.length) {
                 if (scrollTop + clientHeight >= scrollHeight - 300) {
@@ -1035,12 +1055,11 @@
         }
         
         if (productsArea) { productsArea.addEventListener('scroll', handleScroll); }
-        window.addEventListener('scroll', handleScroll);
 
-        if (pullIndicator) {
-            document.addEventListener('touchstart', (e) => {
-                let scrollTop = window.innerWidth <= 999 ? window.scrollY : (productsArea ? productsArea.scrollTop : 0);
-                if (scrollTop <= 5) { 
+        // 🟢 PULL TO REFRESH MOVED ENTIRELY TO productsArea 🟢
+        if (productsArea && pullIndicator) {
+            productsArea.addEventListener('touchstart', (e) => {
+                if (productsArea.scrollTop <= 5) { 
                     startY = e.touches[0].clientY; 
                     isPulling = true; 
                     ptrHeight = 0;
@@ -1048,11 +1067,10 @@
                 }
             }, {passive: true});
 
-            document.addEventListener('touchmove', (e) => {
+            productsArea.addEventListener('touchmove', (e) => {
                 if (!isPulling) return;
                 
-                let scrollTop = window.innerWidth <= 999 ? window.scrollY : (productsArea ? productsArea.scrollTop : 0);
-                if (scrollTop > 5) { isPulling = false; return; }
+                if (productsArea.scrollTop > 5) { isPulling = false; return; }
                 
                 let y = e.touches[0].clientY; let dy = y - startY;
                 if (dy > 0) {
@@ -1075,7 +1093,7 @@
                 } else { isPulling = false; }
             }, {passive: false});
 
-            document.addEventListener('touchend', (e) => {
+            productsArea.addEventListener('touchend', (e) => {
                 if (!isPulling) return;
                 isPulling = false;
                 pullIndicator.style.transition = 'height 0.3s ease, min-height 0.3s ease, opacity 0.3s ease';
@@ -1278,6 +1296,17 @@
             }
         };
 
+        window.updateUrlParams = () => {
+            const url = new URL(window.location);
+            if (currentCategory === 'All Items') url.searchParams.delete('category');
+            else url.searchParams.set('category', currentCategory);
+            
+            if (currentBrand === 'All Brands') url.searchParams.delete('brand');
+            else url.searchParams.set('brand', currentBrand);
+            
+            window.history.replaceState({}, '', url);
+        };
+
         window.refreshMenu = async () => {
             const btn = document.getElementById('refresh-btn');
             if(btn) { btn.innerHTML = '⏳'; btn.style.pointerEvents = 'none'; btn.style.opacity = '0.5'; }
@@ -1338,6 +1367,10 @@
                     statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="window.clearAllFilters()" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
                     if(loadingBar) loadingBar.style.width = '100%'; return; 
                 }
+                
+                const urlParams = new URLSearchParams(window.location.search);
+                if(urlParams.has('brand')) currentBrand = urlParams.get('brand');
+                if(urlParams.has('category')) currentCategory = urlParams.get('category');
                 
                 window.setupAppUI(); window.applyFilters();
                 if(loadingBar) loadingBar.style.width = '100%'; 
@@ -1475,6 +1508,7 @@
                 });
             }
 
+            window.updateUrlParams();
             window.applyFilters();
             setTimeout(() => { if(window.innerWidth <= 999) { window.scrollTo(0,0); } else { document.getElementById('products-area').scrollTop = 0; } }, 10);
         }
@@ -1503,6 +1537,8 @@
             if (currentCategory.includes('New') && brandName !== 'All Brands') {
                 if (!allItems.some(i => i.brand === brandName && window.isNewArrival(i))) { window.setCategory('All Items'); return; }
             }
+            
+            window.updateUrlParams();
             window.applyFilters();
             setTimeout(() => { if(window.innerWidth <= 999) { window.scrollTo(0,0); } else { document.getElementById('products-area').scrollTop = 0; } }, 10);
         }
@@ -1774,12 +1810,24 @@
 
         window.toggleCart = () => { if(Object.keys(cart).length === 0) return; const modal = document.getElementById('cart-modal'); modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex'; }
         window.clearCart = () => { if(Object.keys(cart).length === 0) return; if(confirm("Are you sure you want to clear your cart?")) { cart = {}; window.updateCartUI(); } }
-        window.shareWebsite = () => { if(navigator.share) navigator.share({title:'Glacier Ice Cream', text:'Order your favorite Ice Cream online! 🍦', url:window.location.href}); }
+        window.shareWebsite = () => { 
+            let shareUrl = new URL(window.location.href);
+            if(navigator.share) {
+                let shareText = 'Order your favorite Ice Cream online! 🍦';
+                if(currentBrand !== 'All Brands' || currentCategory !== 'All Items') {
+                    let bText = currentBrand !== 'All Brands' ? currentBrand : '';
+                    let cText = currentCategory !== 'All Items' ? currentCategory : '';
+                    shareText = `Check out ${bText} ${cText} Ice Creams at Glacier! 🍦`;
+                }
+                navigator.share({title:'Glacier Ice Cream', text: shareText, url: shareUrl.href}); 
+            } 
+        }
 
         window.onload = loadData;
     </script>
 
     <script>
+        // 🟢 MAP INITIALIZATION AND SEARCH LOGIC 🟢
         let map; let marker; let searchTimeout;
 
         window.initLocationPicker = () => {
@@ -1806,12 +1854,10 @@
                 });
             }
             
-            // 🟢 FIXED: DELAY TO LOAD MAP PROPERLY 🟢
-            setTimeout(() => { window.addressMap.invalidateSize(true); }, 100);
             setTimeout(() => { 
                 window.addressMap.invalidateSize(true); 
                 window.getCurrentLocation();
-            }, 500);
+            }, 400);
         }
 
         window.getCurrentLocation = () => {
@@ -1941,7 +1987,7 @@
                 let photoUrl = "https://placehold.co/100x100/1f51c6/ffffff?text=G";
                 
                 if(!user.isAnonymous && user.displayName) {
-                    displayName = user.displayName.split(' ')[0];
+                    displayName = user.displayName.split(' ')[0]; // First Name Only
                     if(user.photoURL) photoUrl = user.photoURL;
                 }
 
@@ -2005,6 +2051,7 @@
                         if(window.selectedAddressIndex >= window.globalUserData.addresses.length) window.selectedAddressIndex = 0;
                         window.renderAddresses(); 
                         
+                        // 🟢 TRIGGER BIRTHDAY BLASTER IF MATCHES 🟢
                         if (window.globalUserData.dob) {
                             window.checkAndShowBirthday(window.globalUserData.dob, window.globalUserData.name || window.globalUser.displayName);
                         }
