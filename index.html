@@ -370,7 +370,7 @@
             header { padding: 10px 15px; height: 55px; position: sticky; top: 0; z-index: 1000; flex-shrink: 0;}
             .header-logo { height: 35px; }
             .hide-mobile-text { display: none; }
-            #refresh-btn { display: none !important; }
+            #refresh-btn { display: inline-flex !important; } /* KEEP REFRESH BUTTON ON MOBILE HEADER */
             .action-btn { padding: 6px 10px; font-size: 0.8em; }
 
             .search-sort-side { display: none !important; } 
@@ -421,6 +421,7 @@
 
             .custom-modal { align-items: flex-end; }
             .modal-content-box { border-radius: 24px 24px 0 0; width: 100%; max-width: 100%; margin: 0; animation: slideUp 0.3s ease-out; padding: 25px 20px; padding-bottom: calc(25px + env(safe-area-inset-bottom)); max-height: 90dvh; }
+            .bottom-sheet .modal-content-box { margin-top: auto; margin-bottom: 0; }
             
             .auth-input { padding: 12px; margin-bottom: 12px; }
             .auth-btn, .checkout-btn { margin-bottom: 10px; }
@@ -429,7 +430,7 @@
             #pd-modal-img { height: 180px; }
             #pd-modal-name { font-size: 1.2em; }
 
-            /* 🟢 SPACING FIXES 🟢 */
+            /* 🟢 FIXED: FLOATING BUTTONS SPACING 🟢 */
             .floating-cart-btn { bottom: calc(25px + env(safe-area-inset-bottom)); right: 15px; width: 55px; height: 55px; font-size: 1.2em;}
             .back-to-top-btn { bottom: calc(95px + env(safe-area-inset-bottom)); right: 20px; width: 45px; height: 45px; font-size: 1.1em;}
             .cart-badge { width: 18px; height: 18px; font-size: 0.6em; top:-4px; right:-4px;}
@@ -573,7 +574,7 @@
         <aside class="sidebar" id="category-sidebar"></aside>
 
         <main class="content-area" id="products-area">
-
+            
             <div class="controls-bar">
                 <div class="search-sort-wrapper" id="mobile-search-sort">
                     <div class="control-chip">
@@ -599,6 +600,8 @@
             <div class="section-header">
                 <h2 id="current-category-title">All Items</h2>
                 <div style="display:flex; align-items:center; gap:10px;">
+                    <button onclick="window.refreshMenu()" id="inline-refresh-btn" class="action-btn" style="padding: 4px 8px; font-size: 0.7em; border-color: var(--glacier-blue); color: var(--glacier-blue);">🔄 Refresh</button>
+                    
                     <button id="clear-filters-btn" onclick="window.clearAllFilters()" class="action-btn" style="display:none; padding: 4px 10px; font-size: 0.75em; border-color: var(--active-brand-red); color: var(--active-brand-red);">✖ Clear</button>
                     <span class="section-count" id="item-count">0 items</span>
                 </div>
@@ -864,6 +867,17 @@
         let currentFilteredItems = []; let currentlyDisplayed = 0;
         let currentTheme = localStorage.getItem('glacier_theme') || 'auto';
 
+        // 🟢 FIXED: BRAND NORMALIZATION (Case Insensitive) 🟢
+        window.normalizeData = (items) => {
+            return items.map(item => {
+                if (item.brand && typeof item.brand === 'string') {
+                    // Capitalize first letter of each word (e.g., "aMul" -> "Amul")
+                    item.brand = item.brand.trim().split(/\s+/).map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+                }
+                return item;
+            });
+        };
+
         // 🟢 SCROLL LOCK UTILITY 🟢
         window.lockBodyScroll = () => {
             document.body.classList.add('modal-open');
@@ -1000,7 +1014,6 @@
             fabMain.addEventListener('touchend', (e) => {
                 isDraggingFab = false;
                 fab.style.transition = 'top 0.3s, left 0.3s';
-                
                 let currentX = parseFloat(fab.style.left);
                 if (isNaN(currentX)) {
                     currentX = fab.getBoundingClientRect().left;
@@ -1280,7 +1293,10 @@
 
         window.refreshMenu = async () => {
             const btn = document.getElementById('refresh-btn');
+            const inlineBtn = document.getElementById('inline-refresh-btn');
+            
             if(btn) { btn.innerHTML = '⏳'; btn.style.pointerEvents = 'none'; btn.style.opacity = '0.5'; }
+            if(inlineBtn) { inlineBtn.innerHTML = '⏳'; inlineBtn.style.pointerEvents = 'none'; inlineBtn.style.opacity = '0.5'; }
             
             try {
                 const noCacheUrl = googleSheetUrl + "?t=" + new Date().getTime();
@@ -1291,7 +1307,7 @@
                 const newData = JSON.parse(textData); 
                 
                 if (Array.isArray(newData)) {
-                    allItems = newData; 
+                    allItems = window.normalizeData(newData); 
                     window.setupAppUI(); 
                     
                     document.querySelectorAll('.cat-item').forEach(btn => {
@@ -1316,6 +1332,7 @@
             } catch(e) { console.error("Refresh Error:", e); }
             
             if(btn) { btn.innerHTML = '🔄'; btn.style.pointerEvents = 'auto'; btn.style.opacity = '1'; }
+            if(inlineBtn) { inlineBtn.innerHTML = '🔄 Refresh'; inlineBtn.style.pointerEvents = 'auto'; inlineBtn.style.opacity = '1'; }
         }
 
         async function loadData() {
@@ -1330,7 +1347,10 @@
                 
                 if (!response.ok) throw new Error("Network response failed");
                 const textData = await response.text();
-                try { allItems = JSON.parse(textData); } 
+                try { 
+                    const rawData = JSON.parse(textData);
+                    allItems = window.normalizeData(rawData); 
+                } 
                 catch(e) { throw new Error("Sheet returned Error Page instead of JSON data."); }
 
                 if(!Array.isArray(allItems) && allItems.error) throw new Error("Apps Script Error: " + allItems.error);
@@ -1482,7 +1502,8 @@
             window.updateUrlParams();
             window.applyFilters();
             setTimeout(() => {
-                window.scrollTo({top: 0, behavior: 'smooth'});
+                if(window.innerWidth <= 999) { window.scrollTo({top: 0, behavior: 'smooth'}); }
+                else { document.getElementById('products-area').scrollTo({top: 0, behavior: 'smooth'}); }
             }, 10);
         }
 
@@ -1514,7 +1535,8 @@
             window.updateUrlParams();
             window.applyFilters();
             setTimeout(() => {
-                window.scrollTo({top: 0, behavior: 'smooth'});
+                if(window.innerWidth <= 999) { window.scrollTo({top: 0, behavior: 'smooth'}); }
+                else { document.getElementById('products-area').scrollTo({top: 0, behavior: 'smooth'}); }
             }, 10);
         }
 
@@ -1526,7 +1548,8 @@
             });
             window.applyFilters();
             setTimeout(() => {
-                window.scrollTo({top: 0, behavior: 'smooth'});
+                if(window.innerWidth <= 999) { window.scrollTo({top: 0, behavior: 'smooth'}); }
+                else { document.getElementById('products-area').scrollTo({top: 0, behavior: 'smooth'}); }
             }, 10);
         }
 
@@ -2041,7 +2064,6 @@
                         if(window.selectedAddressIndex >= window.globalUserData.addresses.length) window.selectedAddressIndex = 0;
                         window.renderAddresses(); 
                         
-                        // 🟢 TRIGGER BIRTHDAY BLASTER IF MATCHES 🟢
                         if (window.globalUserData.dob) {
                             window.checkAndShowBirthday(window.globalUserData.dob, window.globalUserData.name || window.globalUser.displayName);
                         }
