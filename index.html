@@ -141,10 +141,9 @@
         /* --- 3. MAIN DESKTOP LAYOUT --- */
         .main-layout { display: flex; flex: 1; overflow: hidden; background: var(--main-bg); width: 100%; box-sizing: border-box; transition: 0.3s;}
         
-        .sidebar { width: 240px; background: var(--card-bg); display: flex; flex-direction: column; overflow-y: auto; padding: 20px 15px; gap: 8px; scrollbar-width: none; border-right: 1px solid var(--border-color); flex-shrink: 0; box-sizing: border-box; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; transition: 0.3s;}
+        .sidebar { width: 240px; background: var(--card-bg); display: flex; flex-direction: column; overflow-y: auto; padding: 20px 15px; gap: 8px; scrollbar-width: none; border-right: 1px solid var(--border-color); flex-shrink: 0; box-sizing: border-box; transition: 0.3s; position: sticky; top: 65px; height: calc(100vh - 65px);}
         .sidebar::-webkit-scrollbar { display: none; }
         
-        /* Sidebar/Mobile Category Chips */
         .cat-item { display: flex; align-items: center; cursor: pointer; transition: 0.2s; padding: 10px 15px; border-radius: 50px; gap: 12px; flex-shrink: 0; color: var(--text-main);}
         .cat-icon { font-size: 1.4em; display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; }
         .cat-name { font-size: 0.85em; font-weight: 500; white-space: nowrap; }
@@ -156,20 +155,14 @@
         .content-area::-webkit-scrollbar { width: 8px; }
         .content-area::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
 
-        #pull-refresh-indicator { text-align: center; color: var(--glacier-blue); font-weight: 700; font-size: 0.9em; height: 0px; min-height: 0px; overflow: hidden; display: flex; align-items: center; justify-content: center; width: 100%; background: transparent; opacity: 0; flex-shrink: 0; }
-        .ptr-content { display: flex; align-items: center; gap: 8px; padding: 15px; }
-        .ptr-icon { font-size: 1.4em; display: inline-block; transition: transform 0.3s ease; }
-
-        /* 🟢 UNIFIED CHIP STYLES FOR CATEGORIES & TAGS IN DESKTOP 🟢 */
-        .filter-tag-chip { padding: 6px 14px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 50px; font-size: 0.75em; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .filter-tag-chip:hover { border-color: var(--glacier-blue); color: var(--text-main); }
-        .filter-tag-chip.active { background: var(--glacier-blue); color: #fff; border-color: var(--glacier-blue); box-shadow: 0 4px 8px rgba(31,81,198,0.2); }
+        .controls-bar { position: sticky; top: 0; z-index: 50; background: var(--main-bg); display: flex; flex-direction: column; gap: 10px; margin: 0px -30px 15px -30px; padding: 15px 30px 5px 30px; transition: background-color 0.3s; }
         
         .tags-container { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 10px 0; scrollbar-width: none; -webkit-overflow-scrolling: touch; width: 100%; box-sizing: border-box; }
         .tags-container::-webkit-scrollbar { display: none; }
+        .filter-tag-chip { padding: 8px 16px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 50px; font-size: 0.75em; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .filter-tag-chip:hover { border-color: var(--glacier-blue); color: var(--text-main); }
+        .filter-tag-chip.active { background: var(--glacier-blue); color: #fff; border-color: var(--glacier-blue); box-shadow: 0 4px 8px rgba(31,81,198,0.2); }
 
-        .controls-bar { position: sticky; top: 0; z-index: 50; background: var(--main-bg); display: flex; flex-direction: column; gap: 10px; margin: 0px -30px 15px -30px; padding: 15px 30px 5px 30px; transition: background-color 0.3s; }
-        
         /* 🟢 RESTRUCTURED SECTION HEADER 🟢 */
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; width: 100%; gap: 15px;}
         .section-header-left { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; flex: 1;}
@@ -373,8 +366,8 @@
             .desktop-tools-bar { display: flex !important; justify-content: flex-start; align-items: center; padding: 10px 30px; background: var(--main-bg); border-bottom: 1px solid var(--border-color); z-index: 8; flex-shrink: 0; }
             .desktop-tools-bar .tools-left { display: flex; align-items: center; gap: 15px;}
 
-            /* 🟢 FIXED: SECTION HEADER ALIGNMENT 🟢 */
-            .section-header { margin-top: 20px; border-bottom: none; padding-bottom: 0; display: flex; justify-content: space-between; align-items: center;}
+            /* 🟢 FIXED: SECTION HEADER ALIGNMENT (No grey line) 🟢 */
+            .section-header { margin-top: 15px; border-bottom: none; padding-bottom: 0; display: flex; justify-content: space-between; align-items: center;}
             .section-header-left { justify-content: flex-start; flex: 1;}
             .section-header-right { flex: 1; justify-content: flex-end; display: flex;}
             
@@ -394,6 +387,7 @@
             /* Hide Desktop Elements */
             .desktop-category-panel, .desktop-tags-panel, .header-search, .desktop-tools-bar { display: none !important; }
             .section-header-left { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+            .desktop-sort { display: none !important; } /* Hide main sort on mobile */
 
             html, body { position: relative !important; overflow: visible !important; overflow-x: hidden !important; overflow-y: auto !important; height: auto !important; min-height: 100dvh !important; display: block !important; overscroll-behavior-y: auto !important; }
             
@@ -463,6 +457,7 @@
             #pd-modal-img { height: 180px; }
             #pd-modal-name { font-size: 1.2em; }
 
+            /* 🟢 SPACING FIXES 🟢 */
             .floating-cart-btn { bottom: calc(25px + env(safe-area-inset-bottom)); right: 15px; width: 55px; height: 55px; font-size: 1.2em;}
             .back-to-top-btn { bottom: calc(95px + env(safe-area-inset-bottom)); right: 20px; width: 45px; height: 45px; font-size: 1.1em;}
             .cart-badge { width: 18px; height: 18px; font-size: 0.6em; top:-4px; right:-4px;}
@@ -470,34 +465,6 @@
             .store-info-top { flex-direction: column; }
             .store-map-preview { width: 100%; height: 120px; }
             .store-actions { flex-direction: column; }
-        }
-
-        /* 📱 🔥 LANDSCAPE MODE FIX 🔥 📱 */
-        @media (max-width: 999px) and (orientation: landscape) {
-            header { padding: 5px calc(15px + env(safe-area-inset-right)) 5px calc(15px + env(safe-area-inset-left)); height: 50px; position: sticky; top:0; z-index:1000;}
-            .header-logo { height: 28px; }
-            .landscape-search-sort { display: flex !important; flex: 1; align-items: center; justify-content: center; gap: 10px; margin: 0 15px; }
-            .landscape-search-sort .control-chip { background: var(--main-bg); border: 1px solid var(--border-color); border-radius: 50px; padding: 4px 12px; display: flex; align-items: center; flex: 1; max-width: 250px; height: 32px;}
-            .landscape-search-sort input, .landscape-search-sort select { border: none; background: transparent; color: var(--text-main); font-family: inherit; font-size: 0.85em !important; width: 100%; outline: none; margin-left: 5px;}
-            
-            #mobile-search-sort { display: none !important; }
-            .controls-bar { margin: 0 !important; padding: 0 !important; border-bottom: none !important; background: transparent !important; position: static !important; transform: none !important; width: 100%;}
-            
-            .top-nav-bar { width: calc(100% - 80px - env(safe-area-inset-left)) !important; margin-left: calc(80px + env(safe-area-inset-left)) !important; padding: 0 !important; box-sizing: border-box; border-bottom: none !important; transition: none !important; overflow: hidden !important; }
-            .brands-wrapper { border-bottom: 1px solid var(--border-color); width: 100% !important; }
-            
-            .sidebar { position: fixed !important; top: 50px !important; left: env(safe-area-inset-left) !important; width: 80px !important; height: calc(100dvh - 50px) !important; display: flex !important; flex-direction: column !important; box-shadow: 1px 0 5px rgba(0,0,0,0.05) !important; z-index: 995 !important; padding: 10px 5px 20px 5px !important; overflow-y: auto !important; overflow-x: hidden !important; border-right: 1px solid var(--border-color) !important; background: var(--card-bg) !important;}
-            .cat-item { flex-direction: column !important; padding: 10px 5px !important; width: 100% !important; border-radius: 12px !important; gap: 4px !important; background: transparent !important;}
-            .cat-item.active { background: rgba(31,81,198,0.1) !important; }
-            .cat-icon { display: flex !important; font-size: 1.5em !important; margin-bottom: 2px !important; }
-            .cat-name { font-size: 0.6em !important; white-space: normal !important; text-align: center !important; color: var(--text-main) !important;}
-            .cat-item.active .cat-name { color: var(--glacier-blue) !important; }
-            
-            .main-layout { margin-left: calc(80px + env(safe-area-inset-left)) !important; width: calc(100% - 80px - env(safe-area-inset-left)) !important; flex-direction: row !important; }
-            .content-area { padding-left: 10px !important; padding-right: 10px !important; width: 100% !important; }
-            .menu-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
-            #fab-container { display: none !important; }
-            .desktop-tools-bar { display: none !important; }
         }
 
         @media print { body { display: none !important; } }
@@ -562,9 +529,7 @@
                 <span class="arrow-icon">❯</span>
             </button>
         </div>
-
         <div class="desktop-category-panel" id="desktop-category-grid"></div>
-
         <div class="desktop-tags-panel" id="desktop-tags-grid"></div>
     </div>
 
@@ -610,9 +575,8 @@
                 </div>
                 
                 <div class="section-header-right">
-                    
                     <div class="mobile-controls" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                        <div class="control-chip sort-chip" style="padding: 4px 10px; min-width: auto; height: 35px; background: var(--card-bg);">
+                        <div class="control-chip sort-chip desktop-sort" style="padding: 4px 10px; min-width: auto; height: 35px; background: var(--card-bg);">
                             ↕️ <select id="sort-dropdown-main" onchange="window.syncInputs('main')" style="font-size: 0.85em; margin-left: 5px;">
                                 <option value="default">Sort by relevance</option>
                                 <option value="brand">Brand name wise</option>
@@ -627,7 +591,6 @@
                         <button onclick="window.refreshMenu()" id="inline-refresh-btn" class="action-btn" style="padding: 6px 12px; font-size: 0.8em; border-color: var(--glacier-blue); color: var(--glacier-blue);">🔄 Refresh</button>
                         <button id="clear-filters-btn" onclick="window.clearAllFilters()" class="action-btn" style="display:none; padding: 6px 12px; font-size: 0.8em; border-color: var(--active-brand-red); color: var(--active-brand-red);">✖ Clear</button>
                     </div>
-
                     <span class="section-count" id="item-count">0 items</span>
                 </div>
             </div>
@@ -1867,175 +1830,158 @@
         
         window.clearCart = () => { if(Object.keys(cart).length === 0) return; if(confirm("Are you sure you want to clear your cart?")) { cart = {}; window.updateCartUI(); } }
         
-           window.exportPDF = async () => {
-    const btn = document.getElementById('pdf-btn');
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '⏳ Generating Premium PDF...';
-
-    // 🔧 CONFIG (CHANGE THESE)
- const LOGO_URL = "https://i.postimg.cc/c4MX4XyQ/logo-glacier.png"; 
-    const QR_URL = "https://i.postimg.cc/P56qHSLD/order.png"; 
-    const WHATSAPP_NUMBER = "919829610570"; // with country code
-
-    const ITEMS_PER_PAGE = 20; // 4 columns × 5 rows
-
-    let title = `Menu - ${currentBrand} | ${currentCategory}`;
-    if (currentTagFilter !== 'All') title += ` | ${currentTagFilter}`;
-
-    let totalPages = Math.ceil(currentFilteredItems.length / ITEMS_PER_PAGE);
-    let htmlContent = '';
-
-    for (let page = 0; page < totalPages; page++) {
-
-        let start = page * ITEMS_PER_PAGE;
-        let end = start + ITEMS_PER_PAGE;
-        let pageItems = currentFilteredItems.slice(start, end);
-
-        htmlContent += `
-        <div style="width:760px; padding:20px; font-family:Arial; background:#fff; page-break-after:always;">
-
-            <!-- HEADER -->
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #eee; padding-bottom:10px;">
-                <div>
-                    <img src="${LOGO_URL}" style="height:50px;">
-                </div>
-                <div style="text-align:right;">
-                    <h2 style="margin:0; color:#1f51c6;">Glacier Ice Cream</h2>
-                    <div style="font-size:12px; color:#666;">${title}</div>
-                    <div style="font-size:10px; color:#aaa;">${new Date().toLocaleDateString()}</div>
-                </div>
-            </div>
-
-            <!-- GRID -->
-            <div style="margin-top:15px;">
-            <table style="width:100%; border-collapse:collapse;">
-            <tr>
-        `;
-
-        let col = 0;
-
-        pageItems.forEach((item) => {
-            const volText = window.extractVolumeText(item.name);
-            const displayName = item.name.replace(volText, '').trim() || item.name;
-
-            htmlContent += `
-            <td style="width:25%; padding:8px;">
-                <div style="border:1px solid #e5e7eb; border-radius:12px; padding:10px; text-align:center;">
-                    <img src="${item.img}" style="width:80px; height:80px; object-fit:contain;">
-                    <div style="font-size:10px; color:#6b7280;">${item.brand || ''}</div>
-                    <div style="font-size:12px; font-weight:bold; height:32px; overflow:hidden;">${displayName}</div>
-                    <div style="display:flex; justify-content:space-between; font-size:11px; margin-top:5px;">
-                        <span>${volText || '-'}</span>
-                        <span style="font-weight:bold;">₹${item.price}</span>
-                    </div>
-                </div>
-            </td>
-            `;
-
-            col++;
-            if (col === 4) {
-                htmlContent += `</tr><tr>`;
-                col = 0;
-            }
-        });
-
-        // Fill empty cells
-        if (col !== 0) {
-            for (let i = col; i < 4; i++) {
-                htmlContent += `<td></td>`;
-            }
-        }
-
-        htmlContent += `
-            </tr>
-            </table>
-            </div>
-
-            <!-- FOOTER -->
-            <div style="margin-top:15px; border-top:2px solid #eee; padding-top:10px; display:flex; justify-content:space-between; align-items:center;">
-                
-                <!-- LEFT -->
-                <div style="font-size:10px; color:#777;">
-                    Fast Delivery • Fresh Stock • Best Prices
-                </div>
-
-                <!-- CENTER QR -->
-                <div style="text-align:center;">
-                    <img src="${QR_URL}" style="height:60px;">
-                    <div style="font-size:9px;">Scan to Order</div>
-                </div>
-
-                <!-- RIGHT -->
-                <div style="text-align:right;">
-                    <a href="https://wa.me/${WHATSAPP_NUMBER}?text=I want to order ice cream"
-                       style="display:inline-block; padding:6px 10px; background:#25D366; color:#fff; font-size:10px; text-decoration:none; border-radius:5px;">
-                       WhatsApp Order
-                    </a>
-                    <div style="font-size:9px; margin-top:5px; color:#999;">
-                        Page ${page + 1} of ${totalPages}
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-        `;
-    }
-
-    const opt = {
-        margin: 5,
-        filename: `IceCream_Menu_Premium.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    html2pdf().set(opt).from(htmlContent).save().then(() => {
-        btn.innerHTML = originalText;
-    }).catch(err => {
-        console.error("PDF Error:", err);
-        btn.innerHTML = originalText;
-        alert("PDF generation failed");
-    });
-};
-        
-        <!-- FOOTER -->
-        <div style="margin-top:30px; border-top:2px solid #eee; padding-top:15px; text-align:center;">
+        // 🟢 100% FIXED: PDF EXPORT (NO BLANK PAGES, NO CUTS, TABLE-BASED) 🟢
+        window.exportPDF = async () => {
+            const btn = document.getElementById('pdf-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ Generating...';
             
-            <!-- QR -->
-            <img src="${QR_URL}" style="height:100px; margin-bottom:10px;">
-            <p style="font-size:12px; color:#555;">Scan to Order Online</p>
+            const LOGO_URL = "https://i.postimg.cc/c4MX4XyQ/logo-glacier.png"; 
+            const QR_URL = "https://i.postimg.cc/P56qHSLD/order.png"; 
+            const WHATSAPP_NUMBER = "919829610570"; 
 
-            <!-- WhatsApp Button -->
-            <a href="https://wa.me/${WHATSAPP_NUMBER}?text=I%20want%20to%20order%20ice%20cream"
-               style="display:inline-block; margin-top:10px; padding:10px 20px; background:#25D366; color:#fff; text-decoration:none; border-radius:6px; font-weight:bold;">
-               Order on WhatsApp
-            </a>
+            const ITEMS_PER_PAGE = 20; // 4 columns × 5 rows
 
-            <p style="font-size:10px; color:#aaa; margin-top:10px;">
-                Fast Delivery using UBER | Fresh Stock
-            </p>
-        </div>
+            let title = `Menu - ${currentBrand === 'All Brands' ? 'All Brands' : currentBrand} | ${currentCategory}`;
+            if (currentTagFilter !== 'All') title += ` | ${currentTagFilter}`;
 
-    </div>
-    `;
+            let totalPages = Math.ceil(currentFilteredItems.length / ITEMS_PER_PAGE);
+            if(totalPages === 0) totalPages = 1;
 
-    const opt = {
-        margin: 5,
-        filename: `IceCream_Menu.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
+            let htmlContent = '<div style="background:#fff; width: 790px; margin:0 auto;">'; 
+            let imageLoadPromises = [];
 
-    html2pdf().set(opt).from(htmlContent).save().then(() => {
-        btn.innerHTML = originalText;
-    }).catch(err => {
-        console.error(err);
-        btn.innerHTML = originalText;
-        alert("PDF Failed");
-    });
-};
+            for (let page = 0; page < totalPages; page++) {
+                let start = page * ITEMS_PER_PAGE;
+                let end = start + ITEMS_PER_PAGE;
+                let pageItems = currentFilteredItems.slice(start, end);
+
+                let pageBreakStyle = page < totalPages - 1 ? 'page-break-after: always; break-after: page;' : '';
+
+                htmlContent += `
+                <div style="width:790px; min-height: 1100px; padding:20px 30px; box-sizing: border-box; background:#fff; position: relative; ${pageBreakStyle}">
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #eee; padding-bottom:10px;">
+                        <div>
+                            <img src="${LOGO_URL}" style="height:45px;" crossorigin="anonymous">
+                        </div>
+                        <div style="text-align:right;">
+                            <h2 style="margin:0; color:#1f51c6; font-size: 22px;">Glacier Ice Cream</h2>
+                            <div style="font-size:13px; color:#666; margin-top:2px;">${title}</div>
+                            <div style="font-size:11px; color:#aaa; margin-top:2px;">Generated: ${new Date().toLocaleDateString()}</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:15px;">
+                        <table style="width:100%; border-collapse:collapse; table-layout: fixed;">
+                `;
+
+                let col = 0;
+
+                pageItems.forEach((item) => {
+                    if (col === 0) htmlContent += `<tr>`;
+
+                    const volText = window.extractVolumeText(item.name);
+                    const displayName = item.name.replace(volText, '').trim() || item.name;
+
+                    // Preload image
+                    let imgPromise = new Promise((resolve) => {
+                        let img = new Image();
+                        img.crossOrigin = "Anonymous";
+                        img.onload = () => resolve();
+                        img.onerror = () => resolve();
+                        img.src = item.img;
+                        setTimeout(resolve, 2000);
+                    });
+                    imageLoadPromises.push(imgPromise);
+
+                    htmlContent += `
+                    <td style="width:25%; padding:6px; vertical-align: top;">
+                        <div style="border:1px solid #e5e7eb; border-radius:10px; padding:10px; text-align:center; height: 165px; box-sizing: border-box; display:flex; flex-direction:column; justify-content:space-between;">
+                            <div>
+                                <img src="${item.img}" crossorigin="anonymous" style="width:75px; height:75px; object-fit:contain; margin-bottom:5px;">
+                                <div style="font-size:9px; color:#6b7280; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">${item.brand || 'GLACIER'}</div>
+                                <div style="font-size:12px; font-weight:700; color:#1e293b; line-height:1.2; margin-top:3px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${displayName}</div>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:baseline; border-top:1px dashed #e2e8f0; padding-top:5px; margin-top:auto;">
+                                <span style="font-size:10px; color:#64748b; font-weight:700;">${volText || '-'}</span>
+                                <span style="font-size:14px; font-weight:800; color:#1e293b;">₹${item.price}</span>
+                            </div>
+                        </div>
+                    </td>
+                    `;
+
+                    col++;
+                    if (col === 4) {
+                        htmlContent += `</tr>`;
+                        col = 0;
+                    }
+                });
+
+                // Fill empty cells
+                if (col !== 0) {
+                    for (let i = col; i < 4; i++) {
+                        htmlContent += `<td style="width:25%; padding:6px;"></td>`;
+                    }
+                    htmlContent += `</tr>`;
+                }
+
+                htmlContent += `
+                        </table>
+                    </div>
+
+                    <div style="position: absolute; bottom: 20px; left: 30px; right: 30px; border-top:2px solid #eee; padding-top:10px; display:flex; justify-content:space-between; align-items:center;">
+                        <div style="font-size:11px; color:#777; font-weight:600;">
+                            Fast Delivery • Fresh Stock • Best Prices
+                        </div>
+                        <div style="text-align:center;">
+                            <img src="${QR_URL}" crossorigin="anonymous" style="height:45px;">
+                            <div style="font-size:9px; font-weight:700; color:#475569; margin-top:2px;">Scan to Order</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="display:inline-block; padding:5px 12px; background:#25D366; color:#fff; font-size:11px; font-weight:bold; border-radius:6px;">
+                                WhatsApp Order
+                            </div>
+                            <div style="font-size:10px; margin-top:4px; color:#94a3b8; font-weight:600;">
+                                Page ${page + 1} of ${totalPages}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
+
+            htmlContent += '</div>';
+
+            const printArea = document.createElement('div');
+            printArea.innerHTML = htmlContent;
+            printArea.style.position = 'absolute';
+            printArea.style.left = '-9999px';
+            printArea.style.top = '0';
+            document.body.appendChild(printArea);
+
+            try {
+                await Promise.all(imageLoadPromises);
+                await new Promise(r => setTimeout(r, 800));
+
+                const opt = {
+                    margin:       0,
+                    filename:     `Glacier_Menu_${currentBrand.replace(/\s+/g,'_')}_${currentCategory.replace(/\s+/g,'_')}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true, allowTaint: true, windowWidth: 800 },
+                    jsPDF:        { unit: 'px', format: [790, 1120], orientation: 'portrait' } 
+                };
+
+                await html2pdf().set(opt).from(printArea).save();
+
+            } catch (error) {
+                console.error("PDF Export Error:", error);
+                alert("Failed to generate PDF. Please try again.");
+            } finally {
+                document.body.removeChild(printArea);
+                btn.innerHTML = originalText;
+            }
+        };
+
         window.shareWebsite = () => { 
             let shareUrl = new URL(window.location.href);
             if(navigator.share) {
