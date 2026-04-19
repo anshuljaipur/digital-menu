@@ -1867,71 +1867,138 @@
         
         window.clearCart = () => { if(Object.keys(cart).length === 0) return; if(confirm("Are you sure you want to clear your cart?")) { cart = {}; window.updateCartUI(); } }
         
-  // 🟢 FIXED: PDF EXPORT LOGIC (NO BLANK PAGES) 🟢
-window.exportPDF = async () => {
+           window.exportPDF = async () => {
     const btn = document.getElementById('pdf-btn');
     const originalText = btn.innerHTML;
-    btn.innerHTML = '⏳ Processing...';
+    btn.innerHTML = '⏳ Generating Premium PDF...';
 
-    // 🔧 CONFIG — CHANGE THESE
-    const LOGO_URL = "https://i.postimg.cc/c4MX4XyQ/logo-glacier.png"; 
+    // 🔧 CONFIG (CHANGE THESE)
+ const LOGO_URL = "https://i.postimg.cc/c4MX4XyQ/logo-glacier.png"; 
     const QR_URL = "https://i.postimg.cc/P56qHSLD/order.png"; 
     const WHATSAPP_NUMBER = "919829610570"; // with country code
 
+    const ITEMS_PER_PAGE = 20; // 4 columns × 5 rows
+
     let title = `Menu - ${currentBrand} | ${currentCategory}`;
-    if(currentTagFilter !== 'All') title += ` | ${currentTagFilter}`;
+    if (currentTagFilter !== 'All') title += ` | ${currentTagFilter}`;
 
-    let htmlContent = `
-    <div style="padding: 25px; background:#fff; width:800px; font-family:Arial;">
-        
-        <!-- HEADER -->
-        <div style="text-align:center; border-bottom:2px solid #eee; padding-bottom:15px;">
-            <img src="${LOGO_URL}" style="height:60px; margin-bottom:10px;">
-            <h2 style="margin:0; color:#1f51c6;">Glacier Ice Cream</h2>
-            <p style="font-size:12px; color:#777;">${title}</p>
-            <p style="font-size:11px; color:#aaa;">${new Date().toLocaleDateString()}</p>
-        </div>
+    let totalPages = Math.ceil(currentFilteredItems.length / ITEMS_PER_PAGE);
+    let htmlContent = '';
 
-        <!-- PRODUCTS -->
-        <div style="margin-top:20px;">
-        <table style="width:100%; border-collapse:collapse;">
-        <tr>
-    `;
+    for (let page = 0; page < totalPages; page++) {
 
-    let col = 0;
+        let start = page * ITEMS_PER_PAGE;
+        let end = start + ITEMS_PER_PAGE;
+        let pageItems = currentFilteredItems.slice(start, end);
 
-currentFilteredItems.forEach((item, index) => {
-    const volText = window.extractVolumeText(item.name);
-    const displayName = item.name.replace(volText, '').trim() || item.name;
+        htmlContent += `
+        <div style="width:760px; padding:20px; font-family:Arial; background:#fff; page-break-after:always;">
 
-    htmlContent += `
-    <td style="width:25%; padding:8px;">
-        <div style="border:1px solid #eee; border-radius:10px; padding:10px; text-align:center;">
-            <img src="${item.img}" style="width:80px; height:80px; object-fit:contain;">
-            <div style="font-size:10px; color:#666;">${item.brand || ''}</div>
-            <div style="font-weight:bold; font-size:12px; height:32px; overflow:hidden;">${displayName}</div>
-            <div style="display:flex; justify-content:space-between; font-size:11px;">
-                <span>${volText || '-'}</span>
-                <span style="font-weight:bold;">₹${item.price}</span>
+            <!-- HEADER -->
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #eee; padding-bottom:10px;">
+                <div>
+                    <img src="${LOGO_URL}" style="height:50px;">
+                </div>
+                <div style="text-align:right;">
+                    <h2 style="margin:0; color:#1f51c6;">Glacier Ice Cream</h2>
+                    <div style="font-size:12px; color:#666;">${title}</div>
+                    <div style="font-size:10px; color:#aaa;">${new Date().toLocaleDateString()}</div>
+                </div>
             </div>
+
+            <!-- GRID -->
+            <div style="margin-top:15px;">
+            <table style="width:100%; border-collapse:collapse;">
+            <tr>
+        `;
+
+        let col = 0;
+
+        pageItems.forEach((item) => {
+            const volText = window.extractVolumeText(item.name);
+            const displayName = item.name.replace(volText, '').trim() || item.name;
+
+            htmlContent += `
+            <td style="width:25%; padding:8px;">
+                <div style="border:1px solid #e5e7eb; border-radius:12px; padding:10px; text-align:center;">
+                    <img src="${item.img}" style="width:80px; height:80px; object-fit:contain;">
+                    <div style="font-size:10px; color:#6b7280;">${item.brand || ''}</div>
+                    <div style="font-size:12px; font-weight:bold; height:32px; overflow:hidden;">${displayName}</div>
+                    <div style="display:flex; justify-content:space-between; font-size:11px; margin-top:5px;">
+                        <span>${volText || '-'}</span>
+                        <span style="font-weight:bold;">₹${item.price}</span>
+                    </div>
+                </div>
+            </td>
+            `;
+
+            col++;
+            if (col === 4) {
+                htmlContent += `</tr><tr>`;
+                col = 0;
+            }
+        });
+
+        // Fill empty cells
+        if (col !== 0) {
+            for (let i = col; i < 4; i++) {
+                htmlContent += `<td></td>`;
+            }
+        }
+
+        htmlContent += `
+            </tr>
+            </table>
+            </div>
+
+            <!-- FOOTER -->
+            <div style="margin-top:15px; border-top:2px solid #eee; padding-top:10px; display:flex; justify-content:space-between; align-items:center;">
+                
+                <!-- LEFT -->
+                <div style="font-size:10px; color:#777;">
+                    Fast Delivery • Fresh Stock • Best Prices
+                </div>
+
+                <!-- CENTER QR -->
+                <div style="text-align:center;">
+                    <img src="${QR_URL}" style="height:60px;">
+                    <div style="font-size:9px;">Scan to Order</div>
+                </div>
+
+                <!-- RIGHT -->
+                <div style="text-align:right;">
+                    <a href="https://wa.me/${WHATSAPP_NUMBER}?text=I want to order ice cream"
+                       style="display:inline-block; padding:6px 10px; background:#25D366; color:#fff; font-size:10px; text-decoration:none; border-radius:5px;">
+                       WhatsApp Order
+                    </a>
+                    <div style="font-size:9px; margin-top:5px; color:#999;">
+                        Page ${page + 1} of ${totalPages}
+                    </div>
+                </div>
+
+            </div>
+
         </div>
-    </td>
-    `;
-
-    col++;
-    if (col === 4) {
-        htmlContent += `</tr><tr>`;
-        col = 0;
+        `;
     }
-});
 
-// fill empty cells if needed
-if (col !== 0) {
-    for (let i = col; i < 4; i++) {
-        htmlContent += `<td></td>`;
-    }
-}
+    const opt = {
+        margin: 5,
+        filename: `IceCream_Menu_Premium.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
 
+    html2pdf().set(opt).from(htmlContent).save().then(() => {
+        btn.innerHTML = originalText;
+    }).catch(err => {
+        console.error("PDF Error:", err);
+        btn.innerHTML = originalText;
+        alert("PDF generation failed");
+    });
+};
+        
         <!-- FOOTER -->
         <div style="margin-top:30px; border-top:2px solid #eee; padding-top:15px; text-align:center;">
             
