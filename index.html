@@ -1057,7 +1057,52 @@
                 window.unlockBodyScroll();
             }
         });
+function openPrintView(){
 
+    let html = `
+    <html>
+    <head>
+        <title>Print Menu</title>
+        <style>
+            body { font-family: Arial; padding:20px; }
+            .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+            .card { border:1px solid #ccc; padding:10px; text-align:center; }
+            img { width:80px; height:80px; object-fit:contain; }
+        </style>
+    </head>
+    <body>
+
+    <h2>Glacier Ice Cream Menu</h2>
+    <div class="grid">
+    `;
+
+    currentFilteredItems.forEach(item=>{
+        html += `
+        <div class="card">
+            <img src="${item.img}">
+            <div>${item.name}</div>
+            <b>₹${item.price}</b>
+        </div>
+        `;
+    });
+
+    html += `
+    </div>
+
+    <script>
+        window.onload = function(){
+            setTimeout(()=>window.print(),500);
+        }
+    <\/script>
+
+    </body>
+    </html>
+    `;
+
+    let win = window.open('', '_blank');
+    win.document.write(html);
+    win.document.close();
+}
         const productsArea = document.getElementById('products-area');
         let lastScrollY = window.scrollY || document.documentElement.scrollTop; 
         let showThreshold = 10;
@@ -1847,8 +1892,14 @@
         window.clearCart = () => { if(Object.keys(cart).length === 0) return; if(confirm("Are you sure you want to clear your cart?")) { cart = {}; window.updateCartUI(); } }
         
         // 🟢 FIXED: PDF EXPORT LOGIC WITH PAGE BREAK AVOIDANCE 🟢
-      window.exportPDF = async () => {
+     window.exportPDF = async () => {
 
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (isMobile) {
+        openPrintView();
+        return;
+    }
     const btn = document.getElementById('pdf-btn');
     const originalText = btn.innerHTML;
     btn.innerHTML = '⏳ Generating PDF...';
