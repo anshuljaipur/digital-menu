@@ -1874,9 +1874,9 @@ window.exportPDF = async () => {
     btn.innerHTML = '⏳ Processing...';
 
     // 🔧 CONFIG — CHANGE THESE
-    const LOGO_URL = "https://i.postimg.cc/your-logo.png"; 
-    const QR_URL = "https://i.postimg.cc/your-qr.png"; 
-    const WHATSAPP_NUMBER = "919999999999"; // with country code
+    const LOGO_URL = "https://i.postimg.cc/c4MX4XyQ/logo-glacier.png"; 
+    const QR_URL = "https://i.postimg.cc/P56qHSLD/order.png"; 
+    const WHATSAPP_NUMBER = "919829610570"; // with country code
 
     let title = `Menu - ${currentBrand} | ${currentCategory}`;
     if(currentTagFilter !== 'All') title += ` | ${currentTagFilter}`;
@@ -1893,28 +1893,44 @@ window.exportPDF = async () => {
         </div>
 
         <!-- PRODUCTS -->
-        <div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:20px;">
+        <div style="margin-top:20px;">
+        <table style="width:100%; border-collapse:collapse;">
+        <tr>
     `;
 
-    currentFilteredItems.forEach(item => {
-        const volText = window.extractVolumeText(item.name);
-        const displayName = item.name.replace(volText, '').trim() || item.name;
+    let col = 0;
 
-        htmlContent += `
-        <div style="width: calc(25% - 10px); border:1px solid #eee; border-radius:10px; padding:10px; text-align:center;">
-            <img src="${item.img}" style="width:90px; height:90px; object-fit:contain;">
-            <div style="font-size:11px; color:#666;">${item.brand || ''}</div>
-            <div style="font-weight:bold; font-size:13px; height:36px; overflow:hidden;">${displayName}</div>
-            <div style="display:flex; justify-content:space-between; font-size:12px;">
+currentFilteredItems.forEach((item, index) => {
+    const volText = window.extractVolumeText(item.name);
+    const displayName = item.name.replace(volText, '').trim() || item.name;
+
+    htmlContent += `
+    <td style="width:25%; padding:8px;">
+        <div style="border:1px solid #eee; border-radius:10px; padding:10px; text-align:center;">
+            <img src="${item.img}" style="width:80px; height:80px; object-fit:contain;">
+            <div style="font-size:10px; color:#666;">${item.brand || ''}</div>
+            <div style="font-weight:bold; font-size:12px; height:32px; overflow:hidden;">${displayName}</div>
+            <div style="display:flex; justify-content:space-between; font-size:11px;">
                 <span>${volText || '-'}</span>
                 <span style="font-weight:bold;">₹${item.price}</span>
             </div>
         </div>
-        `;
-    });
+    </td>
+    `;
 
-    htmlContent += `
-        </div>
+    col++;
+    if (col === 4) {
+        htmlContent += `</tr><tr>`;
+        col = 0;
+    }
+});
+
+// fill empty cells if needed
+if (col !== 0) {
+    for (let i = col; i < 4; i++) {
+        htmlContent += `<td></td>`;
+    }
+}
 
         <!-- FOOTER -->
         <div style="margin-top:30px; border-top:2px solid #eee; padding-top:15px; text-align:center;">
@@ -1930,7 +1946,7 @@ window.exportPDF = async () => {
             </a>
 
             <p style="font-size:10px; color:#aaa; margin-top:10px;">
-                Fast Delivery | Fresh Stock | Best Prices
+                Fast Delivery using UBER | Fresh Stock
             </p>
         </div>
 
