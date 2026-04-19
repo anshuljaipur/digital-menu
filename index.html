@@ -1854,11 +1854,11 @@
     btn.innerHTML = '⏳ Generating PDF...';
 
     // 🔧 CONFIG
-    const LOGO_URL = "https://i.postimg.cc/your-logo.png";
-    const QR_URL = "https://i.postimg.cc/your-qr.png";
-    const WHATSAPP_NUMBER = "919999999999";
+    const LOGO_URL = "https://i.postimg.cc/c4MX4XyQ/logo-glacier.png";
+    const QR_URL = "https://i.postimg.cc/P56qHSLD/order.png";
+    const WHATSAPP_NUMBER = "919829610570";
 
-    const ITEMS_PER_PAGE = 20;
+    const ITEMS_PER_PAGE = 16;
 
     let title = `Menu - ${currentBrand} | ${currentCategory}`;
     if (currentTagFilter !== 'All') title += ` | ${currentTagFilter}`;
@@ -1871,7 +1871,16 @@
         let items = currentFilteredItems.slice(p*ITEMS_PER_PAGE, (p+1)*ITEMS_PER_PAGE);
 
         html += `
-        <div style="width:760px; padding:20px; background:#fff; font-family:Arial; page-break-after:always;">
+      <div style="
+    width:760px;
+    height:1120px; /* 🔥 A4 HEIGHT FIX */
+    padding:20px;
+    box-sizing:border-box;
+    background:#fff;
+    font-family:Arial;
+    overflow:hidden;
+    page-break-after:always;
+">
 
             <!-- HEADER -->
             <div style="display:flex; justify-content:space-between; border-bottom:2px solid #ddd;">
