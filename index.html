@@ -1892,135 +1892,141 @@ function openPrintView(){
         window.clearCart = () => { if(Object.keys(cart).length === 0) return; if(confirm("Are you sure you want to clear your cart?")) { cart = {}; window.updateCartUI(); } }
         
         // 🟢 FIXED: PDF EXPORT LOGIC WITH PAGE BREAK AVOIDANCE 🟢
-     window.exportPDF = async () => {
+// 🎨 PREMIUM POSTER EXPORT (REPLACE OLD PDF FUNCTION)
 
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+function groupByCategory(data){
+    let grouped = {};
+    data.forEach(item=>{
+        let cat = item.category || "Others";
+        if(!grouped[cat]) grouped[cat] = [];
+        grouped[cat].push(item);
+    });
+    return grouped;
+}
 
-    if (isMobile) {
-        openPrintView();
-        return;
-    }
-    const btn = document.getElementById('pdf-btn');
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '⏳ Generating PDF...';
+function generatePosterHTML(items){
 
-    // 🔧 CONFIG
-    const LOGO_URL = "https://i.postimg.cc/c4MX4XyQ/logo-glacier.png";
-    const QR_URL = "https://i.postimg.cc/P56qHSLD/order.png";
-    const WHATSAPP_NUMBER = "919829610570";
-
-    const ITEMS_PER_PAGE = 16;
-
-    let title = `Menu - ${currentBrand} | ${currentCategory}`;
-    if (currentTagFilter !== 'All') title += ` | ${currentTagFilter}`;
-
-    let totalPages = Math.ceil(currentFilteredItems.length / ITEMS_PER_PAGE);
-    let html = "";
-
-    for(let p=0; p<totalPages; p++){
-
-        let items = currentFilteredItems.slice(p*ITEMS_PER_PAGE, (p+1)*ITEMS_PER_PAGE);
-
-        html += `
-      <div style="
-    width:760px;
-    height:1120px; /* 🔥 A4 HEIGHT FIX */
-    padding:20px;
-    box-sizing:border-box;
-    background:#fff;
-    font-family:Arial;
-    overflow:hidden;
-    page-break-after:always;
-">
-
-            <!-- HEADER -->
-            <div style="display:flex; justify-content:space-between; border-bottom:2px solid #ddd;">
-                <img src="${LOGO_URL}" style="height:50px;">
-                <div style="text-align:right;">
-                    <h2 style="margin:0;color:#1f51c6;">Glacier Ice Cream</h2>
-                    <div style="font-size:12px;color:#666;">${title}</div>
-                    <div style="font-size:10px;color:#aaa;">${new Date().toLocaleDateString()}</div>
-                </div>
-            </div>
-
-            <!-- GRID -->
-            <table style="width:100%; margin-top:15px; border-collapse:collapse;">
-        `;
-
-        for(let i=0;i<items.length;i+=4){
-            html += "<tr>";
-
-            for(let j=0;j<4;j++){
-                let item = items[i+j];
-
-                if(item){
-                    let vol = window.extractVolumeText(item.name);
-                    let name = item.name.replace(vol,'');
-
-                    html += `
-                    <td style="width:25%; padding:8px;">
-                        <div style="border:1px solid #ddd; border-radius:10px; padding:10px; text-align:center;">
-                            <img src="${item.img}" style="width:80px;height:80px;object-fit:contain;">
-                            <div style="font-size:10px;color:#777;">${item.brand || ''}</div>
-                            <div style="font-weight:bold;font-size:12px;height:30px;">${name}</div>
-                            <div style="display:flex;justify-content:space-between;font-size:11px;">
-                                <span>${vol}</span>
-                                <span style="font-weight:bold;">₹${item.price}</span>
-                            </div>
-                        </div>
-                    </td>`;
-                } else {
-                    html += "<td></td>";
-                }
-            }
-
-            html += "</tr>";
-        }
-
-        html += `
-            </table>
-
-            <!-- FOOTER -->
-            <div style="margin-top:15px; border-top:2px solid #ddd; display:flex; justify-content:space-between; align-items:center; padding-top:10px;">
-                
-                <div style="font-size:10px;color:#666;">
-                    Fast Delivery • Fresh Stock • Best Prices
-                </div>
-
-                <div style="text-align:center;">
-                    <img src="${QR_URL}" style="height:60px;">
-                    <div style="font-size:9px;">Scan to Order</div>
-                </div>
-
-                <div style="text-align:right;">
-                    <a href="https://wa.me/${WHATSAPP_NUMBER}?text=I want to order ice cream"
-                    style="background:#25D366;color:#fff;padding:6px 10px;font-size:10px;text-decoration:none;border-radius:5px;">
-                    WhatsApp
-                    </a>
-                    <div style="font-size:9px;color:#999;">Page ${p+1}/${totalPages}</div>
-                </div>
-
-            </div>
-
-        </div>
-        `;
-    }
-
-    const opt = {
-        margin: 0,
-        filename: `IceCream_Menu_${currentBrand}.pdf`,
-        image: { type: 'jpeg', quality: 1 },
-        html2canvas: { scale: 3, useCORS: true, scrollX: 0, scrollY: 0 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    const BRAND = {
+        name: "GLACIER ICE CREAM",
+        tagline: "Delicious Treats For Everyone!",
+        colors: ["#ff2d2d","#ff7a00","#ffcc00","#ff4da6"],
+        qr: "https://i.postimg.cc/8k0V6x4k/qr.png",
+        whatsapp: "919999999999"
     };
 
-    html2pdf().set(opt).from(html).save().then(()=>{
-        btn.innerHTML = originalText;
-    }).catch(()=>{
-        btn.innerHTML = originalText;
-        alert("PDF failed");
+    let grouped = groupByCategory(items);
+    let categories = Object.keys(grouped);
+
+    let html = `
+    <div style="width:794px;height:1122px;font-family:Arial;overflow:hidden;
+    background:linear-gradient(180deg,#ff2d2d,#ffcc00);position:relative;">
+
+    <div style="text-align:center;padding:20px;color:#fff;">
+        <div style="background:#fff;color:#e11d48;padding:10px 25px;
+        border-radius:40px;font-size:36px;font-weight:bold;display:inline-block;">
+            ${BRAND.name}
+        </div>
+        <div style="margin-top:10px;font-size:18px;">${BRAND.tagline}</div>
+    </div>
+    `;
+
+    categories.forEach((cat,index)=>{
+
+        let bg = BRAND.colors[index % BRAND.colors.length];
+
+        html += `
+        <div style="margin:10px;border-radius:20px;
+        background:linear-gradient(135deg, ${bg}, #ffffff);
+        padding:12px;box-shadow:0 8px 20px rgba(0,0,0,0.3);">
+
+        <div style="background:#000;color:#fff;padding:6px 18px;
+        border-radius:20px;display:inline-block;font-weight:bold;">
+            ${cat.toUpperCase()}
+        </div>
+
+        <div style="display:flex;flex-wrap:wrap;margin-top:10px;">
+        `;
+
+        grouped[cat].forEach(item=>{
+
+            html += `
+            <div style="width:25%;text-align:center;padding:8px;position:relative;">
+                
+                <img src="${item.img}" style="height:90px;object-fit:contain;">
+
+                <div style="font-size:12px;font-weight:bold;margin-top:5px;">
+                    ${item.name}
+                </div>
+
+                <div style="position:absolute;top:5px;right:10px;
+                background:#ffcc00;padding:4px 10px;border-radius:20px;
+                font-weight:bold;box-shadow:0 3px 8px rgba(0,0,0,0.3);">
+                    ₹${item.price}
+                </div>
+
+            </div>
+            `;
+        });
+
+        html += `</div></div>`;
     });
+
+    html += `
+    <div style="position:absolute;bottom:0;width:100%;
+    background:#065f46;color:#fff;display:flex;
+    justify-content:space-between;align-items:center;padding:10px 20px;">
+        
+        <div>
+            <img src="${BRAND.qr}" style="height:70px;">
+            <div style="font-size:10px;">Scan to Order</div>
+        </div>
+
+        <div style="font-size:18px;font-weight:bold;">
+            📲 +${BRAND.whatsapp}
+        </div>
+    </div>
+
+    <div style="position:absolute;bottom:0;width:100%;
+    background:#ffcc00;text-align:center;padding:6px;font-weight:bold;">
+    Cool Treats • Great Prices • Freshly Made
+    </div>
+
+    </div>
+    `;
+
+    return html;
+}
+
+
+// ✅ FINAL EXPORT FUNCTION
+window.exportPDF = function(){
+
+    if(!currentFilteredItems || currentFilteredItems.length === 0){
+        alert("No items to export");
+        return;
+    }
+
+    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+
+    let html = generatePosterHTML(currentFilteredItems);
+
+    if(isMobile){
+        let win = window.open('');
+        win.document.write(html);
+        win.document.close();
+        setTimeout(()=>win.print(),500);
+    } else {
+        html2pdf().set({
+            margin:0,
+            filename:"Menu_Poster.pdf",
+            image:{type:'jpeg',quality:1},
+            html2canvas:{scale:3,useCORS:true},
+            jsPDF:{unit:'px',format:[794,1122]}
+        }).from(html).save();
+    }
 };
+        
+        
         window.shareWebsite = () => { 
             let shareUrl = new URL(window.location.href);
             if(navigator.share) {
