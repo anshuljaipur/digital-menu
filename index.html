@@ -1895,6 +1895,7 @@ function openPrintView(){
 // 🎨 PREMIUM POSTER EXPORT (REPLACE OLD PDF FUNCTION)
 
 // 🧠 GROUP BY CATEGORY
+// 🧠 GROUP DATA
 function groupByCategory(data){
     let grouped = {};
     data.forEach(item=>{
@@ -1906,8 +1907,73 @@ function groupByCategory(data){
 }
 
 
-// 🎨 BUILD SINGLE PAGE (POSTER STYLE)
-function buildPageHTML(pageItems){
+// 🎨 CREATE CATEGORY BLOCK
+function createCategoryBlock(cat, items, color){
+
+    let html = `
+    <div style="
+        margin:10px;
+        border-radius:18px;
+        background:linear-gradient(135deg, ${color}, #ffffff);
+        padding:10px;
+        box-shadow:0 6px 15px rgba(0,0,0,0.25);
+        page-break-inside:avoid;
+    ">
+
+    <div style="
+        background:#000;
+        color:#fff;
+        padding:6px 16px;
+        border-radius:20px;
+        display:inline-block;
+        font-weight:bold;
+        font-size:13px;
+    ">
+    ${cat.toUpperCase()}
+    </div>
+
+    <div style="
+        display:flex;
+        flex-wrap:wrap;
+        justify-content:flex-start;
+        margin-top:10px;
+    ">
+    `;
+
+    items.forEach(item=>{
+        html += `
+        <div style="width:25%;text-align:center;padding:8px;position:relative;">
+            
+            <img src="${item.img}" style="height:80px;object-fit:contain;">
+
+            <div style="font-size:12px;font-weight:bold;margin-top:5px;">
+                ${item.name}
+            </div>
+
+            <div style="
+                position:absolute;
+                top:5px;
+                right:10px;
+                background:#ffcc00;
+                padding:4px 10px;
+                border-radius:20px;
+                font-weight:bold;
+                font-size:12px;
+            ">
+                ₹${item.price}
+            </div>
+
+        </div>
+        `;
+    });
+
+    html += `</div></div>`;
+    return html;
+}
+
+
+// 🎨 BUILD FULL DOCUMENT
+function generateFullMenu(items){
 
     const BRAND = {
         name: "GLACIER ICE CREAM",
@@ -1917,163 +1983,116 @@ function buildPageHTML(pageItems){
         whatsapp: "919999999999"
     };
 
-    let grouped = groupByCategory(pageItems);
+    let grouped = groupByCategory(items);
     let categories = Object.keys(grouped);
 
     let html = `
-    <div style="
-        width:794px;
-        height:1122px;
-        display:flex;
-        flex-direction:column;
-        font-family:Arial;
-        background:linear-gradient(180deg,#ff2d2d,#ffcc00);
-        page-break-after:always;
-    ">
-
-    <!-- HEADER -->
-    <div style="text-align:center;padding:15px;color:#fff;">
-        <div style="
-            background:#fff;
-            color:#e11d48;
-            padding:8px 20px;
-            border-radius:40px;
-            font-size:30px;
-            font-weight:bold;
-            display:inline-block;
-        ">
-            ${BRAND.name}
-        </div>
-        <div style="margin-top:6px;font-size:14px;">
-            ${BRAND.tagline}
-        </div>
-    </div>
-
-    <!-- CONTENT -->
-    <div style="flex:1; padding:5px 10px;">
+    <div style="font-family:Arial;">
     `;
 
-    categories.forEach((cat,index)=>{
+    let colorIndex = 0;
 
-        let bg = BRAND.colors[index % BRAND.colors.length];
+    categories.forEach((cat, i)=>{
 
-        html += `
-        <div style="
-            margin:8px 0;
-            border-radius:18px;
-            background:linear-gradient(135deg, ${bg}, #ffffff);
-            padding:10px;
-            box-shadow:0 6px 15px rgba(0,0,0,0.25);
-        ">
+        // 🔁 NEW PAGE START EVERY 3 SECTIONS
+        if(i % 3 === 0){
+            if(i !== 0) html += `</div>`; // close previous page
 
-        <div style="
-            background:#000;
-            color:#fff;
-            padding:5px 15px;
-            border-radius:20px;
-            display:inline-block;
-            font-weight:bold;
-            font-size:12px;
-        ">
-        ${cat.toUpperCase()}
-        </div>
-
-        <div style="
-            display:flex;
-            flex-wrap:wrap;
-            justify-content:space-between;
-            margin-top:8px;
-        ">
-        `;
-
-        grouped[cat].forEach(item=>{
             html += `
-            <div style="width:23%;text-align:center;padding:6px;position:relative;">
-                <img src="${item.img}" style="height:70px;object-fit:contain;">
-                <div style="font-size:11px;font-weight:bold;margin-top:4px;">
-                    ${item.name}
-                </div>
+            <div style="
+                width:794px;
+                height:1122px;
+                display:flex;
+                flex-direction:column;
+                background:linear-gradient(180deg,#ff2d2d,#ffcc00);
+                page-break-after:always;
+            ">
 
+            <!-- HEADER -->
+            <div style="text-align:center;padding:15px;color:#fff;">
                 <div style="
-                    position:absolute;
-                    top:5px;
-                    right:5px;
-                    background:#ffcc00;
-                    padding:3px 8px;
-                    border-radius:15px;
+                    background:#fff;
+                    color:#e11d48;
+                    padding:8px 20px;
+                    border-radius:40px;
+                    font-size:30px;
                     font-weight:bold;
-                    font-size:11px;
+                    display:inline-block;
                 ">
-                    ₹${item.price}
+                    ${BRAND.name}
+                </div>
+                <div style="margin-top:6px;font-size:14px;">
+                    ${BRAND.tagline}
                 </div>
             </div>
+
+            <div style="flex:1;overflow:hidden;">
             `;
-        });
+        }
 
-        html += `</div></div>`;
+        let color = BRAND.colors[colorIndex % BRAND.colors.length];
+        colorIndex++;
+
+        html += createCategoryBlock(cat, grouped[cat], color);
+
+        // 🔚 CLOSE PAGE
+        if(i % 3 === 2 || i === categories.length - 1){
+            html += `
+            </div>
+
+            <!-- FOOTER -->
+            <div style="
+                background:#065f46;
+                color:#fff;
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                padding:10px 15px;
+            ">
+                <div>
+                    <img src="${BRAND.qr}" style="height:50px;">
+                    <div style="font-size:10px;">Scan to Order</div>
+                </div>
+
+                <div style="font-size:14px;font-weight:bold;">
+                    📲 +${BRAND.whatsapp}
+                </div>
+            </div>
+
+            <div style="
+                background:#ffcc00;
+                text-align:center;
+                padding:6px;
+                font-weight:bold;
+            ">
+                Cool Treats • Great Prices • Freshly Made
+            </div>
+
+            </div>
+            `;
+        }
+
     });
-
-    html += `
-    </div>
-
-    <!-- FOOTER -->
-    <div style="
-        background:#065f46;
-        color:#fff;
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        padding:8px 15px;
-    ">
-        <div>
-            <img src="${BRAND.qr}" style="height:50px;">
-            <div style="font-size:9px;">Scan to Order</div>
-        </div>
-
-        <div style="font-size:14px;font-weight:bold;">
-            📲 +${BRAND.whatsapp}
-        </div>
-    </div>
-
-    <div style="
-        background:#ffcc00;
-        text-align:center;
-        padding:5px;
-        font-weight:bold;
-        font-size:12px;
-    ">
-        Cool Treats • Great Prices • Freshly Made
-    </div>
-
-    </div>
-    `;
 
     return html;
 }
 
 
-// 📄 FINAL EXPORT (MULTI PAGE)
+// 📄 EXPORT FUNCTION (FINAL)
 window.exportPDF = function(){
 
     if(!currentFilteredItems || currentFilteredItems.length === 0){
-        alert("No items found");
+        alert("No items");
         return;
     }
 
-    const ITEMS_PER_PAGE = 16; // 🔥 CONTROL THIS
-
-    let fullHTML = "";
-
-    for(let i=0; i<currentFilteredItems.length; i += ITEMS_PER_PAGE){
-        let pageItems = currentFilteredItems.slice(i, i + ITEMS_PER_PAGE);
-        fullHTML += buildPageHTML(pageItems);
-    }
+    let html = generateFullMenu(currentFilteredItems);
 
     const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
 
     if(isMobile){
         let win = window.open('');
-        win.document.write(fullHTML);
+        win.document.write(html);
         win.document.close();
         setTimeout(()=>win.print(),500);
     } else {
@@ -2081,9 +2100,9 @@ window.exportPDF = function(){
             margin:0,
             filename:"Menu_Poster.pdf",
             image:{type:'jpeg',quality:1},
-            html2canvas:{scale:3,useCORS:true},
+            html2canvas:{scale:2,useCORS:true},
             jsPDF:{unit:'px',format:[794,1122]}
-        }).from(fullHTML).save();
+        }).from(html).save();
     }
 };
         
