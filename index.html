@@ -1894,6 +1894,7 @@ function openPrintView(){
         // 🟢 FIXED: PDF EXPORT LOGIC WITH PAGE BREAK AVOIDANCE 🟢
 // 🎨 PREMIUM POSTER EXPORT (REPLACE OLD PDF FUNCTION)
 
+// 🧠 GROUP BY CATEGORY
 function groupByCategory(data){
     let grouped = {};
     data.forEach(item=>{
@@ -1904,28 +1905,31 @@ function groupByCategory(data){
     return grouped;
 }
 
-function generatePosterHTML(items){
+
+// 🎨 BUILD SINGLE PAGE (POSTER STYLE)
+function buildPageHTML(pageItems){
 
     const BRAND = {
-        name: "GLACIER ICE CREAM PARLOR",
+        name: "GLACIER ICE CREAM",
         tagline: "Delicious Treats For Everyone!",
         colors: ["#ff2d2d","#ff7a00","#ffcc00","#ff4da6"],
         qr: "https://i.postimg.cc/8k0V6x4k/qr.png",
-        whatsapp: "919829610570"
+        whatsapp: "919999999999"
     };
 
-    let grouped = groupByCategory(items);
+    let grouped = groupByCategory(pageItems);
     let categories = Object.keys(grouped);
 
     let html = `
-<div style="
-    width:794px;
-    height:1122px;
-    display:flex;
-    flex-direction:column;
-    font-family:Arial;
-    background:linear-gradient(180deg,#ff2d2d,#ffcc00);
-">
+    <div style="
+        width:794px;
+        height:1122px;
+        display:flex;
+        flex-direction:column;
+        font-family:Arial;
+        background:linear-gradient(180deg,#ff2d2d,#ffcc00);
+        page-break-after:always;
+    ">
 
     <!-- HEADER -->
     <div style="text-align:center;padding:15px;color:#fff;">
@@ -1946,106 +1950,99 @@ function generatePosterHTML(items){
     </div>
 
     <!-- CONTENT -->
-    <div style="
-        flex:1;
-        overflow:hidden;
-        padding:5px 10px;
-    ">
-`;
+    <div style="flex:1; padding:5px 10px;">
+    `;
 
     categories.forEach((cat,index)=>{
 
         let bg = BRAND.colors[index % BRAND.colors.length];
 
-       html += `
-<div style="
-    margin:8px 0;
-    border-radius:18px;
-    background:linear-gradient(135deg, ${bg}, #ffffff);
-    padding:10px;
-    box-shadow:0 6px 15px rgba(0,0,0,0.25);
-">
+        html += `
+        <div style="
+            margin:8px 0;
+            border-radius:18px;
+            background:linear-gradient(135deg, ${bg}, #ffffff);
+            padding:10px;
+            box-shadow:0 6px 15px rgba(0,0,0,0.25);
+        ">
 
-<div style="
-    background:#000;
-    color:#fff;
-    padding:5px 15px;
-    border-radius:20px;
-    display:inline-block;
-    font-weight:bold;
-    font-size:12px;
-">
-${cat.toUpperCase()}
-</div>
+        <div style="
+            background:#000;
+            color:#fff;
+            padding:5px 15px;
+            border-radius:20px;
+            display:inline-block;
+            font-weight:bold;
+            font-size:12px;
+        ">
+        ${cat.toUpperCase()}
+        </div>
 
-<div style="
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:space-between;
-">
-`;
+        <div style="
+            display:flex;
+            flex-wrap:wrap;
+            justify-content:space-between;
+            margin-top:8px;
+        ">
+        `;
 
         grouped[cat].forEach(item=>{
-
             html += `
-</div> <!-- END CONTENT -->
+            <div style="width:23%;text-align:center;padding:6px;position:relative;">
+                <img src="${item.img}" style="height:70px;object-fit:contain;">
+                <div style="font-size:11px;font-weight:bold;margin-top:4px;">
+                    ${item.name}
+                </div>
 
-<!-- FOOTER -->
-<div style="
-    background:#065f46;
-    color:#fff;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:8px 15px;
-">
-
-    <div>
-        <img src="${BRAND.qr}" style="height:50px;">
-        <div style="font-size:9px;">Scan to Order</div>
-    </div>
-
-    <div style="font-size:14px;font-weight:bold;">
-        📲 +${BRAND.whatsapp}
-    </div>
-
-</div>
-
-<div style="
-    background:#ffcc00;
-    text-align:center;
-    padding:5px;
-    font-weight:bold;
-    font-size:12px;
-">
-Cool Treats • Great Prices • Freshly Made
-</div>
-
-</div>
-`;
+                <div style="
+                    position:absolute;
+                    top:5px;
+                    right:5px;
+                    background:#ffcc00;
+                    padding:3px 8px;
+                    border-radius:15px;
+                    font-weight:bold;
+                    font-size:11px;
+                ">
+                    ₹${item.price}
+                </div>
+            </div>
+            `;
         });
 
         html += `</div></div>`;
     });
 
     html += `
-    <div style="position:absolute;bottom:0;width:100%;
-    background:#065f46;color:#fff;display:flex;
-    justify-content:space-between;align-items:center;padding:10px 20px;">
-        
+    </div>
+
+    <!-- FOOTER -->
+    <div style="
+        background:#065f46;
+        color:#fff;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        padding:8px 15px;
+    ">
         <div>
-            <img src="${BRAND.qr}" style="height:70px;">
-            <div style="font-size:10px;">Scan to Order</div>
+            <img src="${BRAND.qr}" style="height:50px;">
+            <div style="font-size:9px;">Scan to Order</div>
         </div>
 
-        <div style="font-size:18px;font-weight:bold;">
+        <div style="font-size:14px;font-weight:bold;">
             📲 +${BRAND.whatsapp}
         </div>
     </div>
 
-    <div style="position:absolute;bottom:0;width:100%;
-    background:#ffcc00;text-align:center;padding:6px;font-weight:bold;">
-    Cool Treats • Great Prices • Freshly Made
+    <div style="
+        background:#ffcc00;
+        text-align:center;
+        padding:5px;
+        font-weight:bold;
+        font-size:12px;
+    ">
+        Cool Treats • Great Prices • Freshly Made
     </div>
 
     </div>
@@ -2055,21 +2052,28 @@ Cool Treats • Great Prices • Freshly Made
 }
 
 
-// ✅ FINAL EXPORT FUNCTION
+// 📄 FINAL EXPORT (MULTI PAGE)
 window.exportPDF = function(){
 
     if(!currentFilteredItems || currentFilteredItems.length === 0){
-        alert("No items to export");
+        alert("No items found");
         return;
+    }
+
+    const ITEMS_PER_PAGE = 16; // 🔥 CONTROL THIS
+
+    let fullHTML = "";
+
+    for(let i=0; i<currentFilteredItems.length; i += ITEMS_PER_PAGE){
+        let pageItems = currentFilteredItems.slice(i, i + ITEMS_PER_PAGE);
+        fullHTML += buildPageHTML(pageItems);
     }
 
     const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
 
-    let html = generatePosterHTML(currentFilteredItems);
-
     if(isMobile){
         let win = window.open('');
-        win.document.write(html);
+        win.document.write(fullHTML);
         win.document.close();
         setTimeout(()=>win.print(),500);
     } else {
@@ -2079,7 +2083,7 @@ window.exportPDF = function(){
             image:{type:'jpeg',quality:1},
             html2canvas:{scale:3,useCORS:true},
             jsPDF:{unit:'px',format:[794,1122]}
-        }).from(html).save();
+        }).from(fullHTML).save();
     }
 };
         
