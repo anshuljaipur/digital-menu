@@ -1907,65 +1907,122 @@ function groupByCategory(data){
 function generatePosterHTML(items){
 
     const BRAND = {
-        name: "GLACIER ICE CREAM",
+        name: "GLACIER ICE CREAM PARLOR",
         tagline: "Delicious Treats For Everyone!",
         colors: ["#ff2d2d","#ff7a00","#ffcc00","#ff4da6"],
         qr: "https://i.postimg.cc/8k0V6x4k/qr.png",
-        whatsapp: "919999999999"
+        whatsapp: "919829610570"
     };
 
     let grouped = groupByCategory(items);
     let categories = Object.keys(grouped);
 
     let html = `
-    <div style="width:794px;height:1122px;font-family:Arial;overflow:hidden;
-    background:linear-gradient(180deg,#ff2d2d,#ffcc00);position:relative;">
+<div style="
+    width:794px;
+    height:1122px;
+    display:flex;
+    flex-direction:column;
+    font-family:Arial;
+    background:linear-gradient(180deg,#ff2d2d,#ffcc00);
+">
 
-    <div style="text-align:center;padding:20px;color:#fff;">
-        <div style="background:#fff;color:#e11d48;padding:10px 25px;
-        border-radius:40px;font-size:36px;font-weight:bold;display:inline-block;">
+    <!-- HEADER -->
+    <div style="text-align:center;padding:15px;color:#fff;">
+        <div style="
+            background:#fff;
+            color:#e11d48;
+            padding:8px 20px;
+            border-radius:40px;
+            font-size:30px;
+            font-weight:bold;
+            display:inline-block;
+        ">
             ${BRAND.name}
         </div>
-        <div style="margin-top:10px;font-size:18px;">${BRAND.tagline}</div>
+        <div style="margin-top:6px;font-size:14px;">
+            ${BRAND.tagline}
+        </div>
     </div>
-    `;
+
+    <!-- CONTENT -->
+    <div style="
+        flex:1;
+        overflow:hidden;
+        padding:5px 10px;
+    ">
+`;
 
     categories.forEach((cat,index)=>{
 
         let bg = BRAND.colors[index % BRAND.colors.length];
 
-        html += `
-        <div style="margin:10px;border-radius:20px;
-        background:linear-gradient(135deg, ${bg}, #ffffff);
-        padding:12px;box-shadow:0 8px 20px rgba(0,0,0,0.3);">
+       html += `
+<div style="
+    margin:8px 0;
+    border-radius:18px;
+    background:linear-gradient(135deg, ${bg}, #ffffff);
+    padding:10px;
+    box-shadow:0 6px 15px rgba(0,0,0,0.25);
+">
 
-        <div style="background:#000;color:#fff;padding:6px 18px;
-        border-radius:20px;display:inline-block;font-weight:bold;">
-            ${cat.toUpperCase()}
-        </div>
+<div style="
+    background:#000;
+    color:#fff;
+    padding:5px 15px;
+    border-radius:20px;
+    display:inline-block;
+    font-weight:bold;
+    font-size:12px;
+">
+${cat.toUpperCase()}
+</div>
 
-        <div style="display:flex;flex-wrap:wrap;margin-top:10px;">
-        `;
+<div style="
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-between;
+">
+`;
 
         grouped[cat].forEach(item=>{
 
             html += `
-            <div style="width:25%;text-align:center;padding:8px;position:relative;">
-                
-                <img src="${item.img}" style="height:90px;object-fit:contain;">
+</div> <!-- END CONTENT -->
 
-                <div style="font-size:12px;font-weight:bold;margin-top:5px;">
-                    ${item.name}
-                </div>
+<!-- FOOTER -->
+<div style="
+    background:#065f46;
+    color:#fff;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:8px 15px;
+">
 
-                <div style="position:absolute;top:5px;right:10px;
-                background:#ffcc00;padding:4px 10px;border-radius:20px;
-                font-weight:bold;box-shadow:0 3px 8px rgba(0,0,0,0.3);">
-                    ₹${item.price}
-                </div>
+    <div>
+        <img src="${BRAND.qr}" style="height:50px;">
+        <div style="font-size:9px;">Scan to Order</div>
+    </div>
 
-            </div>
-            `;
+    <div style="font-size:14px;font-weight:bold;">
+        📲 +${BRAND.whatsapp}
+    </div>
+
+</div>
+
+<div style="
+    background:#ffcc00;
+    text-align:center;
+    padding:5px;
+    font-weight:bold;
+    font-size:12px;
+">
+Cool Treats • Great Prices • Freshly Made
+</div>
+
+</div>
+`;
         });
 
         html += `</div></div>`;
