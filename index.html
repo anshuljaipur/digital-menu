@@ -354,7 +354,36 @@
 .pdf-mode {
     background: #ffffff !important;
 }
+        .pdf-mode .menu-card {
+    padding: 8px !important;
+}
 
+.pdf-mode .card-img-wrapper {
+    height: 110px !important;
+}
+
+.pdf-mode .item-name {
+    font-size: 0.85em !important;
+    min-height: auto !important;
+}
+
+.pdf-mode .item-price {
+    font-size: 1em !important;
+}
+
+.pdf-mode .item-volume {
+    font-size: 0.75em !important;
+}
+/* Prevent cards from breaking across pages */
+.menu-card {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+}
+
+/* Keep grid blocks together */
+.menu-grid {
+    page-break-inside: auto;
+}
 .pdf-mode * {
     background: #ffffff !important;
     color: #000 !important;
@@ -495,6 +524,19 @@
         }
 
         @media print { body { display: none !important; } }
+        /* Better PDF pagination */
+@media print {
+    .menu-grid {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+    }
+
+    .menu-card {
+        width: 48% !important; /* 2 per row for A4 */
+        margin-bottom: 10px !important;
+    }
+}
     </style>
     
 </head>
@@ -2135,17 +2177,20 @@ window.exportPDF = async function () {
     const element = document.getElementById("products-area");
 
     const opt = {
-        margin: 0.3,
-        filename: 'Glacier_Menu.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { 
-            scale: 2,
-            useCORS: true,
-            backgroundColor: "#ffffff"
-        },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-    };
+    margin: 0.2,
+    filename: 'Glacier_Menu.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { 
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff"
+    },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
 
+    pagebreak: {
+        mode: ['avoid-all', 'css', 'legacy']
+    }
+};
     try {
         await html2pdf().set(opt).from(element).save();
     } catch (err) {
