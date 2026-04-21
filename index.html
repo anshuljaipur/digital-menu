@@ -350,7 +350,28 @@
         .suggestion-item { padding: 10px 12px; font-size: 0.8em; color: var(--text-main); cursor: pointer; border-bottom: 1px solid var(--border-color); text-align: left; line-height: 1.4; }
         .suggestion-item:last-child { border-bottom: none; }
         .suggestion-item:hover { background: var(--hover-bg); color: var(--glacier-blue); font-weight: 600; }
+/* PDF CLEAN MODE */
+.pdf-mode {
+    background: #ffffff !important;
+}
 
+.pdf-mode * {
+    background: #ffffff !important;
+    color: #000 !important;
+    box-shadow: none !important;
+}
+
+/* Hide unwanted UI in PDF */
+.pdf-mode header,
+.pdf-mode .top-nav-bar,
+.pdf-mode .desktop-tools-bar,
+.pdf-mode .sidebar,
+.pdf-mode .floating-cart-btn,
+.pdf-mode .fab-main,
+.pdf-mode .fab-menu,
+.pdf-mode .back-to-top-btn {
+    display: none !important;
+}
         /* 🟢 DESKTOP FIXES (AS PER SKETCH) 🟢 */
         @media (min-width: 1000px) {
             
@@ -475,6 +496,7 @@
 
         @media print { body { display: none !important; } }
     </style>
+    
 </head>
 <body oncontextmenu="return window.protectImages(event)">
 
@@ -750,7 +772,26 @@
             <div id="auth-error" style="color: var(--active-brand-red); font-size: 0.85em; font-weight: 600; margin-top: 15px; text-align: center;"></div>
         </div>
     </div>
-
+<!-- PDF Loading Overlay -->
+<div id="pdf-loader" style="
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999999;
+    font-family: Poppins, sans-serif;
+">
+    <div style="text-align:center;">
+        <div style="font-size:40px;">⏳</div>
+        <div style="font-weight:700; margin-top:10px;">
+            Generating PDF...
+        </div>
+    </div>
+</div>
     <div id="my-profile-modal" class="custom-modal full-page-modal" onclick="window.closeSpecificModal('my-profile-modal')">
         <div class="modal-content-box" onclick="event.stopPropagation()">
             <div class="modal-header-row">
@@ -2079,31 +2120,44 @@ function generateFullMenu(items){
 
 
 // 📄 EXPORT FUNCTION (FINAL)
-window.exportPDF = function(){
+window.exportPDF = async function () {
+    const loader = document.getElementById("pdf-loader");
 
-    if(!currentFilteredItems || currentFilteredItems.length === 0){
-        alert("No items");
-        return;
+    // Show loader
+    loader.style.display = "flex";
+
+    // Add clean PDF mode
+    document.body.classList.add("pdf-mode");
+
+    // Allow UI to update before generating
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    const element = document.getElementById("products-area");
+
+    const opt = {
+        margin: 0.3,
+        filename: 'Glacier_Menu.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+            scale: 2,
+            useCORS: true,
+            backgroundColor: "#ffffff"
+        },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+
+    try {
+        await html2pdf().set(opt).from(element).save();
+    } catch (err) {
+        alert("PDF generation failed!");
+        console.error(err);
     }
 
-    let html = generateFullMenu(currentFilteredItems);
+    // Remove PDF mode
+    document.body.classList.remove("pdf-mode");
 
-    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
-
-    if(isMobile){
-        let win = window.open('');
-        win.document.write(html);
-        win.document.close();
-        setTimeout(()=>win.print(),500);
-    } else {
-        html2pdf().set({
-            margin:0,
-            filename:"Menu_Poster.pdf",
-            image:{type:'jpeg',quality:1},
-            html2canvas:{scale:2,useCORS:true},
-            jsPDF:{unit:'px',format:[794,1122]}
-        }).from(html).save();
-    }
+    // Hide loader
+    loader.style.display = "none";
 };
         
         
