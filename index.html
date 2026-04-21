@@ -1924,63 +1924,59 @@ function groupByCategory(data){
 
 
 // 🎨 CREATE CATEGORY BLOCK
-        function createConeLayout(items){
+function createConeLayout(items){
 
     let html = `
-    <div style="text-align:center; padding:20px;">
+    <div style="padding:15px;text-align:center;">
 
-        <div style="font-weight:bold; margin-bottom:10px;">CONES</div>
+        <div style="
+            font-weight:bold;
+            margin-bottom:10px;
+            background:#000;
+            color:#fff;
+            display:inline-block;
+            padding:5px 15px;
+            border-radius:20px;
+        ">
+            CONES
+        </div>
 
-        <div style="position:relative; height:200px;">
+        <div style="
+            display:flex;
+            flex-wrap:wrap;
+            justify-content:center;
+            gap:10px;
+        ">
     `;
-
-    const radius = 80;
-    const centerX = 50;
 
     items.forEach((item, i)=>{
 
-        let angle = (-60 + (i * (120/(items.length-1)))) * (Math.PI/180);
-        let x = Math.cos(angle) * radius;
-        let y = Math.sin(angle) * radius;
-
         html += `
         <div style="
-            position:absolute;
-            left:calc(${centerX}% + ${x}px);
-            top:${100 - y}px;
-            transform:translate(-50%, -50%);
+            width:90px;
             text-align:center;
+            position:relative;
         ">
-            <img src="${item.img}" style="height:80px;"><br>
-            <div style="font-size:11px;">${item.name}</div>
-            <div style="background:#ffcc00;border-radius:10px;padding:2px 6px;">
-                ₹${item.price}
-            </div>
-        </div>
-        `;
-    });
+            <img src="${item.img}" style="height:90px;object-fit:contain;">
 
-    html += `</div></div>`;
-    return html;
-}
-
-        function createCupLayout(items){
-
-    let html = `
-    <div style="padding:10px;">
-        <div style="font-weight:bold;margin-bottom:10px;">CUPS</div>
-
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
-    `;
-
-    items.forEach(item=>{
-        html += `
-        <div style="text-align:center;">
-            <img src="${item.img}" style="height:90px;"><br>
-            <div style="font-size:12px;font-weight:bold;">
+            <div style="
+                font-size:11px;
+                font-weight:bold;
+                margin-top:5px;
+                line-height:1.2;
+            ">
                 ${item.name}
             </div>
-            <div style="background:#ffcc00;border-radius:10px;padding:3px;">
+
+            <div style="
+                margin-top:4px;
+                background:#ffcc00;
+                border-radius:15px;
+                padding:3px 8px;
+                font-weight:bold;
+                font-size:12px;
+                display:inline-block;
+            ">
                 ₹${item.price}
             </div>
         </div>
@@ -1988,6 +1984,7 @@ function groupByCategory(data){
     });
 
     html += `</div></div>`;
+
     return html;
 }
 
