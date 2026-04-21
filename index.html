@@ -350,7 +350,56 @@
         .suggestion-item { padding: 10px 12px; font-size: 0.8em; color: var(--text-main); cursor: pointer; border-bottom: 1px solid var(--border-color); text-align: left; line-height: 1.4; }
         .suggestion-item:last-child { border-bottom: none; }
         .suggestion-item:hover { background: var(--hover-bg); color: var(--glacier-blue); font-weight: 600; }
-/* PDF CLEAN MODE */
+/* 📄 CATALOG PDF STYLE */
+.catalog-page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 10mm;
+    box-sizing: border-box;
+    background: #fff;
+    page-break-after: always;
+}
+
+.catalog-title {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #000;
+    padding-bottom: 5px;
+}
+
+.catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr); /* 6 items per row */
+    gap: 10px;
+}
+
+.catalog-item {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 6px;
+    text-align: center;
+    font-size: 11px;
+}
+
+.catalog-item img {
+    width: 100%;
+    height: 80px;
+    object-fit: contain;
+    margin-bottom: 5px;
+}
+
+.catalog-name {
+    font-weight: 600;
+    height: 28px;
+    overflow: hidden;
+}
+
+.catalog-price {
+    font-weight: 800;
+    margin-top: 3px;
+}
+        /* PDF CLEAN MODE */
 .pdf-mode {
     background: #ffffff !important;
 }
@@ -999,7 +1048,51 @@
                 if(document.getElementById('products-area')) document.getElementById('products-area').scrollTo({top: 0, behavior: 'smooth'});
             }, 10);
         };
+window.buildCatalogPDF = function () {
+    const container = document.getElementById("pdf-catalog");
+    container.innerHTML = "";
 
+    // ⚠️ USE YOUR EXISTING PRODUCTS ARRAY
+    const products = window.allProducts || [];
+
+    // Group by category
+    const grouped = {};
+    products.forEach(p => {
+        const cat = p.category || "Others";
+        if (!grouped[cat]) grouped[cat] = [];
+        grouped[cat].push(p);
+    });
+
+    // Create pages category-wise
+    Object.keys(grouped).forEach(cat => {
+        const page = document.createElement("div");
+        page.className = "catalog-page";
+
+        const title = document.createElement("div");
+        title.className = "catalog-title";
+        title.innerText = cat;
+
+        const grid = document.createElement("div");
+        grid.className = "catalog-grid";
+
+        grouped[cat].forEach(p => {
+            const item = document.createElement("div");
+            item.className = "catalog-item";
+
+            item.innerHTML = `
+                <img src="${p.image}" />
+                <div class="catalog-name">${p.name}</div>
+                <div class="catalog-price">₹${p.price}</div>
+            `;
+
+            grid.appendChild(item);
+        });
+
+        page.appendChild(title);
+        page.appendChild(grid);
+        container.appendChild(page);
+    });
+};
         window.applyTheme = (theme) => {
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             if (theme === 'dark' || (theme === 'auto' && prefersDark)) {
@@ -1177,7 +1270,7 @@ function openPrintView(){
             setTimeout(()=>window.print(),500);
         }
     <\/script>
-
+<div id="pdf-catalog" style="display:none;"></div>
     </body>
     </html>
     `;
@@ -2164,32 +2257,29 @@ function generateFullMenu(items){
 // 📄 EXPORT FUNCTION (FINAL)
 window.exportPDF = async function () {
     const loader = document.getElementById("pdf-loader");
-
-    // Show loader
     loader.style.display = "flex";
 
-    // Add clean PDF mode
-    document.body.classList.add("pdf-mode");
+    // Build catalog layout
+    window.buildCatalogPDF();
 
-    // Allow UI to update before generating
-    await new Promise(resolve => setTimeout(resolve, 300));
+    const element = document.getElementById("pdf-catalog");
+    element.style.display = "block";
 
-    const element = document.getElementById("products-area");
+    await new Promise(r => setTimeout(r, 300));
 
     const opt = {
-    margin: 0.2,
-    filename: 'Glacier_Menu.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { 
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff"
-    },
-    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+        margin: 0,
+        filename: 'Glacier_Catalog.pdf',
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['css'] }
+    };
 
-    pagebreak: {
-        mode: ['avoid-all', 'css', 'legacy']
-    }
+    await html2pdf().set(opt).from(element).save();
+
+    element.style.display = "none";
+    loader.style.display = "none";
 };
     try {
         await html2pdf().set(opt).from(element).save();
