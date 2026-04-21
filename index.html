@@ -2163,7 +2163,7 @@ function generatePrintMenu(items){
 
 
 // 📄 EXPORT FUNCTION (FINAL)
-window.exportPDF = function(){
+window.exportPDF = async function(){
 
     if(!currentFilteredItems || currentFilteredItems.length === 0){
         alert("No items");
@@ -2173,25 +2173,47 @@ window.exportPDF = function(){
     const loader = document.getElementById("pdfLoader");
     loader.style.display = "flex";
 
-    let html = generatePrintMenu(currentFilteredItems);
+    const { jsPDF } = window.jspdf;
 
-    let printArea = document.getElementById("printArea");
-    printArea.innerHTML = html;
-    printArea.style.display = "block";
+    // 🧠 create temp container
+    let container = document.createElement("div");
+    container.style.width = "794px";
+    container.style.background = "#fff";
+    container.style.position = "fixed";
+    container.style.top = "-9999px";
+    document.body.appendChild(container);
 
-    setTimeout(()=>{
+    // 🎨 generate HTML
+    container.innerHTML = generatePrintMenu(currentFilteredItems);
 
-        loader.style.display = "none";
+    let pages = container.querySelectorAll(".page");
 
-        window.print();
+    let pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "px",
+        format: [794,1122]
+    });
 
-        // cleanup
-        setTimeout(()=>{
-            printArea.innerHTML = "";
-            printArea.style.display = "none";
-        }, 500);
+    for(let i=0; i<pages.length; i++){
 
-    }, 500);
+        let canvas = await html2canvas(pages[i], {
+            scale: 1.5,
+            useCORS: true
+        });
+
+        let img = canvas.toDataURL("image/jpeg", 0.9);
+
+        if(i !== 0) pdf.addPage();
+
+        pdf.addImage(img, "JPEG", 0, 0, 794, 1122);
+    }
+
+    // ✅ AUTO DOWNLOAD
+    pdf.save("Menu_Poster.pdf");
+
+    // cleanup
+    document.body.removeChild(container);
+    loader.style.display = "none";
 };
         
         
