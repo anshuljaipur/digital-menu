@@ -525,7 +525,23 @@
             <button class="action-btn" onclick="window.shareWebsite()">📤 <span class="hide-mobile-text">Share</span></button>
         </div>
     </header>
-
+<div id="pdfLoader" style="
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.7);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:9999;
+color:#fff;
+font-size:20px;
+font-weight:bold;
+">
+⏳ Generating Premium Menu...
+</div>
     <div class="top-nav-bar">
         <div class="brands-wrapper">
             <button id="btn-brand-left" class="brand-arrow left-arrow" onclick="window.scrollBrands(-1)">
@@ -1908,6 +1924,74 @@ function groupByCategory(data){
 
 
 // 🎨 CREATE CATEGORY BLOCK
+        function createConeLayout(items){
+
+    let html = `
+    <div style="text-align:center; padding:20px;">
+
+        <div style="font-weight:bold; margin-bottom:10px;">CONES</div>
+
+        <div style="position:relative; height:200px;">
+    `;
+
+    const radius = 80;
+    const centerX = 50;
+
+    items.forEach((item, i)=>{
+
+        let angle = (-60 + (i * (120/(items.length-1)))) * (Math.PI/180);
+        let x = Math.cos(angle) * radius;
+        let y = Math.sin(angle) * radius;
+
+        html += `
+        <div style="
+            position:absolute;
+            left:calc(${centerX}% + ${x}px);
+            top:${100 - y}px;
+            transform:translate(-50%, -50%);
+            text-align:center;
+        ">
+            <img src="${item.img}" style="height:80px;"><br>
+            <div style="font-size:11px;">${item.name}</div>
+            <div style="background:#ffcc00;border-radius:10px;padding:2px 6px;">
+                ₹${item.price}
+            </div>
+        </div>
+        `;
+    });
+
+    html += `</div></div>`;
+    return html;
+}
+
+        function createCupLayout(items){
+
+    let html = `
+    <div style="padding:10px;">
+        <div style="font-weight:bold;margin-bottom:10px;">CUPS</div>
+
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+    `;
+
+    items.forEach(item=>{
+        html += `
+        <div style="text-align:center;">
+            <img src="${item.img}" style="height:90px;"><br>
+            <div style="font-size:12px;font-weight:bold;">
+                ${item.name}
+            </div>
+            <div style="background:#ffcc00;border-radius:10px;padding:3px;">
+                ₹${item.price}
+            </div>
+        </div>
+        `;
+    });
+
+    html += `</div></div>`;
+    return html;
+}
+
+        
 function createCategoryBlock(cat, items, color){
 
     let html = `
@@ -2033,7 +2117,15 @@ function generateFullMenu(items){
         let color = BRAND.colors[colorIndex % BRAND.colors.length];
         colorIndex++;
 
-        html += createCategoryBlock(cat, grouped[cat], color);
+        if(cat.toLowerCase().includes("cone")){
+    html += createConeLayout(grouped[cat]);
+}
+else if(cat.toLowerCase().includes("cup")){
+    html += createCupLayout(grouped[cat]);
+}
+else{
+    html += createCategoryBlock(cat, grouped[cat], color);
+}
 
         // 🔚 CLOSE PAGE
         if(i % 3 === 2 || i === categories.length - 1){
@@ -2086,6 +2178,9 @@ window.exportPDF = function(){
         return;
     }
 
+    // ✅ SHOW LOADER
+    document.getElementById("pdfLoader").style.display = "flex";
+
     let html = generateFullMenu(currentFilteredItems);
 
     const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
@@ -2094,15 +2189,24 @@ window.exportPDF = function(){
         let win = window.open('');
         win.document.write(html);
         win.document.close();
-        setTimeout(()=>win.print(),500);
+
+        setTimeout(()=>{
+            document.getElementById("pdfLoader").style.display = "none";
+            win.print();
+        },800);
+
     } else {
+
         html2pdf().set({
             margin:0,
             filename:"Menu_Poster.pdf",
             image:{type:'jpeg',quality:1},
             html2canvas:{scale:2,useCORS:true},
             jsPDF:{unit:'px',format:[794,1122]}
-        }).from(html).save();
+        }).from(html).save().then(()=>{
+            // ✅ HIDE LOADER AFTER DONE
+            document.getElementById("pdfLoader").style.display = "none";
+        });
     }
 };
         
