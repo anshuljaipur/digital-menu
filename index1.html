@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="ice-blue">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Glacier Ice Cream - Professional Menu</title>
+    
+    <link rel="icon" type="image/jpeg" href="https://i.postimg.cc/DfWgmYTD/favicon.jpg">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
+
+        /* 🎨 THEME OPTIONS */
+        :root[data-theme="ice-blue"] { --primary: #1f51c6; --accent: #e44d26; --bg: #f0f7ff; --card: #ffffff; --text: #1e293b; --border: #d0e1f9; }
+        :root[data-theme="sunset"] { --primary: #e44d26; --accent: #1f51c6; --bg: #fff5f0; --card: #ffffff; --text: #2d3436; --border: #ffd3b6; }
+        :root[data-theme="royal-dark"] { --primary: #f8b400; --accent: #1f51c6; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --border: #334155; }
+        :root[data-theme="mint"] { --primary: #00b894; --accent: #e44d26; --bg: #f0fff4; --card: #ffffff; --text: #2d3436; --border: #c6f6d5; }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html { margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background-color: var(--bg); color: var(--text); height: 100vh; overflow: hidden; transition: background 0.3s; }
+
+        .app-wrapper { display: flex; flex-direction: column; height: 100vh; }
+        header { flex-shrink: 0; background: var(--card); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        
+        /* 🔍 SEARCH BOX with CLEAR BTN */
+        .search-box { position: relative; width: 35%; display: flex; align-items: center; }
+        .search-input { width: 100%; padding: 10px 35px 10px 15px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--bg); color: var(--text); outline: none; transition: 0.3s; }
+        .clear-search { position: absolute; right: 10px; cursor: pointer; font-size: 1.2em; display: none; color: var(--accent); }
+
+        .cart-wrapper { position: relative; display: flex; gap: 10px; align-items: center; }
+        .cart-btn-top { background: var(--primary); color: #fff; border: none; padding: 10px 18px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: opacity 0.3s;}
+        .cart-btn-top:disabled { opacity: 0.5; cursor: not-allowed; }
+        .cart-dropdown { position: absolute; top: 110%; right: 0; width: 320px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 15px 40px rgba(0,0,0,0.15); display: none; padding: 20px; z-index: 2000; }
+        .cart-dropdown.active { display: block; }
+
+        .main-container { display: flex; flex: 1; overflow: hidden; }
+        
+        /* 📁 SMART SIDEBAR */
+        aside { width: var(--sidebar-width, 240px); background: var(--card); border-right: 1px solid var(--border); overflow-y: auto; flex-shrink: 0; padding: 15px 0; }
+        .cat-item { padding: 12px 25px; cursor: pointer; font-weight: 600; font-size: 0.85em; border-left: 4px solid transparent; transition: 0.2s; }
+        .cat-item.active { background: rgba(31, 81, 198, 0.08); color: var(--primary); border-left-color: var(--primary); }
+
+        main { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        
+        /* 🏷️ BRAND SCROLLER */
+        .tools-bar { background: var(--card); padding: 10px 20px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
+        .brand-scroller { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; }
+        .brand-chip { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--bg); border: 1.5px solid var(--border); border-radius: 50px; font-size: 0.75em; font-weight: 700; white-space: nowrap; cursor: pointer; }
+        .brand-chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .brand-logo-mini { width: 22px; height: 22px; object-fit: contain; background: #fff; border-radius: 50%; }
+
+        .items-scroll-area { flex: 1; overflow-y: auto; padding: 20px; scroll-behavior: smooth; }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
+
+        /* 🍦 ITEM CARD */
+        .card { background: var(--card); border-radius: 20px; padding: 15px; border: 1px solid var(--border); cursor: pointer; display: flex; flex-direction: column; height: 100%; transition: 0.3s; position: relative; }
+        .img-wrap { height: 140px; display: flex; align-items: center; justify-content: center; background: #fff; border-radius: 12px; margin-bottom: 10px; position: relative; overflow: hidden; }
+        .img-wrap img { max-width: 90%; max-height: 90%; object-fit: contain; }
+        .item-vol-badge { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.7); color: #fff; font-size: 0.65em; padding: 3px 8px; border-radius: 6px; font-weight: 700; }
+        
+        .add-btn-round { background: var(--primary); color: #fff; border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 1.5em; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 0; padding-bottom: 4px; }
+        .qty-ctrl { display: flex; align-items: center; gap: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 20px; padding: 2px 8px; }
+        .qty-btn { background: var(--card); border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; color: var(--primary); }
+
+        /* 🔼 GO-TO-TOP */
+        .scroll-top { position: fixed; bottom: 30px; right: 30px; background: var(--primary); color: #fff; width: 50px; height: 50px; border-radius: 50%; display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 5000; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-size: 1.5em; }
+
+        /* 🔍 DETAIL MODAL */
+        .zoom-container { width: 100%; height: 320px; overflow: hidden; background: #fff; cursor: crosshair; border-radius: 15px; margin-bottom: 20px; position: relative; }
+        .zoom-container img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.2s ease-out; }
+        .allergen-box { background: #fff5f5; border: 1px solid #feb2b2; padding: 12px; border-radius: 12px; font-size: 0.8em; color: #c53030; margin: 15px 0; display: flex; align-items: center; gap: 8px; }
+
+        /* 🛍️ CHECKOUT & MODALS */
+        .modal-content { background: var(--card); width: 90%; max-width: 500px; border-radius: 25px; padding: 25px; position: relative; border: 2px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+        .modal-scroll-area { max-height: 80vh; overflow-y: auto; padding-right: 5px; } /* Inner scroll so close button isn't clipped */
+        
+        /* NEW: Overlapping Close Button */
+        .close-overlap { position: absolute; top: -15px; right: -15px; background: var(--accent); color: #fff; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5em; font-weight: bold; cursor: pointer; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid var(--bg); transition: 0.2s; }
+        .close-overlap:hover { transform: scale(1.1); }
+
+        .form-input { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--bg); color: var(--text); margin-bottom: 12px; outline: none; }
+        #map { height: 200px; border-radius: 15px; margin-bottom: 15px; border: 1.5px solid var(--border); z-index: 1;}
+        .btn-wa { width: 100%; padding: 16px; border-radius: 15px; border: none; font-weight: 800; background: #25D366; color: #fff; cursor: pointer; box-shadow: 0 4px 15px rgba(37,211,102,0.3); }
+
+        @media (max-width: 768px) { aside { display: none; } .menu-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } .search-box { width: 45%; } }
+    </style>
+</head>
+<body onclick="closeDropdowns()">
+
+    <div class="app-wrapper">
+        <header>
+            <img src="https://i.postimg.cc/c4MX4XyQ/logo-glacier.png" style="height:40px; cursor:pointer;" onclick="clearFilters()" alt="Glacier Logo">
+            <div class="search-box">
+                <input type="text" id="search" class="search-input" placeholder="Search..." onkeyup="handleSearch()">
+                <span id="clear-search" class="clear-search" onclick="clearSearch()">×</span>
+            </div>
+            <div class="cart-wrapper" onclick="event.stopPropagation()">
+                <button class="action-btn" onclick="cycleTheme()" style="background:none; border:none; font-size:1.5em; cursor:pointer;">🎨</button>
+                <button id="top-cart-btn" class="cart-btn-top" onclick="toggleCart()" disabled>🛒 <span id="cart-count">0</span></button>
+                <div class="cart-dropdown" id="cart-dropdown">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:15px">
+                        <h4 style="margin:0">Quick Order</h4>
+                        <button onclick="clearCart()" style="color:red; background:none; border:none; cursor:pointer; font-weight:700">Clear</button>
+                    </div>
+                    <div id="cart-list" style="max-height:220px; overflow-y:auto"></div>
+                    <div style="border-top:2px solid var(--border); padding-top:15px; margin-top:15px">
+                        <strong>Total: ₹<span id="cart-total">0</span></strong>
+                        <button class="btn-wa" id="checkout-btn" style="margin-top:15px; height:45px; font-size:1em;" onclick="openCheckout()" disabled>Checkout 🚀</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-container">
+            <aside id="cat-sidebar"></aside>
+            <main>
+                <div class="tools-bar">
+                    <div class="brand-scroller" id="brand-nav"></div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; gap:10px;">
+                            <select id="sort" onchange="renderItems()" style="padding:6px; border-radius:8px; border:1px solid var(--border); font-weight:600; background:var(--bg); color:var(--text)">
+                                <option value="default">Sort By</option>
+                                <option value="price-low">Price: Low-High</option>
+                                <option value="price-high">Price: High-Low</option>
+                                <option value="size">Size Wise</option>
+                                <option value="cat">Category Wise</option>
+                            </select>
+                            <button id="filter-clear" onclick="clearFilters()" style="display:none; color:red; border:1px solid red; background:none; border-radius:8px; padding:0 10px; cursor:pointer;">Clear Filters</button>
+                        </div>
+                        <span id="item-count" style="font-size:0.8em; opacity:0.7"></span>
+                    </div>
+                </div>
+                <div class="items-scroll-area" id="scroll-area">
+                    <div id="loader" style="text-align:center; padding:50px">Stocking freezer... 🍦</div>
+                    <div class="menu-grid" id="grid"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <button class="scroll-top" id="top-btn" onclick="scrollToTop()">▲</button>
+
+    <div id="detail-modal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:6000; align-items:center; justify-content:center;">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="close-overlap" onclick="closeDetail()">×</div>
+            <div class="modal-scroll-area">
+                <div class="zoom-container" onmousemove="zoom(event)" onmouseleave="resetZoom()">
+                    <img id="d-img" src="" alt="Ice Cream">
+                </div>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px">
+                    <img id="d-brand-logo" class="brand-logo-mini" alt="Logo">
+                    <span id="d-brand-name" style="font-weight:700; font-size:0.8em; text-transform:uppercase;"></span>
+                </div>
+                <h2 id="d-name" style="margin:0"></h2>
+                <div id="d-vol" style="font-size:0.9em; color:var(--primary); font-weight:700; margin:5px 0"></div>
+                <p id="d-desc" style="font-size:0.85em; opacity:0.8;"></p>
+                <div id="d-allergen" class="allergen-box" style="display:none;"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1.5px solid var(--border); padding-top:20px; margin-top:15px">
+                    <span id="d-price" style="font-size:1.5em; font-weight:800"></span>
+                    <div id="d-action"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="checkout-modal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:6000; align-items:center; justify-content:center;">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="close-overlap" onclick="document.getElementById('checkout-modal').style.display='none'">×</div>
+            <div class="modal-scroll-area">
+                <h3 style="margin:0 0 15px 0">Delivery Details</h3>
+                <input type="text" id="cust-name" class="form-input" placeholder="Full Name *">
+                <input type="tel" id="cust-phone" class="form-input" placeholder="Phone Number *">
+                <input type="text" id="cust-house" class="form-input" placeholder="House / Flat / Block No. *">
+                
+                <div style="display:flex; gap:10px; margin-bottom: 12px;">
+                    <input type="text" id="map-search-input" class="form-input" style="margin-bottom:0;" placeholder="Search area in Jaipur...">
+                    <button onclick="searchMap()" style="background:var(--primary); color:white; border:none; border-radius:12px; padding:0 20px; font-size:1.2em; cursor:pointer;">🔍</button>
+                </div>
+
+                <div style="position:relative">
+                    <div id="map"></div>
+                    <button onclick="getMyLoc()" style="position:absolute; bottom:15px; right:10px; z-index:1000; background:#fff; border:none; width:35px; height:35px; border-radius:50%; box-shadow:0 2px 5px rgba(0,0,0,0.3); cursor:pointer;" title="Use Current Location">🎯</button>
+                </div>
+                <textarea id="cust-area" class="form-input" placeholder="Area / Locality *" rows="1"></textarea>
+                <input type="text" id="cust-landmark" class="form-input" placeholder="Landmark (Optional)">
+                <button class="btn-wa" onclick="sendOrder()">Confirm on WhatsApp</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const API = "https://script.google.com/macros/s/AKfycbwq17hSzF9mgPqqKw8FDVWFktoxpugpZNKYRjc6hmTSOKxQm4fY2jC1talNoEpMdDQ/exec";
+        const WA = "919829610570";
+        let items = [], cart = {}, curCat = "All Items", curBrand = "All Brands", curSearch = "", themes = ['ice-blue','sunset','royal-dark','mint'], curThemeIdx = 0;
+        let map, marker, selectedLoc = null;
+
+        const logos = { 
+            "amul": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Amul_logo.svg/1200px-Amul_logo.svg.png", 
+            "havmor": "https://i.postimg.cc/KvD45HhZ/logo_havmor.png", 
+            "mother dairy": "https://i.postimg.cc/4dSGNpcB/md_logo.png", 
+            "baskin robbins": "https://i.postimg.cc/j5FTdyfz/brlogo.png", 
+            "gianis": "https://i.postimg.cc/L6kw6Gr2/lgo-gianis.png" 
+        };
+
+        async function init() {
+            try {
+                const res = await fetch(API); 
+                items = await res.json();
+            } catch(e) { 
+                console.warn("⚠️ Loading Fallback Inventory.");
+                items = [
+                    { name: "Vanilla Bean Family Pack 1L", category: "Family Packs", brand: "Havmor", price: 280, img: "https://i.postimg.cc/k4yQ6Q5v/placeholder-icecream.png", description: "Classic rich vanilla.", ingredients: "Milk" },
+                    { name: "Butterscotch Crunch 500ml", category: "Tubs", brand: "Mother Dairy", price: 160, img: "https://i.postimg.cc/k4yQ6Q5v/placeholder-icecream.png", description: "Creamy butterscotch with nuts.", ingredients: "Milk, Nuts" },
+                    { name: "Chocolate Cone 120ml", category: "Cones", brand: "Amul", price: 40, img: "https://i.postimg.cc/k4yQ6Q5v/placeholder-icecream.png", description: "Crispy chocolate cone.", ingredients: "Milk, Gluten, Soy" },
+                    { name: "Mango Bar 60ml", category: "Sticks", brand: "Havmor", price: 30, img: "https://i.postimg.cc/k4yQ6Q5v/placeholder-icecream.png", description: "Real Alphonso mango stick.", ingredients: "Milk" }
+                ];
+            }
+            document.getElementById('loader').style.display='none';
+            renderNavs(); renderItems(); initMap();
+        }
+
+        function cycleTheme() { 
+            curThemeIdx = (curThemeIdx + 1) % themes.length; 
+            document.documentElement.setAttribute('data-theme', themes[curThemeIdx]); 
+        }
+
+        function getVol(n) { 
+            if(!n) return "";
+            const m = n.match(/(\d+\s*(ml|l|ltr|gm|g|kg))/i); 
+            return m ? m[0] : ""; 
+        }
+
+        function renderNavs() {
+            const bItems = curBrand === "All Brands" ? items : items.filter(i => i.brand === curBrand);
+            const cats = ["All Items", ...new Set(bItems.map(i => i.category).filter(Boolean))];
+            const brands = ["All Brands", ...new Set(items.map(i => i.brand).filter(Boolean))];
+
+            document.getElementById('cat-sidebar').innerHTML = cats.map(c => `<div class="cat-item ${curCat===c?'active':''}" onclick="curCat='${c}';renderNavs();renderItems()">${c}</div>`).join('');
+            document.getElementById('brand-nav').innerHTML = brands.map(b => {
+                const logo = logos[b.toLowerCase()] || 'https://i.postimg.cc/ncGM1PfV/kw-logo.png';
+                return `<div class="brand-chip ${curBrand===b?'active':''}" onclick="curBrand='${b}';curCat='All Items';renderNavs();renderItems()">
+                    <img src="${logo}" class="brand-logo-mini"> ${b}
+                </div>`;
+            }).join('');
+            document.getElementById('filter-clear').style.display = (curCat!=="All Items"||curBrand!=="All Brands"||curSearch!=="")?'block':'none';
+        }
+
+        function renderItems() {
+            let filtered = items.filter(i => 
+                (curBrand==="All Brands"||i.brand===curBrand) && 
+                (curCat==="All Items"||i.category===curCat) && 
+                (i.name?.toLowerCase().replace(/[^a-z0-9]/g,'').includes(curSearch))
+            );
+            
+            const sort = document.getElementById('sort').value;
+            if(sort==="price-low") filtered.sort((a,b)=>a.price-b.price);
+            if(sort==="price-high") filtered.sort((a,b)=>b.price-a.price);
+            if(sort==="size") filtered.sort((a,b)=>getVol(a.name).localeCompare(getVol(b.name)));
+            if(sort==="cat") filtered.sort((a,b)=>a.category?.localeCompare(b.category));
+
+            document.getElementById('item-count').innerText = `${filtered.length} Items Found`;
+            document.getElementById('grid').innerHTML = filtered.map(i => {
+                const v = getVol(i.name); const q = cart[i.name] || 0;
+                return `<div class="card" onclick="openDetail('${i.name.replace(/'/g,"\\'")}')">
+                    <div class="img-wrap"><img src="${i.img}">${v?`<span class="item-vol-badge">${v}</span>`:''}</div>
+                    <div class="item-name" style="font-weight:700; font-size:0.85em; height:35px; overflow:hidden">${i.name.replace(v,"")}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto" onclick="event.stopPropagation()">
+                        <span style="font-weight:800">₹${i.price}</span>
+                        ${q>0?`<div class="qty-ctrl"><button class="qty-btn" onclick="updCart('${i.name.replace(/'/g,"\\'")}',-1)">-</button><b>${q}</b><button class="qty-btn" onclick="updCart('${i.name.replace(/'/g,"\\'")}',1)">+</button></div>`
+                        :`<button class="add-btn-round" onclick="updCart('${i.name.replace(/'/g,"\\'")}',1)">+</button>`}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function updCart(n, d) {
+            cart[n] = (cart[n]||0)+d; if(cart[n]<=0) delete cart[n];
+            let c=0, t=0, h="";
+            Object.keys(cart).forEach(name => {
+                const i = items.find(x=>x.name===name); c+=cart[name]; t+=(i.price*cart[name]);
+                h += `<div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:0.85em"><span>${name} x ${cart[name]}</span><b>₹${i.price*cart[name]}</b></div>`;
+            });
+            
+            document.getElementById('cart-count').innerText=c; 
+            document.getElementById('cart-total').innerText=t;
+            document.getElementById('cart-list').innerHTML = h || "<p style='text-align:center'>Cart is empty</p>";
+            
+            // FIX: Disable cart buttons when empty and close dropdown if it's currently open
+            const isEmpty = c <= 0;
+            document.getElementById('top-cart-btn').disabled = isEmpty;
+            document.getElementById('checkout-btn').disabled = isEmpty;
+            if(isEmpty) document.getElementById('cart-dropdown').classList.remove('active');
+
+            renderItems(); 
+            if(document.getElementById('detail-modal').style.display==='flex') openDetail(n);
+        }
+
+        function openDetail(n) {
+            if(!n) { closeDetail(); return; }
+            const i = items.find(x=>x.name===n); const v = getVol(i.name); const q = cart[n]||0;
+            document.getElementById('d-img').src=i.img; document.getElementById('d-name').innerText=i.name.replace(v,"");
+            document.getElementById('d-vol').innerText=v; document.getElementById('d-price').innerText="₹"+i.price;
+            document.getElementById('d-brand-name').innerText=i.brand; document.getElementById('d-brand-logo').src=logos[i.brand?.toLowerCase()] || '';
+            document.getElementById('d-desc').innerText = i.description || "Premium quality treat from Glacier Parlor.";
+            
+            const algs = ["Milk", "Nuts", "Soy", "Gluten"];
+            let f = algs.filter(a => (i.ingredients||"").toLowerCase().includes(a.toLowerCase()));
+            document.getElementById('d-allergen').style.display = f.length ? 'flex' : 'none';
+            document.getElementById('d-allergen').innerText = "⚠️ Contains: " + f.join(", ");
+            
+            document.getElementById('d-action').innerHTML = q>0? `<div class="qty-ctrl"><button class="qty-btn" onclick="updCart('${n.replace(/'/g,"\\'")}',-1)">-</button><b>${q}</b><button class="qty-btn" onclick="updCart('${n.replace(/'/g,"\\'")}',1)">+</button></div>`
+                : `<button class="btn-wa" style="width:120px; height:40px; font-size:0.9em" onclick="updCart('${n.replace(/'/g,"\\'")}',1)">Add to Cart</button>`;
+            document.getElementById('detail-modal').style.display='flex';
+        }
+
+        function zoom(e) { const img = document.querySelector('.zoom-container img'); const {left,top,width,height}=e.currentTarget.getBoundingClientRect(); img.style.transformOrigin=`${((e.pageX-left)/width)*100}% ${((e.pageY-top)/height)*100}%`; img.style.transform="scale(2.5)"; }
+        function resetZoom() { document.querySelector('.zoom-container img').style.transform="scale(1)"; }
+
+        // --- MAP & NOMINATIM SEARCH ---
+        // --- MAP & NOMINATIM SEARCH ---
+function initMap() {
+    // Default center is set to Jaipur
+    map = L.map('map').setView([26.9124, 75.7873], 15);
+    L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{subdomains:['mt0','mt1','mt2','mt3']}).addTo(map);
+    
+    // Create the marker
+    marker = L.marker(map.getCenter(),{draggable:true}).addTo(map);
+    selectedLoc = map.getCenter();
+    
+    // Update address when the marker is dragged
+    marker.on('dragend', (e)=>updAddr(e.target.getLatLng()));
+
+    // NEW: Update address and move marker when the map is clicked
+    map.on('click', function(e) {
+        const clickedLocation = e.latlng;
+        marker.setLatLng(clickedLocation); // Move the pin
+        map.panTo(clickedLocation);        // Center the map smoothly
+        updAddr(clickedLocation);          // Fetch the new text address
+    });
+}
+        
+        async function updAddr(ll) {
+            selectedLoc = ll; 
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${ll.lat}&lon=${ll.lng}`);
+                const d = await res.json(); 
+                document.getElementById('cust-area').value = d.display_name.split(',').slice(0,3).join(',');
+            } catch(e) {
+                console.error("Address lookup failed", e);
+            }
+        }
+        
+        function getMyLoc() { 
+            if(navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(p=>{
+                    const ll={lat:p.coords.latitude,lng:p.coords.longitude}; 
+                    map.setView(ll,17); marker.setLatLng(ll); updAddr(ll);
+                }); 
+            } 
+        }
+
+        // NEW: Search map location function
+        async function searchMap() {
+            const btn = event.currentTarget;
+            const originalIcon = btn.innerText;
+            btn.innerText = "⏳";
+            
+            const q = document.getElementById('map-search-input').value;
+            if(!q) { btn.innerText = originalIcon; return; }
+            
+            try {
+                // Appends city for better localized accuracy
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q + ', Jaipur')}`);
+                const data = await res.json();
+                
+                if(data && data.length > 0) {
+                    const ll = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+                    map.setView(ll, 16);
+                    marker.setLatLng(ll);
+                    updAddr(ll);
+                } else {
+                    alert("Location not found! Try searching a nearby landmark.");
+                }
+            } catch(e) {
+                alert("Search failed. Check your connection.");
+            }
+            btn.innerText = originalIcon;
+        }
+        
+        function openCheckout() { 
+            if(Object.keys(cart).length === 0) return;
+            document.getElementById('cart-dropdown').classList.remove('active'); 
+            document.getElementById('checkout-modal').style.display='flex'; 
+            setTimeout(()=>map.invalidateSize(),300); 
+        }
+
+        function sendOrder() {
+            const n=document.getElementById('cust-name').value, ph=document.getElementById('cust-phone').value, h=document.getElementById('cust-house').value, a=document.getElementById('cust-area').value;
+            if(!n||!ph||!h||!a) return alert("Fill required details! 📍");
+            let m=`🍦 *Glacier Order*\n*Name:* ${n}\n*Phone:* ${ph}\n*Address:* ${h}, ${a}\n\n*Items:* \n`;
+            Object.keys(cart).forEach(name=>m+=`• ${cart[name]} x ${name}\n`);
+            m+=`\n📍 *Map:* https://www.google.com/maps?q=${selectedLoc.lat},${selectedLoc.lng}`;
+            window.open(`https://wa.me/${WA}?text=${encodeURIComponent(m)}`,'_blank');
+        }
+
+        // --- UI UTILS ---
+        function handleSearch() { curSearch = document.getElementById('search').value.toLowerCase().replace(/[^a-z0-9]/g,''); document.getElementById('clear-search').style.display=curSearch?'block':'none'; renderItems(); }
+        function clearSearch() { document.getElementById('search').value=""; handleSearch(); }
+        function clearFilters() { curCat="All Items"; curBrand="All Brands"; clearSearch(); renderNavs(); }
+        
+        function toggleCart() { 
+            // FIX: Prevent opening if empty
+            if(Object.keys(cart).length === 0) return;
+            document.getElementById('cart-dropdown').classList.toggle('active'); 
+        }
+        
+        function closeDropdowns() { document.getElementById('cart-dropdown').classList.remove('active'); }
+        function closeDetail() { document.getElementById('detail-modal').style.display='none'; }
+        document.getElementById('scroll-area').onscroll = function() { document.getElementById('top-btn').style.display=this.scrollTop>400?"flex":"none"; };
+        function scrollToTop() { document.getElementById('scroll-area').scrollTo({top:0,behavior:'smooth'}); }
+        function clearCart() { if(confirm("Empty Cart?")) { cart={}; updCart('',0); } }
+
+        init();
+    </script>
+</body>
+</html>
