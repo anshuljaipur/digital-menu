@@ -81,6 +81,7 @@
         
         .sidebar { width: 220px; background: var(--card-bg); display: flex; flex-direction: column; overflow-y: auto; padding: 10px 0; gap: 0; border-right: 1px solid var(--border-color); flex-shrink: 0; box-sizing: border-box; position: sticky; top: 65px; height: calc(100vh - 65px); scrollbar-width: none; }
         .sidebar::-webkit-scrollbar { display: none; }
+        .hidden-sidebar { display: none !important; }
         
         .cat-item { display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; padding: 15px 10px; gap: 8px; flex-shrink: 0; color: var(--text-main); border-bottom: 1px solid var(--border-color); text-align: center;}
         .cat-icon { font-size: 1.8em; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
@@ -189,13 +190,9 @@
         /* 🟢 DESKTOP UI 🟢 */
         @media (min-width: 1000px) {
             .sidebar { resize: horizontal; overflow-x: hidden; min-width: 200px; max-width: 400px; border-right: 2px solid var(--border-color); }
-            /* Desktop Search Bar */
-            .header-search { display: flex !important; flex: 1; max-width: 400px; margin: 0 20px; }
-            .header-search .control-chip { padding: 8px 15px; height: 40px; margin: 0; border-radius: 8px;}
-            
             .right-content-wrapper { width: 100%; }
             .controls-bar { display: flex !important; flex-direction: row; align-items: center; justify-content: flex-start; padding: 15px 20px; background: var(--bg-color); border-bottom: 1px solid var(--border-color); z-index: 10;}
-            .controls-bar .search-sort-wrapper { display: none; }
+            .controls-bar .search-sort-wrapper { max-width: 400px; flex: 1; margin-bottom: 0;}
             .controls-bar .tags-outer-wrapper { flex: 2; padding: 0; margin-left: 20px; }
 
             /* Desktop Brand Chip with Text */
@@ -238,6 +235,7 @@
             
             .tags-container { padding: 0; border-bottom: none; gap: 15px;}
             
+            /* Mobile Brand Icons Only */
             .brand-filter-chip { flex-direction: column; background: transparent; border: none; padding: 0; gap: 6px; border-radius: 0; }
             .brand-chip-icon { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--border-color); padding: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);}
             .brand-filter-chip.active .brand-chip-icon { border-color: var(--active-brand-red); box-shadow: 0 4px 10px rgba(15, 157, 88, 0.2); }
@@ -259,10 +257,11 @@
             .app-add-btn { width: 100%; height: 30px; font-size: 0.8em; border-radius: 6px; }
             .app-qty-control { width: 100%; height: 30px; font-size: 0.9em; border-radius: 6px;}
 
+            /* 🟢 TAB HIGHLIGHT FIX 🟢 */
             .bottom-nav { display: flex; position: fixed; bottom: 0; left: 0; width: 100%; height: 65px; background: #fff; border-top: 1px solid #e0e0e0; justify-content: space-around; align-items: center; z-index: 10000; padding-bottom: env(safe-area-inset-bottom);}
             .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.65em; font-weight: 500 !important; gap: 4px; position: relative; cursor: pointer; flex: 1; transition: 0.2s;}
             .nav-item.active { color: var(--glacier-blue); font-weight: 500 !important; }
-            .nav-item::after { display: none !important; }
+            .nav-item::after { display: none !important; } /* Removing Underline */
             
             .icon-wrap { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; transition: 0.2s; background: transparent; }
             .nav-item.active .icon-wrap { background: rgba(138, 21, 56, 0.1); }
@@ -290,13 +289,6 @@
             <span style="font-size: 1.5em; font-weight: 800; letter-spacing: 1px;">Glacier</span>
             <span style="font-size: 0.7em; background: var(--primary-color); color: #000; padding: 3px 8px; border-radius: 6px; font-weight: 800; white-space: nowrap; letter-spacing: 0.5px;">ICE CREAM PARLOR</span>
         </div>
-
-        <div class="header-search">
-            <div class="control-chip">
-                🔍 <input type="text" id="search-bar-header" placeholder="Search for products..." oninput="window.syncInputs('header')">
-                <span id="clear-search-header" class="clear-search-btn" onclick="window.clearSearch('header')">×</span>
-            </div>
-        </div>
         
         <div class="header-actions">
             <button class="action-btn" onclick="window.switchTab('basket')" id="desktop-cart-btn">
@@ -319,7 +311,7 @@
     </header>
 
     <div class="main-layout">
-        <aside class="sidebar" id="category-sidebar"></aside>
+        <aside class="sidebar hidden-sidebar" id="category-sidebar"></aside>
 
         <div class="right-content-wrapper">
             
@@ -580,7 +572,7 @@
         }
 
         window.clearAllFilters = () => {
-            ['mobile', 'header'].forEach(env => {
+            ['mobile'].forEach(env => {
                 let sb = document.getElementById(`search-bar-${env}`);
                 if(sb) sb.value = '';
                 let clearBtn = document.getElementById(`clear-search-${env}`);
@@ -684,15 +676,16 @@
             const cartView = document.getElementById('cart-tab-view');
             const tagsCont = document.querySelector('.tags-outer-wrapper');
 
+            // Reset all displays
             productsView.style.display = 'none';
             addressView.style.display = 'none';
             cartView.style.display = 'none';
-            sidebar.style.display = 'none'; 
+            sidebar.classList.add('hidden-sidebar'); // Auto hide category
             
             document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active'));
 
             if(tabName === 'catalogue' || tabName === 'buy_again') {
-                sidebar.style.display = ''; 
+                sidebar.classList.remove('hidden-sidebar'); 
                 productsView.style.display = 'flex';
                 
                 if(tabName === 'catalogue') {
@@ -754,7 +747,7 @@
         window.syncInputs = (source) => {
             const searchVal = document.getElementById(`search-bar-${source}`) ? document.getElementById(`search-bar-${source}`).value : '';
             
-            ['mobile', 'header'].forEach(env => {
+            ['mobile'].forEach(env => {
                 const searchEl = document.getElementById(`search-bar-${env}`);
                 const clearBtn = document.getElementById(`clear-search-${env}`);
                 if(searchEl && env !== source) searchEl.value = searchVal;
@@ -893,9 +886,7 @@
             
             let searchTerm = '';
             const searchInputMobile = document.getElementById('search-bar-mobile');
-            const searchInputHeader = document.getElementById('search-bar-header');
-            if(window.innerWidth > 999 && searchInputHeader) searchTerm = searchInputHeader.value.toLowerCase().trim();
-            else if(searchInputMobile) searchTerm = searchInputMobile.value.toLowerCase().trim();
+            if(searchInputMobile) searchTerm = searchInputMobile.value.toLowerCase().trim();
 
             let validBrands = new Set(['All']);
             let validCategories = new Set(['All Items']);
@@ -1257,6 +1248,21 @@
             document.getElementById('cart-total-price').innerText = totalPrice;
         }
 
+        window.toggleCart = () => { 
+            window.switchTab('basket');
+        }
+
+        window.confirmClearCart = () => {
+            if(Object.keys(cart).length === 0) return;
+            window.openSpecificModal('confirm-clear-modal');
+        };
+
+        window.executeClearCart = () => {
+            cart = {};
+            window.updateCartUI();
+            window.closeSpecificModal('confirm-clear-modal');
+        };
+
         // 🟢 CONFIRM DELETE ADDRESS LOGIC 🟢
         window.addressToDeleteIndex = -1;
         window.deleteAddress = (index) => {
@@ -1300,7 +1306,11 @@
                     window.getAddressFromCoords(e.latlng.lat, e.latlng.lng);
                 });
             }
-            setTimeout(() => { window.addressMap.invalidateSize(true); window.getCurrentLocation(); }, 400);
+            
+            setTimeout(() => { 
+                window.addressMap.invalidateSize(true); 
+                window.getCurrentLocation();
+            }, 400);
         }
 
         window.getCurrentLocation = () => {
@@ -1312,16 +1322,17 @@
                         document.getElementById('new-addr-lat').value = lat; document.getElementById('new-addr-lng').value = lng;
                         window.addressMap.setView([lat, lng], 16); window.addressMarker.setLatLng([lat, lng]); window.getAddressFromCoords(lat, lng);
                     },
-                    (error) => { document.getElementById('new-addr-area').value = "Location access denied. Type manually or click on map."; },
+                    (error) => { document.getElementById('new-addr-area').value = "Location access denied. Please search or tap on map."; },
                     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                 );
-            }
+            } else { document.getElementById('new-addr-area').value = "GPS not supported. Please search or tap on map."; }
         }
 
         window.searchLocation = async () => {
             const query = document.getElementById('map-search-input').value.trim();
             if(!query) return;
             document.getElementById('new-addr-area').value = "Searching... 🔍";
+            
             try {
                 let response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&countrycodes=in`);
                 let data = await response.json();
@@ -1329,8 +1340,8 @@
                     let lat = data[0].lat; let lon = data[0].lon;
                     document.getElementById('new-addr-lat').value = lat; document.getElementById('new-addr-lng').value = lon;
                     window.addressMap.setView([lat, lon], 16); window.addressMarker.setLatLng([lat, lon]); window.getAddressFromCoords(lat, lon); 
-                } else { document.getElementById('new-addr-area').value = "Not found."; }
-            } catch(e) { document.getElementById('new-addr-area').value = "Search error."; }
+                } else { document.getElementById('new-addr-area').value = "Location not found. Try a different search."; }
+            } catch(e) { document.getElementById('new-addr-area').value = "Search error. Please try again."; }
         }
 
         window.getAddressFromCoords = async (lat, lng) => {
@@ -1338,12 +1349,24 @@
             try {
                 let response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
                 let data = await response.json();
+                
                 if(data && data.address) {
                     let addr = data.address;
-                    let parts = [addr.road, addr.neighbourhood, addr.suburb, addr.city, addr.postcode].filter(Boolean);
-                    document.getElementById('new-addr-area').value = parts.join(', ');
-                } else { document.getElementById('new-addr-area').value = "Type manually."; }
-            } catch (e) { document.getElementById('new-addr-area').value = "Error fetching location."; }
+                    let road = addr.road || ''; let neighborhood = addr.neighbourhood || ''; let suburb = addr.suburb || '';
+                    let city = addr.city || addr.town || addr.county || ''; let postcode = addr.postcode || '';
+                    let area = [neighborhood, suburb].filter(Boolean).join(', ');
+                    let parts = [road, area, city, postcode].filter(p => p.trim() !== '');
+                    
+                    let uniqueParts = [];
+                    parts.forEach(p => {
+                        let isDuplicate = uniqueParts.some(existing => existing.toLowerCase().includes(p.toLowerCase()) || p.toLowerCase().includes(existing.toLowerCase()));
+                        if (!isDuplicate) uniqueParts.push(p);
+                    });
+
+                    document.getElementById('new-addr-area').value = uniqueParts.join(', ');
+                } else if(data && data.display_name) { document.getElementById('new-addr-area').value = data.display_name; } 
+                else { document.getElementById('new-addr-area').value = "Area not found. Please type manually."; }
+            } catch (e) { document.getElementById('new-addr-area').value = "Error fetching location. Please type manually."; }
         }
 
         window.onload = loadData;
