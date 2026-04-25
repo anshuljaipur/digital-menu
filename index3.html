@@ -17,7 +17,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Poppins:wght@400;500;600;700;800&display=swap');
 
-        /* 🌓 CSS VARIABLES FOR THEMING (Flipkart Minutes Style) 🌓 */
+        /* 🌓 CSS VARIABLES FOR THEMING 🌓 */
         :root {
             --primary-color: #ffc107; 
             --glacier-blue: #8a1538; 
@@ -79,8 +79,12 @@
         /* --- 3. MAIN DESKTOP LAYOUT --- */
         .main-layout { display: flex; flex: 1; overflow: hidden; background: var(--main-bg); width: 100%; box-sizing: border-box;}
         
-        .sidebar { width: 220px; background: var(--card-bg); display: flex; flex-direction: column; overflow-y: auto; padding: 10px 0; gap: 0; scrollbar-width: none; border-right: 1px solid var(--border-color); flex-shrink: 0; box-sizing: border-box; position: sticky; top: 65px; height: calc(100vh - 65px);}
-        .sidebar::-webkit-scrollbar { display: none; }
+        .sidebar { width: 220px; background: var(--card-bg); display: flex; flex-direction: column; overflow-y: auto; padding: 10px 0; gap: 0; border-right: 1px solid var(--border-color); flex-shrink: 0; box-sizing: border-box; height: calc(100vh - 65px);}
+        
+        /* 🟢 Custom Scrollbars for Sidebar & Tags 🟢 */
+        .sidebar { scrollbar-width: thin; scrollbar-color: var(--border-color) transparent; }
+        .sidebar::-webkit-scrollbar { width: 4px; display: block; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
         
         .cat-item { display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; padding: 15px 10px; gap: 8px; flex-shrink: 0; color: var(--text-main); border-bottom: 1px solid var(--border-color); text-align: center;}
         .cat-icon { font-size: 1.8em; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
@@ -88,20 +92,26 @@
         .cat-item.active { background: white; border-left: 4px solid var(--glacier-blue); border-bottom: 1px solid var(--border-color); }
         .cat-item.active .cat-name { color: var(--glacier-blue); font-weight: 700; }
 
-        .content-area { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 0px 20px 20px 20px; scroll-behavior: smooth; box-sizing: border-box; position: relative; overscroll-behavior-y: none; -webkit-overflow-scrolling: touch; width: 100%; background: #fff;}
-        .content-area::-webkit-scrollbar { width: 6px; }
-        .content-area::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+        /* 🟢 Right Content Wrapper (Separates Controls and Scrollable Items) 🟢 */
+        .right-content-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--card-bg); }
+
+        .controls-bar { background: var(--bg-color); display: flex; flex-direction: column; gap: 10px; padding: 10px 20px 5px 20px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; width: 100%; box-sizing: border-box; }
+
+        .tags-container { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 10px 0; width: 100%; box-sizing: border-box; background: transparent;}
+        .tags-container { scrollbar-width: thin; scrollbar-color: var(--border-color) transparent; }
+        .tags-container::-webkit-scrollbar { height: 4px; display: block; }
+        .tags-container::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 
         .filter-tag-chip { padding: 6px 14px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.75em; font-weight: 500; color: var(--text-main); cursor: pointer; white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .filter-tag-chip.active { background: rgba(138, 21, 56, 0.1); color: var(--glacier-blue); border-color: var(--glacier-blue); font-weight: 600;}
-        
-        .tags-container { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; width: 100%; box-sizing: border-box; background: transparent;}
-        .tags-container::-webkit-scrollbar { display: none; }
 
-        /* 🟢 SOLID BACKGROUND FIX FOR SEE-THROUGH BUG 🟢 */
-        .controls-bar { position: sticky; top: 0; z-index: 50; background: var(--bg-color) !important; display: flex; flex-direction: column; gap: 10px; margin: 0px -20px 0px -20px; padding: 10px 20px 5px 20px; border-bottom: 1px solid var(--border-color);}
-        
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; margin-top: 15px; width: 100%; gap: 10px;}
+        /* Content Area is now just the items, scrolling starts exactly below controls */
+        .content-area { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 0px 20px 20px 20px; scroll-behavior: smooth; box-sizing: border-box; position: relative; overscroll-behavior-y: none; -webkit-overflow-scrolling: touch; width: 100%; background: #fff;}
+        .content-area { scrollbar-width: thin; scrollbar-color: var(--border-color) transparent; }
+        .content-area::-webkit-scrollbar { width: 6px; display: block; }
+        .content-area::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; margin-top: 15px; width: 100%; gap: 10px; flex-shrink: 0;}
         .section-header h2 { margin: 0; font-size: 1.1em; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
 
         .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; align-items: start; padding-bottom: 20px; box-sizing: border-box; width: 100%;}
@@ -111,7 +121,10 @@
         .card-img-wrapper img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply;}
         .new-badge { position: absolute; top: 0; left: 0; background: var(--active-brand-red); color: white; font-size: 0.6em; font-weight: 700; padding: 3px 6px; border-radius: 4px; z-index: 5; text-transform: uppercase; }
         
+        .price-row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 10px; width: 100%; gap: 10px;}
+        .price-row-top { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; flex: 1;}
         .btn-container { position: relative; z-index: 10; flex-shrink: 0; display: flex; justify-content: flex-end; min-width: 80px;}
+        
         .app-add-btn { width: auto; min-width: 65px; height: 32px; border-radius: 6px; background: #fff; color: var(--glacier-blue); border: 1px solid var(--glacier-blue); font-size: 0.85em; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: pointer; text-transform: uppercase;}
         .app-qty-control { height: 32px; width: 80px; background: var(--glacier-blue); color: white; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; font-weight: 700; font-size: 0.9em; box-sizing: border-box;}
         .app-qty-control button { background: none; border: none; color: white; font-weight: bold; font-size: 1.2em; cursor: pointer; padding: 0 5px; }
@@ -120,8 +133,6 @@
         .item-name { font-size: 0.9em; font-weight: 600; color: var(--text-main); margin: 0 0 6px 0; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 36px; }
         .item-volume { font-size: 0.75em; color: var(--text-muted); font-weight: 500; margin-bottom: 8px;}
         
-        .price-row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 10px; width: 100%; gap: 10px;}
-        .price-row-top { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; flex: 1;}
         .item-price { font-size: 1.1em; font-weight: 700; color: var(--text-main); line-height: 1;}
         .item-mrp { font-size: 0.75em; font-weight: 500; color: var(--text-muted); text-decoration: line-through; }
 
@@ -166,7 +177,7 @@
         .order-history-total { font-weight: 800; color: var(--glacier-blue); font-size: 1.1em;}
         .order-item-line { display: flex; gap: 8px; margin-bottom: 4px; align-items: flex-start; font-size: 0.85em; color: var(--text-muted); }
 
-        /* PRODUCT DETAIL CSS (Flipkart style) */
+        /* PRODUCT DETAIL CSS */
         #product-detail-modal .modal-content-box { padding: 0; max-width: 500px; height: 100dvh; border-radius: 0; background: #fff;}
         .pd-top-nav { display: flex; justify-content: space-between; padding: 15px; position: absolute; top: 0; width: 100%; z-index: 10; }
         .pd-top-nav .close-btn { background: rgba(0,0,0,0.3); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2em; cursor: pointer;}
@@ -196,34 +207,12 @@
         .back-to-top-btn.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
         .back-to-top-btn:hover { background: #600e26; }
 
-        /* 🟢 DESKTOP UI (Adjustable Layout Fix) 🟢 */
+        /* 🟢 DESKTOP UI 🟢 */
         @media (min-width: 1000px) {
-            .sidebar { 
-                resize: horizontal; 
-                overflow-x: hidden; 
-                min-width: 200px; 
-                max-width: 400px; 
-                border-right: 2px solid var(--border-color);
-            }
-            .controls-bar { 
-                display: flex !important; 
-                flex-direction: row; 
-                align-items: center; 
-                justify-content: flex-start; 
-                padding: 15px 20px; 
-                background: var(--bg-color) !important; 
-                border-bottom: 1px solid var(--border-color); 
-                z-index: 90;
-            }
-            .controls-bar .search-sort-wrapper { 
-                max-width: 400px; 
-                flex: 1; 
-                margin-bottom: 0;
-            }
-            .controls-bar .tags-container { 
-                flex: 2; 
-                padding: 0 20px;
-            }
+            .right-content-wrapper { width: 100%; }
+            .controls-bar { display: flex !important; flex-direction: row; align-items: center; justify-content: flex-start; padding: 15px 20px; background: var(--bg-color); border-bottom: 1px solid var(--border-color); z-index: 10;}
+            .controls-bar .search-sort-wrapper { max-width: 400px; flex: 1; margin-bottom: 0;}
+            .controls-bar .tags-container { flex: 2; padding: 0 20px;}
         }
 
         /* 📱 🔥 MOBILE PORTRAIT UI FIXES 📱 */
@@ -233,7 +222,7 @@
             .hide-mobile-text { display: none; }
             .action-btn { padding: 6px 10px; border: none; background: transparent; font-size: 1.2em;}
             
-            .main-layout { display: flex !important; flex-direction: row !important; width: 100%; height: calc(100dvh - 60px - 60px) !important; overflow: hidden !important;} 
+            .main-layout { display: flex !important; flex-direction: row !important; width: 100%; height: calc(100dvh - 60px) !important; overflow: hidden !important;} 
             
             .sidebar { width: 85px !important; display: flex !important; flex-direction: column !important; background: #f8f9fa !important; border-right: 1px solid var(--border-color) !important; padding: 0 !important; padding-bottom: 80px !important; height: 100% !important; z-index: 10; position: relative !important; top: 0 !important;}
             .cat-item { padding: 15px 5px !important; border-bottom: 1px solid #eee !important; border-left: 3px solid transparent !important; }
@@ -241,9 +230,11 @@
             .cat-name { font-size: 0.65em !important; font-weight: 500 !important;}
             .cat-item.active .cat-name { font-weight: 700 !important; }
 
-            .content-area { flex: 1; display: block !important; width: calc(100% - 85px); padding: 0 !important; padding-bottom: 80px !important; height: 100% !important; overflow-y: auto !important; background: #fff;}
+            .right-content-wrapper { flex: 1; display: flex; flex-direction: column; width: calc(100% - 85px) !important; background: var(--bg-color); overflow: hidden; height: 100%;}
             
-            .controls-bar { padding: 10px 12px; margin: 0; width: 100%; background: var(--bg-color) !important; position: sticky !important; top: 0 !important; z-index: 90 !important; border-bottom: 1px solid #eee;}
+            .content-area { flex: 1; display: block !important; width: 100%; padding: 0 10px; padding-bottom: 80px !important; height: 100% !important; overflow-y: auto !important; background: #fff;}
+            
+            .controls-bar { padding: 10px 12px; margin: 0; width: 100%; background: var(--bg-color) !important; z-index: 90 !important; border-bottom: 1px solid #eee; flex-shrink:0;}
             .search-sort-wrapper { width: 100%; margin-bottom: 10px;}
             .control-chip { padding: 8px 10px; background: #f1f3f6; border: none; border-radius: 8px;}
             
@@ -315,8 +306,8 @@
     <div class="main-layout">
         <aside class="sidebar" id="category-sidebar"></aside>
 
-        <main class="content-area" id="products-area">
-            <div class="controls-bar">
+        <div class="right-content-wrapper">
+            <div class="controls-bar" id="main-controls-bar">
                 <div class="search-sort-wrapper" id="mobile-search-sort">
                     <div class="control-chip" style="box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
                         🔍 <input type="text" id="search-bar-mobile" placeholder="Search for products..." oninput="window.syncInputs('mobile')">
@@ -326,14 +317,16 @@
                 <div class="tags-container" id="tags-container-portrait"></div>
             </div>
 
-            <div class="section-header">
-                <h2 id="current-category-title">All Items</h2>
-                <span class="section-count" id="item-count">0 products</span>
-            </div>
+            <main class="content-area" id="products-area">
+                <div class="section-header">
+                    <h2 id="current-category-title">All Items</h2>
+                    <span class="section-count" id="item-count">0 products</span>
+                </div>
 
-            <div id="status-msg" style="display:none;">Loading...</div>
-            <div class="menu-grid" id="main-menu-grid"></div>
-        </main>
+                <div id="status-msg" style="display:none;">Loading...</div>
+                <div class="menu-grid" id="main-menu-grid"></div>
+            </main>
+        </div>
     </div>
 
     <div class="bottom-nav">
@@ -398,7 +391,19 @@
                     <span>₹<span id="cart-total-price">0</span></span>
                 </div>
                 <button id="checkout-wa" class="checkout-btn" onclick="window.checkout('whatsapp')">Proceed to Checkout</button>
-                <button class="checkout-btn" style="background: var(--chip-bg); color: var(--active-brand-red); margin-top: 10px; border: 1px solid rgba(231, 76, 60, 0.2);" onclick="window.clearCart()">🗑️ Clear Cart</button>
+                <button class="checkout-btn" style="background: var(--chip-bg); color: var(--active-brand-red); margin-top: 10px; border: 1px solid rgba(231, 76, 60, 0.2); box-shadow:none;" onclick="window.clearCart()">🗑️ Clear Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirm-clear-modal" class="custom-modal" onclick="window.closeSpecificModal('confirm-clear-modal')" style="z-index: 10005;">
+        <div class="modal-content-box" onclick="event.stopPropagation()" style="text-align: center; max-width: 320px; padding: 25px; margin: auto;">
+            <div style="font-size: 3.5em; margin-bottom: 10px; line-height: 1;">🗑️</div>
+            <h2 style="margin: 0 0 10px 0; font-size: 1.2em; color: var(--text-main);">Clear Basket?</h2>
+            <p style="color: var(--text-muted); font-size: 0.9em; margin-bottom: 25px;">All selected items will be removed from your basket.</p>
+            <div style="display: flex; gap: 10px;">
+                <button class="auth-btn" style="flex: 1; background: var(--chip-bg); color: var(--text-main); margin:0; box-shadow:none;" onclick="window.closeSpecificModal('confirm-clear-modal')">Cancel</button>
+                <button class="auth-btn" style="flex: 1; background: var(--active-brand-red); color: white; margin:0; box-shadow:none;" onclick="window.executeClearCart()">Clear</button>
             </div>
         </div>
     </div>
@@ -516,6 +521,17 @@
         window.globalPastOrders = []; 
         window.currentTab = 'catalogue'; 
 
+        // 🟢 Close Profile Dropdown on Click Outside 🟢
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('profile-dropdown');
+            const profileBtn = document.getElementById('nav-profile-btn');
+            if (dropdown && dropdown.classList.contains('active')) {
+                if (!dropdown.contains(event.target) && !profileBtn.contains(event.target)) {
+                    dropdown.classList.remove('active');
+                }
+            }
+        });
+
         window.normalizeData = (items) => {
             return items.map(item => {
                 if (item.brand && typeof item.brand === 'string') {
@@ -581,7 +597,6 @@
             let isMobile = window.innerWidth <= 999;
             let scrollTop = isMobile ? (window.scrollY || document.documentElement.scrollTop || document.body.scrollTop) : (productsArea ? productsArea.scrollTop : 0);
 
-            // Handle fallback if body isn't scrolling but content area is
             if(isMobile && scrollTop === 0 && productsArea) {
                 scrollTop = productsArea.scrollTop;
             }
@@ -1063,11 +1078,14 @@
 
         window.clearCart = () => {
             if(Object.keys(cart).length === 0) return;
-            if(confirm("Are you sure you want to clear your cart?")) {
-                cart = {};
-                window.updateCartUI();
-                window.closeSpecificModal('cart-modal');
-            }
+            window.openSpecificModal('confirm-clear-modal');
+        };
+
+        window.executeClearCart = () => {
+            cart = {};
+            window.updateCartUI();
+            window.closeSpecificModal('confirm-clear-modal');
+            window.closeSpecificModal('cart-modal');
         };
 
         // --- MAP LOGIC ---
