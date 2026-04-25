@@ -68,6 +68,8 @@
         .action-btn { font-family: 'Poppins', sans-serif; border: 1px solid rgba(255,255,255,0.2); padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 0.85em; cursor: pointer; display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.1); color: white; flex-shrink: 0;}
         .btn-profile { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); }
 
+        .header-search { display: none; } /* HIDDEN BY DEFAULT (INCLUDING MOBILE) */
+        
         .control-chip { display: flex; align-items: center; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 15px; width: 100%; box-sizing: border-box;}
         .control-chip input { border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.9em; width: 100%; color: var(--text-main); margin-left: 8px;}
         .clear-search-btn { display: none; cursor: pointer; color: var(--text-muted); font-size: 1.3em; font-weight: bold; line-height: 1; padding: 0 5px; }
@@ -189,8 +191,10 @@
         /* 🟢 DESKTOP UI 🟢 */
         @media (min-width: 1000px) {
             .sidebar { resize: horizontal; overflow-x: hidden; min-width: 200px; max-width: 400px; border-right: 2px solid var(--border-color); }
-            .header-search { display: flex; flex: 1; max-width: 400px; margin: 0 20px; }
+            /* Desktop Search Bar */
+            .header-search { display: flex !important; flex: 1; max-width: 400px; margin: 0 20px; }
             .header-search .control-chip { padding: 8px 15px; height: 40px; margin: 0; border-radius: 8px;}
+            
             .right-content-wrapper { width: 100%; }
             .controls-bar { display: flex !important; flex-direction: row; align-items: center; justify-content: flex-start; padding: 15px 20px; background: var(--bg-color); border-bottom: 1px solid var(--border-color); z-index: 10;}
             .controls-bar .search-sort-wrapper { display: none; }
@@ -252,11 +256,11 @@
             .app-add-btn { width: 100%; height: 30px; font-size: 0.8em; border-radius: 6px; }
             .app-qty-control { width: 100%; height: 30px; font-size: 0.9em; border-radius: 6px;}
 
-            /* 🟢 TAB HIGHLIGHT FIX 🟢 */
+            /* 🟢 TAB HIGHLIGHT FIX (Round circle behind icon, no bold text) 🟢 */
             .bottom-nav { display: flex; position: fixed; bottom: 0; left: 0; width: 100%; height: 65px; background: #fff; border-top: 1px solid #e0e0e0; justify-content: space-around; align-items: center; z-index: 10000; padding-bottom: env(safe-area-inset-bottom);}
             .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.65em; font-weight: 500 !important; gap: 4px; position: relative; cursor: pointer; flex: 1; transition: 0.2s;}
             .nav-item.active { color: var(--glacier-blue); font-weight: 500 !important; }
-            .nav-item::after { display: none !important; } /* Removing Underline */
+            .nav-item::after { display: none !important; } /* No Underline */
             
             .icon-wrap { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; transition: 0.2s; background: transparent; }
             .nav-item.active .icon-wrap { background: rgba(138, 21, 56, 0.1); }
@@ -293,7 +297,7 @@
         </div>
         
         <div class="header-actions">
-            <button class="action-btn" onclick="window.toggleCart()" id="desktop-cart-btn">
+            <button class="action-btn" onclick="window.switchTab('basket')" id="desktop-cart-btn">
                 🛒 <span class="hide-mobile-text">Basket</span>
                 <span id="desktop-cart-badge" style="background: var(--active-brand-red); color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.8em; margin-left: 5px; display: none;">0</span>
             </button>
@@ -304,7 +308,7 @@
             </button>
             <div id="profile-dropdown" class="profile-dropdown-menu">
                 <div class="dropdown-item" onclick="window.openSpecificModal('my-profile-modal')">👤 My Profile</div>
-                <div class="dropdown-item" onclick="window.showAddressTab()">📍 Addresses</div>
+                <div class="dropdown-item" onclick="window.switchTab('address')">📍 Addresses</div>
                 <div class="dropdown-item" onclick="window.openSpecificModal('orders-modal')">🛍️ Past Orders</div>
                 <div style="height: 1px; background: var(--border-color); margin: 5px 0;"></div>
                 <div class="dropdown-item" onclick="window.logout()" style="color: var(--glacier-blue);">🚪 Logout</div>
@@ -389,20 +393,37 @@
                 </div>
             </div>
 
+            <div id="cart-tab-view" style="display: none; flex-direction: column; height: 100%; flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 80px; background: var(--bg-color);">
+                <div class="section-header" style="margin-top: 0; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); flex-shrink: 0;">
+                    <h2>🛒 Your Basket</h2>
+                </div>
+                
+                <div id="cart-items-list" style="flex:1; overflow-y:auto; margin-bottom: 15px;"></div>
+                
+                <div id="cart-footer-actions" style="border-top: 1px solid var(--border-color); padding-top: 15px; flex-shrink: 0; display: none;">
+                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2em;">
+                        <span>Item Total</span>
+                        <span>₹<span id="cart-total-price">0</span></span>
+                    </div>
+                    <button id="checkout-wa" class="checkout-btn" onclick="window.checkout('whatsapp')">Proceed to Checkout</button>
+                    <button class="checkout-btn" style="background: var(--chip-bg); color: #e74c3c; margin-top: 10px; border: 1px solid rgba(231, 76, 60, 0.2); box-shadow:none;" onclick="window.confirmClearCart()">🗑️ Clear Basket</button>
+                </div>
+            </div>
+
         </div>
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item active" id="nav-home" onclick="window.clearAllFilters(); window.showCatalogueTab();">
+        <div class="nav-item active" id="nav-home" onclick="window.clearAllFilters(); window.switchTab('catalogue');">
             <div class="icon-wrap"><span class="icon">🏠</span></div><span class="nav-label">Home</span>
         </div>
-        <div class="nav-item" id="nav-address" onclick="window.showAddressTab();">
+        <div class="nav-item" id="nav-address" onclick="window.switchTab('address');">
             <div class="icon-wrap"><span class="icon">📍</span></div><span class="nav-label">Address</span>
         </div>
-        <div class="nav-item" id="nav-buy-again" onclick="window.showBuyAgainTab();">
+        <div class="nav-item" id="nav-buy-again" onclick="window.switchTab('buy_again');">
             <div class="icon-wrap"><span class="icon">🛍️</span></div><span class="nav-label">Buy Again</span>
         </div>
-        <div class="nav-item" id="nav-basket" onclick="window.toggleCart()">
+        <div class="nav-item" id="nav-basket" onclick="window.switchTab('basket')">
             <div class="icon-wrap"><span class="icon">🛒</span></div><span class="nav-label">Basket</span>
             <div class="cart-badge-bottom" id="cart-badge-count-bottom" style="display:none;">0</div>
         </div>
@@ -436,25 +457,6 @@
             </div>
             <div class="pd-bottom-bar">
                 <div id="pd-modal-btn-wrap"></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="cart-modal" class="custom-modal full-page-modal" onclick="window.toggleCart()">
-        <div class="modal-content-box" onclick="event.stopPropagation()">
-            <div class="modal-header-row">
-                <h2>Your Basket</h2>
-                <div class="close-modal-icon" onclick="window.toggleCart()">×</div>
-            </div>
-            <div id="cart-items-list" style="flex:1; overflow-y:auto; margin-bottom: 15px;"></div>
-            
-            <div style="border-top: 1px solid var(--border-color); padding-top: 15px;">
-                <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2em;">
-                    <span>Item Total</span>
-                    <span>₹<span id="cart-total-price">0</span></span>
-                </div>
-                <button id="checkout-wa" class="checkout-btn" onclick="window.checkout('whatsapp')">Proceed to Checkout</button>
-                <button class="checkout-btn" style="background: var(--chip-bg); color: #e74c3c; margin-top: 10px; border: 1px solid rgba(231, 76, 60, 0.2); box-shadow:none;" onclick="window.confirmClearCart()">🗑️ Clear Cart</button>
             </div>
         </div>
     </div>
@@ -604,16 +606,28 @@
             document.body.scrollTo({top: 0, behavior: 'smooth'});
             const pa = document.getElementById('products-area');
             if(pa) pa.scrollTo({top: 0, behavior: 'smooth'});
+            
+            const addrView = document.getElementById('address-tab-view');
+            if(addrView) addrView.scrollTo({top: 0, behavior: 'smooth'});
+            
+            const cartView = document.getElementById('cart-tab-view');
+            if(cartView) cartView.scrollTo({top: 0, behavior: 'smooth'});
         };
 
         // 🟢 GO TO TOP BUTTON LISTENER 🟢
-        const productsArea = document.getElementById('products-area');
         function handleScroll() {
             let isMobile = window.innerWidth <= 999;
-            let scrollTop = isMobile ? (window.scrollY || document.documentElement.scrollTop || document.body.scrollTop) : (productsArea ? productsArea.scrollTop : 0);
-
-            if(isMobile && scrollTop === 0 && productsArea) {
-                scrollTop = productsArea.scrollTop;
+            
+            let scrollTop = 0;
+            if(window.currentTab === 'catalogue' || window.currentTab === 'buy_again') {
+                const productsArea = document.getElementById('products-area');
+                scrollTop = isMobile ? (window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || (productsArea ? productsArea.scrollTop : 0)) : (productsArea ? productsArea.scrollTop : 0);
+            } else if(window.currentTab === 'address') {
+                const addrView = document.getElementById('address-tab-view');
+                scrollTop = addrView ? addrView.scrollTop : 0;
+            } else if(window.currentTab === 'basket') {
+                const cartView = document.getElementById('cart-tab-view');
+                scrollTop = cartView ? cartView.scrollTop : 0;
             }
 
             const backToTop = document.getElementById('back-to-top');
@@ -622,7 +636,10 @@
                 else { backToTop.classList.remove('visible'); }
             }
         }
-        if (productsArea) { productsArea.addEventListener('scroll', handleScroll); }
+        
+        document.getElementById('products-area')?.addEventListener('scroll', handleScroll);
+        document.getElementById('address-tab-view')?.addEventListener('scroll', handleScroll);
+        document.getElementById('cart-tab-view')?.addEventListener('scroll', handleScroll);
         window.addEventListener('scroll', handleScroll);
 
         // 🟢 BRAND SCROLL ARROWS LOGIC 🟢
@@ -643,78 +660,84 @@
         };
         window.addEventListener('resize', window.updateTagArrows);
 
-        // 🟢 TAB LOGIC 🟢
-        window.showBuyAgainTab = () => {
-            window.currentTab = 'buy_again';
+        // 🟢 TAB LOGIC (UNIFIED) 🟢
+        window.switchTab = (tabName) => {
+            window.currentTab = tabName;
+            
+            const sidebar = document.getElementById('category-sidebar');
+            const productsView = document.getElementById('products-tab-view');
+            const addressView = document.getElementById('address-tab-view');
+            const cartView = document.getElementById('cart-tab-view');
+            const tagsCont = document.querySelector('.tags-outer-wrapper');
+
+            // Reset all displays
+            productsView.style.display = 'none';
+            addressView.style.display = 'none';
+            cartView.style.display = 'none';
+            sidebar.style.display = 'none'; // Hide category by default
             
             document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('nav-buy-again').classList.add('active'); 
+
+            if(tabName === 'catalogue' || tabName === 'buy_again') {
+                sidebar.style.display = ''; 
+                productsView.style.display = 'flex';
+                
+                if(tabName === 'catalogue') {
+                    if(currentCategory === 'All Items') document.getElementById('nav-home').classList.add('active');
+                    else document.querySelectorAll('.bottom-nav .nav-item')[1].classList.add('active');
+                    document.getElementById('item-count').style.display = 'inline';
+                    if(tagsCont) {
+                        tagsCont.style.display = 'flex';
+                        setTimeout(window.updateTagArrows, 100);
+                    }
+                    window.applyFilters();
+                } else {
+                    document.getElementById('nav-buy-again').classList.add('active'); 
+                    document.getElementById('item-count').style.display = 'none';
+                    if(tagsCont) tagsCont.style.display = 'none';
+                    window.applyFilters();
+                }
+            } 
+            else if(tabName === 'address') {
+                addressView.style.display = 'flex';
+                document.getElementById('nav-address').classList.add('active');
+                
+                if (!window.globalUser) {
+                    document.getElementById('address-list-view').innerHTML = `
+                        <div style="text-align:center; padding: 40px 20px; color: var(--text-muted);">
+                            <div style="font-size: 3em; margin-bottom: 10px;">👤</div>
+                            <h3 style="margin-top:0;">Please Login</h3>
+                            <p style="font-size:0.9em;">Sign in to view and manage your addresses.</p>
+                            <button class="auth-btn" style="max-width: 200px; margin: 20px auto;" onclick="window.openSpecificModal('auth-modal')">Login Now</button>
+                        </div>
+                    `;
+                    document.getElementById('add-address-form').style.display = 'none';
+                    document.getElementById('address-list-view').style.display = 'block';
+                } else {
+                    document.getElementById('address-list-view').innerHTML = `
+                        <button class="auth-btn" onclick="window.showAddAddressForm()" style="background: var(--chip-bg); color: var(--glacier-blue); border: 1px dashed var(--glacier-blue); margin-bottom: 15px; box-shadow:none;">+ Add New Address</button>
+                        <div id="addresses-container"></div>
+                    `;
+                    window.renderAddresses();
+                    document.getElementById('add-address-form').style.display = 'none';
+                    document.getElementById('address-list-view').style.display = 'block';
+                }
+            }
+            else if(tabName === 'basket') {
+                cartView.style.display = 'flex';
+                document.getElementById('nav-basket').classList.add('active');
+                window.updateCartUI();
+            }
             
-            document.getElementById('address-tab-view').style.display = 'none';
-            document.getElementById('products-tab-view').style.display = 'flex';
-
-            document.getElementById('item-count').style.display = 'none';
-            const tagsCont = document.querySelector('.tags-outer-wrapper');
-            if(tagsCont) tagsCont.style.display = 'none';
-
-            window.applyFilters();
             window.scrollToTop();
-        };
+        }
 
-        window.showCatalogueTab = () => {
-            if(window.currentTab === 'catalogue') return;
-            window.currentTab = 'catalogue';
-            
-            document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('nav-home').classList.add('active');
-            
-            document.getElementById('address-tab-view').style.display = 'none';
-            document.getElementById('products-tab-view').style.display = 'flex';
+        // Keep old functions for backwards compatibility of onclicks from categories
+        window.showCatalogueTab = () => window.switchTab('catalogue');
+        window.showBuyAgainTab = () => window.switchTab('buy_again');
+        window.showAddressTab = () => window.switchTab('address');
+        window.toggleCart = () => window.switchTab('basket');
 
-            document.getElementById('item-count').style.display = 'inline';
-            const tagsCont = document.querySelector('.tags-outer-wrapper');
-            if(tagsCont) {
-                tagsCont.style.display = 'flex';
-                setTimeout(window.updateTagArrows, 100);
-            }
-            
-            window.applyFilters();
-            window.scrollToTop(); 
-        };
-
-        window.showAddressTab = () => {
-            window.currentTab = 'address';
-            
-            document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('nav-address').classList.add('active'); 
-
-            document.getElementById('products-tab-view').style.display = 'none';
-            document.getElementById('address-tab-view').style.display = 'flex';
-
-            if (!window.globalUser) {
-                document.getElementById('address-list-view').innerHTML = `
-                    <div style="text-align:center; padding: 40px 20px; color: var(--text-muted);">
-                        <div style="font-size: 3em; margin-bottom: 10px;">👤</div>
-                        <h3>Please Login</h3>
-                        <p style="font-size:0.9em;">Sign in to view and manage your addresses.</p>
-                        <button class="auth-btn" style="max-width: 200px; margin: 20px auto;" onclick="window.openSpecificModal('auth-modal')">Login Now</button>
-                    </div>
-                `;
-                document.getElementById('add-address-form').style.display = 'none';
-                document.getElementById('address-list-view').style.display = 'block';
-            } else {
-                document.getElementById('address-list-view').innerHTML = `
-                    <button class="auth-btn" onclick="window.showAddAddressForm()" style="background: var(--chip-bg); color: var(--glacier-blue); border: 1px dashed var(--glacier-blue); margin-bottom: 15px;">+ Add New Address</button>
-                    <div id="addresses-container"></div>
-                `;
-                window.renderAddresses();
-                document.getElementById('add-address-form').style.display = 'none';
-                document.getElementById('address-list-view').style.display = 'block';
-            }
-            
-            const dropdown = document.getElementById('profile-dropdown');
-            if(dropdown) dropdown.classList.remove('active');
-        };
 
         // 🟢 SEARCH CLEAR & SYNC LOGIC 🟢
         window.syncInputs = (source) => {
@@ -727,7 +750,7 @@
                 if(clearBtn) clearBtn.style.display = searchVal.length > 0 ? 'inline-block' : 'none';
             });
             
-            if(window.currentTab === 'address') window.showCatalogueTab();
+            if(window.currentTab === 'address' || window.currentTab === 'basket') window.showCatalogueTab();
             window.applyFilters();
         }
 
@@ -1165,7 +1188,6 @@
             } 
         }
 
-        // 🟢 DIRECT QTY EDIT AND TRASH BUTTON 🟢
         window.setCartQty = (name, val) => {
             let qty = parseInt(val);
             if (isNaN(qty) || qty <= 0) {
@@ -1210,22 +1232,22 @@
             }
             window.updateAddButtons();
             
+            const footerActions = document.getElementById('cart-footer-actions');
             if(totalQty > 0) { 
                 badge.innerText = totalQty; badge.style.display = 'flex'; 
                 if(deskBadge) { deskBadge.innerText = totalQty; deskBadge.style.display = 'inline-block'; }
+                if(footerActions) footerActions.style.display = 'block';
             } else { 
-                cartList.innerHTML = '<p style="color:var(--text-muted); text-align: center;">Basket is empty.</p>'; 
+                cartList.innerHTML = '<div style="text-align: center; padding: 40px 20px; color: var(--text-muted);"><div style="font-size:3em; margin-bottom:10px;">🛒</div><h3 style="margin:0 0 5px 0;">Basket is empty</h3><p style="margin:0; font-size:0.9em;">Add some delicious ice creams!</p><button class="auth-btn" style="max-width:200px; margin:20px auto; box-shadow:none;" onclick="window.switchTab(\'catalogue\')">Browse Menu</button></div>'; 
                 badge.style.display = 'none'; 
                 if(deskBadge) deskBadge.style.display = 'none';
-                document.getElementById('cart-modal').style.display = 'none'; document.body.classList.remove('modal-open');
+                if(footerActions) footerActions.style.display = 'none';
             }
             document.getElementById('cart-total-price').innerText = totalPrice;
         }
 
         window.toggleCart = () => { 
-            if(Object.keys(cart).length === 0) return; 
-            const modal = document.getElementById('cart-modal'); 
-            if(modal.style.display === 'flex') window.closeSpecificModal('cart-modal'); else window.openSpecificModal('cart-modal');
+            window.switchTab('basket');
         }
 
         window.confirmClearCart = () => {
@@ -1237,7 +1259,6 @@
             cart = {};
             window.updateCartUI();
             window.closeSpecificModal('confirm-clear-modal');
-            window.closeSpecificModal('cart-modal');
         };
 
         // --- MAP LOGIC ---
@@ -1342,6 +1363,9 @@
             } else {
                 window.globalUser = null; window.globalUserData = null; window.userDocId = null; window.globalPastOrders = [];
                 document.getElementById('nav-profile-text').innerText = "Login";
+                
+                // Keep Address tab synced with user state
+                if(window.currentTab === 'address') window.showAddressTab();
             }
         });
 
@@ -1365,11 +1389,11 @@
                         if(window.globalUserData.gender) window.setGender(window.globalUserData.gender);
                         if (!window.globalUserData.addresses) window.globalUserData.addresses = [];
                         window.selectedAddressIndex = window.globalUserData.defaultAddressIndex || 0;
-                        window.renderAddresses(); 
+                        if(window.currentTab === 'address') window.renderAddresses(); 
                     } else {
                         window.globalUserData = { name: window.globalUser.displayName || '', addresses: [], defaultAddressIndex: 0 };
                         setDoc(doc(db, "users", docId), window.globalUserData);
-                        window.renderAddresses();
+                        if(window.currentTab === 'address') window.renderAddresses();
                     }
                 });
                 window.loadPastOrders(docId);
@@ -1397,9 +1421,11 @@
         };
 
         window.renderAddresses = () => {
-            const container = document.getElementById('addresses-container'); container.innerHTML = '';
+            const container = document.getElementById('addresses-container'); 
+            if(!container) return;
+            container.innerHTML = '';
             if(!window.globalUserData || !window.globalUserData.addresses || window.globalUserData.addresses.length === 0) {
-                container.innerHTML = '<p style="text-align:center;">No addresses saved.</p>'; return;
+                container.innerHTML = '<p style="text-align:center; color: var(--text-muted);">No addresses saved.</p>'; return;
             }
             window.globalUserData.addresses.forEach((addr, index) => {
                 let isSelected = index === window.selectedAddressIndex;
@@ -1514,7 +1540,7 @@
             if (method === 'whatsapp') {
                 if (!window.globalUser) { window.openSpecificModal('auth-modal'); return; }
                 if (!window.globalUserData || !window.globalUserData.addresses || window.globalUserData.addresses.length === 0) { 
-                    alert("Please add a delivery address first."); window.showAddressTab(); return; 
+                    alert("Please add a delivery address first."); window.switchTab('address'); return; 
                 }
 
                 let message = "Hello Glacier Ice Cream!🍦\n\n*New Order:*\n"; let total = 0; let itemsSummary = [];
