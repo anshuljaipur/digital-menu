@@ -68,7 +68,6 @@
         .action-btn { font-family: 'Poppins', sans-serif; border: 1px solid rgba(255,255,255,0.2); padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 0.85em; cursor: pointer; display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.1); color: white; flex-shrink: 0;}
         .btn-profile { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); }
 
-        .header-search { display: none; }
         .control-chip { display: flex; align-items: center; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 15px; width: 100%; box-sizing: border-box;}
         .control-chip input { border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.9em; width: 100%; color: var(--text-main); margin-left: 8px;}
         .clear-search-btn { display: none; cursor: pointer; color: var(--text-muted); font-size: 1.3em; font-weight: bold; line-height: 1; padding: 0 5px; }
@@ -166,7 +165,7 @@
         .order-history-total { font-weight: 800; color: var(--glacier-blue); font-size: 1.1em;}
         .order-item-line { display: flex; gap: 8px; margin-bottom: 4px; align-items: flex-start; font-size: 0.85em; color: var(--text-muted); }
 
-        /* PRODUCT DETAIL CSS (Flipkart style) */
+        /* PRODUCT DETAIL CSS */
         #product-detail-modal .modal-content-box { padding: 0; max-width: 500px; height: 100dvh; border-radius: 0; background: #fff;}
         .pd-top-nav { display: flex; justify-content: space-between; padding: 15px; position: absolute; top: 0; width: 100%; z-index: 10; }
         .pd-top-nav .close-btn { background: rgba(0,0,0,0.3); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2em; cursor: pointer;}
@@ -193,15 +192,14 @@
 
         /* 🟢 DESKTOP UI 🟢 */
         @media (min-width: 1000px) {
-            .header-search { display: flex; flex: 1; max-width: 400px; margin: 0 20px; }
-            .header-search .control-chip { padding: 8px 15px; height: 40px; margin: 0; border-radius: 8px;}
-            .controls-bar { display: none !important; } /* Hide mobile search & tags on desktop */
+            /* Desktop Search Bar Styling */
+            .controls-bar { display: flex !important; flex-direction: row; align-items: center; justify-content: flex-start; padding: 15px 20px; background: transparent; border: none; z-index: 10;}
+            .controls-bar .search-sort-wrapper { max-width: 400px; flex: 1; margin-bottom: 0;}
+            .controls-bar .tags-container { flex: 2; padding: 0 20px;}
         }
 
         /* 📱 🔥 MOBILE PORTRAIT UI FIXES 📱 */
         @media (max-width: 999px) {
-            .header-search { display: none !important; }
-            
             header { padding: 10px 15px; height: 60px; position: sticky; top: 0; z-index: 1000;}
             .header-logo { height: 32px; }
             .hide-mobile-text { display: none; }
@@ -263,13 +261,6 @@
             <span style="font-size: 0.8em; background: var(--primary-color); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold;">MINUTES</span>
         </div>
         
-        <div class="header-search">
-            <div class="control-chip">
-                🔍 <input type="text" id="search-bar-header" placeholder="Search for products..." oninput="window.syncInputs('header')">
-                <span id="clear-search-header" class="clear-search-btn" onclick="window.clearSearch('header')">×</span>
-            </div>
-        </div>
-
         <div class="header-actions">
             <button class="action-btn" onclick="window.toggleCart()" id="desktop-cart-btn">
                 🛒 <span class="hide-mobile-text">Basket</span>
@@ -296,7 +287,7 @@
         <main class="content-area" id="products-area">
             <div class="controls-bar">
                 <div class="search-sort-wrapper" id="mobile-search-sort">
-                    <div class="control-chip">
+                    <div class="control-chip" style="box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
                         🔍 <input type="text" id="search-bar-mobile" placeholder="Search for products..." oninput="window.syncInputs('mobile')">
                         <span id="clear-search-mobile" class="clear-search-btn" onclick="window.clearSearch('mobile')">×</span>
                     </div>
@@ -484,11 +475,11 @@
         const googleSheetUrl = "https://script.google.com/macros/s/AKfycbwq17hSzF9mgPqqKw8FDVWFktoxpugpZNKYRjc6hmTSOKxQm4fY2jC1talNoEpMdDQ/exec"; 
         const WHATSAPP_NUMBER = "919829610570"; 
         
-        let allItems = []; let currentCategory = 'All Items'; let currentBrand = 'All Brands'; let currentTagFilter = 'All'; let cart = {}; 
+        let allItems = []; let currentCategory = 'All Items'; let currentTagFilter = 'All'; let cart = {}; 
         let currentFilteredItems = [];
         
         window.globalPastOrders = []; 
-        window.currentTab = 'catalogue'; // Track current tab
+        window.currentTab = 'catalogue'; 
 
         window.normalizeData = (items) => {
             return items.map(item => {
@@ -499,8 +490,15 @@
             });
         };
 
+        window.checkAvailable = (item) => {
+            if(item.available === undefined || item.available === null || item.available === '') return true;
+            let val = String(item.available).toLowerCase().trim();
+            if(val === 'no' || val === 'false' || val === '0') return false;
+            return true;
+        }
+
         window.clearAllFilters = () => {
-            ['header', 'mobile'].forEach(env => {
+            ['mobile'].forEach(env => {
                 let sb = document.getElementById(`search-bar-${env}`);
                 if(sb) sb.value = '';
                 let clearBtn = document.getElementById(`clear-search-${env}`);
@@ -533,17 +531,19 @@
             }
         };
 
-        // 🟢 NEW: TAB LOGIC 🟢
+        // 🟢 TAB LOGIC 🟢
         window.showBuyAgainTab = () => {
             window.currentTab = 'buy_again';
             
-            // Update Active State on Nav
+            // Update Nav Highlighting
             document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.bottom-nav .nav-item')[2].classList.add('active'); // Buy Again Button
+            document.querySelectorAll('.bottom-nav .nav-item')[2].classList.add('active'); 
             
+            // Update Title & Count
             document.getElementById('current-category-title').innerText = "🛍️ Buy Again";
             document.getElementById('item-count').style.display = 'none';
             
+            // Hide Tags
             const tagsCont = document.getElementById('tags-container-portrait');
             if(tagsCont) tagsCont.style.display = 'none';
 
@@ -554,7 +554,7 @@
             if(window.currentTab === 'catalogue') return;
             window.currentTab = 'catalogue';
             
-            // Update Active State on Nav (Default to Home if jumping back)
+            // Update Nav Highlighting
             document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active'));
             if(currentCategory === 'All Items') {
                 document.querySelectorAll('.bottom-nav .nav-item')[0].classList.add('active');
@@ -573,7 +573,7 @@
         window.syncInputs = (source) => {
             const searchVal = document.getElementById(`search-bar-${source}`) ? document.getElementById(`search-bar-${source}`).value : '';
             
-            ['header', 'mobile'].forEach(env => {
+            ['mobile'].forEach(env => {
                 const searchEl = document.getElementById(`search-bar-${env}`);
                 const clearBtn = document.getElementById(`clear-search-${env}`);
                 if(searchEl && env !== source) searchEl.value = searchVal;
@@ -644,11 +644,12 @@
             let allBrands = new Set();
             allItems.forEach(item => { if(item.brand) allBrands.add(item.brand); });
             if(allBrands.size > 0) {
-                let tagsHTML = `<div class="filter-tag-chip ${currentTagFilter === 'All' ? 'active' : ''}" data-tag="All" onclick="window.setTagFilter('All'); window.showCatalogueTab();">All Brands</div>`;
+                let tagsHTML = `<div class="filter-tag-chip ${currentTagFilter === 'All' ? 'active' : ''}" data-real-brand="All" onclick="window.setTagFilter('All'); window.showCatalogueTab();">All Brands</div>`;
                 Array.from(allBrands).sort().forEach(brand => {
-                    let safeTag = brand.replace(/'/g, "\\'");
+                    let safeBrand = brand.replace(/"/g, '&quot;');
+                    let safeArg = brand.replace(/'/g, "\\'");
                     let isActive = currentTagFilter === brand ? 'active' : '';
-                    tagsHTML += `<div class="filter-tag-chip ${isActive}" data-tag="${safeTag}" onclick="window.setTagFilter('${safeTag}'); window.showCatalogueTab();">${brand}</div>`;
+                    tagsHTML += `<div class="filter-tag-chip ${isActive}" data-real-brand="${safeBrand}" onclick="window.setTagFilter('${safeArg}'); window.showCatalogueTab();">${brand}</div>`;
                 });
                 const tagCont = document.getElementById('tags-container-portrait');
                 if(tagCont) tagCont.innerHTML = tagsHTML;
@@ -667,18 +668,62 @@
         window.setTagFilter = (tag) => {
             currentTagFilter = tag;
             document.querySelectorAll('.filter-tag-chip').forEach(btn => {
-                if(btn.getAttribute('data-tag') === tag) btn.classList.add('active'); else btn.classList.remove('active');
+                let rBrand = btn.getAttribute('data-real-brand');
+                if(rBrand === tag) btn.classList.add('active'); else btn.classList.remove('active');
             });
             window.applyFilters();
         }
 
         window.extractVolumeText = (name) => { const match = name.match(/(\d+\s*(ml|l|ltr|gm|g|kg))/i); return match ? match[0] : ''; }
 
+        // 🟢 SMART FILTER EVALUATION IN APPLY FILTERS 🟢
         window.applyFilters = () => {
             const gridWrapper = document.getElementById('main-menu-grid'); 
-            const searchInput = document.getElementById(window.innerWidth > 999 ? 'search-bar-header' : 'search-bar-mobile');
+            const searchInput = document.getElementById('search-bar-mobile');
             const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : ''; 
 
+            // 1. SMART BRAND & CATEGORY UI UPDATES
+            let validBrands = new Set(['All']);
+            let validCategories = new Set(['All Items']);
+            
+            allItems.forEach(i => {
+                let matchesSearch = searchTerm !== '' ? ((i.name || '').toLowerCase().includes(searchTerm) || (i.brand || '').toLowerCase().includes(searchTerm)) : true;
+                if(matchesSearch) {
+                    let matchesCat = (searchTerm !== '') ? true : (currentCategory === 'All Items' ? true : (i.category || 'Others') === currentCategory);
+                    if (matchesCat && i.brand) validBrands.add(i.brand);
+
+                    let matchesBrand = (searchTerm !== '') ? true : (currentTagFilter === 'All' ? true : i.brand === currentTagFilter);
+                    if (matchesBrand) validCategories.add(i.category || 'Others');
+                }
+            });
+
+            if (currentTagFilter !== 'All' && !validBrands.has(currentTagFilter)) {
+                currentTagFilter = 'All';
+                document.querySelectorAll('.filter-tag-chip').forEach(btn => {
+                    if(btn.getAttribute('data-real-brand') === 'All') btn.classList.add('active');
+                    else btn.classList.remove('active');
+                });
+            }
+            if (currentCategory !== 'All Items' && !validCategories.has(currentCategory)) {
+                currentCategory = 'All Items';
+                document.querySelectorAll('.cat-item').forEach(btn => {
+                    if(btn.querySelector('.cat-name').innerText.trim() === 'All Items') btn.classList.add('active');
+                    else btn.classList.remove('active');
+                });
+            }
+
+            document.querySelectorAll('.filter-tag-chip').forEach(el => {
+                let btnTag = el.getAttribute('data-real-brand'); 
+                if(btnTag === 'All' || validBrands.has(btnTag)) el.style.display = 'flex';
+                else el.style.display = 'none';
+            });
+            document.querySelectorAll('.cat-item').forEach(el => {
+                let catName = el.querySelector('.cat-name').innerText.trim();
+                if(validCategories.has(catName)) el.style.display = 'flex';
+                else el.style.display = 'none';
+            });
+
+            // 2. ACTUAL ITEM FILTERING
             let filteredItems = allItems.filter(item => {
                 let matchesCategory = currentCategory === 'All Items' ? true : (item.category || 'Others') === currentCategory;
                 if (searchTerm !== '') matchesCategory = true;
@@ -713,18 +758,23 @@
                 let m = parseFloat(item.mrp); let p = parseFloat(item.price);
                 let discountNum = (m && !isNaN(m) && m > p) ? Math.round(((m - p) / m) * 100) : 0;
                 
+                let isAvail = window.checkAvailable(item);
+                let btnHTML = isAvail 
+                    ? `<div class="btn-container add-wrap-class-${safeName}" onclick="event.stopPropagation()"></div>`
+                    : `<div class="btn-container" style="right:5px; bottom:5px; position:absolute;"><span style="color:var(--active-brand-red); font-size:0.75em; font-weight:800; text-transform:uppercase; background:var(--chip-bg); padding:4px 8px; border-radius:4px;">Out of Stock</span></div>`;
+
                 newHTML += `
                     <div class="menu-card" onclick="window.openProductDetail('${item.name.replace(/'/g, "\\'")}')">
-                        <div class="card-img-wrapper">
+                        <div class="card-img-wrapper" style="${!isAvail ? 'opacity:0.6; filter:grayscale(100%);' : ''}">
                             ${discountNum > 0 ? `<div class="new-badge">${discountNum}% OFF</div>` : ''}
                             <img src="${item.img}" loading="lazy" onerror="this.src='https://placehold.co/150x150/f4f6f9/a0a0a0?text=Ice+Cream';">
                         </div>
                         <div class="brand-tag">${item.brand || 'Glacier'}</div>
-                        <div class="item-name">${displayName}</div>
+                        <div class="item-name" style="${!isAvail ? 'color:var(--text-muted);' : ''}">${displayName}</div>
                         <div class="item-volume">${volText || '1 Unit'}</div>
-                        <div class="price-row">
+                        <div class="price-row" style="width:100%; display:flex; justify-content:space-between; align-items:flex-end;">
                             <div class="price-row-top"><span class="item-price">₹${item.price}</span>${discountNum > 0 ? `<span class="item-mrp">₹${item.mrp}</span>` : ''}</div>
-                            <div class="btn-container add-wrap-class-${safeName}" onclick="event.stopPropagation()"></div>
+                            ${btnHTML}
                         </div>
                     </div>
                 `;
@@ -737,6 +787,7 @@
         window.renderBuyAgainGrid = () => {
             const gridWrapper = document.getElementById('main-menu-grid');
             gridWrapper.innerHTML = '';
+            document.getElementById('status-msg').style.display = 'none'; 
             
             if(!window.globalUser || window.globalPastOrders.length === 0) {
                 gridWrapper.innerHTML = `<div style="text-align:center; padding:40px 20px; grid-column: 1 / -1; color: var(--text-muted); width: 100%;">
@@ -780,18 +831,23 @@
                 let discountNum = (m && !isNaN(m) && m > p) ? Math.round(((m - p) / m) * 100) : 0;
                 let stats = itemStats[item.name];
                 
+                let isAvail = window.checkAvailable(item);
+                let btnHTML = isAvail 
+                    ? `<div class="btn-container add-wrap-class-${safeName}" onclick="event.stopPropagation()"></div>`
+                    : `<div class="btn-container" style="right:5px; bottom:5px; position:absolute;"><span style="color:var(--active-brand-red); font-size:0.75em; font-weight:800; text-transform:uppercase; background:var(--chip-bg); padding:4px 8px; border-radius:4px;">Out of Stock</span></div>`;
+
                 newHTML += `
                     <div class="menu-card" onclick="window.openProductDetail('${item.name.replace(/'/g, "\\'")}')">
-                        <div class="card-img-wrapper">
+                        <div class="card-img-wrapper" style="${!isAvail ? 'opacity:0.6; filter:grayscale(100%);' : ''}">
                             ${discountNum > 0 ? `<div class="new-badge">${discountNum}% OFF</div>` : ''}
                             <img src="${item.img}" loading="lazy" onerror="this.src='https://placehold.co/150x150/f4f6f9/a0a0a0?text=Ice+Cream';">
                         </div>
                         <div class="brand-tag">${item.brand || 'Glacier'}</div>
-                        <div class="item-name">${displayName}</div>
+                        <div class="item-name" style="${!isAvail ? 'color:var(--text-muted);' : ''}">${displayName}</div>
                         <div class="item-volume">${volText || '1 Unit'} <span style="font-size:0.8em; color:var(--glacier-blue); font-weight:700;">(Bought ${stats.qty}x)</span></div>
-                        <div class="price-row">
+                        <div class="price-row" style="width:100%; display:flex; justify-content:space-between; align-items:flex-end;">
                             <div class="price-row-top"><span class="item-price">₹${item.price}</span>${discountNum > 0 ? `<span class="item-mrp">₹${item.mrp}</span>` : ''}</div>
-                            <div class="btn-container add-wrap-class-${safeName}" onclick="event.stopPropagation()"></div>
+                            ${btnHTML}
                         </div>
                     </div>
                 `;
@@ -831,10 +887,16 @@
             document.getElementById('pd-modal-mrp').innerText = (m && m > p) ? `₹${item.mrp}` : '';
 
             const btnWrap = document.getElementById('pd-modal-btn-wrap');
-            if (cart[item.name]) {
-                btnWrap.innerHTML = `<div class="app-qty-control"><button onclick="window.changeQty('${item.name.replace(/'/g, "\\'")}', -1)">−</button><span>${cart[item.name].qty}</span><button onclick="window.changeQty('${item.name.replace(/'/g, "\\'")}', 1)">+</button></div>`;
+            let isAvail = window.checkAvailable(item);
+            
+            if(!isAvail) {
+                btnWrap.innerHTML = `<div style="width:100%; height:45px; display:flex; align-items:center; justify-content:center; background:#f1f3f6; color:var(--text-muted); border-radius:8px; font-weight:bold; font-size:1.1em;">OUT OF STOCK</div>`;
             } else {
-                btnWrap.innerHTML = `<button class="app-add-btn" onclick="window.addToCart('${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.brand ? item.brand.replace(/'/g, "\\'") : ''}')">Add to Cart</button>`;
+                if (cart[item.name]) {
+                    btnWrap.innerHTML = `<div class="app-qty-control"><button onclick="window.changeQty('${item.name.replace(/'/g, "\\'")}', -1)">−</button><span>${cart[item.name].qty}</span><button onclick="window.changeQty('${item.name.replace(/'/g, "\\'")}', 1)">+</button></div>`;
+                } else {
+                    btnWrap.innerHTML = `<button class="app-add-btn" onclick="window.addToCart('${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.brand ? item.brand.replace(/'/g, "\\'") : ''}')">Add to Cart</button>`;
+                }
             }
             window.openSpecificModal('product-detail-modal');
         }
@@ -842,6 +904,7 @@
         window.updateAddButtons = () => {
             allItems.forEach(item => {
                 if(!item.name) return;
+                if(!window.checkAvailable(item)) return; // Skip OOS
                 const safeName = item.name.replace(/[^a-zA-Z0-9]/g, '_'); 
                 const wraps = document.querySelectorAll(`.add-wrap-class-${safeName}`);
                 wraps.forEach(wrap => {
@@ -869,7 +932,7 @@
         window.updateCartUI = () => {
             const cartList = document.getElementById('cart-items-list'); 
             const badge = document.getElementById('cart-badge-count-bottom');
-            const deskBadge = document.getElementById('desktop-cart-badge');
+            const deskBadge = document.getElementById('desktop-cart-badge'); // Desktop Badge
             let totalQty = 0; let totalPrice = 0; cartList.innerHTML = '';
             
             for (const [name, data] of Object.entries(cart)) {
@@ -906,6 +969,7 @@
             if(confirm("Are you sure you want to clear your cart?")) {
                 cart = {};
                 window.updateCartUI();
+                window.closeSpecificModal('cart-modal');
             }
         };
 
@@ -1194,7 +1258,7 @@
                 
                 let addr = window.globalUserData.addresses[window.selectedAddressIndex] || window.globalUserData.addresses[0];
                 message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${addr.house}, ${addr.area}\n`;
-                if (addr.lat && addr.lng) message += `📍 *Location:* https://maps.google.com/maps?q=26.8901148,75.8097553&t=&z=16&ie=UTF8&iwloc=&output=embed{addr.lat},${addr.lng}\n`;
+                if (addr.lat && addr.lng) message += `📍 *Location:* https://maps.google.com/maps?q=26.8901148,75.8097553&t=&z=16&ie=UTF8&iwloc=&output=embed$${addr.lat},${addr.lng}\n`;
                 
                 addDoc(collection(db, "orders"), { userId: window.userDocId, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() });
                 
