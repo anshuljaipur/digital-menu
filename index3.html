@@ -68,6 +68,7 @@
         .action-btn { font-family: 'Poppins', sans-serif; border: 1px solid rgba(255,255,255,0.2); padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 0.85em; cursor: pointer; display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.1); color: white; flex-shrink: 0;}
         .btn-profile { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); }
 
+        .header-search { display: none; }
         .control-chip { display: flex; align-items: center; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 15px; width: 100%; box-sizing: border-box;}
         .control-chip input { border: none; outline: none; background: transparent; font-family: inherit; font-size: 0.9em; width: 100%; color: var(--text-main); margin-left: 8px;}
         .clear-search-btn { display: none; cursor: pointer; color: var(--text-muted); font-size: 1.3em; font-weight: bold; line-height: 1; padding: 0 5px; }
@@ -79,12 +80,8 @@
         /* --- 3. MAIN DESKTOP LAYOUT --- */
         .main-layout { display: flex; flex: 1; overflow: hidden; background: var(--main-bg); width: 100%; box-sizing: border-box;}
         
-        .sidebar { width: 220px; background: var(--card-bg); display: flex; flex-direction: column; overflow-y: auto; padding: 10px 0; gap: 0; border-right: 1px solid var(--border-color); flex-shrink: 0; box-sizing: border-box; height: calc(100vh - 65px);}
-        
-        /* 🟢 Custom Scrollbars for Sidebar & Tags 🟢 */
-        .sidebar { scrollbar-width: thin; scrollbar-color: var(--border-color) transparent; }
-        .sidebar::-webkit-scrollbar { width: 4px; display: block; }
-        .sidebar::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        .sidebar { width: 220px; background: var(--card-bg); display: flex; flex-direction: column; overflow-y: auto; padding: 10px 0; gap: 0; border-right: 1px solid var(--border-color); flex-shrink: 0; box-sizing: border-box; position: sticky; top: 65px; height: calc(100vh - 65px); scrollbar-width: none; }
+        .sidebar::-webkit-scrollbar { display: none; }
         
         .cat-item { display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; padding: 15px 10px; gap: 8px; flex-shrink: 0; color: var(--text-main); border-bottom: 1px solid var(--border-color); text-align: center;}
         .cat-icon { font-size: 1.8em; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
@@ -92,24 +89,23 @@
         .cat-item.active { background: white; border-left: 4px solid var(--glacier-blue); border-bottom: 1px solid var(--border-color); }
         .cat-item.active .cat-name { color: var(--glacier-blue); font-weight: 700; }
 
-        /* 🟢 Right Content Wrapper (Separates Controls and Scrollable Items) 🟢 */
         .right-content-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--card-bg); }
 
         .controls-bar { background: var(--bg-color); display: flex; flex-direction: column; gap: 10px; padding: 10px 20px 5px 20px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; width: 100%; box-sizing: border-box; }
 
-        .tags-container { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 10px 0; width: 100%; box-sizing: border-box; background: transparent;}
-        .tags-container { scrollbar-width: thin; scrollbar-color: var(--border-color) transparent; }
-        .tags-container::-webkit-scrollbar { height: 4px; display: block; }
-        .tags-container::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
-
+        .tags-outer-wrapper { position: relative; width: 100%; display: flex; align-items: center; overflow: hidden; }
+        .tags-container { display: flex; gap: 8px; overflow-x: auto; padding: 8px 0; width: 100%; box-sizing: border-box; background: transparent; scrollbar-width: none; scroll-behavior: smooth;}
+        .tags-container::-webkit-scrollbar { display: none; }
         .filter-tag-chip { padding: 6px 14px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.75em; font-weight: 500; color: var(--text-main); cursor: pointer; white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .filter-tag-chip.active { background: rgba(138, 21, 56, 0.1); color: var(--glacier-blue); border-color: var(--glacier-blue); font-weight: 600;}
 
-        /* Content Area is now just the items, scrolling starts exactly below controls */
-        .content-area { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 0px 20px 20px 20px; scroll-behavior: smooth; box-sizing: border-box; position: relative; overscroll-behavior-y: none; -webkit-overflow-scrolling: touch; width: 100%; background: #fff;}
-        .content-area { scrollbar-width: thin; scrollbar-color: var(--border-color) transparent; }
-        .content-area::-webkit-scrollbar { width: 6px; display: block; }
-        .content-area::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+        .tag-scroll-btn { position: absolute; top: 0; height: 100%; width: 30px; background: rgba(138, 21, 56, 0.85); color: white; border: none; z-index: 10; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 1.2em; border-radius: 0; transition: 0.2s;}
+        .tag-scroll-btn.left { left: 0; }
+        .tag-scroll-btn.right { right: 0; }
+        .tag-scroll-btn:hover { background: rgba(138, 21, 56, 1); }
+
+        .content-area { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 0px 20px 20px 20px; scroll-behavior: smooth; box-sizing: border-box; position: relative; overscroll-behavior-y: none; -webkit-overflow-scrolling: touch; width: 100%; background: #fff; scrollbar-width: none;}
+        .content-area::-webkit-scrollbar { display: none; }
 
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; margin-top: 15px; width: 100%; gap: 10px; flex-shrink: 0;}
         .section-header h2 { margin: 0; font-size: 1.1em; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
@@ -141,7 +137,7 @@
         @keyframes toastUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes toastFade { from { opacity: 1; } to { opacity: 0; display: none; } }
 
-        /* 🟢 MODAL UI CLASSES 🟢 */
+        /* MODAL UI CLASSES */
         .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: var(--overlay-bg); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
         .modal-content-box { background: var(--card-bg); color: var(--text-main); padding: 20px; border-radius: 12px; width: 90%; max-width: 450px; max-height: 90dvh; overflow-y: auto; box-sizing: border-box; display: flex; flex-direction: column; position: relative;}
         
@@ -151,31 +147,13 @@
         
         .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
         .cart-item-details { flex: 2; font-size: 0.9em;}
-        .cart-item-controls { flex: 1; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .cart-item-controls { flex: 1; display: flex; justify-content: center; align-items: center; gap: 6px; }
         .qty-btn { background: white; border: 1px solid var(--border-color); width: 28px; height: 28px; border-radius: 4px; font-weight: bold; cursor: pointer; color: var(--glacier-blue); }
         
         .auth-input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95em; margin-bottom: 15px; box-sizing: border-box; font-family: 'Poppins', sans-serif; background: var(--input-bg); color: var(--text-main); outline: none;}
         .auth-label { font-size: 0.8em; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; display: block; text-transform: uppercase; }
         .auth-btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 1em; font-weight: 700; color: #000; background: var(--primary-color); cursor: pointer; margin-bottom: 10px; }
         .checkout-btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 1em; font-weight: 700; color: #000; background: var(--primary-color); cursor: pointer; margin-top: 10px;}
-        
-        .type-selector { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; scrollbar-width: none; padding-bottom: 5px;}
-        .type-badge { padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 50px; font-size: 0.8em; cursor: pointer; color: var(--text-muted); font-weight: 600; background: var(--card-bg);}
-        .type-badge.active { background: var(--glacier-blue); color: white; border-color: var(--glacier-blue); }
-
-        .address-card { border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; margin-bottom: 12px; cursor: pointer; position: relative; background: var(--card-bg); box-shadow: 0 2px 5px rgba(0,0,0,0.02);}
-        .address-card.selected { border-color: var(--glacier-blue); background: var(--hover-bg); border-width: 2px; padding: 11px;}
-        .address-card.selected::after { content: '✓'; position: absolute; top: 12px; right: 12px; color: var(--glacier-blue); font-size: 1.2em; font-weight: 900; }
-        .addr-label { font-weight: 800; font-size: 0.85em; color: var(--text-main); margin-bottom: 4px; display: flex; align-items: center; gap: 6px; text-transform: uppercase;}
-        .addr-details { font-size: 0.8em; color: var(--text-muted); line-height: 1.5; margin-bottom: 4px;}
-        .addr-actions { margin-top: 10px; display: flex; gap: 15px; border-top: 1px dashed var(--border-color); padding-top: 8px;}
-        .addr-btn { font-size: 0.75em; color: var(--glacier-blue); background: none; border: none; padding: 0; cursor: pointer; font-weight: 700; }
-
-        .order-history-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; margin-bottom: 15px;}
-        .order-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 10px;}
-        .order-history-date { font-weight: 700; color: var(--text-main); font-size: 0.85em; }
-        .order-history-total { font-weight: 800; color: var(--glacier-blue); font-size: 1.1em;}
-        .order-item-line { display: flex; gap: 8px; margin-bottom: 4px; align-items: flex-start; font-size: 0.85em; color: var(--text-muted); }
 
         /* PRODUCT DETAIL CSS */
         #product-detail-modal .modal-content-box { padding: 0; max-width: 500px; height: 100dvh; border-radius: 0; background: #fff;}
@@ -209,10 +187,13 @@
 
         /* 🟢 DESKTOP UI 🟢 */
         @media (min-width: 1000px) {
+            .sidebar { resize: horizontal; overflow-x: hidden; min-width: 200px; max-width: 400px; border-right: 2px solid var(--border-color); }
+            .header-search { display: flex; flex: 1; max-width: 400px; margin: 0 20px; }
+            .header-search .control-chip { padding: 8px 15px; height: 40px; margin: 0; border-radius: 8px;}
             .right-content-wrapper { width: 100%; }
             .controls-bar { display: flex !important; flex-direction: row; align-items: center; justify-content: flex-start; padding: 15px 20px; background: var(--bg-color); border-bottom: 1px solid var(--border-color); z-index: 10;}
-            .controls-bar .search-sort-wrapper { max-width: 400px; flex: 1; margin-bottom: 0;}
-            .controls-bar .tags-container { flex: 2; padding: 0 20px;}
+            .controls-bar .search-sort-wrapper { display: none; }
+            .controls-bar .tags-outer-wrapper { flex: 2; padding: 0; }
         }
 
         /* 📱 🔥 MOBILE PORTRAIT UI FIXES 📱 */
@@ -280,7 +261,14 @@
     <header>
         <div style="display: flex; align-items: center; gap: 10px;">
             <span style="font-size: 1.5em; font-weight: 800; letter-spacing: 1px;">Glacier</span>
-            <span style="font-size: 0.8em; background: var(--primary-color); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold;">ICE CREAM PARLOR</span>
+            <span style="font-size: 0.8em; background: var(--primary-color); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold;">MINUTES</span>
+        </div>
+
+        <div class="header-search">
+            <div class="control-chip">
+                🔍 <input type="text" id="search-bar-header" placeholder="Search for products..." oninput="window.syncInputs('header')">
+                <span id="clear-search-header" class="clear-search-btn" onclick="window.clearSearch('header')">×</span>
+            </div>
         </div>
         
         <div class="header-actions">
@@ -314,7 +302,12 @@
                         <span id="clear-search-mobile" class="clear-search-btn" onclick="window.clearSearch('mobile')">×</span>
                     </div>
                 </div>
-                <div class="tags-container" id="tags-container-portrait"></div>
+                
+                <div class="tags-outer-wrapper">
+                    <button id="tag-scroll-left" class="tag-scroll-btn left" onclick="document.getElementById('tags-container-portrait').scrollBy({left: -150, behavior: 'smooth'})">❮</button>
+                    <div class="tags-container" id="tags-container-portrait" onscroll="window.updateTagArrows()"></div>
+                    <button id="tag-scroll-right" class="tag-scroll-btn right" onclick="document.getElementById('tags-container-portrait').scrollBy({left: 150, behavior: 'smooth'})">❯</button>
+                </div>
             </div>
 
             <main class="content-area" id="products-area">
@@ -391,19 +384,19 @@
                     <span>₹<span id="cart-total-price">0</span></span>
                 </div>
                 <button id="checkout-wa" class="checkout-btn" onclick="window.checkout('whatsapp')">Proceed to Checkout</button>
-                <button class="checkout-btn" style="background: var(--chip-bg); color: var(--active-brand-red); margin-top: 10px; border: 1px solid rgba(231, 76, 60, 0.2); box-shadow:none;" onclick="window.clearCart()">🗑️ Clear Cart</button>
+                <button class="checkout-btn" style="background: var(--chip-bg); color: var(--active-brand-red); margin-top: 10px; border: 1px solid rgba(231, 76, 60, 0.2); box-shadow:none;" onclick="window.confirmClearCart()">🗑️ Clear Cart</button>
             </div>
         </div>
     </div>
 
     <div id="confirm-clear-modal" class="custom-modal" onclick="window.closeSpecificModal('confirm-clear-modal')" style="z-index: 10005;">
-        <div class="modal-content-box" onclick="event.stopPropagation()" style="text-align: center; max-width: 320px; padding: 25px; margin: auto;">
+        <div class="modal-content-box" onclick="event.stopPropagation()" style="text-align: center; max-width: 320px; padding: 25px; margin: auto; height: auto;">
             <div style="font-size: 3.5em; margin-bottom: 10px; line-height: 1;">🗑️</div>
             <h2 style="margin: 0 0 10px 0; font-size: 1.2em; color: var(--text-main);">Clear Basket?</h2>
-            <p style="color: var(--text-muted); font-size: 0.9em; margin-bottom: 25px;">All selected items will be removed from your basket.</p>
+            <p style="color: var(--text-muted); font-size: 0.9em; margin-bottom: 25px;">All items will be removed from your basket.</p>
             <div style="display: flex; gap: 10px;">
                 <button class="auth-btn" style="flex: 1; background: var(--chip-bg); color: var(--text-main); margin:0; box-shadow:none;" onclick="window.closeSpecificModal('confirm-clear-modal')">Cancel</button>
-                <button class="auth-btn" style="flex: 1; background: var(--active-brand-red); color: white; margin:0; box-shadow:none;" onclick="window.executeClearCart()">Clear</button>
+                <button class="auth-btn" style="flex: 1; background: #e74c3c; color: white; margin:0; box-shadow:none;" onclick="window.executeClearCart()">Clear</button>
             </div>
         </div>
     </div>
@@ -549,7 +542,7 @@
         }
 
         window.clearAllFilters = () => {
-            ['mobile'].forEach(env => {
+            ['mobile', 'header'].forEach(env => {
                 let sb = document.getElementById(`search-bar-${env}`);
                 if(sb) sb.value = '';
                 let clearBtn = document.getElementById(`clear-search-${env}`);
@@ -610,6 +603,24 @@
         if (productsArea) { productsArea.addEventListener('scroll', handleScroll); }
         window.addEventListener('scroll', handleScroll);
 
+        // 🟢 BRAND SCROLL ARROWS LOGIC 🟢
+        window.updateTagArrows = () => {
+            const container = document.getElementById('tags-container-portrait');
+            const leftBtn = document.getElementById('tag-scroll-left');
+            const rightBtn = document.getElementById('tag-scroll-right');
+            if(!container || !leftBtn || !rightBtn) return;
+            
+            if(container.scrollWidth <= container.clientWidth) {
+                leftBtn.style.display = 'none';
+                rightBtn.style.display = 'none';
+                return;
+            }
+            
+            leftBtn.style.display = container.scrollLeft > 5 ? 'flex' : 'none';
+            rightBtn.style.display = Math.ceil(container.scrollLeft + container.clientWidth) < container.scrollWidth - 5 ? 'flex' : 'none';
+        };
+        window.addEventListener('resize', window.updateTagArrows);
+
         // 🟢 TAB LOGIC 🟢
         window.showBuyAgainTab = () => {
             window.currentTab = 'buy_again';
@@ -618,7 +629,7 @@
             document.querySelectorAll('.bottom-nav .nav-item')[2].classList.add('active'); 
             
             document.getElementById('item-count').style.display = 'none';
-            const tagsCont = document.getElementById('tags-container-portrait');
+            const tagsCont = document.querySelector('.tags-outer-wrapper');
             if(tagsCont) tagsCont.style.display = 'none';
 
             window.applyFilters();
@@ -637,8 +648,11 @@
             }
             
             document.getElementById('item-count').style.display = 'inline';
-            const tagsCont = document.getElementById('tags-container-portrait');
-            if(tagsCont) tagsCont.style.display = 'flex';
+            const tagsCont = document.querySelector('.tags-outer-wrapper');
+            if(tagsCont) {
+                tagsCont.style.display = 'flex';
+                setTimeout(window.updateTagArrows, 100);
+            }
             
             window.applyFilters();
             window.scrollToTop(); 
@@ -648,7 +662,7 @@
         window.syncInputs = (source) => {
             const searchVal = document.getElementById(`search-bar-${source}`) ? document.getElementById(`search-bar-${source}`).value : '';
             
-            ['mobile'].forEach(env => {
+            ['mobile', 'header'].forEach(env => {
                 const searchEl = document.getElementById(`search-bar-${env}`);
                 const clearBtn = document.getElementById(`clear-search-${env}`);
                 if(searchEl && env !== source) searchEl.value = searchVal;
@@ -728,6 +742,8 @@
                 const tagCont = document.getElementById('tags-container-portrait');
                 if(tagCont) tagCont.innerHTML = tagsHTML;
             }
+            
+            setTimeout(window.updateTagArrows, 100);
         }
 
         window.setCategory = (categoryName) => {
@@ -750,22 +766,33 @@
 
         window.extractVolumeText = (name) => { const match = name.match(/(\d+\s*(ml|l|ltr|gm|g|kg))/i); return match ? match[0] : ''; }
 
+        // 🟢 SMART FILTER EVALUATION IN APPLY FILTERS 🟢
         window.applyFilters = () => {
             const gridWrapper = document.getElementById('main-menu-grid'); 
-            const searchInput = document.getElementById('search-bar-mobile');
-            const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : ''; 
+            
+            let searchTerm = '';
+            const searchInputMobile = document.getElementById('search-bar-mobile');
+            const searchInputHeader = document.getElementById('search-bar-header');
+            if(window.innerWidth > 999 && searchInputHeader) searchTerm = searchInputHeader.value.toLowerCase().trim();
+            else if(searchInputMobile) searchTerm = searchInputMobile.value.toLowerCase().trim();
 
             let validBrands = new Set(['All']);
             let validCategories = new Set(['All Items']);
             
             allItems.forEach(i => {
-                let matchesSearch = searchTerm !== '' ? ((i.name || '').toLowerCase().includes(searchTerm) || (i.brand || '').toLowerCase().includes(searchTerm)) : true;
-                if(matchesSearch) {
-                    let matchesCat = (searchTerm !== '') ? true : (currentCategory === 'All Items' ? true : (i.category || 'Others') === currentCategory);
-                    if (matchesCat && i.brand) validBrands.add(i.brand);
+                let matchesSearch = true;
+                if(searchTerm !== '') {
+                    let textToSearch = ((i.name || '') + ' ' + (i.brand || '')).toLowerCase();
+                    let searchWords = searchTerm.split(' ').filter(w => w.trim() !== '');
+                    matchesSearch = searchWords.every(word => textToSearch.includes(word));
+                }
 
-                    let matchesBrand = (searchTerm !== '') ? true : (currentTagFilter === 'All' ? true : i.brand === currentTagFilter);
-                    if (matchesBrand) validCategories.add(i.category || 'Others');
+                if(matchesSearch) {
+                    let matchesCat = currentCategory === 'All Items' || (i.category || 'Others') === currentCategory;
+                    let matchesBrand = currentTagFilter === 'All' || i.brand === currentTagFilter;
+
+                    if (matchesCat && i.brand) validBrands.add(i.brand);
+                    if (matchesBrand && i.category) validCategories.add(i.category || 'Others');
                 }
             });
 
@@ -791,17 +818,26 @@
             });
             document.querySelectorAll('.cat-item').forEach(el => {
                 let catName = el.querySelector('.cat-name').innerText.trim();
-                if(validCategories.has(catName)) el.style.display = 'flex';
+                if(catName === 'All Items' || validCategories.has(catName)) el.style.display = 'flex';
                 else el.style.display = 'none';
             });
 
             let filteredItems = allItems.filter(item => {
                 let matchesCategory = currentCategory === 'All Items' ? true : (item.category || 'Others') === currentCategory;
-                if (searchTerm !== '') matchesCategory = true;
-                let matchesSearch = searchTerm !== '' ? ((item.name || '').toLowerCase().includes(searchTerm) || (item.brand || '').toLowerCase().includes(searchTerm)) : true;
+                
+                let matchesSearch = true;
+                if(searchTerm !== '') {
+                    let textToSearch = ((item.name || '') + ' ' + (item.brand || '')).toLowerCase();
+                    let searchWords = searchTerm.split(' ').filter(w => w.trim() !== '');
+                    matchesSearch = searchWords.every(word => textToSearch.includes(word));
+                }
+                
                 const matchesTag = currentTagFilter === 'All' ? true : item.brand === currentTagFilter;
+                
                 return matchesCategory && matchesSearch && matchesTag;
             });
+
+            setTimeout(window.updateTagArrows, 100);
 
             if(window.currentTab === 'buy_again') {
                 document.getElementById('current-category-title').innerText = "🛍️ Buy Again";
@@ -1042,6 +1078,28 @@
             } 
         }
 
+        // 🟢 DIRECT QTY EDIT AND TRASH BUTTON 🟢
+        window.setCartQty = (name, val) => {
+            let qty = parseInt(val);
+            if (isNaN(qty) || qty <= 0) {
+                window.removeFromCart(name);
+            } else {
+                if(cart[name]) {
+                    cart[name].qty = qty;
+                    window.updateCartUI();
+                    if(document.getElementById('product-detail-modal').style.display === 'flex') window.openProductDetail(name);
+                }
+            }
+        };
+
+        window.removeFromCart = (name) => {
+            if(cart[name]) {
+                delete cart[name];
+                window.updateCartUI();
+                if(document.getElementById('product-detail-modal').style.display === 'flex') window.openProductDetail(name);
+            }
+        };
+
         window.updateCartUI = () => {
             const cartList = document.getElementById('cart-items-list'); 
             const badge = document.getElementById('cart-badge-count-bottom');
@@ -1050,10 +1108,17 @@
             
             for (const [name, data] of Object.entries(cart)) {
                 totalQty += data.qty; const itemTotal = data.price * data.qty; totalPrice += itemTotal;
+                let safeNameArg = name.replace(/'/g, "\\'");
+                
                 cartList.innerHTML += `
                 <div class="cart-item">
                     <div class="cart-item-details"><div style="font-weight: 500;">${name}</div><div style="font-weight: 700; margin-top: 5px;">₹${data.price}</div></div>
-                    <div class="cart-item-controls"><button class="qty-btn" onclick="window.changeQty('${name.replace(/'/g, "\\'")}', -1)">-</button><span style="font-weight: 600;">${data.qty}</span><button class="qty-btn" onclick="window.changeQty('${name.replace(/'/g, "\\'")}', 1)">+</button></div>
+                    <div class="cart-item-controls">
+                        <button class="qty-btn" onclick="window.changeQty('${safeNameArg}', -1)">-</button>
+                        <input type="number" value="${data.qty}" min="1" onchange="window.setCartQty('${safeNameArg}', this.value)" style="width: 35px; height: 28px; text-align: center; border: 1px solid var(--border-color); border-radius: 4px; font-weight: bold; background: var(--input-bg); color: var(--text-main);">
+                        <button class="qty-btn" onclick="window.changeQty('${safeNameArg}', 1)">+</button>
+                        <button class="qty-btn" style="background: rgba(231, 76, 60, 0.1); color: #e74c3c; margin-left: 8px; border: none;" onclick="window.removeFromCart('${safeNameArg}')">🗑️</button>
+                    </div>
                 </div>`;
             }
             window.updateAddButtons();
@@ -1076,7 +1141,7 @@
             if(modal.style.display === 'flex') window.closeSpecificModal('cart-modal'); else window.openSpecificModal('cart-modal');
         }
 
-        window.clearCart = () => {
+        window.confirmClearCart = () => {
             if(Object.keys(cart).length === 0) return;
             window.openSpecificModal('confirm-clear-modal');
         };
