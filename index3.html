@@ -19,9 +19,9 @@
 
         /* 🌓 CSS VARIABLES FOR THEMING (Flipkart Minutes Style) 🌓 */
         :root {
-            --primary-color: #ffc107; /* Yellow for main actions */
-            --glacier-blue: #8a1538; /* Maroon for headers and accents */
-            --active-brand-red: #0f9d58; /* Green for discounts */
+            --primary-color: #ffc107; 
+            --glacier-blue: #8a1538; 
+            --active-brand-red: #0f9d58; 
             
             /* LIGHT THEME */
             --bg-color: #ffffff;
@@ -179,7 +179,6 @@
         .pd-brand { font-size: 0.85em; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px;}
         #pd-modal-name { font-size: 1.2em; font-weight: 600; color: var(--text-main); margin: 0 0 15px 0; line-height: 1.3;}
         
-        /* 🟢 NEW: Product Info Texts 🟢 */
         .pd-desc-text { margin: 5px 0 15px 0; font-size: 0.9em; color: var(--text-muted); line-height: 1.5; display: none; }
         .pd-ing-text { margin: 0 0 15px 0; font-size: 0.8em; color: var(--active-brand-red); font-style: italic; line-height: 1.4; display: none; font-weight: 500;}
         .pd-allergen-text { margin: 0 0 15px 0; font-size: 0.8em; color: #d97706; font-weight: 600; display: none;}
@@ -209,7 +208,6 @@
             .hide-mobile-text { display: none; }
             .action-btn { padding: 6px 10px; border: none; background: transparent; font-size: 1.2em;}
             
-            /* Vertical Sidebar Layout */
             .main-layout { display: flex !important; flex-direction: row !important; width: 100%; height: calc(100dvh - 60px - 60px) !important; overflow: hidden !important;} 
             
             .sidebar { width: 85px !important; display: flex !important; flex-direction: column !important; background: #f8f9fa !important; border-right: 1px solid var(--border-color) !important; padding: 0 !important; padding-bottom: 80px !important; height: 100% !important; z-index: 10; position: relative !important; top: 0 !important;}
@@ -242,7 +240,6 @@
             .app-add-btn { width: 100%; height: 30px; font-size: 0.8em; border-radius: 6px; }
             .app-qty-control { width: 100%; height: 30px; font-size: 0.9em; border-radius: 6px;}
 
-            /* Bottom Nav */
             .bottom-nav { display: flex; position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: #fff; border-top: 1px solid #e0e0e0; justify-content: space-around; align-items: center; z-index: 10000; padding-bottom: env(safe-area-inset-bottom);}
             .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.65em; font-weight: 600; gap: 4px; position: relative; cursor: pointer;}
             .nav-item.active { color: var(--glacier-blue); }
@@ -323,7 +320,7 @@
         <div class="nav-item" onclick="document.getElementById('category-sidebar').scrollTo(0,0);">
             <span class="icon">🗂️</span><span>Categories</span>
         </div>
-        <div class="nav-item" onclick="window.openSpecificModal('orders-modal')">
+        <div class="nav-item" onclick="window.openSpecificModal('buy-again-modal'); window.renderBuyAgain();">
             <span class="icon">🛍️</span><span>Buy Again</span>
         </div>
         <div class="nav-item" onclick="window.toggleCart()">
@@ -374,6 +371,26 @@
                     <span>₹<span id="cart-total-price">0</span></span>
                 </div>
                 <button id="checkout-wa" class="checkout-btn" onclick="window.checkout('whatsapp')">Proceed to Pay</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="buy-again-modal" class="custom-modal full-page-modal" onclick="window.closeSpecificModal('buy-again-modal')">
+        <div class="modal-content-box" onclick="event.stopPropagation()" style="background: var(--main-bg); padding: 0;">
+            <div class="modal-header-row" style="background: var(--card-bg); margin: 0; padding: 20px; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 10;">
+                <div style="display: flex; flex-direction: column;">
+                    <h2 style="font-size: 1.3em; display:flex; align-items:center; gap:8px;">🛍️ Buy Again</h2>
+                    <span style="font-size: 0.8em; color: var(--text-muted);">Your frequently ordered items</span>
+                </div>
+                <div style="display:flex; gap: 15px; align-items:center;">
+                    <button onclick="window.closeSpecificModal('buy-again-modal'); window.openSpecificModal('orders-modal');" style="background:var(--chip-bg); border:none; padding:8px 12px; border-radius:6px; color:var(--glacier-blue); font-weight:600; font-size:0.85em; cursor:pointer;">Orders</button>
+                    <div class="close-modal-icon" onclick="window.closeSpecificModal('buy-again-modal')" style="font-size:1.8em;">×</div>
+                </div>
+            </div>
+            
+            <div style="padding: 20px; overflow-y: auto; flex: 1; padding-bottom: 80px;">
+                <div class="menu-grid" id="buy-again-grid">
+                    </div>
             </div>
         </div>
     </div>
@@ -470,7 +487,7 @@
     <div id="orders-modal" class="custom-modal full-page-modal" onclick="window.closeSpecificModal('orders-modal')">
         <div class="modal-content-box" onclick="event.stopPropagation()">
             <div class="modal-header-row">
-                <h2>Past Orders</h2>
+                <h2>Order History</h2>
                 <div class="close-modal-icon" onclick="window.closeSpecificModal('orders-modal')">×</div>
             </div>
             <div id="order-history-list" style="overflow-y: auto; flex: 1;">
@@ -487,6 +504,8 @@
         
         let allItems = []; let currentCategory = 'All Items'; let currentBrand = 'All Brands'; let currentTagFilter = 'All'; let cart = {}; 
         let currentFilteredItems = [];
+        
+        window.globalPastOrders = []; // Array to store all user past orders
 
         window.normalizeData = (items) => {
             return items.map(item => {
@@ -670,7 +689,74 @@
                         <div class="item-volume">${volText || '1 Unit'}</div>
                         <div class="price-row">
                             <div class="price-row-top"><span class="item-price">₹${item.price}</span>${discountNum > 0 ? `<span class="item-mrp">₹${item.mrp}</span>` : ''}</div>
-                            <div class="btn-container" id="add-wrap-${safeName}" onclick="event.stopPropagation()"></div>
+                            <div class="btn-container add-wrap-class-${safeName}" onclick="event.stopPropagation()"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            gridWrapper.innerHTML = newHTML;
+            window.updateAddButtons();
+        }
+
+        // 🟢 NEW: RENDER BUY AGAIN CATALOG GRID 🟢
+        window.renderBuyAgain = () => {
+            const gridWrapper = document.getElementById('buy-again-grid');
+            
+            if(!window.globalUser || window.globalPastOrders.length === 0) {
+                gridWrapper.innerHTML = `<div style="text-align:center; padding:40px 20px; grid-column: 1 / -1; color: var(--text-muted);">
+                    <div style="font-size:3em; margin-bottom:10px;">🛒</div>
+                    <h3 style="margin:0 0 5px 0;">No past orders yet!</h3>
+                    <p style="margin:0; font-size:0.9em;">Items you buy frequently will appear here.</p>
+                </div>`;
+                return;
+            }
+
+            let itemStats = {};
+            window.globalPastOrders.forEach(order => {
+                if(order.items) {
+                    for(let [itemName, details] of Object.entries(order.items)) {
+                        if(!itemStats[itemName]) itemStats[itemName] = { qty: 0, repeats: 0 };
+                        itemStats[itemName].qty += details.qty;
+                        itemStats[itemName].repeats += 1;
+                    }
+                }
+            });
+
+            // Sort by repeats first, then qty
+            let sortedItemNames = Object.keys(itemStats).sort((a, b) => {
+                if(itemStats[b].repeats !== itemStats[a].repeats) return itemStats[b].repeats - itemStats[a].repeats;
+                return itemStats[b].qty - itemStats[a].qty;
+            });
+
+            let buyAgainItems = [];
+            sortedItemNames.forEach(name => {
+                let item = allItems.find(i => i.name === name);
+                if(item) buyAgainItems.push(item);
+            });
+
+            let newHTML = '';
+            buyAgainItems.forEach((item) => {
+                const safeName = item.name.replace(/[^a-zA-Z0-9]/g, '_'); 
+                const volText = window.extractVolumeText(item.name);
+                let displayName = item.name.replace(volText, '').trim() || item.name;
+                
+                let m = parseFloat(item.mrp); let p = parseFloat(item.price);
+                let discountNum = (m && !isNaN(m) && m > p) ? Math.round(((m - p) / m) * 100) : 0;
+                
+                let stats = itemStats[item.name];
+                
+                newHTML += `
+                    <div class="menu-card" onclick="window.openProductDetail('${item.name.replace(/'/g, "\\'")}')">
+                        <div class="card-img-wrapper">
+                            ${discountNum > 0 ? `<div class="new-badge">${discountNum}% OFF</div>` : ''}
+                            <img src="${item.img}" loading="lazy" onerror="this.src='https://placehold.co/150x150/f4f6f9/a0a0a0?text=Ice+Cream';">
+                        </div>
+                        <div class="brand-tag">${item.brand || 'Glacier'}</div>
+                        <div class="item-name">${displayName}</div>
+                        <div class="item-volume">${volText || '1 Unit'} <span style="font-size:0.8em; color:var(--glacier-blue); font-weight:700;">(Bought ${stats.qty}x)</span></div>
+                        <div class="price-row">
+                            <div class="price-row-top"><span class="item-price">₹${item.price}</span>${discountNum > 0 ? `<span class="item-mrp">₹${item.mrp}</span>` : ''}</div>
+                            <div class="btn-container add-wrap-class-${safeName}" onclick="event.stopPropagation()"></div>
                         </div>
                     </div>
                 `;
@@ -688,7 +774,7 @@
             document.getElementById('pd-modal-name').innerText = item.name;
             document.getElementById('pd-modal-volume').innerText = volText || '1 Unit';
             
-            // 🟢 Extract Allergens & Description 🟢
+            // Extract Allergens & Description
             let desc = ''; let ing = ''; let allergen = '';
             for(let key in item) {
                 let cleanKey = String(key).toLowerCase().replace(/[^a-z]/g, '');
@@ -718,15 +804,16 @@
             window.openSpecificModal('product-detail-modal');
         }
 
+        // 🟢 BUTTONS UPDATER MODIFIED TO TARGET CLASSES IN BOTH GRIDS 🟢
         window.updateAddButtons = () => {
             allItems.forEach(item => {
                 if(!item.name) return;
                 const safeName = item.name.replace(/[^a-zA-Z0-9]/g, '_'); 
-                const wrap = document.getElementById(`add-wrap-${safeName}`);
-                if (wrap) {
+                const wraps = document.querySelectorAll(`.add-wrap-class-${safeName}`);
+                wraps.forEach(wrap => {
                     if (cart[item.name]) wrap.innerHTML = `<div class="app-qty-control"><button onclick="event.stopPropagation(); window.changeQty('${item.name.replace(/'/g, "\\'")}', -1)">−</button><span>${cart[item.name].qty}</span><button onclick="event.stopPropagation(); window.changeQty('${item.name.replace(/'/g, "\\'")}', 1)">+</button></div>`;
                     else wrap.innerHTML = `<button class="app-add-btn" onclick="event.stopPropagation(); window.addToCart('${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.brand ? item.brand.replace(/'/g, "\\'") : ''}')">ADD</button>`;
-                }
+                });
             });
         }
 
@@ -787,7 +874,6 @@
             
             if (!window.addressMap) {
                 window.addressMap = L.map('map-container').setView([26.9124, 75.7873], 13); 
-                // 🟢 Google Maps Tiles fix for Access Blocked
                 L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { attribution: '© Google Maps' }).addTo(window.addressMap);
                 window.addressMarker = L.marker([26.9124, 75.7873], {draggable: true}).addTo(window.addressMap);
                 
@@ -880,7 +966,7 @@
                 window.closeSpecificModal('auth-modal');
                 window.fetchUserData(window.userDocId);
             } else {
-                window.globalUser = null; window.globalUserData = null; window.userDocId = null;
+                window.globalUser = null; window.globalUserData = null; window.userDocId = null; window.globalPastOrders = [];
                 document.getElementById('nav-profile-text').innerText = "Login";
             }
         });
@@ -1021,15 +1107,21 @@
             } catch(e) { alert("Failed"); }
         };
 
+        // 🟢 LOAD PAST ORDERS MODIFIED TO STORE GLOBAL ORDERS 🟢
         window.loadPastOrders = function(docId) {
             const listDiv = document.getElementById('order-history-list');
             try {
                 const q = query(collection(db, "orders"), where("userId", "==", docId), orderBy("timestamp", "desc"));
                 onSnapshot(q, (querySnapshot) => {
+                    window.globalPastOrders = []; // Reset for aggregation
                     if (querySnapshot.empty) { listDiv.innerHTML = '<p style="text-align:center;">No past orders found.</p>'; return; }
+                    
                     let html = ''; let count = 0;
                     querySnapshot.forEach((doc) => {
-                        if (count >= 10) return; const data = doc.data(); 
+                        const data = doc.data(); 
+                        window.globalPastOrders.push(data); // Add to global pool
+                        
+                        if (count >= 10) return; 
                         const dateObj = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
                         const dateStr = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
                         let itemsHtml = '';
@@ -1038,6 +1130,11 @@
                         count++;
                     });
                     listDiv.innerHTML = html;
+
+                    // If Buy Again Modal is open, update it live
+                    if(document.getElementById('buy-again-modal').style.display === 'flex') {
+                        window.renderBuyAgain();
+                    }
                 });
             } catch(e) {}
         };
@@ -1058,7 +1155,7 @@
                 
                 let addr = window.globalUserData.addresses[window.selectedAddressIndex] || window.globalUserData.addresses[0];
                 message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${addr.house}, ${addr.area}\n`;
-                if (addr.lat && addr.lng) message += `📍 *Location:* https://maps.google.com/maps?q=26.8901148,75.8097553&t=&z=16&ie=UTF8&iwloc=&output=embed$${addr.lat},${addr.lng}\n`;
+                if (addr.lat && addr.lng) message += `📍 *Location:* https://maps.google.com/maps?q=26.8901148,75.8097553&t=&z=16&ie=UTF8&iwloc=&output=embed{addr.lat},${addr.lng}\n`;
                 
                 addDoc(collection(db, "orders"), { userId: window.userDocId, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() });
                 
