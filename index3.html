@@ -95,10 +95,11 @@
         .filter-tag-chip { padding: 6px 14px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.75em; font-weight: 500; color: var(--text-main); cursor: pointer; white-space: nowrap; flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .filter-tag-chip.active { background: rgba(138, 21, 56, 0.1); color: var(--glacier-blue); border-color: var(--glacier-blue); font-weight: 600;}
         
-        .tags-container { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; width: 100%; box-sizing: border-box; background: #fff;}
+        .tags-container { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; width: 100%; box-sizing: border-box; background: transparent;}
         .tags-container::-webkit-scrollbar { display: none; }
 
-        .controls-bar { position: sticky; top: 0; z-index: 50; background: var(--card-bg); display: flex; flex-direction: column; gap: 10px; margin: 0px -20px 0px -20px; padding: 10px 20px 5px 20px; border-bottom: 1px solid var(--border-color);}
+        /* 🟢 SOLID BACKGROUND FIX FOR SEE-THROUGH BUG 🟢 */
+        .controls-bar { position: sticky; top: 0; z-index: 50; background: var(--bg-color) !important; display: flex; flex-direction: column; gap: 10px; margin: 0px -20px 0px -20px; padding: 10px 20px 5px 20px; border-bottom: 1px solid var(--border-color);}
         
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; margin-top: 15px; width: 100%; gap: 10px;}
         .section-header h2 { margin: 0; font-size: 1.1em; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
@@ -110,11 +111,7 @@
         .card-img-wrapper img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply;}
         .new-badge { position: absolute; top: 0; left: 0; background: var(--active-brand-red); color: white; font-size: 0.6em; font-weight: 700; padding: 3px 6px; border-radius: 4px; z-index: 5; text-transform: uppercase; }
         
-        /* 🟢 DESKTOP BUTTON & PRICE OVERLAP FIX 🟢 */
-        .price-row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 10px; width: 100%; gap: 10px;}
-        .price-row-top { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; flex: 1;}
         .btn-container { position: relative; z-index: 10; flex-shrink: 0; display: flex; justify-content: flex-end; min-width: 80px;}
-        
         .app-add-btn { width: auto; min-width: 65px; height: 32px; border-radius: 6px; background: #fff; color: var(--glacier-blue); border: 1px solid var(--glacier-blue); font-size: 0.85em; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: pointer; text-transform: uppercase;}
         .app-qty-control { height: 32px; width: 80px; background: var(--glacier-blue); color: white; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; font-weight: 700; font-size: 0.9em; box-sizing: border-box;}
         .app-qty-control button { background: none; border: none; color: white; font-weight: bold; font-size: 1.2em; cursor: pointer; padding: 0 5px; }
@@ -123,6 +120,8 @@
         .item-name { font-size: 0.9em; font-weight: 600; color: var(--text-main); margin: 0 0 6px 0; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 36px; }
         .item-volume { font-size: 0.75em; color: var(--text-muted); font-weight: 500; margin-bottom: 8px;}
         
+        .price-row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 10px; width: 100%; gap: 10px;}
+        .price-row-top { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; flex: 1;}
         .item-price { font-size: 1.1em; font-weight: 700; color: var(--text-main); line-height: 1;}
         .item-mrp { font-size: 0.75em; font-weight: 500; color: var(--text-muted); text-decoration: line-through; }
 
@@ -197,11 +196,34 @@
         .back-to-top-btn.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
         .back-to-top-btn:hover { background: #600e26; }
 
-        /* 🟢 DESKTOP UI 🟢 */
+        /* 🟢 DESKTOP UI (Adjustable Layout Fix) 🟢 */
         @media (min-width: 1000px) {
-            .controls-bar { display: flex !important; flex-direction: row; align-items: center; justify-content: flex-start; padding: 15px 20px; background: transparent; border: none; z-index: 10;}
-            .controls-bar .search-sort-wrapper { max-width: 400px; flex: 1; margin-bottom: 0;}
-            .controls-bar .tags-container { flex: 2; padding: 0 20px;}
+            .sidebar { 
+                resize: horizontal; 
+                overflow-x: hidden; 
+                min-width: 200px; 
+                max-width: 400px; 
+                border-right: 2px solid var(--border-color);
+            }
+            .controls-bar { 
+                display: flex !important; 
+                flex-direction: row; 
+                align-items: center; 
+                justify-content: flex-start; 
+                padding: 15px 20px; 
+                background: var(--bg-color) !important; 
+                border-bottom: 1px solid var(--border-color); 
+                z-index: 90;
+            }
+            .controls-bar .search-sort-wrapper { 
+                max-width: 400px; 
+                flex: 1; 
+                margin-bottom: 0;
+            }
+            .controls-bar .tags-container { 
+                flex: 2; 
+                padding: 0 20px;
+            }
         }
 
         /* 📱 🔥 MOBILE PORTRAIT UI FIXES 📱 */
@@ -221,7 +243,7 @@
 
             .content-area { flex: 1; display: block !important; width: calc(100% - 85px); padding: 0 !important; padding-bottom: 80px !important; height: 100% !important; overflow-y: auto !important; background: #fff;}
             
-            .controls-bar { padding: 10px 12px; margin: 0; width: 100%; background: #fff; position: sticky !important; top: 0 !important; z-index: 90 !important; border-bottom: 1px solid #eee;}
+            .controls-bar { padding: 10px 12px; margin: 0; width: 100%; background: var(--bg-color) !important; position: sticky !important; top: 0 !important; z-index: 90 !important; border-bottom: 1px solid #eee;}
             .search-sort-wrapper { width: 100%; margin-bottom: 10px;}
             .control-chip { padding: 8px 10px; background: #f1f3f6; border: none; border-radius: 8px;}
             
@@ -239,7 +261,6 @@
             .item-name { font-size: 0.75em; min-height: 28px; margin-bottom: 4px; line-height: 1.2; font-weight: 500;}
             .item-volume { font-size: 0.65em; margin-bottom: 8px; }
             
-            /* 🟢 MOBILE BUTTON WRAPPER FIX 🟢 */
             .price-row { flex-direction: column; align-items: flex-start; gap: 8px; padding-top: 5px; }
             .btn-container { width: 100%; display: flex;}
             .app-add-btn { width: 100%; height: 30px; font-size: 0.8em; border-radius: 6px; }
@@ -558,7 +579,12 @@
         const productsArea = document.getElementById('products-area');
         function handleScroll() {
             let isMobile = window.innerWidth <= 999;
-            let scrollTop = isMobile ? (window.scrollY || document.documentElement.scrollTop) : (productsArea ? productsArea.scrollTop : 0);
+            let scrollTop = isMobile ? (window.scrollY || document.documentElement.scrollTop || document.body.scrollTop) : (productsArea ? productsArea.scrollTop : 0);
+
+            // Handle fallback if body isn't scrolling but content area is
+            if(isMobile && scrollTop === 0 && productsArea) {
+                scrollTop = productsArea.scrollTop;
+            }
 
             const backToTop = document.getElementById('back-to-top');
             if(backToTop) {
@@ -581,7 +607,7 @@
             if(tagsCont) tagsCont.style.display = 'none';
 
             window.applyFilters();
-            window.scrollToTop(); // Force to top
+            window.scrollToTop();
         };
 
         window.showCatalogueTab = () => {
@@ -600,7 +626,7 @@
             if(tagsCont) tagsCont.style.display = 'flex';
             
             window.applyFilters();
-            window.scrollToTop(); // Force to top
+            window.scrollToTop(); 
         };
 
         // 🟢 SEARCH CLEAR & SYNC LOGIC 🟢
@@ -788,7 +814,10 @@
 
         window.renderItems = (items) => {
             const gridWrapper = document.getElementById('main-menu-grid');
-            let newHTML = '';
+            let inStockHTML = '';
+            let oosHTML = '';
+            let hasOOS = false;
+
             items.forEach((item) => {
                 if(!item.name) return;
                 const safeName = item.name.replace(/[^a-zA-Z0-9]/g, '_'); 
@@ -803,7 +832,7 @@
                     ? `<div class="btn-container add-wrap-class-${safeName}" onclick="event.stopPropagation()"></div>`
                     : `<div class="btn-container" style="right:5px; bottom:5px; position:relative;"><span style="color:var(--active-brand-red); font-size:0.65em; font-weight:800; background:var(--chip-bg); padding:6px 12px; border-radius:4px; text-align:center; display:inline-block; width:100%;">OUT OF STOCK</span></div>`;
 
-                newHTML += `
+                let cardHTML = `
                     <div class="menu-card" onclick="window.openProductDetail('${item.name.replace(/'/g, "\\'")}')">
                         <div class="card-img-wrapper" style="${!isAvail ? 'opacity:0.6; filter:grayscale(100%);' : ''}">
                             ${discountNum > 0 ? `<div class="new-badge">${discountNum}% OFF</div>` : ''}
@@ -812,14 +841,23 @@
                         <div class="brand-tag">${item.brand || 'Glacier'}</div>
                         <div class="item-name" style="${!isAvail ? 'color:var(--text-muted);' : ''}">${displayName}</div>
                         <div class="item-volume">${volText || '1 Unit'}</div>
-                        <div class="price-row">
+                        <div class="price-row" style="width:100%; display:flex; justify-content:space-between; align-items:flex-end;">
                             <div class="price-row-top"><span class="item-price">₹${item.price}</span>${discountNum > 0 ? `<span class="item-mrp">₹${item.mrp}</span>` : ''}</div>
                             ${btnHTML}
                         </div>
                     </div>
                 `;
+
+                if(isAvail) inStockHTML += cardHTML;
+                else { hasOOS = true; oosHTML += cardHTML; }
             });
-            gridWrapper.innerHTML = newHTML;
+
+            let finalHTML = inStockHTML;
+            if(hasOOS) {
+                finalHTML += `<div style="grid-column: 1 / -1; width: 100%; padding: 15px 0 5px 0; border-bottom: 2px solid var(--border-color); margin-top: 10px; margin-bottom: 10px; font-weight: 800; font-size: 1.1em; color: var(--text-muted);">OUT OF STOCK</div>` + oosHTML;
+            }
+
+            gridWrapper.innerHTML = finalHTML;
             window.updateAddButtons();
         }
 
@@ -870,7 +908,10 @@
                 return;
             }
 
-            let newHTML = '';
+            let inStockHTML = '';
+            let oosHTML = '';
+            let hasOOS = false;
+
             buyAgainItems.forEach((item) => {
                 const safeName = item.name.replace(/[^a-zA-Z0-9]/g, '_'); 
                 const volText = window.extractVolumeText(item.name);
@@ -885,7 +926,7 @@
                     ? `<div class="btn-container add-wrap-class-${safeName}" onclick="event.stopPropagation()"></div>`
                     : `<div class="btn-container" style="right:5px; bottom:5px; position:relative;"><span style="color:var(--active-brand-red); font-size:0.65em; font-weight:800; background:var(--chip-bg); padding:6px 12px; border-radius:4px; text-align:center; display:inline-block; width:100%;">OUT OF STOCK</span></div>`;
 
-                newHTML += `
+                let cardHTML = `
                     <div class="menu-card" onclick="window.openProductDetail('${item.name.replace(/'/g, "\\'")}')">
                         <div class="card-img-wrapper" style="${!isAvail ? 'opacity:0.6; filter:grayscale(100%);' : ''}">
                             ${discountNum > 0 ? `<div class="new-badge">${discountNum}% OFF</div>` : ''}
@@ -894,14 +935,23 @@
                         <div class="brand-tag">${item.brand || 'Glacier'}</div>
                         <div class="item-name" style="${!isAvail ? 'color:var(--text-muted);' : ''}">${displayName}</div>
                         <div class="item-volume">${volText || '1 Unit'} <span style="font-size:0.8em; color:var(--glacier-blue); font-weight:700;">(Bought ${stats.qty}x)</span></div>
-                        <div class="price-row">
+                        <div class="price-row" style="width:100%; display:flex; justify-content:space-between; align-items:flex-end;">
                             <div class="price-row-top"><span class="item-price">₹${item.price}</span>${discountNum > 0 ? `<span class="item-mrp">₹${item.mrp}</span>` : ''}</div>
                             ${btnHTML}
                         </div>
                     </div>
                 `;
+                
+                if(isAvail) inStockHTML += cardHTML;
+                else { hasOOS = true; oosHTML += cardHTML; }
             });
-            gridWrapper.innerHTML = newHTML;
+
+            let finalHTML = inStockHTML;
+            if(hasOOS) {
+                finalHTML += `<div style="grid-column: 1 / -1; width: 100%; padding: 15px 0 5px 0; border-bottom: 2px solid var(--border-color); margin-top: 10px; margin-bottom: 10px; font-weight: 800; font-size: 1.1em; color: var(--text-muted);">OUT OF STOCK</div>` + oosHTML;
+            }
+
+            gridWrapper.innerHTML = finalHTML;
             window.updateAddButtons();
         }
 
@@ -1013,7 +1063,7 @@
 
         window.clearCart = () => {
             if(Object.keys(cart).length === 0) return;
-            if(confirm("Are you sure you want to clear your basket?")) {
+            if(confirm("Are you sure you want to clear your cart?")) {
                 cart = {};
                 window.updateCartUI();
                 window.closeSpecificModal('cart-modal');
