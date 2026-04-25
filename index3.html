@@ -97,7 +97,6 @@
         .tags-container { display: flex; gap: 8px; overflow-x: auto; padding: 8px 0; width: 100%; box-sizing: border-box; background: transparent; scrollbar-width: none; scroll-behavior: smooth;}
         .tags-container::-webkit-scrollbar { display: none; }
         
-        /* 🟢 NEW BRAND FILTER CHIP STYLES 🟢 */
         .brand-filter-chip { cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: 0.2s;}
         .brand-chip-icon { display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fff; }
         .brand-chip-icon img, .brand-chip-icon svg { width: 100%; height: 100%; object-fit: contain; }
@@ -190,9 +189,11 @@
         /* 🟢 DESKTOP UI 🟢 */
         @media (min-width: 1000px) {
             .sidebar { resize: horizontal; overflow-x: hidden; min-width: 200px; max-width: 400px; border-right: 2px solid var(--border-color); }
+            .header-search { display: flex; flex: 1; max-width: 400px; margin: 0 20px; }
+            .header-search .control-chip { padding: 8px 15px; height: 40px; margin: 0; border-radius: 8px;}
             .right-content-wrapper { width: 100%; }
             .controls-bar { display: flex !important; flex-direction: row; align-items: center; justify-content: flex-start; padding: 15px 20px; background: var(--bg-color); border-bottom: 1px solid var(--border-color); z-index: 10;}
-            .controls-bar .search-sort-wrapper { max-width: 400px; flex: 1; margin-bottom: 0;}
+            .controls-bar .search-sort-wrapper { display: none; }
             .controls-bar .tags-outer-wrapper { flex: 2; padding: 0; margin-left: 20px; }
 
             /* Desktop Brand Chip with Text */
@@ -212,15 +213,16 @@
             
             .main-layout { display: flex !important; flex-direction: row !important; width: 100%; height: calc(100dvh - 60px) !important; overflow: hidden !important;} 
             
-            .sidebar { width: 85px !important; display: flex !important; flex-direction: column !important; background: #f8f9fa !important; border-right: 1px solid var(--border-color) !important; padding: 0 !important; padding-bottom: 80px !important; height: 100% !important; z-index: 10; position: relative !important; top: 0 !important;}
-            .cat-item { padding: 15px 5px !important; border-bottom: 1px solid #eee !important; border-left: 3px solid transparent !important; }
+            /* 🟢 Fixed Side-dragging by setting overflow-x hidden & touch-action pan-y 🟢 */
+            .sidebar { width: 85px !important; display: flex !important; flex-direction: column !important; background: #f8f9fa !important; border-right: 1px solid var(--border-color) !important; padding: 0 !important; padding-bottom: 80px !important; height: 100% !important; z-index: 10; position: relative !important; top: 0 !important; overflow-x: hidden !important; overflow-y: auto !important; touch-action: pan-y !important;}
+            .cat-item { padding: 15px 5px !important; border-bottom: 1px solid #eee !important; border-left: 3px solid transparent !important; width: 100% !important; box-sizing: border-box !important;}
             .cat-item.active { background: #fff !important; border-left-color: var(--glacier-blue) !important; border-bottom-color: #fff !important; margin-right: -1px; z-index: 2;}
-            .cat-name { font-size: 0.65em !important; font-weight: 500 !important;}
+            .cat-name { font-size: 0.65em !important; font-weight: 500 !important; word-wrap: break-word; white-space: normal;}
             .cat-item.active .cat-name { font-weight: 700 !important; }
 
             .right-content-wrapper { flex: 1; display: flex; flex-direction: column; width: calc(100% - 85px) !important; background: var(--bg-color); overflow: hidden; height: 100%;}
             
-            .content-area { flex: 1; display: block !important; width: 100%; padding: 0 10px; padding-bottom: 80px !important; height: 100% !important; overflow-y: auto !important; background: #fff;}
+            .content-area { flex: 1; display: block !important; width: 100%; padding: 0 10px; padding-bottom: 80px !important; height: 100% !important; overflow-y: auto !important; background: #fff; overflow-x: hidden !important;}
             
             .controls-bar { padding: 10px 12px; margin: 0; width: 100%; background: var(--bg-color) !important; z-index: 90 !important; border-bottom: 1px solid #eee; flex-shrink:0;}
             .search-sort-wrapper { width: 100%; margin-bottom: 10px;}
@@ -250,15 +252,18 @@
             .app-add-btn { width: 100%; height: 30px; font-size: 0.8em; border-radius: 6px; }
             .app-qty-control { width: 100%; height: 30px; font-size: 0.9em; border-radius: 6px;}
 
-            /* Tab Highlight Update */
-            .bottom-nav { display: flex; position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: #fff; border-top: 1px solid #e0e0e0; justify-content: space-around; align-items: center; z-index: 10000; padding-bottom: env(safe-area-inset-bottom);}
-            .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.65em; font-weight: 600; gap: 4px; position: relative; cursor: pointer; flex: 1; transition: 0.2s;}
-            .nav-item.active { color: var(--glacier-blue); font-weight: 800;}
-            .nav-item.active .icon { transform: scale(1.1); transition: 0.2s; color: var(--glacier-blue); }
-            .nav-item::after { content: ''; position: absolute; top: -5px; width: 30px; height: 3px; background: var(--glacier-blue); border-radius: 0 0 3px 3px; opacity: 0; transition: 0.2s; }
-            .nav-item.active::after { opacity: 1; }
-            .nav-item .icon { font-size: 1.6em; line-height: 1;}
-            .cart-badge-bottom { position: absolute; top: -2px; right: 20%; background: var(--glacier-blue); color: white; font-size: 0.8em; font-weight: bold; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+            /* 🟢 TAB HIGHLIGHT FIX 🟢 */
+            .bottom-nav { display: flex; position: fixed; bottom: 0; left: 0; width: 100%; height: 65px; background: #fff; border-top: 1px solid #e0e0e0; justify-content: space-around; align-items: center; z-index: 10000; padding-bottom: env(safe-area-inset-bottom);}
+            .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.65em; font-weight: 500 !important; gap: 4px; position: relative; cursor: pointer; flex: 1; transition: 0.2s;}
+            .nav-item.active { color: var(--glacier-blue); font-weight: 500 !important; }
+            .nav-item::after { display: none !important; } /* Removing Underline */
+            
+            .icon-wrap { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; transition: 0.2s; background: transparent; }
+            .nav-item.active .icon-wrap { background: rgba(138, 21, 56, 0.1); }
+            .nav-item .icon { font-size: 1.6em; line-height: 1; transition: 0.2s;}
+            .nav-item.active .icon { transform: scale(1.1); color: var(--glacier-blue); }
+
+            .cart-badge-bottom { position: absolute; top: 0; right: calc(50% - 20px); background: var(--glacier-blue); color: white; font-size: 0.8em; font-weight: bold; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5;}
 
             .custom-modal { align-items: flex-end; }
             .modal-content-box { border-radius: 16px 16px 0 0; width: 100%; max-width: 100%; margin: 0; padding: 20px; padding-bottom: calc(20px + env(safe-area-inset-bottom)); max-height: 90dvh; }
@@ -279,6 +284,13 @@
             <span style="font-size: 1.5em; font-weight: 800; letter-spacing: 1px;">Glacier</span>
             <span style="font-size: 0.7em; background: var(--primary-color); color: #000; padding: 3px 8px; border-radius: 6px; font-weight: 800; white-space: nowrap; letter-spacing: 0.5px;">ICE CREAM PARLOR</span>
         </div>
+
+        <div class="header-search">
+            <div class="control-chip">
+                🔍 <input type="text" id="search-bar-header" placeholder="Search for products..." oninput="window.syncInputs('header')">
+                <span id="clear-search-header" class="clear-search-btn" onclick="window.clearSearch('header')">×</span>
+            </div>
+        </div>
         
         <div class="header-actions">
             <button class="action-btn" onclick="window.toggleCart()" id="desktop-cart-btn">
@@ -292,7 +304,7 @@
             </button>
             <div id="profile-dropdown" class="profile-dropdown-menu">
                 <div class="dropdown-item" onclick="window.openSpecificModal('my-profile-modal')">👤 My Profile</div>
-                <div class="dropdown-item" onclick="window.openSpecificModal('addresses-modal')">📍 Addresses</div>
+                <div class="dropdown-item" onclick="window.showAddressTab()">📍 Addresses</div>
                 <div class="dropdown-item" onclick="window.openSpecificModal('orders-modal')">🛍️ Past Orders</div>
                 <div style="height: 1px; background: var(--border-color); margin: 5px 0;"></div>
                 <div class="dropdown-item" onclick="window.logout()" style="color: var(--glacier-blue);">🚪 Logout</div>
@@ -304,45 +316,94 @@
         <aside class="sidebar" id="category-sidebar"></aside>
 
         <div class="right-content-wrapper">
-            <div class="controls-bar" id="main-controls-bar">
-                <div class="search-sort-wrapper" id="mobile-search-sort">
-                    <div class="control-chip" style="box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                        🔍 <input type="text" id="search-bar-mobile" placeholder="Search for products..." oninput="window.syncInputs('mobile')">
-                        <span id="clear-search-mobile" class="clear-search-btn" onclick="window.clearSearch('mobile')">×</span>
+            
+            <div id="products-tab-view" style="display: flex; flex-direction: column; height: 100%; flex: 1; overflow: hidden;">
+                <div class="controls-bar" id="main-controls-bar">
+                    <div class="search-sort-wrapper" id="mobile-search-sort">
+                        <div class="control-chip" style="box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                            🔍 <input type="text" id="search-bar-mobile" placeholder="Search for products..." oninput="window.syncInputs('mobile')">
+                            <span id="clear-search-mobile" class="clear-search-btn" onclick="window.clearSearch('mobile')">×</span>
+                        </div>
+                    </div>
+                    
+                    <div class="tags-outer-wrapper">
+                        <button id="tag-scroll-left" class="tag-scroll-btn left" onclick="document.getElementById('tags-container-portrait').scrollBy({left: -150, behavior: 'smooth'})">❮</button>
+                        <div class="tags-container" id="tags-container-portrait" onscroll="window.updateTagArrows()"></div>
+                        <button id="tag-scroll-right" class="tag-scroll-btn right" onclick="document.getElementById('tags-container-portrait').scrollBy({left: 150, behavior: 'smooth'})">❯</button>
                     </div>
                 </div>
+
+                <main class="content-area" id="products-area">
+                    <div class="section-header">
+                        <h2 id="current-category-title">All Items</h2>
+                        <span class="section-count" id="item-count">0 products</span>
+                    </div>
+
+                    <div id="status-msg" style="display:none;">Loading...</div>
+                    <div class="menu-grid" id="main-menu-grid"></div>
+                </main>
+            </div>
+
+            <div id="address-tab-view" style="display: none; flex-direction: column; height: 100%; flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 80px; background: var(--bg-color);">
+                <div class="section-header" style="margin-top: 0; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">
+                    <h2>📍 My Addresses</h2>
+                </div>
                 
-                <div class="tags-outer-wrapper">
-                    <button id="tag-scroll-left" class="tag-scroll-btn left" onclick="document.getElementById('tags-container-portrait').scrollBy({left: -150, behavior: 'smooth'})">❮</button>
-                    <div class="tags-container" id="tags-container-portrait" onscroll="window.updateTagArrows()"></div>
-                    <button id="tag-scroll-right" class="tag-scroll-btn right" onclick="document.getElementById('tags-container-portrait').scrollBy({left: 150, behavior: 'smooth'})">❯</button>
+                <div id="address-list-view">
+                    <button class="auth-btn" onclick="window.showAddAddressForm()" style="background: var(--chip-bg); color: var(--glacier-blue); border: 1px dashed var(--glacier-blue); margin-bottom: 15px;">+ Add New Address</button>
+                    <div id="addresses-container"></div>
+                </div>
+
+                <div id="add-address-form" style="display:none;">
+                    <h4 style="margin-top:0; margin-bottom:15px;" id="addr-form-title">Add New Address</h4>
+                    <div class="type-selector" id="addr-type-selector">
+                        <span class="type-badge active" id="badge-Home" onclick="window.setAddrType('Home')">🏠 Home</span>
+                        <span class="type-badge" id="badge-Work" onclick="window.setAddrType('Work')">💼 Work</span>
+                    </div>
+                    <input type="hidden" id="edit-addr-index" value="-1">
+                    <input type="hidden" id="new-addr-lat" value="">
+                    <input type="hidden" id="new-addr-lng" value="">
+                    
+                    <input type="text" id="new-addr-name" class="auth-input" placeholder="Receiver's Name *">
+                    <input type="number" id="new-addr-phone" class="auth-input" placeholder="Contact No. *">
+                    
+                    <button id="open-map-btn" class="auth-btn" onclick="window.initLocationPicker()" style="background: var(--card-bg); border: 1px solid var(--glacier-blue); color: var(--glacier-blue);">📍 Auto-Locate on Map</button>
+                    
+                    <div id="map-wrapper-parent" style="display:none; width: 100%; margin-bottom: 15px;">
+                        <input type="text" id="map-search-input" class="auth-input" placeholder="Search area..." onkeypress="if(event.key==='Enter') window.searchLocation()">
+                        <div style="position: relative; width: 100%;">
+                            <div id="map-container" style="height: 180px; border-radius: 8px; border: 1px solid var(--border-color);"></div>
+                            <button onclick="event.preventDefault(); window.getCurrentLocation();" style="position: absolute; bottom: 10px; right: 10px; z-index: 9999; background: white; border-radius: 8px; padding: 5px; font-size:1.5em; border: 1px solid var(--border-color);">🎯</button>
+                        </div>
+                    </div>
+
+                    <input type="text" id="new-addr-house" class="auth-input" placeholder="House / Flat / Block No. *">
+                    <textarea id="new-addr-area" class="auth-input" rows="2" placeholder="Area / Street (Auto-filled) *"></textarea>
+
+                    <div id="addr-msg" style="font-size: 0.85em; margin-bottom: 15px; text-align: center; font-weight: 700;"></div>
+
+                    <div style="display:flex; gap:10px;">
+                        <button class="auth-btn" style="flex:1;" onclick="window.saveNewAddress()">Save</button>
+                        <button class="auth-btn" style="flex:1; background:var(--chip-bg); color:var(--text-main);" onclick="window.hideAddAddressForm()">Cancel</button>
+                    </div>
                 </div>
             </div>
 
-            <main class="content-area" id="products-area">
-                <div class="section-header">
-                    <h2 id="current-category-title">All Items</h2>
-                    <span class="section-count" id="item-count">0 products</span>
-                </div>
-
-                <div id="status-msg" style="display:none;">Loading...</div>
-                <div class="menu-grid" id="main-menu-grid"></div>
-            </main>
         </div>
     </div>
 
     <div class="bottom-nav">
         <div class="nav-item active" id="nav-home" onclick="window.clearAllFilters(); window.showCatalogueTab();">
-            <span class="icon">🏠</span><span>Home</span>
+            <div class="icon-wrap"><span class="icon">🏠</span></div><span class="nav-label">Home</span>
         </div>
-        <div class="nav-item" id="nav-address" onclick="window.openSpecificModal('addresses-modal')">
-            <span class="icon">📍</span><span>Address</span>
+        <div class="nav-item" id="nav-address" onclick="window.showAddressTab();">
+            <div class="icon-wrap"><span class="icon">📍</span></div><span class="nav-label">Address</span>
         </div>
         <div class="nav-item" id="nav-buy-again" onclick="window.showBuyAgainTab();">
-            <span class="icon">🛍️</span><span>Buy Again</span>
+            <div class="icon-wrap"><span class="icon">🛍️</span></div><span class="nav-label">Buy Again</span>
         </div>
         <div class="nav-item" id="nav-basket" onclick="window.toggleCart()">
-            <span class="icon">🛒</span><span>Basket</span>
+            <div class="icon-wrap"><span class="icon">🛒</span></div><span class="nav-label">Basket</span>
             <div class="cart-badge-bottom" id="cart-badge-count-bottom" style="display:none;">0</div>
         </div>
     </div>
@@ -393,7 +454,7 @@
                     <span>₹<span id="cart-total-price">0</span></span>
                 </div>
                 <button id="checkout-wa" class="checkout-btn" onclick="window.checkout('whatsapp')">Proceed to Checkout</button>
-                <button class="checkout-btn" style="background: var(--chip-bg); color: var(--active-brand-red); margin-top: 10px; border: 1px solid rgba(231, 76, 60, 0.2); box-shadow:none;" onclick="window.confirmClearCart()">🗑️ Clear Cart</button>
+                <button class="checkout-btn" style="background: var(--chip-bg); color: #e74c3c; margin-top: 10px; border: 1px solid rgba(231, 76, 60, 0.2); box-shadow:none;" onclick="window.confirmClearCart()">🗑️ Clear Cart</button>
             </div>
         </div>
     </div>
@@ -448,54 +509,6 @@
             </div>
             <div id="profile-save-msg" style="font-size: 0.85em; margin-bottom: 15px; text-align: center; font-weight: 700;"></div>
             <button class="auth-btn" onclick="window.saveProfileData()">Save Profile</button>
-        </div>
-    </div>
-
-    <div id="addresses-modal" class="custom-modal full-page-modal" onclick="window.closeSpecificModal('addresses-modal')">
-        <div class="modal-content-box" onclick="event.stopPropagation()">
-            <div class="modal-header-row">
-                <h2>Saved Addresses</h2>
-                <div class="close-modal-icon" onclick="window.closeSpecificModal('addresses-modal')">×</div>
-            </div>
-
-            <div id="address-list-view">
-                <button class="auth-btn" onclick="window.showAddAddressForm()" style="background: var(--chip-bg); color: var(--glacier-blue); border: 1px dashed var(--glacier-blue);">+ Add New Address</button>
-                <div id="addresses-container"></div>
-            </div>
-
-            <div id="add-address-form" style="display:none;">
-                <h4 style="margin-top:0; margin-bottom:15px;" id="addr-form-title">Add New Address</h4>
-                <div class="type-selector" id="addr-type-selector">
-                    <span class="type-badge active" id="badge-Home" onclick="window.setAddrType('Home')">🏠 Home</span>
-                    <span class="type-badge" id="badge-Work" onclick="window.setAddrType('Work')">💼 Work</span>
-                </div>
-                <input type="hidden" id="edit-addr-index" value="-1">
-                <input type="hidden" id="new-addr-lat" value="">
-                <input type="hidden" id="new-addr-lng" value="">
-                
-                <input type="text" id="new-addr-name" class="auth-input" placeholder="Receiver's Name *">
-                <input type="number" id="new-addr-phone" class="auth-input" placeholder="Contact No. *">
-                
-                <button id="open-map-btn" class="auth-btn" onclick="window.initLocationPicker()" style="background: var(--card-bg); border: 1px solid var(--glacier-blue); color: var(--glacier-blue);">📍 Auto-Locate on Map</button>
-                
-                <div id="map-wrapper-parent" style="display:none; width: 100%; margin-bottom: 15px;">
-                    <input type="text" id="map-search-input" class="auth-input" placeholder="Search area..." onkeypress="if(event.key==='Enter') window.searchLocation()">
-                    <div style="position: relative; width: 100%;">
-                        <div id="map-container" style="height: 180px; border-radius: 8px; border: 1px solid var(--border-color);"></div>
-                        <button onclick="event.preventDefault(); window.getCurrentLocation();" style="position: absolute; bottom: 10px; right: 10px; z-index: 9999; background: white; border-radius: 8px; padding: 5px; font-size:1.5em; border: 1px solid var(--border-color);">🎯</button>
-                    </div>
-                </div>
-
-                <input type="text" id="new-addr-house" class="auth-input" placeholder="House / Flat / Block No. *">
-                <textarea id="new-addr-area" class="auth-input" rows="2" placeholder="Area / Street (Auto-filled) *"></textarea>
-
-                <div id="addr-msg" style="font-size: 0.85em; margin-bottom: 15px; text-align: center; font-weight: 700;"></div>
-
-                <div style="display:flex; gap:10px;">
-                    <button class="auth-btn" style="flex:1;" onclick="window.saveNewAddress()">Save</button>
-                    <button class="auth-btn" style="flex:1; background:var(--chip-bg); color:var(--text-main);" onclick="window.hideAddAddressForm()">Cancel</button>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -637,6 +650,9 @@
             document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById('nav-buy-again').classList.add('active'); 
             
+            document.getElementById('address-tab-view').style.display = 'none';
+            document.getElementById('products-tab-view').style.display = 'flex';
+
             document.getElementById('item-count').style.display = 'none';
             const tagsCont = document.querySelector('.tags-outer-wrapper');
             if(tagsCont) tagsCont.style.display = 'none';
@@ -652,6 +668,9 @@
             document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById('nav-home').classList.add('active');
             
+            document.getElementById('address-tab-view').style.display = 'none';
+            document.getElementById('products-tab-view').style.display = 'flex';
+
             document.getElementById('item-count').style.display = 'inline';
             const tagsCont = document.querySelector('.tags-outer-wrapper');
             if(tagsCont) {
@@ -661,6 +680,40 @@
             
             window.applyFilters();
             window.scrollToTop(); 
+        };
+
+        window.showAddressTab = () => {
+            window.currentTab = 'address';
+            
+            document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('nav-address').classList.add('active'); 
+
+            document.getElementById('products-tab-view').style.display = 'none';
+            document.getElementById('address-tab-view').style.display = 'flex';
+
+            if (!window.globalUser) {
+                document.getElementById('address-list-view').innerHTML = `
+                    <div style="text-align:center; padding: 40px 20px; color: var(--text-muted);">
+                        <div style="font-size: 3em; margin-bottom: 10px;">👤</div>
+                        <h3>Please Login</h3>
+                        <p style="font-size:0.9em;">Sign in to view and manage your addresses.</p>
+                        <button class="auth-btn" style="max-width: 200px; margin: 20px auto;" onclick="window.openSpecificModal('auth-modal')">Login Now</button>
+                    </div>
+                `;
+                document.getElementById('add-address-form').style.display = 'none';
+                document.getElementById('address-list-view').style.display = 'block';
+            } else {
+                document.getElementById('address-list-view').innerHTML = `
+                    <button class="auth-btn" onclick="window.showAddAddressForm()" style="background: var(--chip-bg); color: var(--glacier-blue); border: 1px dashed var(--glacier-blue); margin-bottom: 15px;">+ Add New Address</button>
+                    <div id="addresses-container"></div>
+                `;
+                window.renderAddresses();
+                document.getElementById('add-address-form').style.display = 'none';
+                document.getElementById('address-list-view').style.display = 'block';
+            }
+            
+            const dropdown = document.getElementById('profile-dropdown');
+            if(dropdown) dropdown.classList.remove('active');
         };
 
         // 🟢 SEARCH CLEAR & SYNC LOGIC 🟢
@@ -674,6 +727,7 @@
                 if(clearBtn) clearBtn.style.display = searchVal.length > 0 ? 'inline-block' : 'none';
             });
             
+            if(window.currentTab === 'address') window.showCatalogueTab();
             window.applyFilters();
         }
 
@@ -1145,12 +1199,12 @@
                 
                 cartList.innerHTML += `
                 <div class="cart-item">
-                    <div class="cart-item-details"><div style="font-weight: 500;">${name}</div><div style="font-weight: 700; margin-top: 5px;">₹${data.price}</div></div>
+                    <div class="cart-item-details"><div style="font-weight: 500; font-size: 0.8em; color: var(--text-muted); text-transform: uppercase;">${data.brand}</div><div style="font-weight: 700; color: var(--text-main); margin-top: 2px;">${name}</div></div>
                     <div class="cart-item-controls">
                         <button class="qty-btn" onclick="window.changeQty('${safeNameArg}', -1)">-</button>
-                        <input type="number" value="${data.qty}" min="1" onchange="window.setCartQty('${safeNameArg}', this.value)" style="width: 35px; height: 28px; text-align: center; border: 1px solid var(--border-color); border-radius: 4px; font-weight: bold; background: var(--input-bg); color: var(--text-main);">
+                        <input type="number" value="${data.qty}" min="1" onchange="window.setCartQty('${safeNameArg}', this.value)" style="width: 40px; height: 32px; text-align: center; border: 1px solid var(--border-color); border-radius: 4px; font-weight: bold; background: var(--input-bg); color: var(--text-main);">
                         <button class="qty-btn" onclick="window.changeQty('${safeNameArg}', 1)">+</button>
-                        <button class="qty-btn" style="background: rgba(231, 76, 60, 0.1); color: #e74c3c; margin-left: 8px; border: none;" onclick="window.removeFromCart('${safeNameArg}')">🗑️</button>
+                        <button class="qty-btn" style="background: rgba(231, 76, 60, 0.1); color: #e74c3c; margin-left: 8px; border: none; font-size: 1.2em;" onclick="window.removeFromCart('${safeNameArg}')">🗑️</button>
                     </div>
                 </div>`;
             }
@@ -1460,7 +1514,7 @@
             if (method === 'whatsapp') {
                 if (!window.globalUser) { window.openSpecificModal('auth-modal'); return; }
                 if (!window.globalUserData || !window.globalUserData.addresses || window.globalUserData.addresses.length === 0) { 
-                    alert("Please add a delivery address first."); window.openSpecificModal('addresses-modal'); return; 
+                    alert("Please add a delivery address first."); window.showAddressTab(); return; 
                 }
 
                 let message = "Hello Glacier Ice Cream!🍦\n\n*New Order:*\n"; let total = 0; let itemsSummary = [];
