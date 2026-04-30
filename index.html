@@ -14,6 +14,7 @@
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     
+    <!-- 🟢 Libraries: Confetti & PDF Export 🟢 -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
@@ -145,13 +146,14 @@
         .sidebar { width: 240px; background: var(--card-bg); display: flex; flex-direction: column; overflow-y: auto; padding: 20px 15px; gap: 8px; scrollbar-width: none; border-right: 1px solid var(--border-color); flex-shrink: 0; box-sizing: border-box; transition: 0.3s; position: sticky; top: 65px; height: calc(100vh - 65px);}
         .sidebar::-webkit-scrollbar { display: none; }
         
-        /* Sidebar/Mobile Category Chips */
-        .cat-item { display: flex; align-items: center; cursor: pointer; transition: 0.2s; padding: 10px 15px; border-radius: 50px; gap: 12px; flex-shrink: 0; color: var(--text-main);}
-        .cat-icon { font-size: 1.4em; display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; }
-        .cat-name { font-size: 0.85em; font-weight: 500; white-space: nowrap; }
-        .cat-item:hover { background: var(--chip-bg); }
-        .cat-item.active { background: rgba(31,81,198,0.1); }
-        .cat-item.active .cat-name { color: var(--glacier-blue); font-weight: 700; }
+        /* 🔥 ENHANCED: Sidebar/Mobile Category Chips 🔥 */
+        .cat-item { display: flex; align-items: center; cursor: pointer; transition: all 0.3s ease; padding: 10px 15px; border-radius: 50px; gap: 12px; flex-shrink: 0; color: var(--text-main); opacity: 0.7;}
+        .cat-icon { font-size: 1.4em; display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; transition: 0.3s;}
+        .cat-name { font-size: 0.85em; font-weight: 500; white-space: nowrap; transition: 0.3s;}
+        .cat-item:hover { background: var(--chip-bg); opacity: 1;}
+        .cat-item.active { background: var(--glacier-blue) !important; border-color: var(--glacier-blue) !important; opacity: 1; transform: scale(1.03); box-shadow: 0 4px 10px rgba(31,81,198,0.3);}
+        .cat-item.active .cat-name { color: #ffffff !important; font-weight: 800; }
+        .cat-item.active .cat-icon { filter: brightness(0) invert(1); } /* Makes emoji slightly stand out */
 
         .content-area { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 0px 30px 20px 30px; scroll-behavior: smooth; box-sizing: border-box; position: relative; overscroll-behavior-y: none; -webkit-overflow-scrolling: touch; width: 100%; }
         .content-area::-webkit-scrollbar { width: 8px; }
@@ -161,10 +163,10 @@
         .ptr-content { display: flex; align-items: center; gap: 8px; padding: 15px; }
         .ptr-icon { font-size: 1.4em; display: inline-block; transition: transform 0.3s ease; }
 
-        /* 🟢 UNIFIED CHIP STYLES FOR CATEGORIES & TAGS IN DESKTOP 🟢 */
-        .filter-tag-chip { padding: 6px 14px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 50px; font-size: 0.75em; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .filter-tag-chip:hover { border-color: var(--glacier-blue); color: var(--text-main); }
-        .filter-tag-chip.active { background: var(--glacier-blue); color: #fff; border-color: var(--glacier-blue); box-shadow: 0 4px 8px rgba(31,81,198,0.2); }
+        /* 🔥 ENHANCED: UNIFIED CHIP STYLES 🔥 */
+        .filter-tag-chip { padding: 6px 14px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 50px; font-size: 0.75em; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 6px; opacity: 0.8;}
+        .filter-tag-chip:hover { border-color: var(--glacier-blue); color: var(--text-main); opacity: 1;}
+        .filter-tag-chip.active { background: var(--glacier-blue) !important; color: #ffffff !important; border-color: var(--glacier-blue) !important; box-shadow: 0 4px 8px rgba(31,81,198,0.3); opacity: 1; transform: scale(1.05); font-weight: 800;}
         
         .tags-container { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 10px 0; scrollbar-width: none; -webkit-overflow-scrolling: touch; width: 100%; box-sizing: border-box; }
         .tags-container::-webkit-scrollbar { display: none; }
@@ -370,16 +372,17 @@
             .desktop-tags-panel { display: flex; flex-wrap: wrap; gap: 8px; padding: 15px; flex: 20%; max-width: 20%; overflow-y: auto; align-content: flex-start; scrollbar-width: none; }
             .desktop-tags-panel::-webkit-scrollbar { display: none; }
             
-            /* 🟢 NEW: FIXED CONTROLS BAR (Sort, Refresh, Clear) 🟢 */
-            .desktop-tools-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 30px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); z-index: 8; flex-shrink: 0; }
-            .desktop-tools-bar .tools-left { display: flex; align-items: center; }
-            .desktop-tools-bar .tools-right { display: flex; gap: 10px; }
+            /* 🟢 FIXED: DESKTOP CONTROLS BAR (Sort, Refresh, Clear) 🟢 */
+            .desktop-tools-bar { display: flex !important; justify-content: flex-start; align-items: center; padding: 10px 30px; background: var(--main-bg); border-bottom: 1px solid var(--border-color); z-index: 8; flex-shrink: 0; position: sticky; top: 65px; }
+            .desktop-tools-bar .tools-left { display: flex; align-items: center; gap: 15px;}
 
-            /* Fix Section Header Layout */
-            .section-header { margin-top: 20px; border-bottom: none; padding-bottom: 0; }
-            .section-header .desktop-sort, 
-            .section-header #inline-refresh-btn, 
-            .section-header #clear-filters-btn { display: none !important; } /* Hide these in section-header for desktop */
+            /* 🟢 FIXED: SECTION HEADER ALIGNMENT (No grey line) 🟢 */
+            .section-header { margin-top: 15px; border-bottom: none; padding-bottom: 0; display: flex; justify-content: space-between; align-items: center;}
+            .section-header-left { justify-content: flex-start; flex: 1;}
+            .section-header-right { flex: 1; justify-content: flex-end; display: flex;}
+            
+            /* Hide mobile controls inside section header on desktop */
+            .section-header .mobile-controls { display: none !important; }
 
             /* Hide Old Elements */
             .sidebar { display: none !important; }
@@ -394,7 +397,6 @@
             /* Hide Desktop Elements */
             .desktop-category-panel, .desktop-tags-panel, .header-search, .desktop-tools-bar { display: none !important; }
             .section-header-left { flex-direction: column; align-items: flex-start !important; gap: 10px; }
-            .desktop-sort { display: none !important; } /* Hide desktop sort on mobile */
 
             html, body { position: relative !important; overflow: visible !important; overflow-x: hidden !important; overflow-y: auto !important; height: auto !important; min-height: 100dvh !important; display: block !important; overscroll-behavior-y: auto !important; }
             
@@ -408,6 +410,7 @@
             
             .action-btn { padding: 6px 10px; font-size: 0.8em; }
 
+            .search-sort-side { display: none !important; } 
             .top-nav-bar { flex-direction: column; border-bottom: none; width: 100%; transition: none !important; max-height: none !important; opacity: 1 !important; flex-shrink: 0;}
             
             .brands-wrapper { border-bottom: 1px solid var(--border-color); width: 100%; } 
@@ -419,6 +422,8 @@
             
             .sidebar { position: sticky !important; top: 55px !important; width: 100% !important; height: auto !important; flex-direction: row !important; padding: 10px 15px !important; border-right: none !important; border-bottom: 1px solid var(--border-color) !important; background: var(--main-bg) !important; box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important; overflow-x: auto !important; overflow-y: hidden !important; z-index: 995 !important; gap: 10px !important; scroll-behavior: smooth; flex-shrink: 0;}
             .cat-item { flex-direction: row !important; gap: 6px !important; padding: 6px 14px !important; border-radius: 50px !important; border: 1px solid var(--border-color) !important; background: var(--card-bg) !important; width: auto !important; min-width: max-content !important;}
+            
+            /* 🔥 Mobile Active Category Fix */
             .cat-item.active { background: var(--glacier-blue) !important; border-color: var(--glacier-blue) !important; }
             .cat-icon { display: none !important; } 
             .cat-name { font-size: 0.8em !important; font-weight: 600 !important; color: var(--text-main) !important; padding: 0 !important;}
@@ -432,7 +437,7 @@
             .control-chip:first-child { flex: 1.8; }
             .control-chip select { font-size: 0.8em; }
 
-            .section-header { margin-bottom: 12px; padding-bottom: 8px; width: 100%; }
+            .section-header { margin-bottom: 12px; padding-bottom: 8px; width: 100%; border-bottom: 2px solid var(--border-color);}
             .section-header h2 { font-size: 1.1em; }
             
             .menu-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; margin: 0; padding-bottom: 10px;}
@@ -471,6 +476,34 @@
             .store-info-top { flex-direction: column; }
             .store-map-preview { width: 100%; height: 120px; }
             .store-actions { flex-direction: column; }
+        }
+
+        /* 📱 🔥 LANDSCAPE MODE FIX 🔥 📱 */
+        @media (max-width: 999px) and (orientation: landscape) {
+            header { padding: 5px calc(15px + env(safe-area-inset-right)) 5px calc(15px + env(safe-area-inset-left)); height: 50px; position: sticky; top:0; z-index:1000;}
+            .header-logo { height: 28px; }
+            .landscape-search-sort { display: flex !important; flex: 1; align-items: center; justify-content: center; gap: 10px; margin: 0 15px; }
+            .landscape-search-sort .control-chip { background: var(--main-bg); border: 1px solid var(--border-color); border-radius: 50px; padding: 4px 12px; display: flex; align-items: center; flex: 1; max-width: 250px; height: 32px;}
+            .landscape-search-sort input, .landscape-search-sort select { border: none; background: transparent; color: var(--text-main); font-family: inherit; font-size: 0.85em !important; width: 100%; outline: none; margin-left: 5px;}
+            
+            #mobile-search-sort { display: none !important; }
+            .controls-bar { margin: 0 !important; padding: 0 !important; border-bottom: none !important; background: transparent !important; position: static !important; transform: none !important; width: 100%;}
+            
+            .top-nav-bar { width: calc(100% - 80px - env(safe-area-inset-left)) !important; margin-left: calc(80px + env(safe-area-inset-left)) !important; padding: 0 !important; box-sizing: border-box; border-bottom: none !important; transition: none !important; overflow: hidden !important; }
+            .brands-wrapper { border-bottom: 1px solid var(--border-color); width: 100% !important; }
+            
+            .sidebar { position: fixed !important; top: 50px !important; left: env(safe-area-inset-left) !important; width: 80px !important; height: calc(100dvh - 50px) !important; display: flex !important; flex-direction: column !important; box-shadow: 1px 0 5px rgba(0,0,0,0.05) !important; z-index: 995 !important; padding: 10px 5px 20px 5px !important; overflow-y: auto !important; overflow-x: hidden !important; border-right: 1px solid var(--border-color) !important; background: var(--card-bg) !important;}
+            .cat-item { flex-direction: column !important; padding: 10px 5px !important; width: 100% !important; border-radius: 12px !important; gap: 4px !important; background: transparent !important;}
+            .cat-item.active { background: rgba(31,81,198,0.1) !important; }
+            .cat-icon { display: flex !important; font-size: 1.5em !important; margin-bottom: 2px !important; }
+            .cat-name { font-size: 0.6em !important; white-space: normal !important; text-align: center !important; color: var(--text-main) !important;}
+            .cat-item.active .cat-name { color: var(--glacier-blue) !important; }
+            
+            .main-layout { margin-left: calc(80px + env(safe-area-inset-left)) !important; width: calc(100% - 80px - env(safe-area-inset-left)) !important; flex-direction: row !important; }
+            .content-area { padding-left: 10px !important; padding-right: 10px !important; width: 100% !important; }
+            .menu-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
+            #fab-container { display: none !important; }
+            .desktop-tools-bar { display: none !important; }
         }
 
         @media print { body { display: none !important; } }
@@ -521,7 +554,6 @@
             </div>
             
             <button class="action-btn" id="pdf-btn" onclick="window.exportPDF()" title="Export to PDF">📄 <span class="hide-mobile-text">PDF</span></button>
-            
             <button class="action-btn" onclick="window.shareWebsite()">📤 <span class="hide-mobile-text">Share</span></button>
         </div>
     </header>
@@ -536,16 +568,14 @@
                 <span class="arrow-icon">❯</span>
             </button>
         </div>
-
         <div class="desktop-category-panel" id="desktop-category-grid"></div>
-
         <div class="desktop-tags-panel" id="desktop-tags-grid"></div>
     </div>
 
     <div class="desktop-tools-bar">
         <div class="tools-left">
-            <div class="control-chip sort-chip" style="padding: 4px 10px; min-width: auto; height: 35px; background: var(--card-bg);">
-                ↕️ <select id="sort-dropdown-desktop-tools" onchange="window.syncInputs('desktop-tools')" style="font-size: 0.85em; margin-left: 5px;">
+            <div class="control-chip sort-chip" style="padding: 6px 15px; min-width: 250px; height: 40px; background: var(--card-bg);">
+                ↕️ <select id="sort-dropdown-desktop-tools" onchange="window.syncInputs('desktop-tools')" style="font-size: 0.9em; margin-left: 8px;">
                     <option value="default">Sort by relevance</option>
                     <option value="brand">Brand name wise</option>
                     <option value="category">Item category wise</option>
@@ -556,10 +586,8 @@
                     <option value="size-high-low">Size: Large - Small</option>
                 </select>
             </div>
-        </div>
-        <div class="tools-right">
-            <button onclick="window.refreshMenu()" class="action-btn" style="padding: 6px 12px; font-size: 0.8em; border-color: var(--glacier-blue); color: var(--glacier-blue);">🔄 Refresh</button>
-            <button id="clear-filters-btn-desktop" onclick="window.clearAllFilters()" class="action-btn" style="display:none; padding: 6px 12px; font-size: 0.8em; border-color: var(--active-brand-red); color: var(--active-brand-red);">✖ Clear</button>
+            <button onclick="window.refreshMenu()" class="action-btn" style="padding: 8px 16px; font-size: 0.85em; border-color: var(--glacier-blue); color: var(--glacier-blue);">🔄 Refresh</button>
+            <button id="clear-filters-btn-desktop" onclick="window.clearAllFilters()" class="action-btn" style="display:none; padding: 8px 16px; font-size: 0.85em; border-color: var(--active-brand-red); color: var(--active-brand-red);">✖ Clear</button>
         </div>
     </div>
 
@@ -586,22 +614,22 @@
                 </div>
                 
                 <div class="section-header-right">
-                    <div class="control-chip sort-chip desktop-sort" style="padding: 4px 10px; min-width: auto; height: 35px; background: var(--card-bg);">
-                        ↕️ <select id="sort-dropdown-main" onchange="window.syncInputs('main')" style="font-size: 0.85em; margin-left: 5px;">
-                            <option value="default">Sort by relevance</option>
-                            <option value="brand">Brand name wise</option>
-                            <option value="category">Item category wise</option>
-                            <option value="ingredients">Ingredients wise</option>
-                            <option value="price-low-high">Price: Low - High</option>
-                            <option value="price-high-low">Price: High - Low</option>
-                            <option value="size-low-high">Size: Small - Large</option>
-                            <option value="size-high-low">Size: Large - Small</option>
-                        </select>
+                    <div class="mobile-controls" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <div class="control-chip sort-chip desktop-sort" style="padding: 4px 10px; min-width: auto; height: 35px; background: var(--card-bg);">
+                            ↕️ <select id="sort-dropdown-main" onchange="window.syncInputs('main')" style="font-size: 0.85em; margin-left: 5px;">
+                                <option value="default">Sort by relevance</option>
+                                <option value="brand">Brand name wise</option>
+                                <option value="category">Item category wise</option>
+                                <option value="ingredients">Ingredients wise</option>
+                                <option value="price-low-high">Price: Low - High</option>
+                                <option value="price-high-low">Price: High - Low</option>
+                                <option value="size-low-high">Size: Small - Large</option>
+                                <option value="size-high-low">Size: Large - Small</option>
+                            </select>
+                        </div>
+                        <button onclick="window.refreshMenu()" id="inline-refresh-btn" class="action-btn" style="padding: 6px 12px; font-size: 0.8em; border-color: var(--glacier-blue); color: var(--glacier-blue);">🔄 Refresh</button>
+                        <button id="clear-filters-btn" onclick="window.clearAllFilters()" class="action-btn" style="display:none; padding: 6px 12px; font-size: 0.8em; border-color: var(--active-brand-red); color: var(--active-brand-red);">✖ Clear</button>
                     </div>
-
-                    <button onclick="window.refreshMenu()" id="inline-refresh-btn" class="action-btn" style="padding: 6px 12px; font-size: 0.8em; border-color: var(--glacier-blue); color: var(--glacier-blue);">🔄 Refresh</button>
-                    <button id="clear-filters-btn" onclick="window.clearAllFilters()" class="action-btn" style="display:none; padding: 6px 12px; font-size: 0.8em; border-color: var(--active-brand-red); color: var(--active-brand-red);">✖ Clear</button>
-                    
                     <span class="section-count" id="item-count">0 items</span>
                 </div>
             </div>
@@ -891,15 +919,13 @@
         };
 
         window.clearAllFilters = () => {
-            ['header', 'desktop', 'mobile', 'landscape'].forEach(env => {
+            ['header', 'desktop-tools', 'mobile', 'landscape'].forEach(env => {
                 let sb = document.getElementById(`search-bar-${env}`);
                 let sd = document.getElementById(`sort-dropdown-${env}`);
                 let sm = document.getElementById(`sort-dropdown-main`);
-                let dt = document.getElementById(`sort-dropdown-desktop-tools`);
                 if(sb) sb.value = '';
                 if(sd) sd.value = 'default';
                 if(sm) sm.value = 'default';
-                if(dt) dt.value = 'default';
             });
             
             currentCategory = 'All Items';
@@ -909,6 +935,7 @@
             window.history.replaceState({}, '', window.location.pathname); 
 
             window.setupAppUI(); 
+            window.updateCategoryVisibility(); 
             window.applyFilters();
             
             setTimeout(() => {
@@ -1057,52 +1084,155 @@
                 window.unlockBodyScroll();
             }
         });
-function openPrintView(){
 
-    let html = `
-    <html>
-    <head>
-        <title>Print Menu</title>
-        <style>
-            body { font-family: Arial; padding:20px; }
-            .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
-            .card { border:1px solid #ccc; padding:10px; text-align:center; }
-            img { width:80px; height:80px; object-fit:contain; }
-        </style>
-    </head>
-    <body>
-
-    <h2>Glacier Ice Cream Menu</h2>
-    <div class="grid">
-    `;
-
-    currentFilteredItems.forEach(item=>{
-        html += `
-        <div class="card">
-            <img src="${item.img}">
-            <div>${item.name}</div>
-            <b>₹${item.price}</b>
-        </div>
-        `;
-    });
-
-    html += `
-    </div>
-
-    <script>
-        window.onload = function(){
-            setTimeout(()=>window.print(),500);
+        // 🎨 PREMIUM POSTER EXPORT
+        function groupByCategory(data){
+            let grouped = {};
+            data.forEach(item=>{
+                let cat = item.category || "Others";
+                if(!grouped[cat]) grouped[cat] = [];
+                grouped[cat].push(item);
+            });
+            return grouped;
         }
-    <\/script>
 
-    </body>
-    </html>
-    `;
+        function createCategoryBlock(cat, items, color){
+            let html = `
+            <div style="margin:10px; border-radius:18px; background:linear-gradient(135deg, ${color}, #ffffff); padding:10px; box-shadow:0 6px 15px rgba(0,0,0,0.25); page-break-inside:avoid;">
+            <div style="background:#000; color:#fff; padding:6px 16px; border-radius:20px; display:inline-block; font-weight:bold; font-size:13px;">${cat.toUpperCase()}</div>
+            <div style="display:flex; flex-wrap:wrap; justify-content:flex-start; margin-top:10px;">
+            `;
 
-    let win = window.open('', '_blank');
-    win.document.write(html);
-    win.document.close();
-}
+            items.forEach(item=>{
+                html += `
+                <div style="width:25%;text-align:center;padding:8px;position:relative;">
+                    <img src="${item.img}" crossorigin="anonymous" style="height:80px;object-fit:contain;">
+                    <div style="font-size:12px;font-weight:bold;margin-top:5px;line-height:1.2;">${item.name}</div>
+                    <div style="position:absolute; top:5px; right:10px; background:#ffcc00; padding:4px 10px; border-radius:20px; font-weight:bold; font-size:12px;">₹${item.price}</div>
+                </div>
+                `;
+            });
+
+            html += `</div></div>`;
+            return html;
+        }
+
+        function generateFullMenu(items){
+            const BRAND = {
+                name: "GLACIER ICE CREAM",
+                tagline: "Delicious Treats For Everyone!",
+                colors: ["#ffffff","#ffffff","#ffffff","#ffffff"],
+                qr: "https://i.postimg.cc/P56qHSLD/order.png",
+                whatsapp: "919829610570"
+            };
+
+            let grouped = groupByCategory(items);
+            let categories = Object.keys(grouped);
+
+            let html = `<div style="font-family:Arial;">`;
+            let colorIndex = 0;
+
+            categories.forEach((cat, i)=>{
+                if(i % 3 === 0){
+                    if(i !== 0) html += `</div>`; 
+
+                    html += `
+                    <div style="width:794px; height:1122px; display:flex; flex-direction:column; background:linear-gradient(180deg,#ff2d2d,#ffcc00); page-break-after:always; position:relative; overflow:hidden;">
+                    <!-- HEADER -->
+                    <div style="text-align:center;padding:15px;color:#fff;">
+                        <div style="background:#fff; color:#e11d48; padding:8px 20px; border-radius:40px; font-size:30px; font-weight:bold; display:inline-block;">${BRAND.name}</div>
+                        <div style="margin-top:6px;font-size:14px;font-weight:bold;">${BRAND.tagline}</div>
+                    </div>
+                    <div style="flex:1;">
+                    `;
+                }
+
+                let color = BRAND.colors[colorIndex % BRAND.colors.length];
+                colorIndex++;
+
+                html += createCategoryBlock(cat, grouped[cat], color);
+
+                if(i % 3 === 2 || i === categories.length - 1){
+                    html += `
+                    </div>
+                    <!-- FOOTER -->
+                    <div style="background:#065f46; color:#fff; display:flex; justify-content:space-between; align-items:center; padding:10px 15px; position:absolute; bottom:25px; left:0; width:100%; box-sizing:border-box;">
+                        <div>
+                            <img src="${BRAND.qr}" crossorigin="anonymous" style="height:50px;">
+                            <div style="font-size:10px;font-weight:bold;">Scan to Order</div>
+                        </div>
+                        <div style="font-size:14px;font-weight:bold;">📲 +${BRAND.whatsapp}</div>
+                    </div>
+                    <div style="background:#ffcc00; text-align:center; padding:6px; font-weight:bold; position:absolute; bottom:0; left:0; width:100%; box-sizing:border-box;">
+                        Cool Treats • Great Prices • Freshly Made
+                    </div>
+                    </div>
+                    `;
+                }
+            });
+
+            return html;
+        }
+
+        window.exportPDF = async function(){
+            const btn = document.getElementById('pdf-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ Processing...';
+            btn.style.pointerEvents = 'none';
+
+            if(!currentFilteredItems || currentFilteredItems.length === 0){
+                alert("No items available to export.");
+                btn.innerHTML = originalText;
+                btn.style.pointerEvents = 'auto';
+                return;
+            }
+
+            try {
+                let html = generateFullMenu(currentFilteredItems);
+
+                const container = document.createElement('div');
+                container.style.position = 'absolute';
+                container.style.top = '0';
+                container.style.left = '-9999px'; 
+                container.innerHTML = html;
+                document.body.appendChild(container);
+
+                let imagePromises = [];
+                container.querySelectorAll('img').forEach(img => {
+                    let imgP = new Promise(resolve => {
+                        let tempImg = new Image();
+                        tempImg.crossOrigin = "Anonymous";
+                        tempImg.onload = () => resolve();
+                        tempImg.onerror = () => resolve(); 
+                        tempImg.src = img.src;
+                        setTimeout(resolve, 2500); 
+                    });
+                    imagePromises.push(imgP);
+                });
+
+                await Promise.all(imagePromises);
+                await new Promise(r => setTimeout(r, 600));
+
+                const opt = {
+                    margin:0,
+                    filename:`Glacier_Menu_${currentBrand.replace(/\s+/g,'_')}.pdf`,
+                    image:{type:'jpeg',quality:0.98},
+                    html2canvas:{scale:2,useCORS:true,logging:false},
+                    jsPDF:{unit:'px',format:[794,1122],orientation:'portrait'}
+                };
+
+                await html2pdf().set(opt).from(container).save();
+                document.body.removeChild(container);
+
+            } catch(error) {
+                console.error("PDF Export Error: ", error);
+                alert("Something went wrong generating the PDF. Please try again.");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.style.pointerEvents = 'auto';
+            }
+        };
+
         const productsArea = document.getElementById('products-area');
         let lastScrollY = window.scrollY || document.documentElement.scrollTop; 
         let showThreshold = 10;
@@ -1338,10 +1468,8 @@ function openPrintView(){
         };
 
         window.refreshMenu = async () => {
-            const btn = document.getElementById('refresh-btn');
             const inlineBtn = document.getElementById('inline-refresh-btn');
             
-            if(btn) { btn.innerHTML = '⏳'; btn.style.pointerEvents = 'none'; btn.style.opacity = '0.5'; }
             if(inlineBtn) { inlineBtn.innerHTML = '⏳'; inlineBtn.style.pointerEvents = 'none'; inlineBtn.style.opacity = '0.5'; }
             
             try {
@@ -1355,6 +1483,7 @@ function openPrintView(){
                 if (Array.isArray(newData)) {
                     allItems = window.normalizeData(newData); 
                     window.setupAppUI(); 
+                    window.updateCategoryVisibility();
                     
                     document.querySelectorAll('.cat-item').forEach(btn => {
                         const name = btn.querySelector('.cat-name').innerText.trim();
@@ -1377,9 +1506,43 @@ function openPrintView(){
                 }
             } catch(e) { console.error("Refresh Error:", e); }
             
-            if(btn) { btn.innerHTML = '🔄'; btn.style.pointerEvents = 'auto'; btn.style.opacity = '1'; }
             if(inlineBtn) { inlineBtn.innerHTML = '🔄 Refresh'; inlineBtn.style.pointerEvents = 'auto'; inlineBtn.style.opacity = '1'; }
         }
+
+        // 🔥 NEW FEATURE: Hide Empty Categories Dynamically 🔥
+        window.updateCategoryVisibility = () => {
+            const uniqueCats = [...new Set(allItems.map(item => item.category || 'More Favorites').filter(c => c))];
+            const categories = ['New Arrivals', 'All Items', ...uniqueCats];
+
+            let catVisibility = {};
+
+            categories.forEach(cat => {
+                let hasItems = false;
+                if (cat === 'All Items') {
+                    hasItems = true;
+                } else if (cat === 'New Arrivals') {
+                    hasItems = allItems.some(i => window.isNewArrival(i) && (currentBrand === 'All Brands' || i.brand === currentBrand));
+                } else {
+                    hasItems = allItems.some(i => (i.category || 'More Favorites') === cat && (currentBrand === 'All Brands' || i.brand === currentBrand));
+                }
+                catVisibility[cat] = hasItems;
+            });
+
+            // Match using the robust data-category attribute
+            document.querySelectorAll('.cat-item, .filter-tag-chip, .grid-sel-item').forEach(btn => {
+                let cat = btn.getAttribute('data-category');
+                if (cat) {
+                    btn.style.display = catVisibility[cat] ? 'flex' : 'none';
+                }
+            });
+
+            // Check if currently selected category became hidden, if so revert to All Items
+            let currentCatHasItems = catVisibility[currentCategory];
+
+            if (!currentCatHasItems && currentCategory !== 'All Items') {
+                setTimeout(() => window.setCategory('All Items'), 0);
+            }
+        };
 
         async function loadData() {
             const statusMsg = document.getElementById('status-msg'); 
@@ -1409,7 +1572,10 @@ function openPrintView(){
                 if(urlParams.has('brand')) currentBrand = urlParams.get('brand');
                 if(urlParams.has('category')) currentCategory = urlParams.get('category');
                 
-                window.setupAppUI(); window.applyFilters();
+                window.setupAppUI(); 
+                window.updateCategoryVisibility();
+                window.applyFilters();
+
                 if(loadingBar) loadingBar.style.width = '100%'; 
                 
                 setTimeout(() => {
@@ -1463,6 +1629,7 @@ function openPrintView(){
                 // Mobile Sidebar Item
                 const div = document.createElement('div'); 
                 div.className = `cat-item ${cat === currentCategory ? 'active' : ''}`;
+                div.setAttribute('data-category', cat);
                 div.onclick = () => window.setCategory(cat); div.innerHTML = `<div class="cat-icon">${iconHTML}</div><div class="cat-name">${name}</div>`;
                 sidebar.appendChild(div);
 
@@ -1470,6 +1637,7 @@ function openPrintView(){
                 if (desktopCategoryGrid) {
                     let dtCatDiv = document.createElement('div');
                     dtCatDiv.className = `filter-tag-chip ${cat === currentCategory ? 'active' : ''}`;
+                    dtCatDiv.setAttribute('data-category', cat);
                     dtCatDiv.onclick = () => window.setCategory(cat);
                     let cleanIcon = iconHTML === '✨' || iconHTML === '🍨' || iconHTML === '📦' || iconHTML === '🍦' || iconHTML === '🍰' || iconHTML === '🍧' ? iconHTML : '';
                     dtCatDiv.innerHTML = `${cleanIcon} ${name}`;
@@ -1480,6 +1648,7 @@ function openPrintView(){
                 if(fabCategoryGrid) {
                     let fabCatDiv = document.createElement('div');
                     fabCatDiv.className = `grid-sel-item ${cat === currentCategory ? 'active' : ''}`;
+                    fabCatDiv.setAttribute('data-category', cat);
                     fabCatDiv.onclick = () => { window.setCategory(cat); window.closeSpecificModal('mobile-category-modal'); document.getElementById('fab-container').classList.remove('active'); document.getElementById('fab-main-btn').classList.remove('open'); };
                     let displayIcon = iconHTML;
                     if(iconHTML === '✨' || iconHTML === '🍨' || iconHTML === '📦' || iconHTML === '🍦' || iconHTML === '🍰' || iconHTML === '🍧') { displayIcon = `<div style="font-size:2em; line-height:1;">${iconHTML}</div>`; } 
@@ -1541,36 +1710,22 @@ function openPrintView(){
         }
 
         window.setCategory = (categoryName) => {
-            currentCategory = categoryName; const container = document.getElementById('category-sidebar');
-            const deskContainer = document.getElementById('desktop-category-grid');
+            currentCategory = categoryName; 
+            const container = document.getElementById('category-sidebar');
             
-            document.querySelectorAll('.cat-item').forEach(btn => {
-                const name = btn.querySelector('.cat-name').innerText.trim();
-                if (name.toLowerCase() === categoryName.toLowerCase() || (categoryName.includes('New') && name.includes('New'))) {
+            document.querySelectorAll('.cat-item, .filter-tag-chip, .grid-sel-item').forEach(btn => {
+                if (btn.getAttribute('data-category') === categoryName) {
                     btn.classList.add('active');
-                    if(window.innerWidth <= 999 && !window.matchMedia("(orientation: landscape)").matches) {
+                    if (btn.classList.contains('cat-item') && window.innerWidth <= 999 && !window.matchMedia("(orientation: landscape)").matches && container) {
                         const scrollPos = btn.offsetLeft - (container.clientWidth / 2) + (btn.clientWidth / 2); 
                         container.scrollTo({ left: scrollPos, behavior: 'smooth' });
                     }
-                } else btn.classList.remove('active');
+                } else {
+                    if (btn.hasAttribute('data-category')) {
+                        btn.classList.remove('active');
+                    }
+                }
             });
-
-            if (deskContainer) {
-                deskContainer.querySelectorAll('.filter-tag-chip').forEach(btn => {
-                    if (btn.innerText.trim().toLowerCase() === categoryName.toLowerCase() || (categoryName.includes('New') && btn.innerText.includes('New'))) {
-                        btn.classList.add('active');
-                    } else btn.classList.remove('active');
-                });
-            }
-
-            const fabGrid = document.getElementById('fab-category-grid');
-            if(fabGrid) {
-                fabGrid.querySelectorAll('.grid-sel-item').forEach(btn => {
-                    const name = btn.querySelector('.grid-sel-name').innerText.trim();
-                    if (name.toLowerCase() === categoryName.toLowerCase() || (categoryName.includes('New') && name.includes('New'))) btn.classList.add('active');
-                    else btn.classList.remove('active');
-                });
-            }
 
             window.updateUrlParams();
             window.applyFilters();
@@ -1600,9 +1755,7 @@ function openPrintView(){
                 });
             }
             
-            if (currentCategory.includes('New') && brandName !== 'All Brands') {
-                if (!allItems.some(i => i.brand === brandName && window.isNewArrival(i))) { window.setCategory('All Items'); return; }
-            }
+            window.updateCategoryVisibility(); // 🔥 Automatically hide unavailable categories
             
             window.updateUrlParams();
             window.applyFilters();
@@ -1614,8 +1767,11 @@ function openPrintView(){
         window.setTagFilter = (tag) => {
             currentTagFilter = tag;
             document.querySelectorAll('.filter-tag-chip').forEach(btn => {
-                if(btn.getAttribute('data-tag') === tag) { btn.classList.add('active'); } 
-                else { btn.classList.remove('active'); }
+                // Ensure we only interact with Tag chips, not category chips which also use this class
+                if(btn.hasAttribute('data-tag')) {
+                    if(btn.getAttribute('data-tag') === tag) { btn.classList.add('active'); } 
+                    else { btn.classList.remove('active'); }
+                }
             });
             window.applyFilters();
             setTimeout(() => {
@@ -1627,62 +1783,89 @@ function openPrintView(){
         window.getDiscount = (item) => { let m = parseFloat(item.mrp); let p = parseFloat(item.price); if (m && !isNaN(m) && m > p) return ((m - p) / m) * 100; return 0; }
         window.extractVolumeText = (name) => { const match = name.match(/(\d+\s*(ml|l|ltr|gm|g|kg))/i); return match ? match[0] : ''; }
 
+        // 🟢 SMART SEARCH & FILTER FUNCTION 🟢
         window.applyFilters = () => {
             const gridWrapper = document.getElementById('main-menu-grid'); 
             const statusMsg = document.getElementById('status-msg');
             
             let activeEnv = 'mobile';
-            if(window.innerWidth > 999) activeEnv = 'header'; 
+            if(window.innerWidth > 999) activeEnv = 'desktop-tools'; 
             else if(window.matchMedia("(orientation: landscape)").matches) activeEnv = 'landscape';
             
-            const searchInput = document.getElementById(`search-bar-${activeEnv}`);
-            const sortDropdown = document.getElementById(activeEnv === 'header' ? 'sort-dropdown-main' : `sort-dropdown-${activeEnv}`);
+            const searchInput = document.getElementById(window.innerWidth > 999 ? 'search-bar-header' : `search-bar-${activeEnv}`);
+            const sortDropdown = document.getElementById(activeEnv === 'desktop-tools' ? 'sort-dropdown-desktop-tools' : (activeEnv === 'mobile' ? 'sort-dropdown-main' : `sort-dropdown-${activeEnv}`));
 
             const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : ''; 
             const sortValue = sortDropdown ? sortDropdown.value : 'default';
             const searchWords = searchTerm.split(/\s+/).filter(w => w.length > 0);
 
-            let filteredItems = allItems.filter(item => {
+            let filteredData = allItems.map(item => {
                 const isAvailable = String(item.available).toLowerCase() === 'yes' || item.available === true;
                 const matchesBrand = currentBrand === 'All Brands' || item.brand === currentBrand;
-                let matchesCategory = currentCategory === 'All Items' ? true : 
+                const matchesCategory = currentCategory === 'All Items' ? true : 
                                       (currentCategory === 'New Arrivals' ? window.isNewArrival(item) : 
                                       (item.category || 'More Favorites') === currentCategory);
                                       
-                if (searchTerm !== '') matchesCategory = true;
-                
                 let matchesSearch = true;
+                let relevanceScore = 0;
+
+                // 🧠 FUZZY MATCH LOGIC (50% WORDS)
                 if (searchWords.length > 0) {
-                    let textToSearch = (item.name || '').toLowerCase();
-                    matchesSearch = searchWords.every(word => textToSearch.includes(word));
+                    let textToSearch = (item.name + ' ' + (item.brand || '') + ' ' + (item.category || '')).toLowerCase();
+                    let matchCount = 0;
+                    
+                    if (textToSearch.includes(searchTerm)) {
+                        relevanceScore += 100; 
+                    }
+
+                    searchWords.forEach(word => {
+                        if (textToSearch.includes(word)) {
+                            matchCount++;
+                            if (new RegExp(`\\b${word}`).test(textToSearch)) relevanceScore += 10;
+                            else relevanceScore += 2;
+                        }
+                    });
+
+                    let requiredMatches = Math.max(1, Math.ceil(searchWords.length * 0.5));
+                    matchesSearch = matchCount >= requiredMatches;
+                    relevanceScore += (matchCount * 5);
                 }
 
                 const itemTags = window.getItemTags(item);
                 const matchesTagFilter = currentTagFilter === 'All' ? true : itemTags.includes(currentTagFilter);
 
-                return isAvailable && matchesBrand && matchesCategory && matchesSearch && matchesTagFilter;
-            });
+                return { item, isValid: isAvailable && matchesBrand && matchesCategory && matchesSearch && matchesTagFilter, relevanceScore };
+            }).filter(obj => obj.isValid);
 
-            if (currentCategory === 'New Arrivals' && sortValue === 'default') {
-                filteredItems.sort((a, b) => {
-                    let dateA = window.getLaunchDate(a); let dateB = window.getLaunchDate(b);
+            // Sorting Logic
+            if (sortValue === 'default' && searchTerm !== '') {
+                filteredData.sort((a, b) => b.relevanceScore - a.relevanceScore);
+            } else if (currentCategory === 'New Arrivals' && sortValue === 'default') {
+                filteredData.sort((a, b) => {
+                    let dateA = window.getLaunchDate(a.item); let dateB = window.getLaunchDate(b.item);
                     let valA = dateA ? (dateA.year * 12 + dateA.month) : 0;
                     let valB = dateB ? (dateB.year * 12 + dateB.month) : 0;
                     return valB - valA;
                 });
             } else {
-                if (sortValue === 'price-low-high') filteredItems.sort((a, b) => a.price - b.price); 
-                else if (sortValue === 'price-high-low') filteredItems.sort((a, b) => b.price - a.price); 
-                else if (sortValue === 'size-low-high') filteredItems.sort((a, b) => window.getVolume(a.name) - window.getVolume(b.name)); 
-                else if (sortValue === 'size-high-low') filteredItems.sort((a, b) => window.getVolume(b.name) - window.getVolume(a.name)); 
-                else if (sortValue === 'brand') filteredItems.sort((a, b) => String(a.brand || '').localeCompare(String(b.brand || '')));
-                else if (sortValue === 'category') filteredItems.sort((a, b) => String(a.category || '').localeCompare(String(b.category || '')));
-                else if (sortValue === 'ingredients') filteredItems.sort((a, b) => {
-                    let ingA = a.ingredients || a.ingredient || a.composition || '';
-                    let ingB = b.ingredients || b.ingredient || b.composition || '';
-                    return String(ingA).localeCompare(String(ingB));
+                filteredData.sort((a, b) => {
+                    let itemA = a.item, itemB = b.item;
+                    if (sortValue === 'price-low-high') return itemA.price - itemB.price; 
+                    else if (sortValue === 'price-high-low') return itemB.price - itemA.price; 
+                    else if (sortValue === 'size-low-high') return window.getVolume(itemA.name) - window.getVolume(itemB.name); 
+                    else if (sortValue === 'size-high-low') return window.getVolume(itemB.name) - window.getVolume(itemA.name); 
+                    else if (sortValue === 'brand') return String(itemA.brand || '').localeCompare(String(itemB.brand || ''));
+                    else if (sortValue === 'category') return String(itemA.category || '').localeCompare(String(itemB.category || ''));
+                    else if (sortValue === 'ingredients') {
+                        let ingA = itemA.ingredients || itemA.ingredient || itemA.composition || '';
+                        let ingB = itemB.ingredients || itemB.ingredient || itemB.composition || '';
+                        return String(ingA).localeCompare(String(ingB));
+                    }
+                    return 0;
                 });
             }
+
+            let filteredItems = filteredData.map(obj => obj.item);
 
             let titlePrefix = currentBrand !== 'All Brands' ? currentBrand + ' ' : '';
             let titleText = searchTerm !== '' ? 'Search Results' : (currentCategory === 'New Arrivals' ? 'New Arrivals' : (currentCategory === 'All Items' ? 'Menu' : currentCategory));
@@ -1758,7 +1941,7 @@ function openPrintView(){
                         <div class="card-img-wrapper skeleton-bg">
                             ${window.isNewArrival(item) ? `<div class="new-badge">✨ NEW</div>` : ''}
                             ${discountNum > 0 ? `<div class="red-discount-icon">⬇</div>` : ''}
-                            <img src="${item.img}" referrerpolicy="no-referrer" loading="lazy" decoding="async" style="opacity: 0; transition: opacity 0.3s ease-in-out;" onload="this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';" onerror="this.onerror=null; this.src='https://placehold.co/300x220/f4f6f9/a0a0a0?text=No+Image'; this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';">
+                            <img src="${item.img}" crossorigin="anonymous" loading="lazy" decoding="async" style="opacity: 0; transition: opacity 0.3s ease-in-out;" onload="this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';" onerror="this.onerror=null; this.src='https://placehold.co/300x220/f4f6f9/a0a0a0?text=No+Image'; this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';">
                             
                             <div class="btn-container" id="add-wrap-${safeName}" onclick="event.stopPropagation()"></div>
                         </div>
@@ -1891,222 +2074,132 @@ function openPrintView(){
         
         window.clearCart = () => { if(Object.keys(cart).length === 0) return; if(confirm("Are you sure you want to clear your cart?")) { cart = {}; window.updateCartUI(); } }
         
-        // 🟢 FIXED: PDF EXPORT LOGIC WITH PAGE BREAK AVOIDANCE 🟢
-// 🎨 PREMIUM POSTER EXPORT (REPLACE OLD PDF FUNCTION)
+        // 🟢 FULLY RESTORED ORIGINAL PDF SCRIPT (WORKING A4 TABLE) 🟢
+        window.exportPDF = async () => {
+            const btn = document.getElementById('pdf-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ Processing...';
+            btn.style.pointerEvents = 'none';
 
-// 🧠 GROUP BY CATEGORY
-// 🧠 GROUP DATA
-function groupByCategory(data){
-    let grouped = {};
-    data.forEach(item=>{
-        let cat = item.category || "Others";
-        if(!grouped[cat]) grouped[cat] = [];
-        grouped[cat].push(item);
-    });
-    return grouped;
-}
+            try {
+                const container = document.createElement('div');
+                container.style.position = 'absolute';
+                container.style.top = '0';
+                container.style.left = '0';
+                container.style.width = '800px'; 
+                container.style.background = '#ffffff';
+                container.style.opacity = '0.01'; // Invisible to user but rendered by html2canvas
+                container.style.pointerEvents = 'none';
+                container.style.zIndex = '-1000'; 
+                container.style.fontFamily = 'Helvetica, Arial, sans-serif';
 
+                let title = `Menu - ${currentBrand === 'All Brands' ? 'All Brands' : currentBrand}`;
+                if(currentCategory !== 'All Items') title += ` | ${currentCategory}`;
+                if(currentTagFilter !== 'All') title += ` | ${currentTagFilter}`;
 
-// 🎨 CREATE CATEGORY BLOCK
-function createCategoryBlock(cat, items, color){
+                let html = '';
+                const ITEMS_PER_PAGE = 12; // Exactly 3 columns x 4 rows
+                const totalPages = Math.ceil(currentFilteredItems.length / ITEMS_PER_PAGE) || 1;
 
-    let html = `
-    <div style="
-        margin:10px;
-        border-radius:18px;
-        background:linear-gradient(135deg, ${color}, #ffffff);
-        padding:10px;
-        box-shadow:0 6px 15px rgba(0,0,0,0.25);
-        page-break-inside:avoid;
-    ">
+                let imagePromises = [];
 
-    <div style="
-        background:#000;
-        color:#fff;
-        padding:6px 16px;
-        border-radius:20px;
-        display:inline-block;
-        font-weight:bold;
-        font-size:13px;
-    ">
-    ${cat.toUpperCase()}
-    </div>
+                for(let p = 0; p < totalPages; p++) {
+                    let start = p * ITEMS_PER_PAGE;
+                    let end = start + ITEMS_PER_PAGE;
+                    let chunk = currentFilteredItems.slice(start, end);
 
-    <div style="
-        display:flex;
-        flex-wrap:wrap;
-        justify-content:flex-start;
-        margin-top:10px;
-    ">
-    `;
+                    // Fixed A4 proportion size: 800x1120
+                    html += `
+                        <div style="width: 800px; height: 1120px; box-sizing: border-box; padding: 40px; position: relative; background: #fff; page-break-after: always; overflow: hidden;">
+                            
+                            <!-- Header -->
+                            <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 25px;">
+                                <div>
+                                    <h1 style="color: #1f51c6; font-size: 28px; margin: 0; font-weight: bold;">Glacier Ice Cream</h1>
+                                    <p style="color: #64748b; font-size: 14px; margin: 5px 0 0 0; font-weight: bold;">${title}</p>
+                                </div>
+                                <div style="text-align: right; color: #94a3b8; font-size: 12px;">
+                                    Date: ${new Date().toLocaleDateString()}<br>
+                                    Page ${p + 1} of ${totalPages}
+                                </div>
+                            </div>
 
-    items.forEach(item=>{
-        html += `
-        <div style="width:25%;text-align:center;padding:8px;position:relative;">
-            
-            <img src="${item.img}" style="height:80px;object-fit:contain;">
+                            <!-- Grid -->
+                            <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-start;">
+                    `;
 
-            <div style="font-size:12px;font-weight:bold;margin-top:5px;">
-                ${item.name}
-            </div>
+                    chunk.forEach(item => {
+                        const volText = window.extractVolumeText(item.name);
+                        const displayName = item.name.replace(volText, '').trim() || item.name;
 
-            <div style="
-                position:absolute;
-                top:5px;
-                right:10px;
-                background:#ffcc00;
-                padding:4px 10px;
-                border-radius:20px;
-                font-weight:bold;
-                font-size:12px;
-            ">
-                ₹${item.price}
-            </div>
+                        let imgP = new Promise(resolve => {
+                            let img = new Image();
+                            img.crossOrigin = "Anonymous";
+                            img.onload = () => resolve();
+                            img.onerror = () => resolve(); 
+                            img.src = item.img;
+                            setTimeout(resolve, 2500); 
+                        });
+                        imagePromises.push(imgP);
 
-        </div>
-        `;
-    });
+                        html += `
+                            <div style="width: calc(33.333% - 10px); border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; box-sizing: border-box; display: flex; flex-direction: column; height: 215px;">
+                                <div style="text-align: center; margin-bottom: 10px;">
+                                    <img src="${item.img}" crossorigin="anonymous" style="width: 100px; height: 100px; object-fit: contain;">
+                                </div>
+                                <div style="font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; text-align: center;">${item.brand || 'Glacier'}</div>
+                                <div style="font-size: 14px; color: #1e293b; font-weight: bold; line-height: 1.2; flex-grow: 1; max-height: 34px; overflow: hidden; text-align: center;">${displayName}</div>
+                                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e2e8f0;">
+                                    <div style="font-size: 12px; color: #64748b; font-weight: bold;">${volText || '-'}</div>
+                                    <div style="font-size: 16px; color: #e74c3c; font-weight: bold;">Rs.${item.price}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
 
-    html += `</div></div>`;
-    return html;
-}
+                    html += `
+                            </div>
 
+                            <!-- Footer -->
+                            <div style="position: absolute; bottom: 40px; left: 40px; right: 40px; border-top: 2px solid #e2e8f0; padding-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+                                <div style="font-size: 12px; color: #64748b; font-weight: bold;">
+                                    WhatsApp Order: +91 98296 10570<br>
+                                    Fast Delivery • Fresh Stock
+                                </div>
+                                <div>
+                                    <img src="https://i.postimg.cc/P56qHSLD/order.png" crossorigin="anonymous" style="height: 50px;">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
 
-// 🎨 BUILD FULL DOCUMENT
-function generateFullMenu(items){
+                container.innerHTML = html;
+                document.body.appendChild(container);
 
-    const BRAND = {
-        name: "GLACIER ICE CREAM",
-        tagline: "Delicious Treats For Everyone!",
-        colors: ["#ffffff","#ffffff","#ffffff","#ffffff"],
-        qr: "https://i.postimg.cc/P56qHSLD/order.png",
-        whatsapp: "919829610570"
-    };
+                await Promise.all(imagePromises);
+                await new Promise(r => setTimeout(r, 600));
 
-    let grouped = groupByCategory(items);
-    let categories = Object.keys(grouped);
+                const opt = {
+                    margin:       0, 
+                    filename:     `Glacier_Menu_${currentBrand.replace(/\s+/g,'_')}.pdf`,
+                    image:        { type: 'jpeg', quality: 1 },
+                    html2canvas:  { scale: 2, useCORS: true, logging: false },
+                    jsPDF:        { unit: 'px', format: [800, 1120], orientation: 'portrait' } 
+                };
 
-    let html = `
-    <div style="font-family:Arial;">
-    `;
+                await html2pdf().set(opt).from(container).save();
+                document.body.removeChild(container);
 
-    let colorIndex = 0;
+            } catch(error) {
+                console.error("PDF Export Error: ", error);
+                alert("Something went wrong generating the PDF. Please try again.");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.style.pointerEvents = 'auto';
+            }
+        };
 
-    categories.forEach((cat, i)=>{
-
-        // 🔁 NEW PAGE START EVERY 3 SECTIONS
-        if(i % 3 === 0){
-            if(i !== 0) html += `</div>`; // close previous page
-
-            html += `
-            <div style="
-                width:794px;
-                height:1122px;
-                display:flex;
-                flex-direction:column;
-                background:linear-gradient(180deg,#ff2d2d,#ffcc00);
-                page-break-after:always;
-            ">
-
-            <!-- HEADER -->
-            <div style="text-align:center;padding:15px;color:#fff;">
-                <div style="
-                    background:#fff;
-                    color:#e11d48;
-                    padding:8px 20px;
-                    border-radius:40px;
-                    font-size:30px;
-                    font-weight:bold;
-                    display:inline-block;
-                ">
-                    ${BRAND.name}
-                </div>
-                <div style="margin-top:6px;font-size:14px;">
-                    ${BRAND.tagline}
-                </div>
-            </div>
-
-            <div style="flex:1;overflow:hidden;">
-            `;
-        }
-
-        let color = BRAND.colors[colorIndex % BRAND.colors.length];
-        colorIndex++;
-
-        html += createCategoryBlock(cat, grouped[cat], color);
-
-        // 🔚 CLOSE PAGE
-        if(i % 3 === 2 || i === categories.length - 1){
-            html += `
-            </div>
-
-            <!-- FOOTER -->
-            <div style="
-                background:#065f46;
-                color:#fff;
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-                padding:10px 15px;
-            ">
-                <div>
-                    <img src="${BRAND.qr}" style="height:50px;">
-                    <div style="font-size:10px;">Scan to Order</div>
-                </div>
-
-                <div style="font-size:14px;font-weight:bold;">
-                    📲 +${BRAND.whatsapp}
-                </div>
-            </div>
-
-            <div style="
-                background:#ffcc00;
-                text-align:center;
-                padding:6px;
-                font-weight:bold;
-            ">
-                Cool Treats • Great Prices • Freshly Made
-            </div>
-
-            </div>
-            `;
-        }
-
-    });
-
-    return html;
-}
-
-
-// 📄 EXPORT FUNCTION (FINAL)
-window.exportPDF = function(){
-
-    if(!currentFilteredItems || currentFilteredItems.length === 0){
-        alert("No items");
-        return;
-    }
-
-    let html = generateFullMenu(currentFilteredItems);
-
-    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
-
-    if(isMobile){
-        let win = window.open('');
-        win.document.write(html);
-        win.document.close();
-        setTimeout(()=>win.print(),500);
-    } else {
-        html2pdf().set({
-            margin:0,
-            filename:"Menu_Poster.pdf",
-            image:{type:'jpeg',quality:1},
-            html2canvas:{scale:2,useCORS:true},
-            jsPDF:{unit:'px',format:[794,1122]}
-        }).from(html).save();
-    }
-};
-        
-        
         window.shareWebsite = () => { 
             let shareUrl = new URL(window.location.href);
             if(navigator.share) {
@@ -2253,6 +2346,7 @@ window.exportPDF = function(){
         }
     </script>
 
+    <!-- 🟢 FIREBASE LOGIC (GOOGLE SIGN-IN + GUEST + PROFILE DB) 🟢 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
