@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PAN Export - Tax Checkbox Filter</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+    <script src="database.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; padding: 20px; margin: 0; }
+        .container { background: white; padding: 25px; border-radius: 8px; max-width: 1450px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 100px; }
+        
+        .header-section { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 20px; border-bottom: 2px solid #eee; margin-bottom: 20px; gap: 10px; flex-wrap: wrap; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; position: relative; flex-grow: 1; }
+        label { font-size: 11px; font-weight: bold; color: #555; }
+        
+        .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
+        input[type="text"] { padding: 10px 30px 10px 10px; border: 1px solid #ccc; border-radius: 4px; outline: none; width: 100%; box-sizing: border-box; font-size: 13px; }
+        input[type="text"]:focus { border-color: #1a73e8; }
+        
+        .clear-icon { position: absolute; right: 8px; cursor: pointer; color: #999; font-size: 18px; display: none; user-select: none; }
+        .clear-icon:hover { color: #dc3545; }
+
+        .search-input { border: 2px solid #34a853; width: 300px !important; }
+        .counter-badge { background: #34a853; color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; margin-left: 8px; display: inline-block; }
+
+        /* Filter Checkbox Styling */
+        .filter-options { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .option-box { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; height: 38px; box-sizing: border-box; border: 1px solid transparent; transition: 0.2s; white-space: nowrap; }
+        .subject-to-box { background: #fff3cd; border-color: #ffeeba; }
+        .tax-filter-box { background: #ffdada; border-color: #ffbaba; color: #cc0000; }
+        .option-box input { cursor: pointer; margin: 0; }
+
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 800px; }
+        th { background: #000; color: #fff; padding: 10px; font-size: 12px; border: 1px solid #333; position: sticky; top: 0; z-index: 10; white-space: nowrap; }
+        td { border: 1px solid #bbb; padding: 6px; font-size: 13px; background: #fff; }
+        
+        .sort-btn { cursor: pointer; margin-left: 5px; display: inline-block; }
+
+        .grid-input { width: 95%; border: none; background: transparent; padding: 2px; font-size: 13px; }
+        .grid-input:focus { background: #fff; outline: 1px solid #1a73e8; }
+        
+        .checkbox-col { text-align: center; width: 35px; }
+        .cat-tag { background: #e8f0fe; color: #1a73e8; padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: bold; text-transform: uppercase; border: 1px solid #c2d7f9; }
+
+        .tax-tag { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; display: inline-block; min-width: 40px; text-align: center; }
+        .tax-yes { background-color: #ff0000; color: #ffffff; border: 1px solid #cc0000; }
+        .tax-no { background-color: #fef9e7; color: #d4ac0d; border: 1px solid #f9e79f; }
+
+        .btn-download { 
+            position: fixed; right: 25px; top: 50%; transform: translateY(-50%); 
+            background: #1a73e8; color: white; border: none; padding: 20px 25px; 
+            border-radius: 40px; cursor: pointer; font-size: 13px; font-weight: bold; 
+            box-shadow: 0 8px 20px rgba(26, 115, 232, 0.3); z-index: 999;
+            writing-mode: vertical-rl; text-orientation: mixed; display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        /* --- MOBILE RESPONSIVENESS --- */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .container { padding: 15px; margin-bottom: 70px; }
+            
+            .header-section { flex-direction: column; align-items: stretch; gap: 15px; }
+            .filter-options { flex-direction: column; align-items: stretch; gap: 10px; }
+            
+            .search-input { width: 100% !important; }
+            .option-box { justify-content: center; width: 100%; }
+            
+            /* Pin the download button to the bottom for mobile */
+            .btn-download {
+                top: auto; bottom: 0; right: 0; left: 0; 
+                transform: none; width: 100%; border-radius: 0; 
+                writing-mode: horizontal-tb; padding: 15px; 
+                font-size: 15px; box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<button class="btn-download" onclick="generateExcel()"><span>GENERATE FORMATTED EXCEL</span></button>
+
+<div class="container">
+    <div class="header-section">
+        <div class="input-group">
+            <label>COMPANY NAME <span id="selCount" class="counter-badge">Selected: 0</span></label>
+            <div class="input-wrapper">
+                <input type="text" id="companyInput" placeholder="Enter Company Name" oninput="toggleIcon('companyInput', 'clearCompany')">
+                <span id="clearCompany" class="clear-icon" onclick="clearField('companyInput', 'clearCompany')">&times;</span>
+            </div>
+        </div>
+
+        <div class="filter-options">
+            <label class="option-box subject-to-box"><input type="checkbox" id="subjectToToggle"> Subject To</label>
+            <label class="option-box tax-filter-box"><input type="checkbox" id="taxFilterToggle" onchange="handleSearch()"> Show Tax 'Yes' Only</label>
+            
+            <div class="input-group">
+                <label>SEARCH (NAME, PAN, CAT)</label>
+                <div class="input-wrapper">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search..." oninput="handleSearch()">
+                    <span id="clearSearch" class="clear-icon" onclick="clearSearchField()">&times;</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table id="mainTable">
+            <thead>
+                <tr>
+                    <th class="checkbox-col"><input type="checkbox" id="masterCheck" onclick="toggleAll(this)"></th>
+                    <th style="width: 40px;">S.No</th>
+                    <th style="width: 100px;">CAT</th>
+                    <th>APPLICANT NAME <span class="sort-btn" onclick="handleSort()">⇅</span></th>
+                    <th>PAN NO</th>
+                    <th>DEMAT NO.</th>
+                    <th style="width: 80px;">TAX?</th>
+                    <th>RATE</th>
+                    <th>AMOUNT</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    let currentSortOrder = 'asc';
+
+    function initTable() {
+        if (typeof masterData === 'undefined') return;
+        renderRows(masterData);
+    }
+
+    function renderRows(data) {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = "";
+        data.forEach((item, i) => {
+            const isTaxYes = item.isTax && item.isTax.toUpperCase() === "YES";
+            const taxClass = isTaxYes ? "tax-yes" : "tax-no";
+            
+            tbody.innerHTML += `
+                <tr class="data-row">
+                    <td class="checkbox-col"><input type="checkbox" class="row-sel" value="${i}" onchange="updateCounter()"></td>
+                    <td align="center">${i + 1}</td>
+                    <td align="center"><span class="cat-tag">${item.category || 'N/A'}</span></td>
+                    <td class="name-cell" align="center">${item.name.toUpperCase()}</td>
+                    <td class="pan-cell" align="center">${item.pan.toUpperCase()}</td>
+                    <td><input type="text" class="grid-input" id="d-${i}" value=""></td>
+                    <td align="center"><span class="tax-tag ${taxClass}">${item.isTax || 'No'}</span></td>
+                    <td><input type="text" class="grid-input" id="r-${i}"></td>
+                    <td><input type="text" class="grid-input" id="a-${i}"></td>
+                    <td style="display:none;" class="cat-cell">${(item.category || '').toUpperCase()}</td>
+                    <td style="display:none;" class="tax-cell">${(item.isTax || '').toUpperCase()}</td>
+                </tr>`;
+        });
+        updateCounter();
+    }
+
+    function handleSearch() {
+        toggleIcon('searchInput', 'clearSearch');
+        
+        const qSearch = document.getElementById('searchInput').value.toUpperCase();
+        const taxOnly = document.getElementById('taxFilterToggle').checked;
+        
+        document.querySelectorAll('.data-row').forEach(row => {
+            const pan = row.querySelector('.pan-cell').innerText.toUpperCase();
+            const name = row.querySelector('.name-cell').innerText.toUpperCase();
+            const cat = row.querySelector('.cat-cell').innerText.toUpperCase();
+            const tax = row.querySelector('.tax-cell').innerText.toUpperCase();
+            
+            const matchGeneral = pan.includes(qSearch) || name.includes(qSearch) || cat.includes(qSearch);
+            const matchTax = taxOnly ? (tax === "YES") : true;
+            
+            row.style.display = (matchGeneral && matchTax) ? "" : "none";
+        });
+    }
+
+    // Standard helper functions
+    function handleSort() {
+        currentSortOrder = (currentSortOrder === 'asc') ? 'desc' : 'asc';
+        masterData.sort((a, b) => currentSortOrder === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name));
+        renderRows(masterData);
+    }
+    function updateCounter() { document.getElementById('selCount').innerText = `Selected: ${document.querySelectorAll('.row-sel:checked').length}`; }
+    function toggleIcon(inputId, iconId) { document.getElementById(iconId).style.display = document.getElementById(inputId).value.length > 0 ? "block" : "none"; }
+    function clearField(inputId, iconId) { document.getElementById(inputId).value = ""; document.getElementById(iconId).style.display = "none"; handleSearch(); }
+    function clearSearchField() { clearField('searchInput', 'clearSearch'); }
+    function toggleAll(src) { document.querySelectorAll('.row-sel').forEach(cb => { if(cb.closest('tr').style.display !== "none") cb.checked = src.checked; }); updateCounter(); }
+
+    function generateExcel() {
+        const company = document.getElementById('companyInput').value.trim() || "COMPANY";
+        const selected = document.querySelectorAll('.row-sel:checked');
+        const isSubjectTo = document.getElementById('subjectToToggle').checked;
+        if (selected.length === 0) return alert("Select records first.");
+
+        const b = { style: "thin", color: { rgb: "000000" } };
+        const border = { top: b, bottom: b, left: b, right: b };
+        const hStyle = { fill: {fgColor:{rgb:"000000"}}, font:{color:{rgb:"FFFFFF"}, bold:true}, alignment:{horizontal:"center", vertical:"center"}, border: border };
+        const cellCenter = { alignment: { horizontal: "center", vertical: "center" }, border: border };
+        const cellLeft = { alignment: { horizontal: "left", vertical: "center" }, border: border };
+
+        let rows = [
+            [{ v: `COMPANY NAME : ${company.toUpperCase()}`, s: { font:{bold:true, sz:14}, alignment:{horizontal:"center", vertical:"center"}, border: border } }, "", "", "", "", ""],
+            ["S.No", "PAN NO", "DEMAT NO.", "APPLICANT NAME", "RATE", "AMOUNT"].map(h => ({ v: h, s: hStyle }))
+        ];
+
+        selected.forEach((cb, idx) => {
+            const i = cb.value;
+            rows.push([
+                { v: idx + 1, s: cellCenter },
+                { v: masterData[i].pan.toUpperCase(), s: cellCenter },
+                { v: document.getElementById(`d-${i}`).value, s: cellLeft },
+                { v: masterData[i].name.toUpperCase(), s: cellCenter },
+                { v: document.getElementById(`r-${i}`).value, s: cellLeft },
+                { v: document.getElementById(`a-${i}`).value, s: cellLeft }
+            ]);
+        });
+
+        const ws = XLSX.utils.aoa_to_sheet(rows);
+        ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 5 } }];
+        ws['!cols'] = [{ wch: 6 }, { wch: 18 }, { wch: 20 }, { wch: 35 }, { wch: 15 }, { wch: 15 }];
+        
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "PAN_LIST");
+        
+        let finalFileName = `${company.toUpperCase().replace(/\s+/g, '_')}_${selected.length}_PAN${isSubjectTo ? "_Subject2" : ""}.xlsx`;
+        XLSX.writeFile(wb, finalFileName);
+    }
+
+    window.onload = initTable;
+</script>
+</body>
+</html>
