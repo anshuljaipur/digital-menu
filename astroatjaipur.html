@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flow Tracker</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f3f4f6;
+            --card: #ffffff;
+            --text: #1f2937;
+            --border: #e5e7eb;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        h2 { margin-top: 0; font-size: 1.5rem; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 0.9rem; }
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:active { background-color: #1d4ed8; }
+        .btn-secondary { background-color: #10b981; }
+        .btn-secondary:active { background-color: #059669; }
+        
+        /* Table Styles for Mobile */
+        .record-item {
+            border-bottom: 1px solid var(--border);
+            padding: 12px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .record-details { font-size: 0.85rem; color: #6b7280; }
+        .amount.in { color: #10b981; font-weight: bold; }
+        .amount.out { color: #ef4444; font-weight: bold; }
+        .flex-row { display: flex; gap: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>Add Entry</h2>
+        <form id="entryForm">
+            <div class="form-group">
+                <label>Flow Type</label>
+                <select id="type" required>
+                    <option value="">Select Type...</option>
+                    <option value="INCOME">Income</option>
+                    <option value="CASH_IN">Cash/Funds In</option>
+                    <option value="EXPENSE">Expense / Cash Out</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <select id="category" required>
+                    <option value="">Select Flow Type First</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Amount (₹)</label>
+                <input type="number" id="amount" required min="1">
+            </div>
+            <div class="form-group">
+                <label>From/To Whom</label>
+                <input type="text" id="person" required placeholder="Name of person or entity">
+            </div>
+            <div class="form-group">
+                <label>Mode of Transaction</label>
+                <select id="mode" required>
+                    <option value="CASH">Cash</option>
+                    <option value="UPI">UPI</option>
+                    <option value="BANK_TRANSFER">Bank Transfer / NEFT</option>
+                    <option value="CHEQUE">Cheque</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="date" required>
+            </div>
+            <button type="submit">Save Entry</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Records</h2>
+        <div class="flex-row">
+            <div class="form-group" style="flex: 1;">
+                <select id="filterType">
+                    <option value="ALL">All Records</option>
+                    <option value="INCOME">Income Only</option>
+                    <option value="CASH_IN">Cash In Only</option>
+                    <option value="EXPENSE">Expenses Only</option>
+                </select>
+            </div>
+            <button id="exportBtn" class="btn-secondary" style="margin-top: 0; flex: 1;">Export CSV</button>
+        </div>
+        <div id="recordsList">
+            </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // --- REPLACE THIS WITH YOUR FIREBASE CONFIG ---
+   <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyBClme2ravTskBW9-ZSnoGLMEFo_EnPMx4",
+    authDomain: "astroatjaipur-8e85d.firebaseapp.com",
+    projectId: "astroatjaipur-8e85d",
+    storageBucket: "astroatjaipur-8e85d.firebasestorage.app",
+    messagingSenderId: "375842763104",
+    appId: "1:375842763104:web:e807af3f10c8b4f1e7ee05",
+    measurementId: "G-9XBS6MN96W"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Categories Logic
+    const categories = {
+        "INCOME": ["Astrology Consultancy", "Profession Work", "Other Income"],
+        "CASH_IN": ["Loan From Someone", "RD Collection", "Other Cash In"],
+        "EXPENSE": ["Office Expense", "Personal Expense", "Loan Repayment", "Other Expense"]
+    };
+
+    const typeSelect = document.getElementById('type');
+    const categorySelect = document.getElementById('category');
+
+    typeSelect.addEventListener('change', (e) => {
+        const type = e.target.value;
+        categorySelect.innerHTML = '<option value="">Select Category...</option>';
+        if (categories[type]) {
+            categories[type].forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                categorySelect.appendChild(opt);
+            });
+        }
+    });
+
+    // Set today's date as default
+    document.getElementById('date').valueAsDate = new Date();
+
+    let allRecords = []; // Store records locally for filtering and export
+
+    // Submit Form
+    document.getElementById('entryForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const entry = {
+            type: document.getElementById('type').value,
+            category: document.getElementById('category').value,
+            amount: parseFloat(document.getElementById('amount').value),
+            person: document.getElementById('person').value,
+            mode: document.getElementById('mode').value,
+            date: document.getElementById('date').value,
+            timestamp: new Date().getTime()
+        };
+
+        try {
+            await addDoc(collection(db, "transactions"), entry);
+            alert("Entry saved successfully!");
+            document.getElementById('entryForm').reset();
+            document.getElementById('date').valueAsDate = new Date();
+        } catch (error) {
+            console.error("Error adding document: ", error);
+            alert("Error saving data. Check console.");
+        }
+    });
+
+    // Fetch and Display Data Real-time
+    const q = query(collection(db, "transactions"), orderBy("date", "desc"), orderBy("timestamp", "desc"));
+    
+    onSnapshot(q, (snapshot) => {
+        allRecords = [];
+        snapshot.forEach((doc) => {
+            allRecords.push({ id: doc.id, ...doc.data() });
+        });
+        renderRecords();
+    });
+
+    // Filtering Logic
+    document.getElementById('filterType').addEventListener('change', renderRecords);
+
+    function renderRecords() {
+        const filterVal = document.getElementById('filterType').value;
+        const listDiv = document.getElementById('recordsList');
+        listDiv.innerHTML = '';
+
+        const filteredRecords = allRecords.filter(r => filterVal === "ALL" || r.type === filterVal);
+
+        filteredRecords.forEach(record => {
+            const isOut = record.type === 'EXPENSE';
+            const amountClass = isOut ? 'amount out' : 'amount in';
+            const sign = isOut ? '-' : '+';
+
+            const div = document.createElement('div');
+            div.className = 'record-item';
+            div.innerHTML = `
+                <div>
+                    <div><strong>${record.category}</strong> (${record.person})</div>
+                    <div class="record-details">${record.date} | ${record.mode}</div>
+                </div>
+                <div class="${amountClass}">
+                    ${sign}₹${record.amount.toLocaleString()}
+                </div>
+            `;
+            listDiv.appendChild(div);
+        });
+    }
+
+    // Export to CSV Logic
+    document.getElementById('exportBtn').addEventListener('click', () => {
+        if (allRecords.length === 0) {
+            alert("No records to export.");
+            return;
+        }
+
+        const headers = ["Date", "Type", "Category", "Amount", "Person", "Mode"];
+        const csvRows = [headers.join(",")];
+
+        const filterVal = document.getElementById('filterType').value;
+        const recordsToExport = allRecords.filter(r => filterVal === "ALL" || r.type === filterVal);
+
+        recordsToExport.forEach(row => {
+            const values = [
+                row.date,
+                row.type,
+                `"${row.category}"`, // Quotes handle commas inside text
+                row.amount,
+                `"${row.person}"`,
+                row.mode
+            ];
+            csvRows.push(values.join(","));
+        });
+
+        const csvString = csvRows.join("\n");
+        const blob = new Blob([csvString], { type: "text/csv" });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.setAttribute("href", url);
+        a.setAttribute("download", `Transactions_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    });
+</script>
+
+</body>
+</html>
