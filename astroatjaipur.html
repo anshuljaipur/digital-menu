@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flow Tracker</title>
+    <title>Flow Tracker V2</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -11,6 +11,8 @@
             --card: #ffffff;
             --text: #1f2937;
             --border: #e5e7eb;
+            --danger: #ef4444;
+            --success: #10b981;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -19,89 +21,162 @@
             margin: 0;
             padding: 15px;
         }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
+        .container { max-width: 600px; margin: 0 auto; }
         .card {
-            background: var(--card);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            background: var(--card); padding: 20px; border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); margin-bottom: 20px;
         }
-        h2 { margin-top: 0; font-size: 1.5rem; }
-        .form-group { margin-bottom: 15px; }
+        h2 { margin-top: 0; font-size: 1.5rem; margin-bottom: 15px;}
+        .form-group { margin-bottom: 12px; }
         label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 0.9rem; }
         input, select, button {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 1rem;
+            width: 100%; padding: 12px; border: 1px solid var(--border);
+            border-radius: 8px; box-sizing: border-box; font-size: 1rem;
         }
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-        button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        button:active { background-color: #1d4ed8; }
-        .btn-secondary { background-color: #10b981; }
-        .btn-secondary:active { background-color: #059669; }
+        input:focus, select:focus { outline: none; border-color: var(--primary); }
         
+        /* Buttons */
+        button { background-color: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 5px;}
+        button:active { opacity: 0.8; }
+        .btn-success { background-color: var(--success); }
+        .btn-danger { background-color: var(--danger); }
+        .btn-small { padding: 6px 10px; font-size: 0.8rem; width: auto; margin: 0 2px; border-radius: 6px; }
+        
+        /* Layouts */
+        .flex-row { display: flex; gap: 10px; align-items: center;}
+        .flex-row > * { flex: 1; }
+        
+        /* Record Items */
         .record-item {
-            border-bottom: 1px solid var(--border);
-            padding: 12px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            border-bottom: 1px solid var(--border); padding: 12px 0;
+            display: flex; flex-direction: column; gap: 8px;
         }
+        .record-main { display: flex; justify-content: space-between; align-items: center; }
         .record-details { font-size: 0.85rem; color: #6b7280; }
-        .amount.in { color: #10b981; font-weight: bold; }
-        .amount.out { color: #ef4444; font-weight: bold; }
-        .flex-row { display: flex; gap: 10px; }
+        .amount.in { color: var(--success); font-weight: bold; font-size: 1.1rem;}
+        .amount.out { color: var(--danger); font-weight: bold; font-size: 1.1rem;}
+        .record-actions { display: flex; justify-content: flex-end; }
+
+        /* Modal Styles for Edit */
+        .modal {
+            display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background-color: #fefefe; padding: 20px; border-radius: 12px;
+            width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto;
+        }
+        
+        /* Search Bar styling */
+        .search-bar { margin-bottom: 15px; }
+        .search-bar input { background: #f8fafc; border-color: #cbd5e1; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="card">
-        <h2>Add Entry</h2>
+        <h2>Add New Entry</h2>
         <form id="entryForm">
+            <div class="flex-row">
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="type" required>
+                        <option value="">Select...</option>
+                        <option value="INCOME">Income</option>
+                        <option value="CASH_IN">Cash In</option>
+                        <option value="EXPENSE">Expense</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="category" required><option value="">Type First</option></select>
+                </div>
+            </div>
+            <div class="flex-row">
+                <div class="form-group">
+                    <label>Amount (₹)</label>
+                    <input type="number" id="amount" required min="1">
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="date" required>
+                </div>
+            </div>
             <div class="form-group">
-                <label>Flow Type</label>
-                <select id="type" required>
-                    <option value="">Select Type...</option>
+                <label>From/To Whom</label>
+                <input type="text" id="person" required placeholder="Name or description">
+            </div>
+            <div class="form-group">
+                <label>Mode</label>
+                <select id="mode" required>
+                    <option value="CASH">Cash</option>
+                    <option value="UPI">UPI</option>
+                    <option value="BANK_TRANSFER">Bank Transfer / NEFT</option>
+                    <option value="CHEQUE">Cheque</option>
+                </select>
+            </div>
+            <button type="submit">Save Entry</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Records Explorer</h2>
+        
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 Search names, categories, or modes...">
+        </div>
+
+        <div class="flex-row" style="margin-bottom: 15px;">
+            <select id="filterType">
+                <option value="ALL">All Types</option>
+                <option value="INCOME">Income Only</option>
+                <option value="CASH_IN">Cash In Only</option>
+                <option value="EXPENSE">Expenses Only</option>
+            </select>
+            <select id="sortType">
+                <option value="dateDesc">Newest First</option>
+                <option value="dateAsc">Oldest First</option>
+                <option value="amtDesc">Amount: High to Low</option>
+                <option value="amtAsc">Amount: Low to High</option>
+            </select>
+        </div>
+        
+        <button id="exportBtn" class="btn-success" style="margin-bottom: 15px;">Export View to CSV</button>
+        
+        <div id="recordsList">
+            </div>
+    </div>
+</div>
+
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <h2>Edit Entry</h2>
+        <form id="editForm">
+            <input type="hidden" id="editId">
+            <div class="form-group">
+                <label>Type</label>
+                <select id="editType" required>
                     <option value="INCOME">Income</option>
-                    <option value="CASH_IN">Cash/Funds In</option>
-                    <option value="EXPENSE">Expense / Cash Out</option>
+                    <option value="CASH_IN">Cash In</option>
+                    <option value="EXPENSE">Expense</option>
                 </select>
             </div>
             <div class="form-group">
                 <label>Category</label>
-                <select id="category" required>
-                    <option value="">Select Flow Type First</option>
-                </select>
+                <select id="editCategory" required></select>
             </div>
             <div class="form-group">
                 <label>Amount (₹)</label>
-                <input type="number" id="amount" required min="1">
+                <input type="number" id="editAmount" required min="1">
             </div>
             <div class="form-group">
                 <label>From/To Whom</label>
-                <input type="text" id="person" required placeholder="Name of person or entity">
+                <input type="text" id="editPerson" required>
             </div>
             <div class="form-group">
-                <label>Mode of Transaction</label>
-                <select id="mode" required>
+                <label>Mode</label>
+                <select id="editMode" required>
                     <option value="CASH">Cash</option>
                     <option value="UPI">UPI</option>
                     <option value="BANK_TRANSFER">Bank Transfer / NEFT</option>
@@ -110,35 +185,20 @@
             </div>
             <div class="form-group">
                 <label>Date</label>
-                <input type="date" id="date" required>
+                <input type="date" id="editDate" required>
             </div>
-            <button type="submit">Save Entry</button>
+            <div class="flex-row" style="margin-top: 15px;">
+                <button type="button" id="closeModalBtn" class="btn-danger">Cancel</button>
+                <button type="submit" class="btn-success">Update Data</button>
+            </div>
         </form>
-    </div>
-
-    <div class="card">
-        <h2>Records</h2>
-        <div class="flex-row">
-            <div class="form-group" style="flex: 1;">
-                <select id="filterType">
-                    <option value="ALL">All Records</option>
-                    <option value="INCOME">Income Only</option>
-                    <option value="CASH_IN">Cash In Only</option>
-                    <option value="EXPENSE">Expenses Only</option>
-                </select>
-            </div>
-            <button id="exportBtn" class="btn-secondary" style="margin-top: 0; flex: 1;">Export CSV</button>
-        </div>
-        <div id="recordsList">
-            </div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // Your exact Firebase configuration
     const firebaseConfig = {
         apiKey: "AIzaSyBClme2ravTskBW9-ZSnoGLMEFo_EnPMx4",
         authDomain: "astroatjaipur-8e85d.firebaseapp.com",
@@ -149,7 +209,6 @@
         measurementId: "G-9XBS6MN96W"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
@@ -160,30 +219,28 @@
         "EXPENSE": ["Office Expense", "Personal Expense", "Loan Repayment", "Other Expense"]
     };
 
-    const typeSelect = document.getElementById('type');
-    const categorySelect = document.getElementById('category');
-
-    typeSelect.addEventListener('change', (e) => {
-        const type = e.target.value;
-        categorySelect.innerHTML = '<option value="">Select Category...</option>';
+    function populateCategories(typeEl, categoryEl, selectedCat = "") {
+        const type = typeEl.value;
+        categoryEl.innerHTML = '<option value="">Select Category...</option>';
         if (categories[type]) {
             categories[type].forEach(cat => {
                 const opt = document.createElement('option');
-                opt.value = cat;
-                opt.textContent = cat;
-                categorySelect.appendChild(opt);
+                opt.value = cat; opt.textContent = cat;
+                if (cat === selectedCat) opt.selected = true;
+                categoryEl.appendChild(opt);
             });
         }
-    });
+    }
+
+    document.getElementById('type').addEventListener('change', () => populateCategories(document.getElementById('type'), document.getElementById('category')));
+    document.getElementById('editType').addEventListener('change', () => populateCategories(document.getElementById('editType'), document.getElementById('editCategory')));
 
     document.getElementById('date').valueAsDate = new Date();
-
     let allRecords = []; 
 
-    // Submit Form
+    // --- 1. ADD RECORD ---
     document.getElementById('entryForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        
         const entry = {
             type: document.getElementById('type').value,
             category: document.getElementById('category').value,
@@ -193,40 +250,59 @@
             date: document.getElementById('date').value,
             timestamp: new Date().getTime()
         };
-
         try {
             await addDoc(collection(db, "transactions"), entry);
-            alert("Entry saved successfully!");
             document.getElementById('entryForm').reset();
             document.getElementById('date').valueAsDate = new Date();
-        } catch (error) {
-            console.error("Error adding document: ", error);
-            alert("Error saving data. Check console.");
-        }
+        } catch (error) { alert("Error saving: " + error.message); }
     });
 
-    // Fetch and Display Data
-    const q = query(collection(db, "transactions"), orderBy("date", "desc"), orderBy("timestamp", "desc"));
-    
+    // --- 2. FETCH REAL-TIME DATA ---
+    const q = query(collection(db, "transactions"));
     onSnapshot(q, (snapshot) => {
         allRecords = [];
-        snapshot.forEach((doc) => {
-            allRecords.push({ id: doc.id, ...doc.data() });
-        });
+        snapshot.forEach((doc) => { allRecords.push({ id: doc.id, ...doc.data() }); });
         renderRecords();
     });
 
-    // Filtering Logic
-    document.getElementById('filterType').addEventListener('change', renderRecords);
+    // --- 3. FILTER, SORT & SEARCH LOGIC ---
+    const filterSelect = document.getElementById('filterType');
+    const sortSelect = document.getElementById('sortType');
+    const searchInput = document.getElementById('searchInput');
+
+    [filterSelect, sortSelect, searchInput].forEach(el => el.addEventListener('input', renderRecords));
 
     function renderRecords() {
-        const filterVal = document.getElementById('filterType').value;
+        const filterVal = filterSelect.value;
+        const sortVal = sortSelect.value;
+        const searchVal = searchInput.value.toLowerCase();
         const listDiv = document.getElementById('recordsList');
         listDiv.innerHTML = '';
 
-        const filteredRecords = allRecords.filter(r => filterVal === "ALL" || r.type === filterVal);
+        // Filter & Search
+        let processed = allRecords.filter(r => {
+            const matchType = filterVal === "ALL" || r.type === filterVal;
+            const matchSearch = r.person.toLowerCase().includes(searchVal) || 
+                                r.category.toLowerCase().includes(searchVal) || 
+                                r.mode.toLowerCase().includes(searchVal);
+            return matchType && matchSearch;
+        });
 
-        filteredRecords.forEach(record => {
+        // Sort
+        processed.sort((a, b) => {
+            if (sortVal === 'dateDesc') return new Date(b.date) - new Date(a.date) || b.timestamp - a.timestamp;
+            if (sortVal === 'dateAsc') return new Date(a.date) - new Date(b.date) || a.timestamp - b.timestamp;
+            if (sortVal === 'amtDesc') return b.amount - a.amount;
+            if (sortVal === 'amtAsc') return a.amount - b.amount;
+        });
+
+        if(processed.length === 0) {
+            listDiv.innerHTML = '<p style="text-align:center; color:#6b7280;">No records found.</p>';
+            return;
+        }
+
+        // Render DOM
+        processed.forEach(record => {
             const isOut = record.type === 'EXPENSE';
             const amountClass = isOut ? 'amount out' : 'amount in';
             const sign = isOut ? '-' : '+';
@@ -234,54 +310,95 @@
             const div = document.createElement('div');
             div.className = 'record-item';
             div.innerHTML = `
-                <div>
-                    <div><strong>${record.category}</strong> (${record.person})</div>
-                    <div class="record-details">${record.date} | ${record.mode}</div>
+                <div class="record-main">
+                    <div>
+                        <div><strong>${record.category}</strong></div>
+                        <div class="record-details">${record.person} | ${record.mode}</div>
+                        <div class="record-details">${record.date}</div>
+                    </div>
+                    <div class="${amountClass}">${sign}₹${record.amount.toLocaleString()}</div>
                 </div>
-                <div class="${amountClass}">
-                    ${sign}₹${record.amount.toLocaleString()}
+                <div class="record-actions">
+                    <button class="btn-small" onclick="openEdit('${record.id}')">✏️ Edit</button>
+                    <button class="btn-small btn-danger" onclick="deleteRecord('${record.id}')">🗑️ Del</button>
                 </div>
             `;
             listDiv.appendChild(div);
         });
     }
 
-    // Export to CSV Logic
-    document.getElementById('exportBtn').addEventListener('click', () => {
-        if (allRecords.length === 0) {
-            alert("No records to export.");
-            return;
+    // --- 4. DELETE LOGIC ---
+    window.deleteRecord = async (id) => {
+        if(confirm("Are you sure you want to delete this record?")) {
+            await deleteDoc(doc(db, "transactions", id));
         }
+    };
+
+    // --- 5. EDIT LOGIC (Modal) ---
+    const modal = document.getElementById('editModal');
+    
+    window.openEdit = (id) => {
+        const record = allRecords.find(r => r.id === id);
+        if(!record) return;
+
+        document.getElementById('editId').value = record.id;
+        document.getElementById('editType').value = record.type;
+        populateCategories(document.getElementById('editType'), document.getElementById('editCategory'), record.category);
+        document.getElementById('editAmount').value = record.amount;
+        document.getElementById('editPerson').value = record.person;
+        document.getElementById('editMode').value = record.mode;
+        document.getElementById('editDate').value = record.date;
+        
+        modal.style.display = 'flex';
+    };
+
+    document.getElementById('closeModalBtn').addEventListener('click', () => modal.style.display = 'none');
+
+    document.getElementById('editForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('editId').value;
+        const updatedData = {
+            type: document.getElementById('editType').value,
+            category: document.getElementById('editCategory').value,
+            amount: parseFloat(document.getElementById('editAmount').value),
+            person: document.getElementById('editPerson').value,
+            mode: document.getElementById('editMode').value,
+            date: document.getElementById('editDate').value,
+        };
+        
+        try {
+            await updateDoc(doc(db, "transactions", id), updatedData);
+            modal.style.display = 'none';
+        } catch (error) { alert("Error updating: " + error.message); }
+    });
+
+    // --- 6. EXPORT ---
+    document.getElementById('exportBtn').addEventListener('click', () => {
+        if (allRecords.length === 0) { alert("No records."); return; }
+        
+        // Use current filtered/sorted view for export
+        const searchVal = searchInput.value.toLowerCase();
+        const filterVal = filterSelect.value;
+        const recordsToExport = allRecords.filter(r => {
+            const matchType = filterVal === "ALL" || r.type === filterVal;
+            const matchSearch = r.person.toLowerCase().includes(searchVal) || r.category.toLowerCase().includes(searchVal) || r.mode.toLowerCase().includes(searchVal);
+            return matchType && matchSearch;
+        });
 
         const headers = ["Date", "Type", "Category", "Amount", "Person", "Mode"];
         const csvRows = [headers.join(",")];
-
-        const filterVal = document.getElementById('filterType').value;
-        const recordsToExport = allRecords.filter(r => filterVal === "ALL" || r.type === filterVal);
-
         recordsToExport.forEach(row => {
-            const values = [
-                row.date,
-                row.type,
-                `"${row.category}"`, 
-                row.amount,
-                `"${row.person}"`,
-                row.mode
-            ];
+            const values = [ row.date, row.type, `"${row.category}"`, row.amount, `"${row.person}"`, row.mode ];
             csvRows.push(values.join(","));
         });
 
-        const csvString = csvRows.join("\n");
-        const blob = new Blob([csvString], { type: "text/csv" });
+        const blob = new Blob([csvRows.join("\n")], { type: "text/csv" });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.setAttribute("href", url);
         a.setAttribute("download", `Transactions_${new Date().toISOString().split('T')[0]}.csv`);
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
     });
 </script>
-
 </body>
 </html>
