@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flow Tracker V2</title>
+    <title>Flow Tracker V3</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #2563eb;
@@ -13,20 +14,19 @@
             --border: #e5e7eb;
             --danger: #ef4444;
             --success: #10b981;
+            --warning: #f59e0b;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 15px;
+            background-color: var(--bg); color: var(--text);
+            margin: 0; padding: 15px; padding-bottom: 30px;
         }
         .container { max-width: 600px; margin: 0 auto; }
         .card {
             background: var(--card); padding: 20px; border-radius: 12px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); margin-bottom: 20px;
         }
-        h2 { margin-top: 0; font-size: 1.5rem; margin-bottom: 15px;}
+        h2 { margin-top: 0; font-size: 1.4rem; margin-bottom: 15px;}
         .form-group { margin-bottom: 12px; }
         label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 0.9rem; }
         input, select, button {
@@ -35,117 +35,143 @@
         }
         input:focus, select:focus { outline: none; border-color: var(--primary); }
         
-        /* Buttons */
         button { background-color: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 5px;}
         button:active { opacity: 0.8; }
         .btn-success { background-color: var(--success); }
         .btn-danger { background-color: var(--danger); }
         .btn-small { padding: 6px 10px; font-size: 0.8rem; width: auto; margin: 0 2px; border-radius: 6px; }
         
-        /* Layouts */
         .flex-row { display: flex; gap: 10px; align-items: center;}
         .flex-row > * { flex: 1; }
         
-        /* Record Items */
-        .record-item {
-            border-bottom: 1px solid var(--border); padding: 12px 0;
-            display: flex; flex-direction: column; gap: 8px;
-        }
+        .record-item { border-bottom: 1px solid var(--border); padding: 12px 0; display: flex; flex-direction: column; gap: 8px; }
         .record-main { display: flex; justify-content: space-between; align-items: center; }
         .record-details { font-size: 0.85rem; color: #6b7280; }
         .amount.in { color: var(--success); font-weight: bold; font-size: 1.1rem;}
         .amount.out { color: var(--danger); font-weight: bold; font-size: 1.1rem;}
         .record-actions { display: flex; justify-content: flex-end; }
 
-        /* Modal Styles for Edit */
-        .modal {
-            display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;
-        }
-        .modal-content {
-            background-color: #fefefe; padding: 20px; border-radius: 12px;
-            width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto;
-        }
-        
-        /* Search Bar styling */
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
+        .modal-content { background-color: #fefefe; padding: 20px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
         .search-bar { margin-bottom: 15px; }
-        .search-bar input { background: #f8fafc; border-color: #cbd5e1; }
+        
+        /* Navigation Tabs */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; background: #e5e7eb; padding: 5px; border-radius: 10px;}
+        .tab-btn { background: transparent; color: #4b5563; margin: 0; border-radius: 8px; font-size: 1.1rem;}
+        .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        
+        /* Summary Boxes */
+        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .summary-box { padding: 15px; border-radius: 10px; text-align: center; color: white; font-weight: bold;}
+        .sum-income { background-color: var(--success); }
+        .sum-expense { background-color: var(--danger); }
+        
+        /* Chart Container */
+        .chart-container { position: relative; height: 250px; width: 100%; margin-bottom: 20px;}
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="card">
-        <h2>Add New Entry</h2>
-        <form id="entryForm">
-            <div class="flex-row">
-                <div class="form-group">
-                    <label>Type</label>
-                    <select id="type" required>
-                        <option value="">Select...</option>
-                        <option value="INCOME">Income</option>
-                        <option value="CASH_IN">Cash In</option>
-                        <option value="EXPENSE">Expense</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Category</label>
-                    <select id="category" required><option value="">Type First</option></select>
-                </div>
-            </div>
-            <div class="flex-row">
-                <div class="form-group">
-                    <label>Amount (₹)</label>
-                    <input type="number" id="amount" required min="1">
-                </div>
-                <div class="form-group">
-                    <label>Date</label>
-                    <input type="date" id="date" required>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>From/To Whom</label>
-                <input type="text" id="person" required placeholder="Name or description">
-            </div>
-            <div class="form-group">
-                <label>Mode</label>
-                <select id="mode" required>
-                    <option value="CASH">Cash</option>
-                    <option value="UPI">UPI</option>
-                    <option value="BANK_TRANSFER">Bank Transfer / NEFT</option>
-                    <option value="CHEQUE">Cheque</option>
-                </select>
-            </div>
-            <button type="submit">Save Entry</button>
-        </form>
+    
+    <div class="tabs">
+        <button id="nav-tracker" class="tab-btn active">📝 Tracker</button>
+        <button id="nav-dashboard" class="tab-btn">📊 Dashboard</button>
     </div>
 
-    <div class="card">
-        <h2>Records Explorer</h2>
-        
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="🔍 Search names, categories, or modes...">
+    <div id="view-dashboard" style="display: none;">
+        <div class="card">
+            <h2>Financial Overview</h2>
+            <div class="summary-grid">
+                <div class="summary-box sum-income">
+                    <div style="font-size: 0.8rem; font-weight: normal;">Total In</div>
+                    <div id="dash-total-in" style="font-size: 1.4rem;">₹0</div>
+                </div>
+                <div class="summary-box sum-expense">
+                    <div style="font-size: 0.8rem; font-weight: normal;">Total Out</div>
+                    <div id="dash-total-out" style="font-size: 1.4rem;">₹0</div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="flowChart"></canvas>
+            </div>
         </div>
 
-        <div class="flex-row" style="margin-bottom: 15px;">
-            <select id="filterType">
-                <option value="ALL">All Types</option>
-                <option value="INCOME">Income Only</option>
-                <option value="CASH_IN">Cash In Only</option>
-                <option value="EXPENSE">Expenses Only</option>
-            </select>
-            <select id="sortType">
-                <option value="dateDesc">Newest First</option>
-                <option value="dateAsc">Oldest First</option>
-                <option value="amtDesc">Amount: High to Low</option>
-                <option value="amtAsc">Amount: Low to High</option>
-            </select>
-        </div>
-        
-        <button id="exportBtn" class="btn-success" style="margin-bottom: 15px;">Export View to CSV</button>
-        
-        <div id="recordsList">
+        <div class="card">
+            <h2>Expense Breakdown</h2>
+            <div class="chart-container">
+                <canvas id="expenseCategoryChart"></canvas>
             </div>
+        </div>
+    </div>
+
+    <div id="view-tracker">
+        <div class="card">
+            <h2>Add New Entry</h2>
+            <form id="entryForm">
+                <div class="flex-row">
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="type" required>
+                            <option value="">Select...</option>
+                            <option value="INCOME">Income</option>
+                            <option value="CASH_IN">Cash In</option>
+                            <option value="EXPENSE">Expense</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="category" required><option value="">Type First</option></select>
+                    </div>
+                </div>
+                <div class="flex-row">
+                    <div class="form-group">
+                        <label>Amount (₹)</label>
+                        <input type="number" id="amount" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="date" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>From/To Whom</label>
+                    <input type="text" id="person" required placeholder="Name or description">
+                </div>
+                <div class="form-group">
+                    <label>Mode</label>
+                    <select id="mode" required>
+                        <option value="CASH">Cash</option>
+                        <option value="UPI">UPI</option>
+                        <option value="BANK_TRANSFER">Bank Transfer / NEFT</option>
+                        <option value="CHEQUE">Cheque</option>
+                    </select>
+                </div>
+                <button type="submit">Save Entry</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Records Explorer</h2>
+            <div class="search-bar"><input type="text" id="searchInput" placeholder="🔍 Search names, categories, or modes..."></div>
+            <div class="flex-row" style="margin-bottom: 15px;">
+                <select id="filterType">
+                    <option value="ALL">All Types</option>
+                    <option value="INCOME">Income Only</option>
+                    <option value="CASH_IN">Cash In Only</option>
+                    <option value="EXPENSE">Expenses Only</option>
+                </select>
+                <select id="sortType">
+                    <option value="dateDesc">Newest First</option>
+                    <option value="dateAsc">Oldest First</option>
+                    <option value="amtDesc">Amount: High to Low</option>
+                    <option value="amtAsc">Amount: Low to High</option>
+                </select>
+            </div>
+            <button id="exportBtn" class="btn-success" style="margin-bottom: 15px;">Export View to CSV</button>
+            <div id="recordsList"></div>
+        </div>
     </div>
 </div>
 
@@ -212,7 +238,27 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Categories Logic
+    // Navigation Logic
+    const viewTracker = document.getElementById('view-tracker');
+    const viewDashboard = document.getElementById('view-dashboard');
+    const navTracker = document.getElementById('nav-tracker');
+    const navDashboard = document.getElementById('nav-dashboard');
+
+    navTracker.addEventListener('click', () => {
+        viewTracker.style.display = 'block';
+        viewDashboard.style.display = 'none';
+        navTracker.classList.add('active');
+        navDashboard.classList.remove('active');
+    });
+
+    navDashboard.addEventListener('click', () => {
+        viewTracker.style.display = 'none';
+        viewDashboard.style.display = 'block';
+        navDashboard.classList.add('active');
+        navTracker.classList.remove('active');
+        updateDashboard(); // Refresh charts when opening
+    });
+
     const categories = {
         "INCOME": ["Astrology Consultancy", "Profession Work", "Other Income"],
         "CASH_IN": ["Loan From Someone", "RD Collection", "Other Cash In"],
@@ -234,11 +280,68 @@
 
     document.getElementById('type').addEventListener('change', () => populateCategories(document.getElementById('type'), document.getElementById('category')));
     document.getElementById('editType').addEventListener('change', () => populateCategories(document.getElementById('editType'), document.getElementById('editCategory')));
-
     document.getElementById('date').valueAsDate = new Date();
+    
     let allRecords = []; 
+    let flowChartInst = null;
+    let expChartInst = null;
 
-    // --- 1. ADD RECORD ---
+    // --- CHART.JS DASHBOARD LOGIC ---
+    function updateDashboard() {
+        let totalIncome = 0; let totalCashIn = 0; let totalExpense = 0;
+        let expenseDict = {};
+
+        allRecords.forEach(r => {
+            if(r.type === 'INCOME') totalIncome += r.amount;
+            if(r.type === 'CASH_IN') totalCashIn += r.amount;
+            if(r.type === 'EXPENSE') {
+                totalExpense += r.amount;
+                expenseDict[r.category] = (expenseDict[r.category] || 0) + r.amount;
+            }
+        });
+
+        // Update Summary Text
+        document.getElementById('dash-total-in').innerText = '₹' + (totalIncome + totalCashIn).toLocaleString();
+        document.getElementById('dash-total-out').innerText = '₹' + totalExpense.toLocaleString();
+
+        // Flow Chart (Doughnut)
+        const ctxFlow = document.getElementById('flowChart').getContext('2d');
+        if(flowChartInst) flowChartInst.destroy();
+        flowChartInst = new Chart(ctxFlow, {
+            type: 'doughnut',
+            data: {
+                labels: ['Income', 'Cash In', 'Expense'],
+                datasets: [{
+                    data: [totalIncome, totalCashIn, totalExpense],
+                    backgroundColor: ['#10b981', '#3b82f6', '#ef4444'],
+                    borderWidth: 2
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        });
+
+        // Expense Chart (Pie)
+        const ctxExp = document.getElementById('expenseCategoryChart').getContext('2d');
+        if(expChartInst) expChartInst.destroy();
+        
+        const expLabels = Object.keys(expenseDict);
+        const expData = Object.values(expenseDict);
+        const expColors = ['#f87171', '#fb923c', '#fbbf24', '#a3e635', '#2dd4bf', '#c084fc'];
+
+        expChartInst = new Chart(ctxExp, {
+            type: 'pie',
+            data: {
+                labels: expLabels.length ? expLabels : ['No Data'],
+                datasets: [{
+                    data: expData.length ? expData : [1],
+                    backgroundColor: expData.length ? expColors : ['#e5e7eb'],
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+
+    // --- CRUD LOGIC ---
     document.getElementById('entryForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const entry = {
@@ -257,15 +360,14 @@
         } catch (error) { alert("Error saving: " + error.message); }
     });
 
-    // --- 2. FETCH REAL-TIME DATA ---
     const q = query(collection(db, "transactions"));
     onSnapshot(q, (snapshot) => {
         allRecords = [];
         snapshot.forEach((doc) => { allRecords.push({ id: doc.id, ...doc.data() }); });
         renderRecords();
+        updateDashboard(); // Auto-update charts on data change
     });
 
-    // --- 3. FILTER, SORT & SEARCH LOGIC ---
     const filterSelect = document.getElementById('filterType');
     const sortSelect = document.getElementById('sortType');
     const searchInput = document.getElementById('searchInput');
@@ -279,16 +381,12 @@
         const listDiv = document.getElementById('recordsList');
         listDiv.innerHTML = '';
 
-        // Filter & Search
         let processed = allRecords.filter(r => {
             const matchType = filterVal === "ALL" || r.type === filterVal;
-            const matchSearch = r.person.toLowerCase().includes(searchVal) || 
-                                r.category.toLowerCase().includes(searchVal) || 
-                                r.mode.toLowerCase().includes(searchVal);
+            const matchSearch = r.person.toLowerCase().includes(searchVal) || r.category.toLowerCase().includes(searchVal) || r.mode.toLowerCase().includes(searchVal);
             return matchType && matchSearch;
         });
 
-        // Sort
         processed.sort((a, b) => {
             if (sortVal === 'dateDesc') return new Date(b.date) - new Date(a.date) || b.timestamp - a.timestamp;
             if (sortVal === 'dateAsc') return new Date(a.date) - new Date(b.date) || a.timestamp - b.timestamp;
@@ -296,17 +394,12 @@
             if (sortVal === 'amtAsc') return a.amount - b.amount;
         });
 
-        if(processed.length === 0) {
-            listDiv.innerHTML = '<p style="text-align:center; color:#6b7280;">No records found.</p>';
-            return;
-        }
+        if(processed.length === 0) { listDiv.innerHTML = '<p style="text-align:center; color:#6b7280;">No records found.</p>'; return; }
 
-        // Render DOM
         processed.forEach(record => {
             const isOut = record.type === 'EXPENSE';
             const amountClass = isOut ? 'amount out' : 'amount in';
             const sign = isOut ? '-' : '+';
-
             const div = document.createElement('div');
             div.className = 'record-item';
             div.innerHTML = `
@@ -327,20 +420,16 @@
         });
     }
 
-    // --- 4. DELETE LOGIC ---
     window.deleteRecord = async (id) => {
         if(confirm("Are you sure you want to delete this record?")) {
             await deleteDoc(doc(db, "transactions", id));
         }
     };
 
-    // --- 5. EDIT LOGIC (Modal) ---
     const modal = document.getElementById('editModal');
-    
     window.openEdit = (id) => {
         const record = allRecords.find(r => r.id === id);
         if(!record) return;
-
         document.getElementById('editId').value = record.id;
         document.getElementById('editType').value = record.type;
         populateCategories(document.getElementById('editType'), document.getElementById('editCategory'), record.category);
@@ -348,7 +437,6 @@
         document.getElementById('editPerson').value = record.person;
         document.getElementById('editMode').value = record.mode;
         document.getElementById('editDate').value = record.date;
-        
         modal.style.display = 'flex';
     };
 
@@ -365,18 +453,14 @@
             mode: document.getElementById('editMode').value,
             date: document.getElementById('editDate').value,
         };
-        
         try {
             await updateDoc(doc(db, "transactions", id), updatedData);
             modal.style.display = 'none';
         } catch (error) { alert("Error updating: " + error.message); }
     });
 
-    // --- 6. EXPORT ---
     document.getElementById('exportBtn').addEventListener('click', () => {
         if (allRecords.length === 0) { alert("No records."); return; }
-        
-        // Use current filtered/sorted view for export
         const searchVal = searchInput.value.toLowerCase();
         const filterVal = filterSelect.value;
         const recordsToExport = allRecords.filter(r => {
