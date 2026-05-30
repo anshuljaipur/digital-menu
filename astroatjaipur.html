@@ -57,7 +57,6 @@
         .btn-secondary { background-color: #10b981; }
         .btn-secondary:active { background-color: #059669; }
         
-        /* Table Styles for Mobile */
         .record-item {
             border-bottom: 1px solid var(--border);
             padding: 12px 0;
@@ -139,30 +138,16 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // --- REPLACE THIS WITH YOUR FIREBASE CONFIG ---
-   <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyBClme2ravTskBW9-ZSnoGLMEFo_EnPMx4",
-    authDomain: "astroatjaipur-8e85d.firebaseapp.com",
-    projectId: "astroatjaipur-8e85d",
-    storageBucket: "astroatjaipur-8e85d.firebasestorage.app",
-    messagingSenderId: "375842763104",
-    appId: "1:375842763104:web:e807af3f10c8b4f1e7ee05",
-    measurementId: "G-9XBS6MN96W"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
+    // Your exact Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBClme2ravTskBW9-ZSnoGLMEFo_EnPMx4",
+        authDomain: "astroatjaipur-8e85d.firebaseapp.com",
+        projectId: "astroatjaipur-8e85d",
+        storageBucket: "astroatjaipur-8e85d.firebasestorage.app",
+        messagingSenderId: "375842763104",
+        appId: "1:375842763104:web:e807af3f10c8b4f1e7ee05",
+        measurementId: "G-9XBS6MN96W"
+    };
 
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
@@ -191,10 +176,9 @@
         }
     });
 
-    // Set today's date as default
     document.getElementById('date').valueAsDate = new Date();
 
-    let allRecords = []; // Store records locally for filtering and export
+    let allRecords = []; 
 
     // Submit Form
     document.getElementById('entryForm').addEventListener('submit', async (e) => {
@@ -221,7 +205,7 @@
         }
     });
 
-    // Fetch and Display Data Real-time
+    // Fetch and Display Data
     const q = query(collection(db, "transactions"), orderBy("date", "desc"), orderBy("timestamp", "desc"));
     
     onSnapshot(q, (snapshot) => {
@@ -279,7 +263,7 @@
             const values = [
                 row.date,
                 row.type,
-                `"${row.category}"`, // Quotes handle commas inside text
+                `"${row.category}"`, 
                 row.amount,
                 `"${row.person}"`,
                 row.mode
