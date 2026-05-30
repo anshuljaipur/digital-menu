@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flow Tracker V5</title>
+    <title>Flow Tracker V6</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -40,10 +40,10 @@
         .input-group { display: flex; gap: 8px; }
         .input-group select { flex: 1; }
         .input-group button { width: auto; padding: 0 15px; margin: 0; font-size: 1.2rem; border-radius: 8px; }
-        
         .flex-row { display: flex; gap: 10px; align-items: center;}
         .flex-row > * { flex: 1; }
         
+        /* Tracker View Styles */
         .record-item { border-bottom: 1px solid var(--border); padding: 12px 0; display: flex; flex-direction: column; gap: 8px; }
         .record-main { display: flex; justify-content: space-between; align-items: flex-start; }
         .record-details { font-size: 0.85rem; color: #6b7280; margin-top: 2px;}
@@ -53,21 +53,32 @@
         .amount.out { color: var(--danger); font-weight: bold; font-size: 1.1rem; text-align: right;}
         .record-actions { display: flex; justify-content: flex-end; }
 
+        /* Modal Styles */
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
         .modal-content { background-color: #fefefe; padding: 20px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
         .search-bar { margin-bottom: 15px; }
         
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; background: #e5e7eb; padding: 5px; border-radius: 10px;}
-        .tab-btn { background: transparent; color: #4b5563; margin: 0; border-radius: 8px; font-size: 1.1rem;}
+        /* Navigation Tabs */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; background: #e5e7eb; padding: 5px; border-radius: 10px; overflow-x: auto;}
+        .tab-btn { background: transparent; color: #4b5563; margin: 0; border-radius: 8px; font-size: 1rem; white-space: nowrap; padding: 10px;}
         .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         
+        /* Dashboard Styles */
         .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .summary-box { padding: 15px; border-radius: 10px; text-align: center; color: white; font-weight: bold;}
         .sum-income { background-color: var(--success); }
         .sum-expense { background-color: var(--danger); }
         .chart-container { position: relative; height: 250px; width: 100%; margin-bottom: 20px;}
-        
         .dynamic-field { background-color: #eff6ff; padding: 10px; border-radius: 8px; border: 1px dashed #93c5fd;}
+
+        /* Report Table Styles */
+        .table-container { overflow-x: auto; margin-top: 15px; border: 1px solid var(--border); border-radius: 8px;}
+        table { width: 100%; border-collapse: collapse; min-width: 800px; font-size: 0.85rem;}
+        th { background-color: #f8fafc; text-align: left; padding: 12px; border-bottom: 2px solid var(--border); color: #475569;}
+        td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+        tr:nth-child(even) { background-color: #f8fafc; }
+        .cr { color: var(--success); font-weight: bold; }
+        .dr { color: var(--danger); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -76,10 +87,10 @@
     
     <div class="tabs">
         <button id="nav-tracker" class="tab-btn active">📝 Tracker</button>
+        <button id="nav-reports" class="tab-btn">📑 Reports</button>
         <button id="nav-dashboard" class="tab-btn">📊 Dashboard</button>
     </div>
 
-    <!-- DASHBOARD VIEW -->
     <div id="view-dashboard" style="display: none;">
         <div class="card">
             <h2>Financial Overview</h2>
@@ -101,7 +112,73 @@
         </div>
     </div>
 
-    <!-- TRACKER VIEW -->
+    <div id="view-reports" style="display: none;">
+        <div class="card">
+            <h2>Generate Ledger Report</h2>
+            
+            <div class="flex-row">
+                <div class="form-group">
+                    <label>From Date</label>
+                    <input type="date" id="repStartDate">
+                </div>
+                <div class="form-group">
+                    <label>To Date</label>
+                    <input type="date" id="repEndDate">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Select Ledger (Optional)</label>
+                <select id="repLedger"><option value="ALL">All Ledgers</option></select>
+            </div>
+
+            <div class="form-group">
+                <label>Transaction Type (Optional)</label>
+                <select id="repType">
+                    <option value="ALL">All Types</option>
+                    <option value="INCOME">Income Only</option>
+                    <option value="CASH_IN">Cash In Only</option>
+                    <option value="EXPENSE">Expense Only</option>
+                </select>
+            </div>
+
+            <button id="generateReportBtn">Generate Report</button>
+            <button id="exportReportBtn" class="btn-success" style="display: none;">Export Report to CSV</button>
+        </div>
+
+        <div class="card" id="reportContainer" style="display: none; padding: 10px;">
+            <div class="summary-grid" style="margin-bottom: 10px;">
+                <div class="summary-box" style="background-color: #3b82f6; padding: 10px;">
+                    <div style="font-size: 0.75rem; font-weight: normal;">Opening Balance (In Range)</div>
+                    <div id="rep-open-bal" style="font-size: 1.1rem;">₹0</div>
+                </div>
+                <div class="summary-box" style="background-color: #10b981; padding: 10px;">
+                    <div style="font-size: 0.75rem; font-weight: normal;">Closing Balance</div>
+                    <div id="rep-close-bal" style="font-size: 1.1rem;">₹0</div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="reportTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Ledger Name</th>
+                            <th>Category</th>
+                            <th>Amount (₹)</th>
+                            <th>Cr / Dr</th>
+                            <th>Mode</th>
+                            <th>Details & Notes</th>
+                            <th>Balance (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <div id="view-tracker">
         <div class="card">
             <h2>Add New Entry</h2>
@@ -115,7 +192,6 @@
                         <option value="EXPENSE">Expense / Cash Out</option>
                     </select>
                 </div>
-                
                 <div class="form-group">
                     <label>Category</label>
                     <div class="input-group">
@@ -123,7 +199,6 @@
                         <button type="button" id="addCategoryBtn" class="btn-success" title="Add New Category">+</button>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label>Ledger (From / To Whom)</label>
                     <div class="input-group">
@@ -131,7 +206,6 @@
                         <button type="button" id="addPersonBtn" class="btn-success" title="Add New Ledger">+</button>
                     </div>
                 </div>
-
                 <div class="flex-row">
                     <div class="form-group">
                         <label>Amount (₹)</label>
@@ -142,7 +216,6 @@
                         <input type="date" id="date" required>
                     </div>
                 </div>
-                
                 <div class="form-group">
                     <label>Mode of Transaction</label>
                     <select id="mode" required>
@@ -153,18 +226,14 @@
                         <option value="SPLIT_MULTIPLE">Split / Multiple</option>
                     </select>
                 </div>
-
-                <!-- Dynamic Mode Details Field -->
                 <div class="form-group dynamic-field" id="modeDetailsGroup">
                     <label id="modeDetailsLabel">Cash Details (Optional)</label>
                     <input type="text" id="modeDetails" placeholder="e.g., 500x2 notes">
                 </div>
-
                 <div class="form-group">
                     <label>General Notes</label>
                     <input type="text" id="reference" placeholder="Any other details...">
                 </div>
-
                 <button type="submit">Save Entry</button>
             </form>
         </div>
@@ -186,13 +255,11 @@
                     <option value="amtAsc">Amount: Low to High</option>
                 </select>
             </div>
-            <button id="exportBtn" class="btn-success" style="margin-bottom: 15px;">Export View to CSV</button>
             <div id="recordsList"></div>
         </div>
     </div>
 </div>
 
-<!-- EDIT MODAL -->
 <div id="editModal" class="modal">
     <div class="modal-content">
         <h2>Edit Entry</h2>
@@ -206,42 +273,22 @@
                     <option value="EXPENSE">Expense / Cash Out</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label>Category</label>
-                <select id="editCategory" required></select>
-            </div>
-            <div class="form-group">
-                <label>Ledger</label>
-                <select id="editPerson" required></select>
-            </div>
-            <div class="form-group">
-                <label>Amount (₹)</label>
-                <input type="number" id="editAmount" required min="1">
-            </div>
+            <div class="form-group"><label>Category</label><select id="editCategory" required></select></div>
+            <div class="form-group"><label>Ledger</label><select id="editPerson" required></select></div>
+            <div class="form-group"><label>Amount (₹)</label><input type="number" id="editAmount" required min="1"></div>
             <div class="form-group">
                 <label>Mode</label>
                 <select id="editMode" required>
-                    <option value="CASH">Cash</option>
-                    <option value="UPI">UPI</option>
-                    <option value="BANK_TRANSFER">Bank Transfer</option>
-                    <option value="CHEQUE">Cheque</option>
+                    <option value="CASH">Cash</option><option value="UPI">UPI</option>
+                    <option value="BANK_TRANSFER">Bank Transfer</option><option value="CHEQUE">Cheque</option>
                     <option value="SPLIT_MULTIPLE">Split / Multiple</option>
                 </select>
             </div>
-            
             <div class="form-group dynamic-field" id="editModeDetailsGroup">
-                <label id="editModeDetailsLabel">Details</label>
-                <input type="text" id="editModeDetails">
+                <label id="editModeDetailsLabel">Details</label><input type="text" id="editModeDetails">
             </div>
-
-            <div class="form-group">
-                <label>General Notes</label>
-                <input type="text" id="editReference">
-            </div>
-            <div class="form-group">
-                <label>Date</label>
-                <input type="date" id="editDate" required>
-            </div>
+            <div class="form-group"><label>General Notes</label><input type="text" id="editReference"></div>
+            <div class="form-group"><label>Date</label><input type="date" id="editDate" required></div>
             <div class="flex-row" style="margin-top: 15px;">
                 <button type="button" id="closeModalBtn" class="btn-danger">Cancel</button>
                 <button type="submit" class="btn-success">Update Data</button>
@@ -250,7 +297,6 @@
     </div>
 </div>
 
-<!-- Firebase Modular SDK -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -269,259 +315,289 @@
     const db = getFirestore(app);
 
     // --- NAVIGATION ---
-    const viewTracker = document.getElementById('view-tracker');
-    const viewDashboard = document.getElementById('view-dashboard');
-    const navTracker = document.getElementById('nav-tracker');
-    const navDashboard = document.getElementById('nav-dashboard');
-
-    navTracker.addEventListener('click', () => {
-        viewTracker.style.display = 'block'; viewDashboard.style.display = 'none';
-        navTracker.classList.add('active'); navDashboard.classList.remove('active');
-    });
-    navDashboard.addEventListener('click', () => {
-        viewTracker.style.display = 'none'; viewDashboard.style.display = 'block';
-        navDashboard.classList.add('active'); navTracker.classList.remove('active');
-        updateDashboard();
+    const views = ['tracker', 'reports', 'dashboard'];
+    views.forEach(v => {
+        document.getElementById(`nav-${v}`).addEventListener('click', () => {
+            views.forEach(view => {
+                document.getElementById(`view-${view}`).style.display = view === v ? 'block' : 'none';
+                document.getElementById(`nav-${view}`).classList.toggle('active', view === v);
+            });
+            if (v === 'dashboard') updateDashboard();
+        });
     });
 
-    // --- DYNAMIC MODE DETAILS LOGIC ---
+    // --- DYNAMIC UI LOGIC ---
     function updateModeUI(modeSelect, labelEl, inputEl) {
         const val = modeSelect.value;
-        if(val === 'UPI') {
-            labelEl.textContent = 'UPI Transaction ID (Optional)';
-            inputEl.placeholder = 'e.g., 312345678901';
-        } else if(val === 'CHEQUE') {
-            labelEl.textContent = 'Cheque Number (Optional)';
-            inputEl.placeholder = 'e.g., 000123';
-        } else if(val === 'BANK_TRANSFER') {
-            labelEl.textContent = 'Bank Ref / UTR (Optional)';
-            inputEl.placeholder = 'e.g., UTR123456789';
-        } else if(val === 'SPLIT_MULTIPLE') {
-            labelEl.textContent = 'Split Breakdown (Optional)';
-            inputEl.placeholder = 'e.g., ₹500 Cash, ₹500 UPI';
-        } else {
-            labelEl.textContent = 'Cash Details (Optional)';
-            inputEl.placeholder = 'e.g., Given by hand, 500x2';
-        }
+        const labels = {
+            'UPI': ['UPI Transaction ID', 'e.g., 312345678901'],
+            'CHEQUE': ['Cheque Number', 'e.g., 000123'],
+            'BANK_TRANSFER': ['Bank Ref / UTR', 'e.g., UTR123456789'],
+            'SPLIT_MULTIPLE': ['Split Breakdown', 'e.g., ₹500 Cash, ₹500 UPI']
+        };
+        const [lbl, ph] = labels[val] || ['Cash Details (Optional)', 'e.g., Given by hand, 500x2'];
+        labelEl.textContent = lbl; inputEl.placeholder = ph;
     }
+    document.getElementById('mode').addEventListener('change', (e) => updateModeUI(e.target, document.getElementById('modeDetailsLabel'), document.getElementById('modeDetails')));
+    document.getElementById('editMode').addEventListener('change', (e) => updateModeUI(e.target, document.getElementById('editModeDetailsLabel'), document.getElementById('editModeDetails')));
 
-    document.getElementById('mode').addEventListener('change', (e) => {
-        updateModeUI(e.target, document.getElementById('modeDetailsLabel'), document.getElementById('modeDetails'));
-    });
-    
-    document.getElementById('editMode').addEventListener('change', (e) => {
-        updateModeUI(e.target, document.getElementById('editModeDetailsLabel'), document.getElementById('editModeDetails'));
-    });
+    // --- LEDGERS & CATEGORIES ---
+    let customCategories = []; let savedLedgers = [];
+    const defaultCategories = { "INCOME": ["Astrology Consultancy", "Profession Work"], "CASH_IN": ["Loan From Someone", "RD Collection"], "EXPENSE": ["Office Expense", "Personal Expense", "Loan Repayment"] };
 
-    // --- DYNAMIC LEDGERS & CATEGORIES ---
-    const defaultCategories = {
-        "INCOME": ["Astrology Consultancy", "Profession Work"],
-        "CASH_IN": ["Loan From Someone", "RD Collection"],
-        "EXPENSE": ["Office Expense", "Personal Expense", "Loan Repayment"]
-    };
-
-    let customCategories = [];
-    let savedLedgers = [];
-
-    onSnapshot(collection(db, "categories"), (snapshot) => {
-        customCategories = [];
-        snapshot.forEach(doc => customCategories.push(doc.data()));
+    onSnapshot(collection(db, "categories"), (snap) => {
+        customCategories = []; snap.forEach(doc => customCategories.push(doc.data()));
         populateCategories(document.getElementById('type'), document.getElementById('category'));
     });
 
-    onSnapshot(query(collection(db, "ledgers"), orderBy("name")), (snapshot) => {
-        savedLedgers = [];
-        snapshot.forEach(doc => savedLedgers.push(doc.data().name));
+    onSnapshot(query(collection(db, "ledgers"), orderBy("name")), (snap) => {
+        savedLedgers = []; snap.forEach(doc => savedLedgers.push(doc.data().name));
         populateLedgers(document.getElementById('person'));
         populateLedgers(document.getElementById('editPerson'));
+        
+        // Populate Report Ledgers
+        const repLedger = document.getElementById('repLedger');
+        const currentSelection = repLedger.value;
+        repLedger.innerHTML = '<option value="ALL">All Ledgers</option>';
+        savedLedgers.forEach(l => {
+            const opt = document.createElement('option'); opt.value = l; opt.textContent = l;
+            if(l === currentSelection) opt.selected = true;
+            repLedger.appendChild(opt);
+        });
     });
 
     function populateCategories(typeEl, categoryEl, selectedCat = "") {
         const type = typeEl.value;
         categoryEl.innerHTML = '<option value="">Select Category...</option>';
-        
         let combined = type ? [...(defaultCategories[type] || [])] : [];
         customCategories.filter(c => c.type === type).forEach(c => combined.push(c.name));
-        
         [...new Set(combined)].forEach(cat => {
-            const opt = document.createElement('option');
-            opt.value = cat; opt.textContent = cat;
-            if (cat === selectedCat) opt.selected = true;
-            categoryEl.appendChild(opt);
+            const opt = document.createElement('option'); opt.value = cat; opt.textContent = cat;
+            if (cat === selectedCat) opt.selected = true; categoryEl.appendChild(opt);
         });
     }
 
     function populateLedgers(ledgerEl, selectedLedger = "") {
         ledgerEl.innerHTML = '<option value="">Select Ledger...</option>';
         savedLedgers.forEach(ledger => {
-            const opt = document.createElement('option');
-            opt.value = ledger; opt.textContent = ledger;
-            if (ledger === selectedLedger) opt.selected = true;
-            ledgerEl.appendChild(opt);
+            const opt = document.createElement('option'); opt.value = ledger; opt.textContent = ledger;
+            if (ledger === selectedLedger) opt.selected = true; ledgerEl.appendChild(opt);
         });
     }
 
     document.getElementById('type').addEventListener('change', () => populateCategories(document.getElementById('type'), document.getElementById('category')));
     document.getElementById('editType').addEventListener('change', () => populateCategories(document.getElementById('editType'), document.getElementById('editCategory')));
-
+    
     document.getElementById('addCategoryBtn').addEventListener('click', async () => {
         const type = document.getElementById('type').value;
         if(!type) { alert("Please select a Flow Type first!"); return; }
         const newCat = prompt("Enter new category name:");
-        if(newCat && newCat.trim() !== "") {
-            await addDoc(collection(db, "categories"), { type: type, name: newCat.trim() });
-        }
+        if(newCat && newCat.trim() !== "") await addDoc(collection(db, "categories"), { type: type, name: newCat.trim() });
     });
-
     document.getElementById('addPersonBtn').addEventListener('click', async () => {
         const newLedger = prompt("Enter new ledger/person name:");
-        if(newLedger && newLedger.trim() !== "") {
-            await addDoc(collection(db, "ledgers"), { name: newLedger.trim() });
-        }
+        if(newLedger && newLedger.trim() !== "") await addDoc(collection(db, "ledgers"), { name: newLedger.trim() });
     });
 
     document.getElementById('date').valueAsDate = new Date();
+    
+    // Default Report Dates (Start of month to today)
+    const today = new Date();
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    document.getElementById('repStartDate').valueAsDate = firstDay;
+    document.getElementById('repEndDate').valueAsDate = today;
+
     let allRecords = []; 
+    let reportData = []; // Store active report for export
     let flowChartInst = null; let expChartInst = null;
+
+    // --- FETCH DATA ---
+    const q = query(collection(db, "transactions"));
+    onSnapshot(q, (snapshot) => {
+        allRecords = [];
+        snapshot.forEach((doc) => { allRecords.push({ id: doc.id, ...doc.data() }); });
+        renderRecords(); if(document.getElementById('view-dashboard').style.display === 'block') updateDashboard(); 
+    });
+
+    // --- REPORTS ENGINE ---
+    document.getElementById('generateReportBtn').addEventListener('click', () => {
+        const startStr = document.getElementById('repStartDate').value;
+        const endStr = document.getElementById('repEndDate').value;
+        const ledger = document.getElementById('repLedger').value;
+        const type = document.getElementById('repType').value;
+        
+        let filtered = allRecords.filter(r => {
+            const matchStart = !startStr || r.date >= startStr;
+            const matchEnd = !endStr || r.date <= endStr;
+            const matchLedger = ledger === 'ALL' || r.person === ledger;
+            const matchType = type === 'ALL' || r.type === type;
+            return matchStart && matchEnd && matchLedger && matchType;
+        });
+
+        // Sort chronologically for running balance (Oldest First)
+        filtered.sort((a, b) => new Date(a.date) - new Date(b.date) || a.timestamp - b.timestamp);
+        
+        reportData = [];
+        let runningBalance = 0; // Positive = Credit, Negative = Debit
+
+        const tbody = document.getElementById('reportTableBody');
+        tbody.innerHTML = '';
+
+        filtered.forEach(r => {
+            const isCredit = (r.type === 'INCOME' || r.type === 'CASH_IN');
+            const amt = r.amount;
+            
+            // Adjust balance
+            if(isCredit) runningBalance += amt;
+            else runningBalance -= amt;
+
+            // Details formatting
+            const modeDetailsStr = r.modeDetails ? `ID/No: ${r.modeDetails}` : '';
+            const refStr = r.reference ? `Note: ${r.reference}` : '';
+            const fullDetails = [modeDetailsStr, refStr].filter(Boolean).join(" | ");
+            
+            const balLabel = runningBalance >= 0 ? `${runningBalance.toLocaleString()} (Cr)` : `${Math.abs(runningBalance).toLocaleString()} (Dr)`;
+            const crDrClass = isCredit ? 'cr' : 'dr';
+            const crDrLabel = isCredit ? 'Credit' : 'Debit';
+
+            // Save for export
+            reportData.push({
+                date: r.date, ledger: r.person, type: r.type, category: r.category, 
+                amount: amt, crDr: crDrLabel, mode: r.mode, details: fullDetails, balance: balLabel
+            });
+
+            // Render Row
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${r.date}</td>
+                <td><strong>${r.person}</strong></td>
+                <td>${r.category}</td>
+                <td class="${crDrClass}">${amt.toLocaleString()}</td>
+                <td class="${crDrClass}">${crDrLabel}</td>
+                <td>${r.mode.replace('_', ' ')}</td>
+                <td style="font-size: 0.75rem;">${fullDetails}</td>
+                <td style="font-weight: bold;">${balLabel}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('rep-open-bal').innerText = "₹0"; // Simple version, assumes starting from 0 in view
+        document.getElementById('rep-close-bal').innerText = runningBalance >= 0 ? `₹${runningBalance.toLocaleString()} (Cr)` : `₹${Math.abs(runningBalance).toLocaleString()} (Dr)`;
+        
+        document.getElementById('reportContainer').style.display = 'block';
+        document.getElementById('exportReportBtn').style.display = 'inline-block';
+    });
+
+    // EXPORT REPORT
+    document.getElementById('exportReportBtn').addEventListener('click', () => {
+        if (reportData.length === 0) return;
+        const headers = ["Date", "Ledger Name", "Transaction Type", "Category", "Amount", "Credit/Debit", "Mode", "Mode Details", "Balance"];
+        const csvRows = [headers.join(",")];
+        reportData.forEach(row => {
+            const values = [ 
+                row.date, `"${row.ledger}"`, row.type, `"${row.category}"`, 
+                row.amount, row.crDr, row.mode, `"${row.details}"`, `"${row.balance}"` 
+            ];
+            csvRows.push(values.join(","));
+        });
+        const blob = new Blob([csvRows.join("\n")], { type: "text/csv" });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a"); a.setAttribute("href", url);
+        a.setAttribute("download", `LedgerReport_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    });
 
     // --- DASHBOARD LOGIC ---
     function updateDashboard() {
-        let totalIncome = 0; let totalCashIn = 0; let totalExpense = 0;
-        let expenseDict = {};
-
+        let totalIncome = 0; let totalCashIn = 0; let totalExpense = 0; let expenseDict = {};
         allRecords.forEach(r => {
             if(r.type === 'INCOME') totalIncome += r.amount;
             if(r.type === 'CASH_IN') totalCashIn += r.amount;
-            if(r.type === 'EXPENSE') {
-                totalExpense += r.amount;
-                expenseDict[r.category] = (expenseDict[r.category] || 0) + r.amount;
-            }
+            if(r.type === 'EXPENSE') { totalExpense += r.amount; expenseDict[r.category] = (expenseDict[r.category] || 0) + r.amount; }
         });
-
         document.getElementById('dash-total-in').innerText = '₹' + (totalIncome + totalCashIn).toLocaleString();
         document.getElementById('dash-total-out').innerText = '₹' + totalExpense.toLocaleString();
-
+        
         const ctxFlow = document.getElementById('flowChart').getContext('2d');
         if(flowChartInst) flowChartInst.destroy();
-        flowChartInst = new Chart(ctxFlow, {
-            type: 'doughnut',
-            data: { labels: ['Income', 'Cash In', 'Expense'], datasets: [{ data: [totalIncome, totalCashIn, totalExpense], backgroundColor: ['#10b981', '#3b82f6', '#ef4444'], borderWidth: 2 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-        });
+        flowChartInst = new Chart(ctxFlow, { type: 'doughnut', data: { labels: ['Income', 'Cash In', 'Expense'], datasets: [{ data: [totalIncome, totalCashIn, totalExpense], backgroundColor: ['#10b981', '#3b82f6', '#ef4444'], borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
 
         const ctxExp = document.getElementById('expenseCategoryChart').getContext('2d');
         if(expChartInst) expChartInst.destroy();
         const expLabels = Object.keys(expenseDict); const expData = Object.values(expenseDict);
         const expColors = ['#f87171', '#fb923c', '#fbbf24', '#a3e635', '#2dd4bf', '#c084fc'];
-        expChartInst = new Chart(ctxExp, {
-            type: 'pie',
-            data: { labels: expLabels.length ? expLabels : ['No Data'], datasets: [{ data: expData.length ? expData : [1], backgroundColor: expData.length ? expColors : ['#e5e7eb'] }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-        });
+        expChartInst = new Chart(ctxExp, { type: 'pie', data: { labels: expLabels.length ? expLabels : ['No Data'], datasets: [{ data: expData.length ? expData : [1], backgroundColor: expData.length ? expColors : ['#e5e7eb'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
     }
 
     // --- CRUD LOGIC ---
     document.getElementById('entryForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const entry = {
-            type: document.getElementById('type').value,
-            category: document.getElementById('category').value,
-            amount: parseFloat(document.getElementById('amount').value),
-            person: document.getElementById('person').value,
-            mode: document.getElementById('mode').value,
-            modeDetails: document.getElementById('modeDetails').value || "",
-            reference: document.getElementById('reference').value || "",
-            date: document.getElementById('date').value,
+            type: document.getElementById('type').value, category: document.getElementById('category').value,
+            amount: parseFloat(document.getElementById('amount').value), person: document.getElementById('person').value,
+            mode: document.getElementById('mode').value, modeDetails: document.getElementById('modeDetails').value || "",
+            reference: document.getElementById('reference').value || "", date: document.getElementById('date').value,
             timestamp: new Date().getTime()
         };
         try {
             await addDoc(collection(db, "transactions"), entry);
-            document.getElementById('entryForm').reset();
-            document.getElementById('date').valueAsDate = new Date();
-            updateModeUI(document.getElementById('mode'), document.getElementById('modeDetailsLabel'), document.getElementById('modeDetails')); // Reset UI
+            document.getElementById('entryForm').reset(); document.getElementById('date').valueAsDate = new Date();
+            updateModeUI(document.getElementById('mode'), document.getElementById('modeDetailsLabel'), document.getElementById('modeDetails'));
         } catch (error) { alert("Error saving: " + error.message); }
     });
 
-    const q = query(collection(db, "transactions"));
-    onSnapshot(q, (snapshot) => {
-        allRecords = [];
-        snapshot.forEach((doc) => { allRecords.push({ id: doc.id, ...doc.data() }); });
-        renderRecords(); updateDashboard(); 
-    });
-
-    const filterSelect = document.getElementById('filterType');
-    const sortSelect = document.getElementById('sortType');
-    const searchInput = document.getElementById('searchInput');
-
+    const filterSelect = document.getElementById('filterType'); const sortSelect = document.getElementById('sortType'); const searchInput = document.getElementById('searchInput');
     [filterSelect, sortSelect, searchInput].forEach(el => el.addEventListener('input', renderRecords));
 
     function renderRecords() {
         const filterVal = filterSelect.value; const sortVal = sortSelect.value; const searchVal = searchInput.value.toLowerCase();
-        const listDiv = document.getElementById('recordsList');
-        listDiv.innerHTML = '';
-
+        const listDiv = document.getElementById('recordsList'); listDiv.innerHTML = '';
         let processed = allRecords.filter(r => {
             const matchType = filterVal === "ALL" || r.type === filterVal;
             const searchable = `${r.person} ${r.category} ${r.mode} ${r.reference || ''} ${r.modeDetails || ''}`.toLowerCase();
             return matchType && searchable.includes(searchVal);
         });
-
         processed.sort((a, b) => {
             if (sortVal === 'dateDesc') return new Date(b.date) - new Date(a.date) || b.timestamp - a.timestamp;
             if (sortVal === 'dateAsc') return new Date(a.date) - new Date(b.date) || a.timestamp - b.timestamp;
             if (sortVal === 'amtDesc') return b.amount - a.amount;
             if (sortVal === 'amtAsc') return a.amount - b.amount;
         });
-
         if(processed.length === 0) { listDiv.innerHTML = '<p style="text-align:center; color:#6b7280;">No records found.</p>'; return; }
 
         processed.forEach(record => {
-            const isOut = record.type === 'EXPENSE';
-            const amountClass = isOut ? 'amount out' : 'amount in';
-            const sign = isOut ? '-' : '+';
-            
+            const isOut = record.type === 'EXPENSE'; const amountClass = isOut ? 'amount out' : 'amount in'; const sign = isOut ? '-' : '+';
             const modeDetailsHtml = record.modeDetails ? `<div class="record-ref">ID/No: ${record.modeDetails}</div>` : '';
             const refHtml = record.reference ? `<div class="record-ref">Note: ${record.reference}</div>` : '';
-            
-            const div = document.createElement('div');
-            div.className = 'record-item';
+            const div = document.createElement('div'); div.className = 'record-item';
             div.innerHTML = `
                 <div class="record-main">
                     <div>
                         <div><strong>${record.category}</strong> (Ledger: ${record.person})</div>
                         <div class="record-details">${record.date} | <span class="mode-tag">${record.mode.replace('_', ' ')}</span></div>
-                        ${modeDetailsHtml}
-                        ${refHtml}
+                        ${modeDetailsHtml} ${refHtml}
                     </div>
                     <div class="${amountClass}">${sign}₹${record.amount.toLocaleString()}</div>
                 </div>
                 <div class="record-actions">
                     <button class="btn-small" onclick="openEdit('${record.id}')">✏️ Edit</button>
                     <button class="btn-small btn-danger" onclick="deleteRecord('${record.id}')">🗑️ Del</button>
-                </div>
-            `;
+                </div>`;
             listDiv.appendChild(div);
         });
     }
 
-    window.deleteRecord = async (id) => {
-        if(confirm("Are you sure you want to delete this record?")) { await deleteDoc(doc(db, "transactions", id)); }
-    };
+    window.deleteRecord = async (id) => { if(confirm("Delete this record?")) await deleteDoc(doc(db, "transactions", id)); };
 
     const modal = document.getElementById('editModal');
     window.openEdit = (id) => {
-        const record = allRecords.find(r => r.id === id);
-        if(!record) return;
-        document.getElementById('editId').value = record.id;
-        document.getElementById('editType').value = record.type;
+        const record = allRecords.find(r => r.id === id); if(!record) return;
+        document.getElementById('editId').value = record.id; document.getElementById('editType').value = record.type;
         populateCategories(document.getElementById('editType'), document.getElementById('editCategory'), record.category);
         populateLedgers(document.getElementById('editPerson'), record.person);
         document.getElementById('editAmount').value = record.amount;
-        
-        const modeEl = document.getElementById('editMode');
-        modeEl.value = record.mode;
+        const modeEl = document.getElementById('editMode'); modeEl.value = record.mode;
         updateModeUI(modeEl, document.getElementById('editModeDetailsLabel'), document.getElementById('editModeDetails'));
-        
         document.getElementById('editModeDetails').value = record.modeDetails || "";
         document.getElementById('editReference').value = record.reference || "";
         document.getElementById('editDate').value = record.date;
@@ -529,52 +605,15 @@
     };
 
     document.getElementById('closeModalBtn').addEventListener('click', () => modal.style.display = 'none');
-
     document.getElementById('editForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const id = document.getElementById('editId').value;
+        e.preventDefault(); const id = document.getElementById('editId').value;
         const updatedData = {
-            type: document.getElementById('editType').value,
-            category: document.getElementById('editCategory').value,
-            person: document.getElementById('editPerson').value,
-            amount: parseFloat(document.getElementById('editAmount').value),
-            mode: document.getElementById('editMode').value,
-            modeDetails: document.getElementById('editModeDetails').value || "",
-            reference: document.getElementById('editReference').value || "",
-            date: document.getElementById('editDate').value,
+            type: document.getElementById('editType').value, category: document.getElementById('editCategory').value,
+            person: document.getElementById('editPerson').value, amount: parseFloat(document.getElementById('editAmount').value),
+            mode: document.getElementById('editMode').value, modeDetails: document.getElementById('editModeDetails').value || "",
+            reference: document.getElementById('editReference').value || "", date: document.getElementById('editDate').value,
         };
-        try {
-            await updateDoc(doc(db, "transactions", id), updatedData);
-            modal.style.display = 'none';
-        } catch (error) { alert("Error updating: " + error.message); }
-    });
-
-    document.getElementById('exportBtn').addEventListener('click', () => {
-        if (allRecords.length === 0) { alert("No records."); return; }
-        const searchVal = searchInput.value.toLowerCase();
-        const filterVal = filterSelect.value;
-        const recordsToExport = allRecords.filter(r => {
-            const matchType = filterVal === "ALL" || r.type === filterVal;
-            const searchable = `${r.person} ${r.category} ${r.mode} ${r.reference || ''} ${r.modeDetails || ''}`.toLowerCase();
-            return matchType && searchable.includes(searchVal);
-        });
-
-        const headers = ["Date", "Type", "Category", "Ledger", "Amount", "Mode", "Transaction ID/No", "Notes"];
-        const csvRows = [headers.join(",")];
-        recordsToExport.forEach(row => {
-            const values = [ 
-                row.date, row.type, `"${row.category}"`, `"${row.person}"`, 
-                row.amount, row.mode, `"${row.modeDetails || ''}"`, `"${row.reference || ''}"` 
-            ];
-            csvRows.push(values.join(","));
-        });
-
-        const blob = new Blob([csvRows.join("\n")], { type: "text/csv" });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.setAttribute("href", url);
-        a.setAttribute("download", `Transactions_${new Date().toISOString().split('T')[0]}.csv`);
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        try { await updateDoc(doc(db, "transactions", id), updatedData); modal.style.display = 'none'; } catch (error) { alert("Error updating: " + error.message); }
     });
 </script>
 </body>
