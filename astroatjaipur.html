@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flow Tracker V4</title>
+    <title>Flow Tracker V5</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -37,7 +37,6 @@
         .btn-danger { background-color: var(--danger); }
         .btn-small { padding: 6px 10px; font-size: 0.8rem; width: auto; margin: 0 2px; border-radius: 6px; }
         
-        /* Input Addon Layout for + Buttons */
         .input-group { display: flex; gap: 8px; }
         .input-group select { flex: 1; }
         .input-group button { width: auto; padding: 0 15px; margin: 0; font-size: 1.2rem; border-radius: 8px; }
@@ -49,6 +48,7 @@
         .record-main { display: flex; justify-content: space-between; align-items: flex-start; }
         .record-details { font-size: 0.85rem; color: #6b7280; margin-top: 2px;}
         .record-ref { font-size: 0.8rem; color: #4b5563; background: #f3f4f6; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-top: 4px;}
+        .mode-tag { font-size: 0.75rem; background: #e5e7eb; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #374151;}
         .amount.in { color: var(--success); font-weight: bold; font-size: 1.1rem; text-align: right;}
         .amount.out { color: var(--danger); font-weight: bold; font-size: 1.1rem; text-align: right;}
         .record-actions { display: flex; justify-content: flex-end; }
@@ -66,6 +66,8 @@
         .sum-income { background-color: var(--success); }
         .sum-expense { background-color: var(--danger); }
         .chart-container { position: relative; height: 250px; width: 100%; margin-bottom: 20px;}
+        
+        .dynamic-field { background-color: #eff6ff; padding: 10px; border-radius: 8px; border: 1px dashed #93c5fd;}
     </style>
 </head>
 <body>
@@ -77,6 +79,7 @@
         <button id="nav-dashboard" class="tab-btn">📊 Dashboard</button>
     </div>
 
+    <!-- DASHBOARD VIEW -->
     <div id="view-dashboard" style="display: none;">
         <div class="card">
             <h2>Financial Overview</h2>
@@ -98,6 +101,7 @@
         </div>
     </div>
 
+    <!-- TRACKER VIEW -->
     <div id="view-tracker">
         <div class="card">
             <h2>Add New Entry</h2>
@@ -139,22 +143,26 @@
                     </div>
                 </div>
                 
-                <div class="flex-row">
-                    <div class="form-group">
-                        <label>Mode</label>
-                        <select id="mode" required>
-                            <option value="CASH">Cash</option>
-                            <option value="UPI">UPI</option>
-                            <option value="BANK_TRANSFER">Bank Transfer</option>
-                            <option value="CHEQUE">Cheque</option>
-                            <option value="SPLIT_MULTIPLE">Split / Multiple</option>
-                        </select>
-                    </div>
+                <div class="form-group">
+                    <label>Mode of Transaction</label>
+                    <select id="mode" required>
+                        <option value="CASH">Cash</option>
+                        <option value="UPI">UPI</option>
+                        <option value="BANK_TRANSFER">Bank Transfer</option>
+                        <option value="CHEQUE">Cheque</option>
+                        <option value="SPLIT_MULTIPLE">Split / Multiple</option>
+                    </select>
+                </div>
+
+                <!-- Dynamic Mode Details Field -->
+                <div class="form-group dynamic-field" id="modeDetailsGroup">
+                    <label id="modeDetailsLabel">Cash Details (Optional)</label>
+                    <input type="text" id="modeDetails" placeholder="e.g., 500x2 notes">
                 </div>
 
                 <div class="form-group">
-                    <label>Ref / Notes (UPI ID, Split Details)</label>
-                    <input type="text" id="reference" placeholder="Optional details...">
+                    <label>General Notes</label>
+                    <input type="text" id="reference" placeholder="Any other details...">
                 </div>
 
                 <button type="submit">Save Entry</button>
@@ -163,7 +171,7 @@
 
         <div class="card">
             <h2>Records Explorer</h2>
-            <div class="search-bar"><input type="text" id="searchInput" placeholder="🔍 Search ledgers, categories, or refs..."></div>
+            <div class="search-bar"><input type="text" id="searchInput" placeholder="🔍 Search ledgers, categories, notes or IDs..."></div>
             <div class="flex-row" style="margin-bottom: 15px;">
                 <select id="filterType">
                     <option value="ALL">All Types</option>
@@ -184,6 +192,7 @@
     </div>
 </div>
 
+<!-- EDIT MODAL -->
 <div id="editModal" class="modal">
     <div class="modal-content">
         <h2>Edit Entry</h2>
@@ -219,8 +228,14 @@
                     <option value="SPLIT_MULTIPLE">Split / Multiple</option>
                 </select>
             </div>
+            
+            <div class="form-group dynamic-field" id="editModeDetailsGroup">
+                <label id="editModeDetailsLabel">Details</label>
+                <input type="text" id="editModeDetails">
+            </div>
+
             <div class="form-group">
-                <label>Ref / Notes</label>
+                <label>General Notes</label>
                 <input type="text" id="editReference">
             </div>
             <div class="form-group">
@@ -235,6 +250,7 @@
     </div>
 </div>
 
+<!-- Firebase Modular SDK -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -268,6 +284,35 @@
         updateDashboard();
     });
 
+    // --- DYNAMIC MODE DETAILS LOGIC ---
+    function updateModeUI(modeSelect, labelEl, inputEl) {
+        const val = modeSelect.value;
+        if(val === 'UPI') {
+            labelEl.textContent = 'UPI Transaction ID (Optional)';
+            inputEl.placeholder = 'e.g., 312345678901';
+        } else if(val === 'CHEQUE') {
+            labelEl.textContent = 'Cheque Number (Optional)';
+            inputEl.placeholder = 'e.g., 000123';
+        } else if(val === 'BANK_TRANSFER') {
+            labelEl.textContent = 'Bank Ref / UTR (Optional)';
+            inputEl.placeholder = 'e.g., UTR123456789';
+        } else if(val === 'SPLIT_MULTIPLE') {
+            labelEl.textContent = 'Split Breakdown (Optional)';
+            inputEl.placeholder = 'e.g., ₹500 Cash, ₹500 UPI';
+        } else {
+            labelEl.textContent = 'Cash Details (Optional)';
+            inputEl.placeholder = 'e.g., Given by hand, 500x2';
+        }
+    }
+
+    document.getElementById('mode').addEventListener('change', (e) => {
+        updateModeUI(e.target, document.getElementById('modeDetailsLabel'), document.getElementById('modeDetails'));
+    });
+    
+    document.getElementById('editMode').addEventListener('change', (e) => {
+        updateModeUI(e.target, document.getElementById('editModeDetailsLabel'), document.getElementById('editModeDetails'));
+    });
+
     // --- DYNAMIC LEDGERS & CATEGORIES ---
     const defaultCategories = {
         "INCOME": ["Astrology Consultancy", "Profession Work"],
@@ -278,14 +323,12 @@
     let customCategories = [];
     let savedLedgers = [];
 
-    // Listen for custom categories
     onSnapshot(collection(db, "categories"), (snapshot) => {
         customCategories = [];
         snapshot.forEach(doc => customCategories.push(doc.data()));
         populateCategories(document.getElementById('type'), document.getElementById('category'));
     });
 
-    // Listen for saved ledgers
     onSnapshot(query(collection(db, "ledgers"), orderBy("name")), (snapshot) => {
         savedLedgers = [];
         snapshot.forEach(doc => savedLedgers.push(doc.data().name));
@@ -321,7 +364,6 @@
     document.getElementById('type').addEventListener('change', () => populateCategories(document.getElementById('type'), document.getElementById('category')));
     document.getElementById('editType').addEventListener('change', () => populateCategories(document.getElementById('editType'), document.getElementById('editCategory')));
 
-    // ADD NEW BUTTONS
     document.getElementById('addCategoryBtn').addEventListener('click', async () => {
         const type = document.getElementById('type').value;
         if(!type) { alert("Please select a Flow Type first!"); return; }
@@ -387,6 +429,7 @@
             amount: parseFloat(document.getElementById('amount').value),
             person: document.getElementById('person').value,
             mode: document.getElementById('mode').value,
+            modeDetails: document.getElementById('modeDetails').value || "",
             reference: document.getElementById('reference').value || "",
             date: document.getElementById('date').value,
             timestamp: new Date().getTime()
@@ -395,6 +438,7 @@
             await addDoc(collection(db, "transactions"), entry);
             document.getElementById('entryForm').reset();
             document.getElementById('date').valueAsDate = new Date();
+            updateModeUI(document.getElementById('mode'), document.getElementById('modeDetailsLabel'), document.getElementById('modeDetails')); // Reset UI
         } catch (error) { alert("Error saving: " + error.message); }
     });
 
@@ -418,7 +462,7 @@
 
         let processed = allRecords.filter(r => {
             const matchType = filterVal === "ALL" || r.type === filterVal;
-            const searchable = `${r.person} ${r.category} ${r.mode} ${r.reference || ''}`.toLowerCase();
+            const searchable = `${r.person} ${r.category} ${r.mode} ${r.reference || ''} ${r.modeDetails || ''}`.toLowerCase();
             return matchType && searchable.includes(searchVal);
         });
 
@@ -435,6 +479,8 @@
             const isOut = record.type === 'EXPENSE';
             const amountClass = isOut ? 'amount out' : 'amount in';
             const sign = isOut ? '-' : '+';
+            
+            const modeDetailsHtml = record.modeDetails ? `<div class="record-ref">ID/No: ${record.modeDetails}</div>` : '';
             const refHtml = record.reference ? `<div class="record-ref">Note: ${record.reference}</div>` : '';
             
             const div = document.createElement('div');
@@ -443,7 +489,8 @@
                 <div class="record-main">
                     <div>
                         <div><strong>${record.category}</strong> (Ledger: ${record.person})</div>
-                        <div class="record-details">${record.date} | Mode: ${record.mode.replace('_', ' ')}</div>
+                        <div class="record-details">${record.date} | <span class="mode-tag">${record.mode.replace('_', ' ')}</span></div>
+                        ${modeDetailsHtml}
                         ${refHtml}
                     </div>
                     <div class="${amountClass}">${sign}₹${record.amount.toLocaleString()}</div>
@@ -470,7 +517,12 @@
         populateCategories(document.getElementById('editType'), document.getElementById('editCategory'), record.category);
         populateLedgers(document.getElementById('editPerson'), record.person);
         document.getElementById('editAmount').value = record.amount;
-        document.getElementById('editMode').value = record.mode;
+        
+        const modeEl = document.getElementById('editMode');
+        modeEl.value = record.mode;
+        updateModeUI(modeEl, document.getElementById('editModeDetailsLabel'), document.getElementById('editModeDetails'));
+        
+        document.getElementById('editModeDetails').value = record.modeDetails || "";
         document.getElementById('editReference').value = record.reference || "";
         document.getElementById('editDate').value = record.date;
         modal.style.display = 'flex';
@@ -487,6 +539,7 @@
             person: document.getElementById('editPerson').value,
             amount: parseFloat(document.getElementById('editAmount').value),
             mode: document.getElementById('editMode').value,
+            modeDetails: document.getElementById('editModeDetails').value || "",
             reference: document.getElementById('editReference').value || "",
             date: document.getElementById('editDate').value,
         };
@@ -502,14 +555,17 @@
         const filterVal = filterSelect.value;
         const recordsToExport = allRecords.filter(r => {
             const matchType = filterVal === "ALL" || r.type === filterVal;
-            const searchable = `${r.person} ${r.category} ${r.mode} ${r.reference || ''}`.toLowerCase();
+            const searchable = `${r.person} ${r.category} ${r.mode} ${r.reference || ''} ${r.modeDetails || ''}`.toLowerCase();
             return matchType && searchable.includes(searchVal);
         });
 
-        const headers = ["Date", "Type", "Category", "Ledger", "Amount", "Mode", "Reference/Notes"];
+        const headers = ["Date", "Type", "Category", "Ledger", "Amount", "Mode", "Transaction ID/No", "Notes"];
         const csvRows = [headers.join(",")];
         recordsToExport.forEach(row => {
-            const values = [ row.date, row.type, `"${row.category}"`, `"${row.person}"`, row.amount, row.mode, `"${row.reference || ''}"` ];
+            const values = [ 
+                row.date, row.type, `"${row.category}"`, `"${row.person}"`, 
+                row.amount, row.mode, `"${row.modeDetails || ''}"`, `"${row.reference || ''}"` 
+            ];
             csvRows.push(values.join(","));
         });
 
