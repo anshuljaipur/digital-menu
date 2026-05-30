@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flow Tracker V6</title>
+    <title>Flow Tracker V7 - Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #2563eb; --bg: #f3f4f6; --card: #ffffff;
             --text: #1f2937; --border: #e5e7eb; --danger: #ef4444;
-            --success: #10b981; --warning: #f59e0b;
+            --success: #10b981; --warning: #f59e0b; --info: #3b82f6; --purple: #8b5cf6;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -43,37 +43,36 @@
         .flex-row { display: flex; gap: 10px; align-items: center;}
         .flex-row > * { flex: 1; }
         
-        /* Tracker View Styles */
         .record-item { border-bottom: 1px solid var(--border); padding: 12px 0; display: flex; flex-direction: column; gap: 8px; }
         .record-main { display: flex; justify-content: space-between; align-items: flex-start; }
         .record-details { font-size: 0.85rem; color: #6b7280; margin-top: 2px;}
         .record-ref { font-size: 0.8rem; color: #4b5563; background: #f3f4f6; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-top: 4px;}
+        .acc-tag { font-size: 0.75rem; background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 5px;}
         .mode-tag { font-size: 0.75rem; background: #e5e7eb; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #374151;}
         .amount.in { color: var(--success); font-weight: bold; font-size: 1.1rem; text-align: right;}
         .amount.out { color: var(--danger); font-weight: bold; font-size: 1.1rem; text-align: right;}
         .record-actions { display: flex; justify-content: flex-end; }
 
-        /* Modal Styles */
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
         .modal-content { background-color: #fefefe; padding: 20px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
         .search-bar { margin-bottom: 15px; }
         
-        /* Navigation Tabs */
         .tabs { display: flex; gap: 10px; margin-bottom: 20px; background: #e5e7eb; padding: 5px; border-radius: 10px; overflow-x: auto;}
         .tab-btn { background: transparent; color: #4b5563; margin: 0; border-radius: 8px; font-size: 1rem; white-space: nowrap; padding: 10px;}
         .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         
-        /* Dashboard Styles */
+        /* 4-Quadrant Dashboard Styles */
         .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .summary-box { padding: 15px; border-radius: 10px; text-align: center; color: white; font-weight: bold;}
+        .summary-box { padding: 12px; border-radius: 10px; text-align: center; color: white; font-weight: bold;}
         .sum-income { background-color: var(--success); }
         .sum-expense { background-color: var(--danger); }
+        .sum-cashin { background-color: var(--info); }
+        .sum-cashout { background-color: var(--purple); }
         .chart-container { position: relative; height: 250px; width: 100%; margin-bottom: 20px;}
         .dynamic-field { background-color: #eff6ff; padding: 10px; border-radius: 8px; border: 1px dashed #93c5fd;}
 
-        /* Report Table Styles */
         .table-container { overflow-x: auto; margin-top: 15px; border: 1px solid var(--border); border-radius: 8px;}
-        table { width: 100%; border-collapse: collapse; min-width: 800px; font-size: 0.85rem;}
+        table { width: 100%; border-collapse: collapse; min-width: 900px; font-size: 0.85rem;}
         th { background-color: #f8fafc; text-align: left; padding: 12px; border-bottom: 2px solid var(--border); color: #475569;}
         td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
         tr:nth-child(even) { background-color: #f8fafc; }
@@ -91,57 +90,61 @@
         <button id="nav-dashboard" class="tab-btn">📊 Dashboard</button>
     </div>
 
+    <!-- DASHBOARD VIEW -->
     <div id="view-dashboard" style="display: none;">
         <div class="card">
             <h2>Financial Overview</h2>
+            
+            <h3 style="font-size: 1rem; color: #4b5563; margin-bottom: 8px;">Personal & Profession</h3>
             <div class="summary-grid">
                 <div class="summary-box sum-income">
-                    <div style="font-size: 0.8rem; font-weight: normal;">Total In</div>
-                    <div id="dash-total-in" style="font-size: 1.4rem;">₹0</div>
+                    <div style="font-size: 0.8rem; font-weight: normal;">Total Income</div>
+                    <div id="dash-income" style="font-size: 1.3rem;">₹0</div>
                 </div>
                 <div class="summary-box sum-expense">
-                    <div style="font-size: 0.8rem; font-weight: normal;">Total Out</div>
-                    <div id="dash-total-out" style="font-size: 1.4rem;">₹0</div>
+                    <div style="font-size: 0.8rem; font-weight: normal;">Total Expenses</div>
+                    <div id="dash-expense" style="font-size: 1.3rem;">₹0</div>
                 </div>
             </div>
+
+            <h3 style="font-size: 1rem; color: #4b5563; margin-bottom: 8px;">Post Office Agency / Client Funds</h3>
+            <div class="summary-grid">
+                <div class="summary-box sum-cashin">
+                    <div style="font-size: 0.8rem; font-weight: normal;">Cash Collected</div>
+                    <div id="dash-cashin" style="font-size: 1.3rem;">₹0</div>
+                </div>
+                <div class="summary-box sum-cashout">
+                    <div style="font-size: 0.8rem; font-weight: normal;">Deposited / Paid Out</div>
+                    <div id="dash-cashout" style="font-size: 1.3rem;">₹0</div>
+                </div>
+            </div>
+            
             <div class="chart-container"><canvas id="flowChart"></canvas></div>
-        </div>
-        <div class="card">
-            <h2>Expense Breakdown</h2>
-            <div class="chart-container"><canvas id="expenseCategoryChart"></canvas></div>
         </div>
     </div>
 
+    <!-- REPORTS VIEW -->
     <div id="view-reports" style="display: none;">
         <div class="card">
             <h2>Generate Ledger Report</h2>
-            
             <div class="flex-row">
-                <div class="form-group">
-                    <label>From Date</label>
-                    <input type="date" id="repStartDate">
-                </div>
-                <div class="form-group">
-                    <label>To Date</label>
-                    <input type="date" id="repEndDate">
-                </div>
+                <div class="form-group"><label>From Date</label><input type="date" id="repStartDate"></div>
+                <div class="form-group"><label>To Date</label><input type="date" id="repEndDate"></div>
             </div>
-
             <div class="form-group">
-                <label>Select Ledger (Optional)</label>
+                <label>Select Ledger (Client)</label>
                 <select id="repLedger"><option value="ALL">All Ledgers</option></select>
             </div>
-
             <div class="form-group">
-                <label>Transaction Type (Optional)</label>
+                <label>Transaction Type</label>
                 <select id="repType">
                     <option value="ALL">All Types</option>
                     <option value="INCOME">Income Only</option>
-                    <option value="CASH_IN">Cash In Only</option>
                     <option value="EXPENSE">Expense Only</option>
+                    <option value="CASH_IN">Client Cash Collected Only</option>
+                    <option value="CASH_OUT">PO Deposits / Payouts Only</option>
                 </select>
             </div>
-
             <button id="generateReportBtn">Generate Report</button>
             <button id="exportReportBtn" class="btn-success" style="display: none;">Export Report to CSV</button>
         </div>
@@ -157,72 +160,63 @@
                     <div id="rep-close-bal" style="font-size: 1.1rem;">₹0</div>
                 </div>
             </div>
-
             <div class="table-container">
                 <table id="reportTable">
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Ledger Name</th>
-                            <th>Category</th>
-                            <th>Amount (₹)</th>
-                            <th>Cr / Dr</th>
-                            <th>Mode</th>
-                            <th>Details & Notes</th>
-                            <th>Balance (₹)</th>
+                            <th>Date</th><th>Client / Ledger</th><th>A/C or Policy No</th>
+                            <th>Category</th><th>Amount (₹)</th><th>Cr / Dr</th>
+                            <th>Mode</th><th>Details & Notes</th><th>Balance (₹)</th>
                         </tr>
                     </thead>
-                    <tbody id="reportTableBody">
-                        </tbody>
+                    <tbody id="reportTableBody"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
+    <!-- TRACKER VIEW -->
     <div id="view-tracker">
         <div class="card">
             <h2>Add New Entry</h2>
             <form id="entryForm">
                 <div class="form-group">
-                    <label>Type</label>
+                    <label>Transaction Type</label>
                     <select id="type" required>
                         <option value="">Select...</option>
-                        <option value="INCOME">Income</option>
-                        <option value="CASH_IN">Cash In (e.g., Loan, RD)</option>
-                        <option value="EXPENSE">Expense / Cash Out</option>
+                        <option value="INCOME">Income (Astrology, Comm.)</option>
+                        <option value="EXPENSE">Expense (Puja Samagri, Office)</option>
+                        <option value="CASH_IN">Cash Collected (From Client for RD/TD)</option>
+                        <option value="CASH_OUT">Cash Deposited (To Post Office / Payouts)</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Category</label>
                     <div class="input-group">
-                        <select id="category" required><option value="">Type First</option></select>
+                        <select id="category" required><option value="">Select Type First</option></select>
                         <button type="button" id="addCategoryBtn" class="btn-success" title="Add New Category">+</button>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Ledger (From / To Whom)</label>
+                    <label>Client / Ledger Name</label>
                     <div class="input-group">
                         <select id="person" required><option value="">Select Ledger...</option></select>
                         <button type="button" id="addPersonBtn" class="btn-success" title="Add New Ledger">+</button>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label>Account / Policy Number (Optional)</label>
+                    <input type="text" id="accountNo" placeholder="e.g., RD A/c No, PRAN, Policy No">
+                </div>
                 <div class="flex-row">
-                    <div class="form-group">
-                        <label>Amount (₹)</label>
-                        <input type="number" id="amount" required min="1">
-                    </div>
-                    <div class="form-group">
-                        <label>Date</label>
-                        <input type="date" id="date" required>
-                    </div>
+                    <div class="form-group"><label>Amount (₹)</label><input type="number" id="amount" required min="1"></div>
+                    <div class="form-group"><label>Date</label><input type="date" id="date" required></div>
                 </div>
                 <div class="form-group">
                     <label>Mode of Transaction</label>
                     <select id="mode" required>
-                        <option value="CASH">Cash</option>
-                        <option value="UPI">UPI</option>
-                        <option value="BANK_TRANSFER">Bank Transfer</option>
-                        <option value="CHEQUE">Cheque</option>
+                        <option value="CASH">Cash</option><option value="UPI">UPI</option>
+                        <option value="BANK_TRANSFER">Bank Transfer</option><option value="CHEQUE">Cheque</option>
                         <option value="SPLIT_MULTIPLE">Split / Multiple</option>
                     </select>
                 </div>
@@ -230,29 +224,23 @@
                     <label id="modeDetailsLabel">Cash Details (Optional)</label>
                     <input type="text" id="modeDetails" placeholder="e.g., 500x2 notes">
                 </div>
-                <div class="form-group">
-                    <label>General Notes</label>
-                    <input type="text" id="reference" placeholder="Any other details...">
-                </div>
+                <div class="form-group"><label>General Notes</label><input type="text" id="reference" placeholder="Any other details..."></div>
                 <button type="submit">Save Entry</button>
             </form>
         </div>
 
         <div class="card">
             <h2>Records Explorer</h2>
-            <div class="search-bar"><input type="text" id="searchInput" placeholder="🔍 Search ledgers, categories, notes or IDs..."></div>
+            <div class="search-bar"><input type="text" id="searchInput" placeholder="🔍 Search ledgers, A/C nos, categories..."></div>
             <div class="flex-row" style="margin-bottom: 15px;">
                 <select id="filterType">
-                    <option value="ALL">All Types</option>
-                    <option value="INCOME">Income Only</option>
-                    <option value="CASH_IN">Cash In Only</option>
-                    <option value="EXPENSE">Expenses Only</option>
+                    <option value="ALL">All Types</option><option value="INCOME">Income Only</option>
+                    <option value="EXPENSE">Expense Only</option><option value="CASH_IN">Cash Collected Only</option>
+                    <option value="CASH_OUT">Deposited/Payout Only</option>
                 </select>
                 <select id="sortType">
-                    <option value="dateDesc">Newest First</option>
-                    <option value="dateAsc">Oldest First</option>
-                    <option value="amtDesc">Amount: High to Low</option>
-                    <option value="amtAsc">Amount: Low to High</option>
+                    <option value="dateDesc">Newest First</option><option value="dateAsc">Oldest First</option>
+                    <option value="amtDesc">Amount: High to Low</option><option value="amtAsc">Amount: Low to High</option>
                 </select>
             </div>
             <div id="recordsList"></div>
@@ -260,6 +248,7 @@
     </div>
 </div>
 
+<!-- EDIT MODAL -->
 <div id="editModal" class="modal">
     <div class="modal-content">
         <h2>Edit Entry</h2>
@@ -268,20 +257,19 @@
             <div class="form-group">
                 <label>Type</label>
                 <select id="editType" required>
-                    <option value="INCOME">Income</option>
-                    <option value="CASH_IN">Cash In</option>
-                    <option value="EXPENSE">Expense / Cash Out</option>
+                    <option value="INCOME">Income</option><option value="EXPENSE">Expense</option>
+                    <option value="CASH_IN">Cash Collected</option><option value="CASH_OUT">Deposited/Payout</option>
                 </select>
             </div>
             <div class="form-group"><label>Category</label><select id="editCategory" required></select></div>
             <div class="form-group"><label>Ledger</label><select id="editPerson" required></select></div>
+            <div class="form-group"><label>Account / Policy No.</label><input type="text" id="editAccountNo"></div>
             <div class="form-group"><label>Amount (₹)</label><input type="number" id="editAmount" required min="1"></div>
             <div class="form-group">
                 <label>Mode</label>
                 <select id="editMode" required>
                     <option value="CASH">Cash</option><option value="UPI">UPI</option>
-                    <option value="BANK_TRANSFER">Bank Transfer</option><option value="CHEQUE">Cheque</option>
-                    <option value="SPLIT_MULTIPLE">Split / Multiple</option>
+                    <option value="BANK_TRANSFER">Bank Transfer</option><option value="CHEQUE">Cheque</option><option value="SPLIT_MULTIPLE">Split / Multiple</option>
                 </select>
             </div>
             <div class="form-group dynamic-field" id="editModeDetailsGroup">
@@ -291,7 +279,7 @@
             <div class="form-group"><label>Date</label><input type="date" id="editDate" required></div>
             <div class="flex-row" style="margin-top: 15px;">
                 <button type="button" id="closeModalBtn" class="btn-danger">Cancel</button>
-                <button type="submit" class="btn-success">Update Data</button>
+                <button type="submit" class="btn-success">Update</button>
             </div>
         </form>
     </div>
@@ -314,7 +302,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // --- NAVIGATION ---
+    // NAVIGATION
     const views = ['tracker', 'reports', 'dashboard'];
     views.forEach(v => {
         document.getElementById(`nav-${v}`).addEventListener('click', () => {
@@ -326,24 +314,27 @@
         });
     });
 
-    // --- DYNAMIC UI LOGIC ---
+    // DYNAMIC UI
     function updateModeUI(modeSelect, labelEl, inputEl) {
         const val = modeSelect.value;
         const labels = {
-            'UPI': ['UPI Transaction ID', 'e.g., 312345678901'],
-            'CHEQUE': ['Cheque Number', 'e.g., 000123'],
-            'BANK_TRANSFER': ['Bank Ref / UTR', 'e.g., UTR123456789'],
-            'SPLIT_MULTIPLE': ['Split Breakdown', 'e.g., ₹500 Cash, ₹500 UPI']
+            'UPI': ['UPI Transaction ID', 'e.g., 312345678901'], 'CHEQUE': ['Cheque Number', 'e.g., 000123'],
+            'BANK_TRANSFER': ['Bank Ref / UTR', 'e.g., UTR123456789'], 'SPLIT_MULTIPLE': ['Split Breakdown', 'e.g., ₹500 Cash, ₹500 UPI']
         };
-        const [lbl, ph] = labels[val] || ['Cash Details (Optional)', 'e.g., Given by hand, 500x2'];
+        const [lbl, ph] = labels[val] || ['Cash Details', 'e.g., Given by hand, 500x2'];
         labelEl.textContent = lbl; inputEl.placeholder = ph;
     }
     document.getElementById('mode').addEventListener('change', (e) => updateModeUI(e.target, document.getElementById('modeDetailsLabel'), document.getElementById('modeDetails')));
     document.getElementById('editMode').addEventListener('change', (e) => updateModeUI(e.target, document.getElementById('editModeDetailsLabel'), document.getElementById('editModeDetails')));
 
-    // --- LEDGERS & CATEGORIES ---
+    // TAILORED CATEGORIES FOR AGENT/PANDIT
     let customCategories = []; let savedLedgers = [];
-    const defaultCategories = { "INCOME": ["Astrology Consultancy", "Profession Work"], "CASH_IN": ["Loan From Someone", "RD Collection"], "EXPENSE": ["Office Expense", "Personal Expense", "Loan Repayment"] };
+    const defaultCategories = { 
+        "INCOME": ["Astrology Consultancy", "Puja / Pandit Work", "Post Office Commission", "Other Income"], 
+        "CASH_IN": ["RD Collection", "FD/TD Collection", "MIS / SCSS Investment", "Loan/Advance Received"], 
+        "CASH_OUT": ["Post Office Deposit (RD/TD/MIS)", "Client Payout (Maturity/Withdrawal)", "Loan Repayment"],
+        "EXPENSE": ["Puja Materials (Samagri)", "Travel Expense", "Office Expense", "Personal Expense"] 
+    };
 
     onSnapshot(collection(db, "categories"), (snap) => {
         customCategories = []; snap.forEach(doc => customCategories.push(doc.data()));
@@ -352,23 +343,17 @@
 
     onSnapshot(query(collection(db, "ledgers"), orderBy("name")), (snap) => {
         savedLedgers = []; snap.forEach(doc => savedLedgers.push(doc.data().name));
-        populateLedgers(document.getElementById('person'));
-        populateLedgers(document.getElementById('editPerson'));
-        
-        // Populate Report Ledgers
-        const repLedger = document.getElementById('repLedger');
-        const currentSelection = repLedger.value;
+        populateLedgers(document.getElementById('person')); populateLedgers(document.getElementById('editPerson'));
+        const repLedger = document.getElementById('repLedger'); const curr = repLedger.value;
         repLedger.innerHTML = '<option value="ALL">All Ledgers</option>';
         savedLedgers.forEach(l => {
             const opt = document.createElement('option'); opt.value = l; opt.textContent = l;
-            if(l === currentSelection) opt.selected = true;
-            repLedger.appendChild(opt);
+            if(l === curr) opt.selected = true; repLedger.appendChild(opt);
         });
     });
 
     function populateCategories(typeEl, categoryEl, selectedCat = "") {
-        const type = typeEl.value;
-        categoryEl.innerHTML = '<option value="">Select Category...</option>';
+        const type = typeEl.value; categoryEl.innerHTML = '<option value="">Select Category...</option>';
         let combined = type ? [...(defaultCategories[type] || [])] : [];
         customCategories.filter(c => c.type === type).forEach(c => combined.push(c.name));
         [...new Set(combined)].forEach(cat => {
@@ -389,155 +374,89 @@
     document.getElementById('editType').addEventListener('change', () => populateCategories(document.getElementById('editType'), document.getElementById('editCategory')));
     
     document.getElementById('addCategoryBtn').addEventListener('click', async () => {
-        const type = document.getElementById('type').value;
-        if(!type) { alert("Please select a Flow Type first!"); return; }
-        const newCat = prompt("Enter new category name:");
-        if(newCat && newCat.trim() !== "") await addDoc(collection(db, "categories"), { type: type, name: newCat.trim() });
+        const type = document.getElementById('type').value; if(!type) { alert("Select Transaction Type first!"); return; }
+        const newCat = prompt("Enter new category name:"); if(newCat && newCat.trim()) await addDoc(collection(db, "categories"), { type: type, name: newCat.trim() });
     });
     document.getElementById('addPersonBtn').addEventListener('click', async () => {
-        const newLedger = prompt("Enter new ledger/person name:");
-        if(newLedger && newLedger.trim() !== "") await addDoc(collection(db, "ledgers"), { name: newLedger.trim() });
+        const newLedger = prompt("Enter new client/ledger name:"); if(newLedger && newLedger.trim()) await addDoc(collection(db, "ledgers"), { name: newLedger.trim() });
     });
 
     document.getElementById('date').valueAsDate = new Date();
-    
-    // Default Report Dates (Start of month to today)
-    const today = new Date();
-    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-    document.getElementById('repStartDate').valueAsDate = firstDay;
-    document.getElementById('repEndDate').valueAsDate = today;
+    const today = new Date(); document.getElementById('repStartDate').valueAsDate = new Date(today.getFullYear(), today.getMonth(), 1); document.getElementById('repEndDate').valueAsDate = today;
 
-    let allRecords = []; 
-    let reportData = []; // Store active report for export
-    let flowChartInst = null; let expChartInst = null;
+    let allRecords = []; let reportData = []; let flowChartInst = null;
 
-    // --- FETCH DATA ---
+    // FETCH DATA
     const q = query(collection(db, "transactions"));
     onSnapshot(q, (snapshot) => {
-        allRecords = [];
-        snapshot.forEach((doc) => { allRecords.push({ id: doc.id, ...doc.data() }); });
+        allRecords = []; snapshot.forEach((doc) => { allRecords.push({ id: doc.id, ...doc.data() }); });
         renderRecords(); if(document.getElementById('view-dashboard').style.display === 'block') updateDashboard(); 
     });
 
-    // --- REPORTS ENGINE ---
+    // REPORTS
     document.getElementById('generateReportBtn').addEventListener('click', () => {
-        const startStr = document.getElementById('repStartDate').value;
-        const endStr = document.getElementById('repEndDate').value;
-        const ledger = document.getElementById('repLedger').value;
-        const type = document.getElementById('repType').value;
+        const startStr = document.getElementById('repStartDate').value; const endStr = document.getElementById('repEndDate').value;
+        const ledger = document.getElementById('repLedger').value; const type = document.getElementById('repType').value;
         
         let filtered = allRecords.filter(r => {
-            const matchStart = !startStr || r.date >= startStr;
-            const matchEnd = !endStr || r.date <= endStr;
-            const matchLedger = ledger === 'ALL' || r.person === ledger;
-            const matchType = type === 'ALL' || r.type === type;
-            return matchStart && matchEnd && matchLedger && matchType;
-        });
-
-        // Sort chronologically for running balance (Oldest First)
-        filtered.sort((a, b) => new Date(a.date) - new Date(b.date) || a.timestamp - b.timestamp);
+            return (!startStr || r.date >= startStr) && (!endStr || r.date <= endStr) && (ledger === 'ALL' || r.person === ledger) && (type === 'ALL' || r.type === type);
+        }).sort((a, b) => new Date(a.date) - new Date(b.date) || a.timestamp - b.timestamp);
         
-        reportData = [];
-        let runningBalance = 0; // Positive = Credit, Negative = Debit
-
-        const tbody = document.getElementById('reportTableBody');
-        tbody.innerHTML = '';
+        reportData = []; let runningBalance = 0; const tbody = document.getElementById('reportTableBody'); tbody.innerHTML = '';
 
         filtered.forEach(r => {
             const isCredit = (r.type === 'INCOME' || r.type === 'CASH_IN');
-            const amt = r.amount;
-            
-            // Adjust balance
-            if(isCredit) runningBalance += amt;
-            else runningBalance -= amt;
+            isCredit ? runningBalance += r.amount : runningBalance -= r.amount;
 
-            // Details formatting
-            const modeDetailsStr = r.modeDetails ? `ID/No: ${r.modeDetails}` : '';
-            const refStr = r.reference ? `Note: ${r.reference}` : '';
-            const fullDetails = [modeDetailsStr, refStr].filter(Boolean).join(" | ");
-            
+            const fullDetails = [r.modeDetails ? `ID/No: ${r.modeDetails}` : '', r.reference ? `Note: ${r.reference}` : ''].filter(Boolean).join(" | ");
             const balLabel = runningBalance >= 0 ? `${runningBalance.toLocaleString()} (Cr)` : `${Math.abs(runningBalance).toLocaleString()} (Dr)`;
-            const crDrClass = isCredit ? 'cr' : 'dr';
-            const crDrLabel = isCredit ? 'Credit' : 'Debit';
+            const crDrClass = isCredit ? 'cr' : 'dr'; const crDrLabel = isCredit ? 'Credit' : 'Debit';
 
-            // Save for export
-            reportData.push({
-                date: r.date, ledger: r.person, type: r.type, category: r.category, 
-                amount: amt, crDr: crDrLabel, mode: r.mode, details: fullDetails, balance: balLabel
-            });
+            reportData.push({ date: r.date, ledger: r.person, acc: r.accountNo || "", type: r.type, category: r.category, amount: r.amount, crDr: crDrLabel, mode: r.mode, details: fullDetails, balance: balLabel });
 
-            // Render Row
             const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${r.date}</td>
-                <td><strong>${r.person}</strong></td>
-                <td>${r.category}</td>
-                <td class="${crDrClass}">${amt.toLocaleString()}</td>
-                <td class="${crDrClass}">${crDrLabel}</td>
-                <td>${r.mode.replace('_', ' ')}</td>
-                <td style="font-size: 0.75rem;">${fullDetails}</td>
-                <td style="font-weight: bold;">${balLabel}</td>
-            `;
+            tr.innerHTML = `<td>${r.date}</td><td><strong>${r.person}</strong></td><td>${r.accountNo || '-'}</td><td>${r.category}</td><td class="${crDrClass}">${r.amount.toLocaleString()}</td><td class="${crDrClass}">${crDrLabel}</td><td>${r.mode.replace('_', ' ')}</td><td style="font-size: 0.75rem;">${fullDetails}</td><td style="font-weight: bold;">${balLabel}</td>`;
             tbody.appendChild(tr);
         });
 
-        document.getElementById('rep-open-bal').innerText = "₹0"; // Simple version, assumes starting from 0 in view
+        document.getElementById('rep-open-bal').innerText = "₹0"; 
         document.getElementById('rep-close-bal').innerText = runningBalance >= 0 ? `₹${runningBalance.toLocaleString()} (Cr)` : `₹${Math.abs(runningBalance).toLocaleString()} (Dr)`;
-        
-        document.getElementById('reportContainer').style.display = 'block';
-        document.getElementById('exportReportBtn').style.display = 'inline-block';
+        document.getElementById('reportContainer').style.display = 'block'; document.getElementById('exportReportBtn').style.display = 'inline-block';
     });
 
-    // EXPORT REPORT
     document.getElementById('exportReportBtn').addEventListener('click', () => {
         if (reportData.length === 0) return;
-        const headers = ["Date", "Ledger Name", "Transaction Type", "Category", "Amount", "Credit/Debit", "Mode", "Mode Details", "Balance"];
-        const csvRows = [headers.join(",")];
-        reportData.forEach(row => {
-            const values = [ 
-                row.date, `"${row.ledger}"`, row.type, `"${row.category}"`, 
-                row.amount, row.crDr, row.mode, `"${row.details}"`, `"${row.balance}"` 
-            ];
-            csvRows.push(values.join(","));
-        });
-        const blob = new Blob([csvRows.join("\n")], { type: "text/csv" });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a"); a.setAttribute("href", url);
+        const csvRows = [["Date", "Client/Ledger", "A/C or Policy No", "Type", "Category", "Amount", "Cr/Dr", "Mode", "Details", "Balance"].join(",")];
+        reportData.forEach(row => csvRows.push([ row.date, `"${row.ledger}"`, `"${row.acc}"`, row.type, `"${row.category}"`, row.amount, row.crDr, row.mode, `"${row.details}"`, `"${row.balance}"` ].join(",")));
+        const a = document.createElement("a"); a.setAttribute("href", window.URL.createObjectURL(new Blob([csvRows.join("\n")], { type: "text/csv" })));
         a.setAttribute("download", `LedgerReport_${new Date().toISOString().split('T')[0]}.csv`);
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
     });
 
-    // --- DASHBOARD LOGIC ---
+    // DASHBOARD
     function updateDashboard() {
-        let totalIncome = 0; let totalCashIn = 0; let totalExpense = 0; let expenseDict = {};
-        allRecords.forEach(r => {
-            if(r.type === 'INCOME') totalIncome += r.amount;
-            if(r.type === 'CASH_IN') totalCashIn += r.amount;
-            if(r.type === 'EXPENSE') { totalExpense += r.amount; expenseDict[r.category] = (expenseDict[r.category] || 0) + r.amount; }
-        });
-        document.getElementById('dash-total-in').innerText = '₹' + (totalIncome + totalCashIn).toLocaleString();
-        document.getElementById('dash-total-out').innerText = '₹' + totalExpense.toLocaleString();
+        let totals = { INCOME: 0, EXPENSE: 0, CASH_IN: 0, CASH_OUT: 0 };
+        allRecords.forEach(r => totals[r.type] += r.amount);
+        
+        document.getElementById('dash-income').innerText = '₹' + totals.INCOME.toLocaleString();
+        document.getElementById('dash-expense').innerText = '₹' + totals.EXPENSE.toLocaleString();
+        document.getElementById('dash-cashin').innerText = '₹' + totals.CASH_IN.toLocaleString();
+        document.getElementById('dash-cashout').innerText = '₹' + totals.CASH_OUT.toLocaleString();
         
         const ctxFlow = document.getElementById('flowChart').getContext('2d');
         if(flowChartInst) flowChartInst.destroy();
-        flowChartInst = new Chart(ctxFlow, { type: 'doughnut', data: { labels: ['Income', 'Cash In', 'Expense'], datasets: [{ data: [totalIncome, totalCashIn, totalExpense], backgroundColor: ['#10b981', '#3b82f6', '#ef4444'], borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
-
-        const ctxExp = document.getElementById('expenseCategoryChart').getContext('2d');
-        if(expChartInst) expChartInst.destroy();
-        const expLabels = Object.keys(expenseDict); const expData = Object.values(expenseDict);
-        const expColors = ['#f87171', '#fb923c', '#fbbf24', '#a3e635', '#2dd4bf', '#c084fc'];
-        expChartInst = new Chart(ctxExp, { type: 'pie', data: { labels: expLabels.length ? expLabels : ['No Data'], datasets: [{ data: expData.length ? expData : [1], backgroundColor: expData.length ? expColors : ['#e5e7eb'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
+        flowChartInst = new Chart(ctxFlow, { type: 'doughnut', data: { labels: ['Income', 'Expenses', 'Client Cash In', 'PO Deposits Out'], datasets: [{ data: [totals.INCOME, totals.EXPENSE, totals.CASH_IN, totals.CASH_OUT], backgroundColor: ['#10b981', '#ef4444', '#3b82f6', '#8b5cf6'], borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
     }
 
-    // --- CRUD LOGIC ---
+    // CRUD
     document.getElementById('entryForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const entry = {
             type: document.getElementById('type').value, category: document.getElementById('category').value,
-            amount: parseFloat(document.getElementById('amount').value), person: document.getElementById('person').value,
-            mode: document.getElementById('mode').value, modeDetails: document.getElementById('modeDetails').value || "",
-            reference: document.getElementById('reference').value || "", date: document.getElementById('date').value,
-            timestamp: new Date().getTime()
+            person: document.getElementById('person').value, accountNo: document.getElementById('accountNo').value || "",
+            amount: parseFloat(document.getElementById('amount').value), mode: document.getElementById('mode').value, 
+            modeDetails: document.getElementById('modeDetails').value || "", reference: document.getElementById('reference').value || "", 
+            date: document.getElementById('date').value, timestamp: new Date().getTime()
         };
         try {
             await addDoc(collection(db, "transactions"), entry);
@@ -552,30 +471,34 @@
     function renderRecords() {
         const filterVal = filterSelect.value; const sortVal = sortSelect.value; const searchVal = searchInput.value.toLowerCase();
         const listDiv = document.getElementById('recordsList'); listDiv.innerHTML = '';
+        
         let processed = allRecords.filter(r => {
             const matchType = filterVal === "ALL" || r.type === filterVal;
-            const searchable = `${r.person} ${r.category} ${r.mode} ${r.reference || ''} ${r.modeDetails || ''}`.toLowerCase();
+            const searchable = `${r.person} ${r.accountNo || ''} ${r.category} ${r.mode} ${r.reference || ''} ${r.modeDetails || ''}`.toLowerCase();
             return matchType && searchable.includes(searchVal);
-        });
-        processed.sort((a, b) => {
+        }).sort((a, b) => {
             if (sortVal === 'dateDesc') return new Date(b.date) - new Date(a.date) || b.timestamp - a.timestamp;
             if (sortVal === 'dateAsc') return new Date(a.date) - new Date(b.date) || a.timestamp - b.timestamp;
             if (sortVal === 'amtDesc') return b.amount - a.amount;
             if (sortVal === 'amtAsc') return a.amount - b.amount;
         });
+
         if(processed.length === 0) { listDiv.innerHTML = '<p style="text-align:center; color:#6b7280;">No records found.</p>'; return; }
 
         processed.forEach(record => {
-            const isOut = record.type === 'EXPENSE'; const amountClass = isOut ? 'amount out' : 'amount in'; const sign = isOut ? '-' : '+';
-            const modeDetailsHtml = record.modeDetails ? `<div class="record-ref">ID/No: ${record.modeDetails}</div>` : '';
+            const isDebit = (record.type === 'EXPENSE' || record.type === 'CASH_OUT');
+            const amountClass = isDebit ? 'amount out' : 'amount in'; const sign = isDebit ? '-' : '+';
+            const accHtml = record.accountNo ? `<span class="acc-tag">A/C: ${record.accountNo}</span>` : '';
+            const detailsHtml = record.modeDetails ? `<div class="record-ref">ID/No: ${record.modeDetails}</div>` : '';
             const refHtml = record.reference ? `<div class="record-ref">Note: ${record.reference}</div>` : '';
+            
             const div = document.createElement('div'); div.className = 'record-item';
             div.innerHTML = `
                 <div class="record-main">
                     <div>
                         <div><strong>${record.category}</strong> (Ledger: ${record.person})</div>
-                        <div class="record-details">${record.date} | <span class="mode-tag">${record.mode.replace('_', ' ')}</span></div>
-                        ${modeDetailsHtml} ${refHtml}
+                        <div class="record-details">${record.date} | <span class="mode-tag">${record.mode.replace('_', ' ')}</span>${accHtml}</div>
+                        ${detailsHtml} ${refHtml}
                     </div>
                     <div class="${amountClass}">${sign}₹${record.amount.toLocaleString()}</div>
                 </div>
@@ -595,13 +518,13 @@
         document.getElementById('editId').value = record.id; document.getElementById('editType').value = record.type;
         populateCategories(document.getElementById('editType'), document.getElementById('editCategory'), record.category);
         populateLedgers(document.getElementById('editPerson'), record.person);
-        document.getElementById('editAmount').value = record.amount;
+        document.getElementById('editAccountNo').value = record.accountNo || ""; document.getElementById('editAmount').value = record.amount;
+        
         const modeEl = document.getElementById('editMode'); modeEl.value = record.mode;
         updateModeUI(modeEl, document.getElementById('editModeDetailsLabel'), document.getElementById('editModeDetails'));
-        document.getElementById('editModeDetails').value = record.modeDetails || "";
-        document.getElementById('editReference').value = record.reference || "";
-        document.getElementById('editDate').value = record.date;
-        modal.style.display = 'flex';
+        
+        document.getElementById('editModeDetails').value = record.modeDetails || ""; document.getElementById('editReference').value = record.reference || "";
+        document.getElementById('editDate').value = record.date; modal.style.display = 'flex';
     };
 
     document.getElementById('closeModalBtn').addEventListener('click', () => modal.style.display = 'none');
@@ -609,11 +532,12 @@
         e.preventDefault(); const id = document.getElementById('editId').value;
         const updatedData = {
             type: document.getElementById('editType').value, category: document.getElementById('editCategory').value,
-            person: document.getElementById('editPerson').value, amount: parseFloat(document.getElementById('editAmount').value),
-            mode: document.getElementById('editMode').value, modeDetails: document.getElementById('editModeDetails').value || "",
-            reference: document.getElementById('editReference').value || "", date: document.getElementById('editDate').value,
+            person: document.getElementById('editPerson').value, accountNo: document.getElementById('editAccountNo').value || "",
+            amount: parseFloat(document.getElementById('editAmount').value), mode: document.getElementById('editMode').value, 
+            modeDetails: document.getElementById('editModeDetails').value || "", reference: document.getElementById('editReference').value || "", 
+            date: document.getElementById('editDate').value,
         };
-        try { await updateDoc(doc(db, "transactions", id), updatedData); modal.style.display = 'none'; } catch (error) { alert("Error updating: " + error.message); }
+        try { await updateDoc(doc(db, "transactions", id), updatedData); modal.style.display = 'none'; } catch (error) { alert("Error updating!"); }
     });
 </script>
 </body>
