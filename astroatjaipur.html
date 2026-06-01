@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Flow Tracker V7 - Pro</title>
+    <title>Flow Tracker V8 - Secure</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -36,6 +36,7 @@
         .btn-success { background-color: var(--success); }
         .btn-danger { background-color: var(--danger); }
         .btn-small { padding: 6px 10px; font-size: 0.8rem; width: auto; margin: 0 2px; border-radius: 6px; }
+        .btn-logout { background-color: #4b5563; padding: 10px; border-radius: 8px;}
         
         .input-group { display: flex; gap: 8px; }
         .input-group select { flex: 1; }
@@ -61,7 +62,6 @@
         .tab-btn { background: transparent; color: #4b5563; margin: 0; border-radius: 8px; font-size: 1rem; white-space: nowrap; padding: 10px;}
         .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         
-        /* 4-Quadrant Dashboard Styles */
         .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .summary-box { padding: 12px; border-radius: 10px; text-align: center; color: white; font-weight: bold;}
         .sum-income { background-color: var(--success); }
@@ -82,19 +82,40 @@
 </head>
 <body>
 
-<div class="container">
+<!-- LOGIN SCREEN -->
+<div id="login-view" class="container" style="margin-top: 10vh;">
+    <div class="card">
+        <h2 style="text-align: center;">🔒 Secure Login</h2>
+        <p style="text-align: center; font-size: 0.85rem; color: #6b7280; margin-bottom: 20px;">Please enter your credentials to access the ledger.</p>
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="loginEmail" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" required>
+            </div>
+            <button type="submit">Log In</button>
+            <p id="loginError" style="color: red; font-size: 0.85rem; text-align: center; display: none;"></p>
+        </form>
+    </div>
+</div>
+
+<!-- MAIN APP (HIDDEN UNTIL LOGGED IN) -->
+<div id="app-view" class="container" style="display: none;">
     
     <div class="tabs">
         <button id="nav-tracker" class="tab-btn active">📝 Tracker</button>
         <button id="nav-reports" class="tab-btn">📑 Reports</button>
         <button id="nav-dashboard" class="tab-btn">📊 Dashboard</button>
+        <button id="logoutBtn" class="tab-btn btn-logout" style="color: white; margin-left: auto;">Log Out</button>
     </div>
 
     <!-- DASHBOARD VIEW -->
     <div id="view-dashboard" style="display: none;">
         <div class="card">
             <h2>Financial Overview</h2>
-            
             <h3 style="font-size: 1rem; color: #4b5563; margin-bottom: 8px;">Personal & Profession</h3>
             <div class="summary-grid">
                 <div class="summary-box sum-income">
@@ -106,7 +127,6 @@
                     <div id="dash-expense" style="font-size: 1.3rem;">₹0</div>
                 </div>
             </div>
-
             <h3 style="font-size: 1rem; color: #4b5563; margin-bottom: 8px;">Post Office Agency / Client Funds</h3>
             <div class="summary-grid">
                 <div class="summary-box sum-cashin">
@@ -118,7 +138,6 @@
                     <div id="dash-cashout" style="font-size: 1.3rem;">₹0</div>
                 </div>
             </div>
-            
             <div class="chart-container"><canvas id="flowChart"></canvas></div>
         </div>
     </div>
@@ -286,7 +305,9 @@
 </div>
 
 <script type="module">
+    // Add Authentication SDK Imports
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -300,7 +321,92 @@
     };
 
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const db = getFirestore(app);
+
+    // --- AUTHENTICATION LOGIC ---
+    const loginView = document.getElementById('login-view');
+    const appView = document.getElementById('app-view');
+    const loginError = document.getElementById('loginError');
+
+    // Handle Login Submit
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        
+        signInWithEmailAndPassword(auth, email, password)
+            .then(() => {
+                loginError.style.display = 'none';
+                document.getElementById('loginForm').reset();
+            })
+            .catch((error) => {
+                loginError.innerText = "Incorrect email or password.";
+                loginError.style.display = 'block';
+            });
+    });
+
+    // Handle Logout
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        signOut(auth).then(() => {
+            // Reload page to clear data from memory securely
+            window.location.reload(); 
+        });
+    });
+
+    // Listen for Auth State Changes
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // User is logged in, show app and load data
+            loginView.style.display = 'none';
+            appView.style.display = 'block';
+            startDataSync(); // Only connect to database AFTER login
+        } else {
+            // User is logged out, show login
+            loginView.style.display = 'block';
+            appView.style.display = 'none';
+        }
+    });
+
+
+    // --- APPLICATION LOGIC (Only runs when logged in) ---
+    
+    let allRecords = []; let customCategories = []; let savedLedgers = [];
+    let flowChartInst = null; let reportData = [];
+    
+    const defaultCategories = { 
+        "INCOME": ["Astrology Consultancy", "Puja / Pandit Work", "Post Office Commission", "Other Income"], 
+        "CASH_IN": ["RD Collection", "FD/TD Collection", "MIS / SCSS Investment", "Loan/Advance Received"], 
+        "CASH_OUT": ["Post Office Deposit (RD/TD/MIS)", "Client Payout (Maturity/Withdrawal)", "Loan Repayment"],
+        "EXPENSE": ["Puja Materials (Samagri)", "Travel Expense", "Office Expense", "Personal Expense"] 
+    };
+
+    function startDataSync() {
+        // Fetch Categories
+        onSnapshot(collection(db, "categories"), (snap) => {
+            customCategories = []; snap.forEach(doc => customCategories.push(doc.data()));
+            populateCategories(document.getElementById('type'), document.getElementById('category'));
+        });
+
+        // Fetch Ledgers
+        onSnapshot(query(collection(db, "ledgers"), orderBy("name")), (snap) => {
+            savedLedgers = []; snap.forEach(doc => savedLedgers.push(doc.data().name));
+            populateLedgers(document.getElementById('person')); populateLedgers(document.getElementById('editPerson'));
+            const repLedger = document.getElementById('repLedger'); const curr = repLedger.value;
+            repLedger.innerHTML = '<option value="ALL">All Ledgers</option>';
+            savedLedgers.forEach(l => {
+                const opt = document.createElement('option'); opt.value = l; opt.textContent = l;
+                if(l === curr) opt.selected = true; repLedger.appendChild(opt);
+            });
+        });
+
+        // Fetch Transactions
+        const q = query(collection(db, "transactions"));
+        onSnapshot(q, (snapshot) => {
+            allRecords = []; snapshot.forEach((doc) => { allRecords.push({ id: doc.id, ...doc.data() }); });
+            renderRecords(); if(document.getElementById('view-dashboard').style.display === 'block') updateDashboard(); 
+        });
+    }
 
     // NAVIGATION
     const views = ['tracker', 'reports', 'dashboard'];
@@ -326,31 +432,6 @@
     }
     document.getElementById('mode').addEventListener('change', (e) => updateModeUI(e.target, document.getElementById('modeDetailsLabel'), document.getElementById('modeDetails')));
     document.getElementById('editMode').addEventListener('change', (e) => updateModeUI(e.target, document.getElementById('editModeDetailsLabel'), document.getElementById('editModeDetails')));
-
-    // TAILORED CATEGORIES FOR AGENT/PANDIT
-    let customCategories = []; let savedLedgers = [];
-    const defaultCategories = { 
-        "INCOME": ["Astrology Consultancy", "Puja / Pandit Work", "Post Office Commission", "Other Income"], 
-        "CASH_IN": ["RD Collection", "FD/TD Collection", "MIS / SCSS Investment", "Loan/Advance Received"], 
-        "CASH_OUT": ["Post Office Deposit (RD/TD/MIS)", "Client Payout (Maturity/Withdrawal)", "Loan Repayment"],
-        "EXPENSE": ["Puja Materials (Samagri)", "Travel Expense", "Office Expense", "Personal Expense"] 
-    };
-
-    onSnapshot(collection(db, "categories"), (snap) => {
-        customCategories = []; snap.forEach(doc => customCategories.push(doc.data()));
-        populateCategories(document.getElementById('type'), document.getElementById('category'));
-    });
-
-    onSnapshot(query(collection(db, "ledgers"), orderBy("name")), (snap) => {
-        savedLedgers = []; snap.forEach(doc => savedLedgers.push(doc.data().name));
-        populateLedgers(document.getElementById('person')); populateLedgers(document.getElementById('editPerson'));
-        const repLedger = document.getElementById('repLedger'); const curr = repLedger.value;
-        repLedger.innerHTML = '<option value="ALL">All Ledgers</option>';
-        savedLedgers.forEach(l => {
-            const opt = document.createElement('option'); opt.value = l; opt.textContent = l;
-            if(l === curr) opt.selected = true; repLedger.appendChild(opt);
-        });
-    });
 
     function populateCategories(typeEl, categoryEl, selectedCat = "") {
         const type = typeEl.value; categoryEl.innerHTML = '<option value="">Select Category...</option>';
@@ -383,15 +464,6 @@
 
     document.getElementById('date').valueAsDate = new Date();
     const today = new Date(); document.getElementById('repStartDate').valueAsDate = new Date(today.getFullYear(), today.getMonth(), 1); document.getElementById('repEndDate').valueAsDate = today;
-
-    let allRecords = []; let reportData = []; let flowChartInst = null;
-
-    // FETCH DATA
-    const q = query(collection(db, "transactions"));
-    onSnapshot(q, (snapshot) => {
-        allRecords = []; snapshot.forEach((doc) => { allRecords.push({ id: doc.id, ...doc.data() }); });
-        renderRecords(); if(document.getElementById('view-dashboard').style.display === 'block') updateDashboard(); 
-    });
 
     // REPORTS
     document.getElementById('generateReportBtn').addEventListener('click', () => {
