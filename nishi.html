@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>प्रो प्रीमियम वॉल आर्ट विजुअलाइज़र</title>
+    <!-- Fabric.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 10px; background-color: #1e272e; color: #333; }
+        .app-wrapper { display: flex; gap: 15px; max-width: 1400px; margin: 0 auto; background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .canvas-container { flex: 2.5; background: #ecf0f1; border-radius: 8px; position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        .sidebar { flex: 1.2; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #ddd; max-height: 85vh; overflow-y: auto; }
+        
+        /* नॉर्मल सेक्शन */
+        .section { background: #fff; padding: 12px; border-radius: 6px; border: 1px solid #eee; margin-bottom: 12px; }
+        .section-title { font-weight: bold; margin-bottom: 8px; font-size: 14px; color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 5px; }
+        
+        /* 🌟 स्पेशल पेंटिंग ब्लॉक स्टाइल 🌟 */
+        .highlight-section { 
+            background: #eaf4fc; 
+            border: 2px solid #3498db; 
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2); 
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .highlight-section .section-title { color: #2980b9; border-bottom-color: #aed6f1; font-size: 16px; margin-bottom: 12px; text-align: center; }
+        
+        /* कस्टम फाइल अपलोड बटन */
+        .upload-btn-wrapper { position: relative; overflow: hidden; display: block; width: 100%; margin-bottom: 10px; }
+        .btn-custom-upload { border: 2px dashed #3498db; color: #2980b9; background-color: #fff; padding: 15px 20px; border-radius: 8px; font-size: 14px; font-weight: bold; text-align: center; cursor: pointer; width: 100%; display: block; box-sizing: border-box; transition: 0.3s; }
+        .btn-custom-upload:hover { background-color: #3498db; color: #fff; }
+        .upload-btn-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%; }
+
+        .input-group { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
+        .input-group div { flex: 1 1 30%; }
+        .input-style { padding: 6px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; font-size: 12px; }
+        label { font-size: 11px; color: #555; display: block; margin-bottom: 3px; font-weight: bold; }
+        
+        button.action-btn { background-color: #27ae60; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 14px; width: 100%; font-weight: bold; transition: 0.2s; box-shadow: 0 2px 5px rgba(39, 174, 96, 0.3); }
+        button.action-btn:hover { background-color: #2ecc71; }
+        
+        button.normal-btn { background-color: #95a5a6; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%; font-weight: bold; margin-top: 5px; }
+        button.normal-btn:hover { background-color: #7f8c8d; }
+
+        .toggle-box { display: flex; align-items: center; gap: 8px; background: #fff3cd; padding: 8px; border-radius: 4px; margin-bottom: 10px; border: 1px solid #ffeeba; }
+        .toggle-box input { transform: scale(1.2); cursor: pointer; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="app-wrapper">
+        <!-- 3D कैनवास -->
+        <div class="canvas-container">
+            <canvas id="roomCanvas" width="900" height="600"></canvas>
+        </div>
+
+        <!-- साइडबार -->
+        <div class="sidebar">
+            
+            <div class="toggle-box">
+                <input type="checkbox" id="toggleDims" checked>
+                <label for="toggleDims" style="margin:0; font-size:13px; cursor:pointer;">📏 आइटम सेलेक्ट करने पर उसका साइज़ दिखाएँ</label>
+            </div>
+
+            <!-- 🌟 1. स्पेशल पेंटिंग ब्लॉक (सबसे ऊपर) 🌟 -->
+            <div class="highlight-section">
+                <div class="section-title">🖼️ मुख्य पेंटिंग अपलोड करें</div>
+                
+                <div class="upload-btn-wrapper">
+                    <button class="btn-custom-upload" id="uploadBtnText">📁 यहाँ क्लिक करके पेंटिंग चुनें</button>
+                    <input type="file" id="paintingFile" accept="image/*" onchange="updateFileName()">
+                </div>
+
+                <div class="input-group">
+                    <div><label>चौड़ाई (Inches)</label><input type="number" id="paintW" class="input-style" value="24"></div>
+                    <div><label>ऊंचाई (Inches)</label><input type="number" id="paintH" class="input-style" value="36"></div>
+                </div>
+
+                <!-- फ्रेम कस्टमाइज़ेशन -->
+                <div class="input-group" style="background: rgba(255,255,255,0.7); padding: 5px; border-radius: 4px;">
+                    <div style="flex: 1 1 40%;"><label>फ्रेम का रंग</label><input type="color" id="frameColor" class="input-style" value="#1a1a1a" style="height:25px; padding:0;"></div>
+                    <div style="flex: 1 1 50%;"><label>फ्रेम की मोटाई (px)</label><input type="number" id="frameWidth" class="input-style" value="4"></div>
+                </div>
+
+                <button class="action-btn" onclick="addPainting()">✨ दीवार पर पेंटिंग लगाएँ</button>
+                <p style="font-size:10px; color:#666; text-align:center; margin-top:5px;">(डबल क्लिक करके साइज़ बदलें, लाल डैश-लाइन से अलाइन करें)</p>
+            </div>
+
+            <!-- 2. कमरे की सेटिंग (नीचे कर दिया गया है) -->
+            <div class="section">
+                <div class="section-title">📐 कमरे का साइज़ और दीवारें</div>
+                <div class="input-group">
+                    <div><label>मुख्य दीवार (Feet)</label><input type="number" id="wallW" class="input-style" value="12"></div>
+                    <div><label>ऊंचाई (Feet)</label><input type="number" id="wallH" class="input-style" value="10"></div>
+                </div>
+                <div class="input-group">
+                    <div style="flex: 1 1 100%;"><label>रूम लुक</label>
+                        <select id="roomView" class="input-style" onchange="buildRoom()">
+                            <option value="room">पूरा कमरा (3D)</option>
+                            <option value="corner">लेफ्ट कॉर्नर</option>
+                            <option value="flat">सिर्फ फ्लैट दीवार</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group" style="margin-top:5px; background: #f9f9f9; padding: 8px; border-radius: 4px;">
+                    <div><label>सामने</label><input type="color" id="colorFront" value="#607d8b" class="input-style" style="height:25px; padding:0;"></div>
+                    <div><label>बाएँ</label><input type="color" id="colorLeft" value="#78909c" class="input-style" style="height:25px; padding:0;"></div>
+                    <div><label>दाएँ</label><input type="color" id="colorRight" value="#78909c" class="input-style" style="height:25px; padding:0;"></div>
+                    <div style="flex: 1 1 45%; margin-top:5px;"><label>फर्श</label><input type="color" id="colorFloor" value="#8d6e63" class="input-style" style="height:25px; padding:0;"></div>
+                    <div style="flex: 1 1 45%; margin-top:5px;"><label>छत</label><input type="color" id="colorCeil" value="#f5f5f5" class="input-style" style="height:25px; padding:0;"></div>
+                </div>
+                <button class="normal-btn" onclick="buildRoom()">कमरा अपडेट करें</button>
+            </div>
+
+            <!-- 3. टेक्सचर और वॉलपेपर -->
+            <div class="section">
+                <div class="section-title">🧱 टेक्सचर और वॉलपेपर</div>
+                <select id="texTarget" class="input-style" style="margin-bottom:5px;">
+                    <option value="frontWall">सामने की दीवार</option>
+                    <option value="leftWall">बायीं दीवार</option>
+                    <option value="rightWall">दायीं दीवार</option>
+                    <option value="floor">फर्श (Floor)</option>
+                </select>
+                <input type="file" id="texFile" accept="image/*" class="input-style" style="margin-bottom:5px;">
+                <select id="texMode" class="input-style" onchange="toggleTileDims()">
+                    <option value="fit">पूरी सरफेस पर फिट करें (Stretch)</option>
+                    <option value="tile">टाइल्स/रिपीट करें</option>
+                </select>
+                <div id="tileDims" class="input-group hidden" style="margin-top: 5px;">
+                    <div><label>टाइल W (Inches)</label><input type="number" id="texW" class="input-style" value="24"></div>
+                    <div><label>टाइल H (Inches)</label><input type="number" id="texH" class="input-style" value="24"></div>
+                </div>
+                <button class="normal-btn" onclick="applyTexture()">🎨 टेक्सचर अप्लाई करें</button>
+            </div>
+
+            <!-- 4. अन्य एलिमेंट्स -->
+            <div class="section">
+                <div class="section-title">🪑 अन्य रूम एलिमेंट्स</div>
+                <select id="elemType" class="input-style">
+                    <option value="window">🪟 खिड़की (Window)</option>
+                    <option value="door">🚪 दरवाज़ा (Door)</option>
+                    <option value="ac">❄️ स्प्लिट AC</option>
+                    <option value="tv">📺 स्मार्ट TV</option>
+                    <option value="sofa">🛋️ सोफा</option>
+                </select>
+                <div class="input-group" style="margin-top: 5px;">
+                    <div><label>चौड़ाई (Inches)</label><input type="number" id="elemW" class="input-style" value="40"></div>
+                    <div><label>ऊंचाई (Inches)</label><input type="number" id="elemH" class="input-style" value="24"></div>
+                </div>
+                <button class="normal-btn" onclick="addElement()">➕ आइटम लगाएँ</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = new fabric.Canvas('roomCanvas', { preserveObjectStacking: true });
+        let roomParts = {};
+        let PPI = 1; 
+        const frontWallRect = { left: 150, top: 120, width: 600, height: 360 };
+
+        // ❌ कस्टम डिलीट आइकॉन
+        const deleteIconURL = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e74c3c'%3E%3Cpath d='M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z'/%3E%3C/svg%3E";
+        const deleteImg = document.createElement('img'); deleteImg.src = deleteIconURL;
+        fabric.Object.prototype.controls.deleteControl = new fabric.Control({
+            x: 0.5, y: -0.5, offsetX: 16, offsetY: -16, cursorStyle: 'pointer',
+            mouseUpHandler: function(e, t) { canvas.remove(t.target); canvas.requestRenderAll(); },
+            render: function(ctx, left, top, styleOverride, fabricObject) {
+                let size = this.cornerSize; ctx.save(); ctx.translate(left, top); ctx.rotate(fabric.util.degreesToRadians(fabricObject.angle));
+                ctx.drawImage(deleteImg, -size/2, -size/2, size, size); ctx.restore();
+            }, cornerSize: 24
+        });
+
+        // रूम लॉजिक
+        function calculatePPI() { PPI = frontWallRect.width / ((parseFloat(document.getElementById('wallW').value) || 12) * 12); }
+
+        function buildRoom() {
+            canvas.clear(); roomParts = {};
+            calculatePPI();
+            const view = document.getElementById('roomView').value;
+            const cFront = document.getElementById('colorFront').value, cLeft = document.getElementById('colorLeft').value, cRight = document.getElementById('colorRight').value, fColor = document.getElementById('colorFloor').value, ceilColor = document.getElementById('colorCeil').value;
+
+            roomParts.ceiling = new fabric.Polygon([{x:0,y:0}, {x:900,y:0}, {x:750,y:120}, {x:150,y:120}], {fill: ceilColor, isEnv: true, selectable: false});
+            roomParts.floor = new fabric.Polygon([{x:0,y:600}, {x:900,y:600}, {x:750,y:480}, {x:150,y:480}], {fill: fColor, isEnv: true, selectable: false});
+            roomParts.leftWall = new fabric.Polygon([{x:0,y:0}, {x:150,y:120}, {x:150,y:480}, {x:0,y:600}], {fill: cLeft, isEnv: true, selectable: false});
+            roomParts.rightWall = new fabric.Polygon([{x:900,y:0}, {x:750,y:120}, {x:750,y:480}, {x:900,y:600}], {fill: cRight, isEnv: true, selectable: false});
+            roomParts.frontWall = new fabric.Rect({left:150, top:120, width:600, height:360, fill: cFront, isEnv: true, selectable: false});
+
+            if(view === 'room') canvas.add(roomParts.ceiling, roomParts.floor, roomParts.leftWall, roomParts.rightWall, roomParts.frontWall);
+            else if(view === 'corner') {
+                roomParts.floor.set({ points: [{x:0,y:600}, {x:900,y:600}, {x:900,y:480}, {x:300,y:480}] });
+                roomParts.leftWall.set({ points: [{x:0,y:0}, {x:300,y:120}, {x:300,y:480}, {x:0,y:600}] });
+                roomParts.frontWall.set({ left:300, width:600 });
+                canvas.add(roomParts.floor, roomParts.leftWall, roomParts.frontWall);
+            } else {
+                roomParts.frontWall.set({ left:0, top:0, width:900, height:600 });
+                canvas.add(roomParts.frontWall);
+            }
+        }
+        buildRoom();
+
+        // कलर अपडेट
+        ['Front','Left','Right','Floor','Ceil'].forEach(id => {
+            document.getElementById('color'+id).addEventListener('input', (e) => {
+                let target = id==='Ceil'?'ceiling':(id==='Floor'?'floor':id.toLowerCase()+'Wall');
+                if(roomParts[target]) { roomParts[target].set('fill', e.target.value); canvas.renderAll(); }
+            });
+        });
+
+        // फाइल नाम अपडेट (UI)
+        function updateFileName() {
+            const input = document.getElementById('paintingFile');
+            const btn = document.getElementById('uploadBtnText');
+            if(input.files.length > 0) {
+                btn.innerHTML = "✅ फाइल चुनी गई: " + input.files[0].name.substring(0, 15) + "...";
+                btn.style.backgroundColor = "#e8f8f5";
+            } else {
+                btn.innerHTML = "📁 यहाँ क्लिक करके पेंटिंग चुनें";
+                btn.style.backgroundColor = "#fff";
+            }
+        }
+
+        // पेंटिंग और एलिमेंट्स लॉजिक
+        function setupObject(item, wPx, hPx, type) {
+            item.set({ left: 450 - wPx/2, top: 300 - hPx/2, cornerSize: 8, transparentCorners: false, borderColor: '#3498db', cornerColor: '#3498db' });
+            canvas.add(item); canvas.setActiveObject(item);
+            if(type === 'sofa') item.set({ top: 480 - hPx });
+        }
+
+        // 🌟 मुख्य पेंटिंग ऐड फंक्शन (फ्रेम के साथ)
+        function addPainting() {
+            const fileInput = document.getElementById('paintingFile');
+            if (!fileInput.files[0]) return alert("कृपया ऊपर बटन दबाकर पेंटिंग की इमेज चुनें!");
+            
+            const wPx = (parseFloat(document.getElementById('paintW').value) || 24) * PPI;
+            const hPx = (parseFloat(document.getElementById('paintH').value) || 36) * PPI;
+            const fColor = document.getElementById('frameColor').value;
+            const fWidth = parseFloat(document.getElementById('frameWidth').value) || 0;
+
+            const reader = new FileReader();
+            reader.onload = function(f) {
+                fabric.Image.fromURL(f.target.result, function(img) {
+                    img.set({ 
+                        scaleX: wPx/img.width, scaleY: hPx/img.height, 
+                        stroke: fColor, strokeWidth: fWidth 
+                    });
+                    setupObject(img, wPx, hPx, 'painting');
+                    
+                    // रिसेट UI
+                    fileInput.value = '';
+                    document.getElementById('uploadBtnText').innerHTML = "📁 यहाँ क्लिक करके नई पेंटिंग चुनें";
+                    document.getElementById('uploadBtnText').style.backgroundColor = "#fff";
+                });
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        }
+
+        function addElement() {
+            const type = document.getElementById('elemType').value;
+            const wPx = (parseFloat(document.getElementById('elemW').value) || 40) * PPI;
+            const hPx = (parseFloat(document.getElementById('elemH').value) || 24) * PPI;
+            let item;
+            if (type === 'window') item = new fabric.Rect({ width: wPx, height: hPx, fill: 'rgba(173, 216, 230, 0.7)', stroke: '#34495e', strokeWidth: 4 });
+            else if (type === 'door') item = new fabric.Rect({ width: wPx, height: hPx, fill: '#8b4513', stroke: '#5c2e0b', strokeWidth: 4 });
+            else if (type === 'ac') item = new fabric.Rect({ width: wPx, height: hPx, fill: '#fff', stroke: '#ccc', strokeWidth: 2, rx: 5, ry: 5 });
+            else if (type === 'tv') item = new fabric.Rect({ width: wPx, height: hPx, fill: '#1a1a1a', stroke: '#444', strokeWidth: 4, rx: 3, ry: 3 });
+            else if (type === 'sofa') {
+                const base = new fabric.Rect({ width: wPx, height: hPx*0.6, fill: '#2980b9', top: hPx*0.4, rx: 5, ry: 5 });
+                const back = new fabric.Rect({ width: wPx, height: hPx*0.4, fill: '#2471a3', rx: 5, ry: 5 });
+                item = new fabric.Group([back, base]);
+            }
+            if (item) setupObject(item, wPx, hPx, type);
+        }
+
+        // टेक्सचर लॉजिक
+        function toggleTileDims() { document.getElementById('tileDims').classList.toggle('hidden', document.getElementById('texMode').value !== 'tile'); }
+        function applyTexture() {
+            const fInp = document.getElementById('texFile'); if (!fInp.files[0]) return alert("टेक्सचर/इमेज फाइल चुनें!");
+            const targetName = document.getElementById('texTarget').value, mode = document.getElementById('texMode').value;
+            const tileWPx = (parseFloat(document.getElementById('texW').value) || 24) * PPI, tileHPx = (parseFloat(document.getElementById('texH').value) || 24) * PPI;
+            const targetObj = roomParts[targetName]; if(!targetObj) return;
+
+            const reader = new FileReader();
+            reader.onload = function(f) {
+                fabric.Image.fromURL(f.target.result, function(img) {
+                    let scaleX = 1, scaleY = 1, repeatMode = 'repeat', bounds = targetObj.getBoundingRect();
+                    if (mode === 'fit') { scaleX = bounds.width / img.width; scaleY = bounds.height / img.height; repeatMode = 'no-repeat'; } 
+                    else { scaleX = tileWPx / img.width; scaleY = tileHPx / img.height; }
+                    const pattern = new fabric.Pattern({ source: img.getElement(), repeat: repeatMode });
+                    pattern.patternTransform = [scaleX, 0, 0, scaleY, 0, 0];
+                    targetObj.set('fill', pattern); canvas.renderAll();
+                });
+            }; reader.readAsDataURL(fInp.files[0]);
+        }
+
+        // डायमेंशन्स और इवेंट्स (डबल क्लिक, स्नैपिंग)
+        canvas.on('after:render', function() {
+            if (!document.getElementById('toggleDims').checked) return;
+            const ctx = canvas.contextContainer; ctx.save(); ctx.font = 'bold 14px Arial'; ctx.fillStyle = '#ff3838'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.textAlign = 'center';
+            canvas.getActiveObjects().forEach(obj => {
+                if (obj.isEnv || obj.isGuideLine) return; 
+                let text = `${((obj.width * obj.scaleX)/PPI).toFixed(1)}" x ${((obj.height * obj.scaleY)/PPI).toFixed(1)}"`;
+                let cx = obj.left + (obj.width * obj.scaleX)/2, cy = obj.top - 12;
+                ctx.strokeText(text, cx, cy); ctx.fillText(text, cx, cy);
+            }); ctx.restore();
+        });
+
+        canvas.on('mouse:dblclick', function(opt) {
+            let obj = opt.target; if(obj && !obj.isEnv) {
+                let nW = prompt("नया साइज़ (Inches):\nचौड़ाई:", ((obj.width*obj.scaleX)/PPI).toFixed(1)); if (!nW) return;
+                let nH = prompt("ऊंचाई:", ((obj.height*obj.scaleY)/PPI).toFixed(1)); if (!nH) return;
+                obj.set({ scaleX: (parseFloat(nW)*PPI)/obj.width, scaleY: (parseFloat(nH)*PPI)/obj.height }); obj.setCoords(); canvas.renderAll();
+            }
+        });
+
+        let guideLines = [];
+        canvas.on('object:moving', function(e) {
+            guideLines.forEach(l => canvas.remove(l)); guideLines = [];
+            let activeObj = e.target, activeB = activeObj.getBoundingRect();
+            canvas.getObjects().filter(o => o !== activeObj && !o.isEnv && !o.isGuideLine).forEach(target => {
+                let tarB = target.getBoundingRect(), drawL = (c) => { let l = new fabric.Line(c, { stroke: '#e74c3c', strokeWidth: 1.5, strokeDashArray: [5, 5], selectable: false, evented: false, isGuideLine: true }); guideLines.push(l); canvas.add(l); };
+                if (Math.abs(activeB.left - tarB.left) < 10) { activeObj.set({ left: activeObj.left - (activeB.left - tarB.left) }); drawL([tarB.left, 0, tarB.left, canvas.height]); }
+                else if (Math.abs((activeB.top) - (tarB.top)) < 10) { activeObj.set({ top: activeObj.top - (activeB.top - tarB.top) }); drawL([0, tarB.top, canvas.width, tarB.top]); }
+            });
+        });
+        canvas.on('mouse:up', function() { guideLines.forEach(l => canvas.remove(l)); guideLines = []; canvas.renderAll(); });
+        document.getElementById('toggleDims').addEventListener('change', () => canvas.renderAll());
+
+    </script>
+</body>
+</html>
