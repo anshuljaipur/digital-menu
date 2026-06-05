@@ -3,394 +3,681 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>अल्टीमेट 3D रूम विजुअलाइज़र (ऑटो 3D टिल्ट के साथ)</title>
-    <!-- Fabric.js Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <title>Pro 3D Architecture Studio (Object List & Lights)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 10px; background-color: #1e272e; color: #333; }
-        .app-wrapper { display: flex; gap: 15px; max-width: 1400px; margin: 0 auto; background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .canvas-container { flex: 2.5; background: #ecf0f1; border-radius: 8px; position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden; width: 100%; }
-        .sidebar { flex: 1.2; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #ddd; max-height: 85vh; overflow-y: auto; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; background-color: #1a202c; color: #fff; overflow: hidden; }
+        .app-wrapper { display: flex; height: 100vh; width: 100vw; }
         
-        /* नॉर्मल सेक्शन */
-        .section { background: #fff; padding: 12px; border-radius: 6px; border: 1px solid #eee; margin-bottom: 12px; }
-        .section-title { font-weight: bold; margin-bottom: 8px; font-size: 14px; color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 5px; }
+        .canvas-container { flex: 2.5; height: 100%; background: #000; position: relative; }
+        #rendererCanvas { width: 100%; height: 100%; display: block; }
         
-        /* 🌟 स्पेशल पेंटिंग ब्लॉक 🌟 */
-        .highlight-section { background: #eaf4fc; border: 2px solid #3498db; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2); padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-        .highlight-section .section-title { color: #2980b9; border-bottom-color: #aed6f1; font-size: 16px; margin-bottom: 12px; text-align: center; }
+        .sidebar { flex: 1.3; background: #2d3748; padding: 15px; box-sizing: border-box; overflow-y: auto; box-shadow: -5px 0 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 12px; }
+        h3 { margin-top: 0; color: #63b3ed; border-bottom: 2px solid #4a5568; padding-bottom: 8px; font-size: 16px; text-align: center; }
         
-        /* टूल्स ब्लॉक */
-        .tools-section { background: #fcf3cf; border: 1px solid #f1c40f; padding: 12px; border-radius: 8px; margin-bottom: 15px; }
+        .section { background: #1a202c; padding: 12px; border-radius: 8px; border: 1px solid #4a5568; }
+        .section-title { font-weight: bold; margin-bottom: 10px; font-size: 13px; color: #fbd38d; border-bottom: 1px solid #2d3748; padding-bottom: 5px;}
         
-        /* अपलोड बटन */
-        .upload-btn-wrapper { position: relative; overflow: hidden; display: block; width: 100%; margin-bottom: 10px; }
-        .btn-custom-upload { border: 2px dashed #3498db; color: #2980b9; background-color: #fff; padding: 15px 20px; border-radius: 8px; font-size: 14px; font-weight: bold; text-align: center; cursor: pointer; width: 100%; display: block; box-sizing: border-box; transition: 0.3s; }
-        .btn-custom-upload:hover { background-color: #3498db; color: #fff; }
-        .upload-btn-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%; }
-
         .input-group { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
         .input-group div { flex: 1 1 30%; }
-        .input-style { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; font-size: 13px; }
-        label { font-size: 11px; color: #555; display: block; margin-bottom: 3px; font-weight: bold; }
+        .input-style { padding: 6px; border: 1px solid #4a5568; border-radius: 4px; width: 100%; box-sizing: border-box; font-size: 12px; background: #2d3748; color: #fff; }
+        label { font-size: 11px; color: #cbd5e0; display: block; margin-bottom: 4px; font-weight: bold; }
         
-        button.action-btn { background-color: #27ae60; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-size: 14px; width: 100%; font-weight: bold; transition: 0.2s; box-shadow: 0 2px 5px rgba(39, 174, 96, 0.3); margin-top: 5px; }
-        button.action-btn:hover { background-color: #2ecc71; }
-        button.normal-btn { background-color: #95a5a6; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-size: 13px; width: 100%; font-weight: bold; margin-top: 5px; }
-        button.normal-btn:hover { background-color: #7f8c8d; }
-        button.edit-btn { background-color: #e67e22; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 13px; width: 100%; font-weight: bold; margin-bottom: 10px; }
-        button.edit-btn:hover { background-color: #d35400; }
+        button.action-btn { background-color: #38a169; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 13px; width: 100%; font-weight: bold; margin-top: 5px; }
+        button.action-btn:hover { background-color: #2f855a; }
+        button.normal-btn { background-color: #3182ce; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 13px; width: 100%; font-weight: bold; margin-top: 5px; }
+        button.normal-btn:hover { background-color: #2b6cb0; }
+        button.delete-btn { background-color: #e53e3e; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 13px; width: 100%; font-weight: bold; margin-top: 5px; }
+        
+        .props-panel { background: #2c5282; border: 1px solid #4299e1; display: none; }
+        .props-panel.active { display: block; }
+        
+        .slider-group { margin-top: 8px; background: #2d3748; padding: 8px; border-radius: 4px; }
+        .slider-group label { display: flex; justify-content: space-between; color: #e2e8f0; font-size: 11px; }
+        input[type="range"] { width: 100%; margin-top: 5px; cursor: pointer; }
 
-        .toggle-box { display: flex; align-items: center; gap: 8px; background: #fff3cd; padding: 8px; border-radius: 4px; margin-bottom: 10px; border: 1px solid #ffeeba; }
-        .toggle-box input { transform: scale(1.2); cursor: pointer; }
-        .hidden { display: none !important; }
+        /* 📋 Object List Styles */
+        #objectListContainer { max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; }
+        .obj-list-item { background: #2d3748; padding: 6px 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 1px solid transparent; font-size: 12px; }
+        .obj-list-item:hover { background: #4a5568; }
+        .obj-list-item.active { border-color: #63b3ed; background: #2b6cb0; }
+        .eye-btn { background: none; border: none; font-size: 14px; cursor: pointer; padding: 0; margin: 0; filter: grayscale(1); }
+        .eye-btn:hover { filter: grayscale(0); transform: scale(1.1); }
 
         @media (max-width: 900px) {
-            .app-wrapper { flex-direction: column; padding: 10px; }
-            .sidebar { max-height: none; width: 100%; box-sizing: border-box; order: 2; }
-            .canvas-container { order: 1; width: 100%; margin-bottom: 15px; }
-            .input-group { flex-direction: column; align-items: stretch; }
-            .input-group div { width: 100%; }
+            .app-wrapper { flex-direction: column; }
+            .canvas-container { flex: 1.3; }
+            .sidebar { flex: 2; max-height: none; }
         }
     </style>
 </head>
 <body>
 
     <div class="app-wrapper">
-        <!-- 3D कैनवास -->
-        <div class="canvas-container" id="canvasWrapper">
-            <canvas id="roomCanvas" width="900" height="600"></canvas>
+        <div class="canvas-container">
+            <div id="rendererCanvas"></div>
         </div>
 
-        <!-- साइडबार -->
         <div class="sidebar">
-            
-            <div class="toggle-box">
-                <input type="checkbox" id="toggleDims" checked>
-                <label for="toggleDims" style="margin:0; font-size:13px; cursor:pointer;">📏 सेलेक्ट करने पर साइज़ दिखाएँ</label>
-            </div>
+            <h3>🏛️ Pro 3D Architecture Studio</h3>
 
-            <!-- 🛠️ चयनित आइटम टूल्स (एडिट साइज़ और टिल्ट) -->
-            <div class="tools-section">
-                <div class="section-title">🛠️ चयनित आइटम टूल्स (Selected Item)</div>
-                <button class="edit-btn" onclick="editSelectedSize()">✏️ साइज़ बदलें (Resize)</button>
-                <div>
-                    <label>🔄 3D टिल्ट (Perspective Skew): <span id="tiltVal">0</span>°</label>
-                    <input type="range" id="itemTilt" min="-60" max="60" value="0" style="width: 100%; cursor: pointer;" oninput="updateTilt(this.value)">
-                </div>
-            </div>
-
-            <!-- 🌟 1. स्पेशल पेंटिंग ब्लॉक 🌟 -->
-            <div class="highlight-section">
-                <div class="section-title">🖼️ मुख्य पेंटिंग अपलोड करें</div>
-                
-                <div class="upload-btn-wrapper">
-                    <button class="btn-custom-upload" id="uploadBtnText">📁 यहाँ टैप करके पेंटिंग चुनें</button>
-                    <input type="file" id="paintingFile" accept="image/*" onchange="updateFileName()">
-                </div>
-
+            <div class="section">
+                <div class="section-title">📐 1. Room Dimensions (in Inches)</div>
                 <div class="input-group">
-                    <div><label>दीवार चुनें</label>
+                    <div><label>Width (X)</label><input type="number" id="roomW" class="input-style" value="168"></div>
+                    <div><label>Depth (Z)</label><input type="number" id="roomD" class="input-style" value="144"></div>
+                    <div><label>Height (Y)</label><input type="number" id="roomH" class="input-style" value="108"></div>
+                </div>
+                <button class="normal-btn" onclick="buildRoom()">Update Room</button>
+            </div>
+
+            <div class="section props-panel" id="propsPanel">
+                <div class="section-title" style="color: #fff;">✏️ Selected Item Properties</div>
+                
+                <div class="slider-group">
+                    <label>↔️ Pos X (Left/Right): <span id="valPropX">0</span>"</label>
+                    <input type="range" id="propX" min="-100" max="100" step="1" value="0" oninput="updateObjectFromSliders()">
+                </div>
+                <div class="slider-group">
+                    <label>↕️ Pos Y (Up/Down): <span id="valPropY">0</span>"</label>
+                    <input type="range" id="propY" min="-100" max="100" step="1" value="0" oninput="updateObjectFromSliders()">
+                </div>
+                <div class="slider-group">
+                    <label>↗️ Pos Z (Depth): <span id="valPropZ">0</span>"</label>
+                    <input type="range" id="propZ" min="-100" max="100" step="1" value="0" oninput="updateObjectFromSliders()">
+                </div>
+                
+                <div class="input-group" style="margin-top: 10px;">
+                    <div><label>Width (Inches)</label><input type="number" id="propW" class="input-style" onchange="updateObjectProperties()"></div>
+                    <div><label>Height (Inches)</label><input type="number" id="propH" class="input-style" onchange="updateObjectProperties()"></div>
+                </div>
+
+                <div id="paintingProps" style="display: none; border-top: 1px solid #4299e1; padding-top: 8px; margin-top: 8px;">
+                    <div class="section-title" style="font-size: 11px; margin-bottom:5px;">🖼️ Frame / Border Settings</div>
+                    <div class="input-group">
+                        <div><label>Size (mm)</label><input type="number" id="propBorderMm" class="input-style" onchange="updateObjectProperties()"></div>
+                        <div><label>Color</label><input type="color" id="propBorderColor" class="input-style" style="height:25px; padding:0;" onchange="updateObjectProperties()"></div>
+                    </div>
+                    <select id="propBorderMat" class="input-style" onchange="updateObjectProperties()">
+                        <option value="matte">Matte</option>
+                        <option value="wood">Wood</option>
+                        <option value="metal">Metal</option>
+                    </select>
+                </div>
+
+                <div id="lightProps" style="display: none; border-top: 1px solid #4299e1; padding-top: 8px; margin-top: 8px;">
+                    <div class="section-title" style="font-size: 11px; margin-bottom:5px;">💡 Light Specific Settings</div>
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                        <input type="checkbox" id="propShowMarker" onchange="updateLightMarker()"> Show Light Bulb/Marker
+                    </label>
+                </div>
+
+                <button class="delete-btn" onclick="deleteActiveObject()">🗑️ Delete Selected Item</button>
+            </div>
+
+            <div class="section" style="border-color: #9f7aea;">
+                <div class="section-title">📋 3. Scene Object List</div>
+                <div id="objectListContainer">
+                    <div style="font-size: 11px; color: #a0aec0; text-align: center;">No items added yet.</div>
+                </div>
+            </div>
+
+            <div class="section" style="border: 2px solid #3182ce;">
+                <div class="section-title">🖼️ 4. Add Custom Painting</div>
+                <input type="file" id="paintFile" accept="image/*" class="input-style" style="margin-bottom: 5px;">
+                <div class="input-group">
+                    <div><label>Wall Target</label>
                         <select id="paintWall" class="input-style">
-                            <option value="front">सामने की दीवार (Flat)</option>
-                            <option value="left">बायीं दीवार (3D Tilt)</option>
-                            <option value="right">दायीं दीवार (3D Tilt)</option>
+                            <option value="front">Front Wall</option>
+                            <option value="left">Left Wall</option>
+                            <option value="right">Right Wall</option>
+                        </select>
+                    </div>
+                    <div><label>W (In)</label><input type="number" id="paintW" class="input-style" value="36"></div>
+                    <div><label>H (In)</label><input type="number" id="paintH" class="input-style" value="24"></div>
+                </div>
+                <div class="input-group">
+                    <div><label>Border(mm)</label><input type="number" id="frameMm" class="input-style" value="15"></div>
+                    <div><label>Color</label><input type="color" id="frameColor" value="#1a1a1a" class="input-style" style="height:28px; padding:0;"></div>
+                    <div><label>Material</label>
+                        <select id="frameMat" class="input-style">
+                            <option value="matte">Matte</option><option value="wood">Wood</option><option value="metal">Metal</option>
                         </select>
                     </div>
                 </div>
-
-                <div class="input-group">
-                    <div><label>चौड़ाई (Inches)</label><input type="number" id="paintW" class="input-style" value="24"></div>
-                    <div><label>ऊंचाई (Inches)</label><input type="number" id="paintH" class="input-style" value="36"></div>
-                </div>
-
-                <div class="input-group" style="background: rgba(255,255,255,0.7); padding: 5px; border-radius: 4px;">
-                    <div><label>फ्रेम का रंग</label><input type="color" id="frameColor" class="input-style" value="#1a1a1a" style="height:35px; padding:0;"></div>
-                    <div><label>फ्रेम मोटाई (px)</label><input type="number" id="frameWidth" class="input-style" value="4"></div>
-                </div>
-
-                <button class="action-btn" onclick="addPainting()">✨ दीवार पर पेंटिंग लगाएँ</button>
+                <button class="action-btn" onclick="uploadPainting()">✨ Place Painting</button>
             </div>
 
-            <!-- 2. अन्य एलिमेंट्स -->
+            <div class="section" style="border-color: #38a169;">
+                <div class="section-title">💡 5. Studio Lights</div>
+                <div class="input-group">
+                    <div><label>Light Type</label>
+                        <select id="lightType" class="input-style">
+                            <option value="spot">SpotLight</option>
+                            <option value="point">PointLight</option>
+                            <option value="directional">Directional</option>
+                        </select>
+                    </div>
+                    <div><label>Lumens</label><input type="number" id="lightLumens" class="input-style" value="800"></div>
+                </div>
+                <div class="input-group">
+                    <div><label>Color</label><input type="color" id="lightColor" value="#fffaed" class="input-style" style="height:28px; padding:0;"></div>
+                    <div><label>Target Direction (X)</label><input type="range" id="lightDirX" min="-100" max="100" step="1" value="0" oninput="adjustLightDirection()"></div>
+                </div>
+                <button class="action-btn" style="background-color:#319795;" onclick="addStudioLight()">➕ Add Light</button>
+            </div>
+
             <div class="section">
-                <div class="section-title">🪑 अन्य रूम एलिमेंट्स</div>
-                
-                <div class="input-group" style="margin-bottom: 5px;">
-                    <div><label>आइटम प्रकार</label>
+                <div class="section-title">🪑 6. Add Fixtures</div>
+                <div class="input-group">
+                    <div style="flex: 1 1 100%;"><label>Item Type:</label>
                         <select id="elemType" class="input-style">
-                            <option value="window">🪟 खिड़की (Window)</option>
-                            <option value="door">🚪 दरवाज़ा (Door)</option>
-                            <option value="ac">❄️ स्प्लिट AC</option>
-                            <option value="tv">📺 स्मार्ट TV</option>
+                            <option value="window">🪟 Window</option>
+                            <option value="ac">❄️ Split AC</option>
+                            <option value="tv">📺 Smart TV</option>
+                            <option value="light">💡 Wall Sconce</option>
+                            <option value="sofa">🛋️ Sofa</option>
+                            <option value="rug">🟫 Rug / Carpet</option>
                         </select>
                     </div>
-                    <div><label>दीवार चुनें</label>
+                </div>
+                <div class="input-group">
+                    <div><label>Wall Target</label>
                         <select id="elemWall" class="input-style">
-                            <option value="front">सामने की दीवार</option>
-                            <option value="left">बायीं दीवार</option>
-                            <option value="right">दायीं दीवार</option>
+                            <option value="front">Front</option>
+                            <option value="left">Left</option>
+                            <option value="right">Right</option>
                         </select>
                     </div>
+                    <div><label>W (In)</label><input type="number" id="elemW" class="input-style" value="40"></div>
+                    <div><label>H (In)</label><input type="number" id="elemH" class="input-style" value="24"></div>
                 </div>
-
-                <div class="input-group">
-                    <div><label>चौड़ाई (Inches)</label><input type="number" id="elemW" class="input-style" value="40"></div>
-                    <div><label>ऊंचाई (Inches)</label><input type="number" id="elemH" class="input-style" value="24"></div>
-                </div>
-                <button class="normal-btn" onclick="addElement()">➕ आइटम लगाएँ</button>
+                <button class="normal-btn" onclick="addFixture()">➕ Add Fixture</button>
             </div>
 
-            <!-- 3. कमरे की सेटिंग -->
             <div class="section">
-                <div class="section-title">📐 कमरे का साइज़ और दीवारें</div>
+                <div class="section-title">🎨 7. Room Surfaces</div>
                 <div class="input-group">
-                    <div><label>मुख्य दीवार (Feet)</label><input type="number" id="wallW" class="input-style" value="12"></div>
-                    <div><label>ऊंचाई (Feet)</label><input type="number" id="wallH" class="input-style" value="10"></div>
-                    <div><label>रूम लुक</label>
-                        <select id="roomView" class="input-style" onchange="buildRoom()">
-                            <option value="room">पूरा कमरा (3D)</option>
-                            <option value="corner">लेफ्ट कॉर्नर</option>
-                            <option value="flat">सिर्फ फ्लैट दीवार</option>
+                    <div><label>Surface</label>
+                        <select id="surfaceSelect" class="input-style">
+                            <option value="front">Front Wall</option><option value="left">Left Wall</option>
+                            <option value="right">Right Wall</option><option value="floor">Floor</option>
                         </select>
                     </div>
+                    <div><label>Color</label><input type="color" id="surfaceColor" value="#5a6974" class="input-style" style="height:25px; padding:0;" oninput="updateSurfaceColor()"></div>
                 </div>
-                <div class="input-group" style="margin-top:5px; background: #f9f9f9; padding: 8px; border-radius: 4px;">
-                    <div><label>सामने</label><input type="color" id="colorFront" value="#607d8b" class="input-style" style="height:35px; padding:0;"></div>
-                    <div><label>बाएँ</label><input type="color" id="colorLeft" value="#78909c" class="input-style" style="height:35px; padding:0;"></div>
-                    <div><label>दाएँ</label><input type="color" id="colorRight" value="#78909c" class="input-style" style="height:35px; padding:0;"></div>
-                    <div><label>फर्श</label><input type="color" id="colorFloor" value="#8d6e63" class="input-style" style="height:35px; padding:0;"></div>
-                    <div><label>छत</label><input type="color" id="colorCeil" value="#f5f5f5" class="input-style" style="height:35px; padding:0;"></div>
-                </div>
-                <button class="normal-btn" onclick="buildRoom()">कमरा अपडेट करें</button>
+                <label>Texture/Wallpaper (Optional)</label>
+                <input type="file" id="textureFile" accept="image/*" class="input-style" onchange="uploadTexture()">
             </div>
-
         </div>
     </div>
 
     <script>
-        const canvas = new fabric.Canvas('roomCanvas', { preserveObjectStacking: true });
-        let roomParts = {};
-        let PPI = 1; 
-        const BASE_WIDTH = 900;
-        const BASE_HEIGHT = 600;
-        const frontWallRect = { left: 150, top: 120, width: 600, height: 360 };
+        // ==========================================
+        // CONSTANTS & SETUP
+        // ==========================================
+        const INCH_TO_UNIT = 1 / 12;  
+        const UNIT_TO_INCH = 12;      
+        const MM_TO_UNIT = 0.00328084; 
 
-        // ❌ डिलीट आइकॉन
-        const deleteIconURL = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e74c3c'%3E%3Cpath d='M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z'/%3E%3C/svg%3E";
-        const deleteImg = document.createElement('img'); deleteImg.src = deleteIconURL;
-        fabric.Object.prototype.controls.deleteControl = new fabric.Control({
-            x: 0.5, y: -0.5, offsetX: 16, offsetY: -16, cursorStyle: 'pointer',
-            mouseUpHandler: function(e, t) { canvas.remove(t.target); canvas.requestRenderAll(); },
-            render: function(ctx, left, top, styleOverride, fabricObject) {
-                let size = this.cornerSize; ctx.save(); ctx.translate(left, top); ctx.rotate(fabric.util.degreesToRadians(fabricObject.angle));
-                ctx.drawImage(deleteImg, -size/2, -size/2, size, size); ctx.restore();
-            }, cornerSize: 30
-        });
+        const container = document.getElementById('rendererCanvas');
+        const scene = new THREE.Scene();
+        
+        const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; controls.dampingFactor = 0.05;
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+        scene.add(ambientLight);
+        const mainLight = new THREE.PointLight(0xffffff, 0.4);
+        mainLight.position.set(0, 3, 3); mainLight.castShadow = true;
+        scene.add(mainLight);
+
+        let roomW_unit = 14, roomD_unit = 12, roomH_unit = 9; 
+        let interactableObjects = []; 
+        let activeObject = null;
+        let objectCounter = 1; // Used for Object List names
+
+        const materials = {
+            front: new THREE.MeshStandardMaterial({ color: 0x607d8b, roughness: 0.9 }),
+            left: new THREE.MeshStandardMaterial({ color: 0x78909c, roughness: 0.9 }),
+            right: new THREE.MeshStandardMaterial({ color: 0x78909c, roughness: 0.9 }),
+            floor: new THREE.MeshStandardMaterial({ color: 0x8d6e63, roughness: 0.6 })
+        };
+        const roomWalls = {};
 
         // ==========================================
-        // 📱 कैनवास रेस्पॉन्सिव स्केलिंग
+        // DYNAMIC ROOM GENERATION 
         // ==========================================
-        function resizeCanvas() {
-            const wrapper = document.getElementById('canvasWrapper');
-            const targetWidth = wrapper.clientWidth;
-            if (targetWidth < BASE_WIDTH) {
-                const scale = targetWidth / BASE_WIDTH;
-                canvas.setWidth(targetWidth); canvas.setHeight(BASE_HEIGHT * scale); canvas.setZoom(scale);
-            } else {
-                canvas.setWidth(BASE_WIDTH); canvas.setHeight(BASE_HEIGHT); canvas.setZoom(1);
-            }
-        }
-        window.addEventListener('resize', resizeCanvas);
-
-        // रूम लॉजिक
-        function calculatePPI() { PPI = frontWallRect.width / ((parseFloat(document.getElementById('wallW').value) || 12) * 12); }
-
         function buildRoom() {
-            canvas.clear(); roomParts = {}; calculatePPI();
-            const view = document.getElementById('roomView').value;
-            const cFront = document.getElementById('colorFront').value, cLeft = document.getElementById('colorLeft').value, cRight = document.getElementById('colorRight').value, fColor = document.getElementById('colorFloor').value, ceilColor = document.getElementById('colorCeil').value;
+            for (let key in roomWalls) scene.remove(roomWalls[key]);
 
-            roomParts.ceiling = new fabric.Polygon([{x:0,y:0}, {x:900,y:0}, {x:750,y:120}, {x:150,y:120}], {fill: ceilColor, isEnv: true, selectable: false});
-            roomParts.floor = new fabric.Polygon([{x:0,y:600}, {x:900,y:600}, {x:750,y:480}, {x:150,y:480}], {fill: fColor, isEnv: true, selectable: false});
-            roomParts.leftWall = new fabric.Polygon([{x:0,y:0}, {x:150,y:120}, {x:150,y:480}, {x:0,y:600}], {fill: cLeft, isEnv: true, selectable: false});
-            roomParts.rightWall = new fabric.Polygon([{x:900,y:0}, {x:750,y:120}, {x:750,y:480}, {x:900,y:600}], {fill: cRight, isEnv: true, selectable: false});
-            roomParts.frontWall = new fabric.Rect({left:150, top:120, width:600, height:360, fill: cFront, isEnv: true, selectable: false});
+            const wIn = parseFloat(document.getElementById('roomW').value) || 168;
+            const dIn = parseFloat(document.getElementById('roomD').value) || 144;
+            const hIn = parseFloat(document.getElementById('roomH').value) || 108;
+            
+            roomW_unit = wIn * INCH_TO_UNIT; roomD_unit = dIn * INCH_TO_UNIT; roomH_unit = hIn * INCH_TO_UNIT;
 
-            if(view === 'room') canvas.add(roomParts.ceiling, roomParts.floor, roomParts.leftWall, roomParts.rightWall, roomParts.frontWall);
-            else if(view === 'corner') {
-                roomParts.floor.set({ points: [{x:0,y:600}, {x:900,y:600}, {x:900,y:480}, {x:300,y:480}] });
-                roomParts.leftWall.set({ points: [{x:0,y:0}, {x:300,y:120}, {x:300,y:480}, {x:0,y:600}] });
-                roomParts.frontWall.set({ left:300, width:600 });
-                canvas.add(roomParts.floor, roomParts.leftWall, roomParts.frontWall);
-            } else {
-                roomParts.frontWall.set({ left:0, top:0, width:900, height:600 });
-                canvas.add(roomParts.frontWall);
-            }
-            resizeCanvas();
+            roomWalls.front = new THREE.Mesh(new THREE.PlaneGeometry(roomW_unit, roomH_unit), materials.front);
+            roomWalls.front.position.set(0, 0, -roomD_unit / 2); roomWalls.front.receiveShadow = true;
+            
+            roomWalls.left = new THREE.Mesh(new THREE.PlaneGeometry(roomD_unit, roomH_unit), materials.left);
+            roomWalls.left.position.set(-roomW_unit / 2, 0, 0); roomWalls.left.rotation.y = Math.PI / 2; roomWalls.left.receiveShadow = true;
+            
+            roomWalls.right = new THREE.Mesh(new THREE.PlaneGeometry(roomD_unit, roomH_unit), materials.right);
+            roomWalls.right.position.set(roomW_unit / 2, 0, 0); roomWalls.right.rotation.y = -Math.PI / 2; roomWalls.right.receiveShadow = true;
+            
+            roomWalls.floor = new THREE.Mesh(new THREE.PlaneGeometry(roomW_unit, roomD_unit), materials.floor);
+            roomWalls.floor.position.set(0, -roomH_unit / 2, 0); roomWalls.floor.rotation.x = -Math.PI / 2; roomWalls.floor.receiveShadow = true;
+
+            for (let key in roomWalls) scene.add(roomWalls[key]);
+
+            camera.position.set(0, roomH_unit * 0.1, roomD_unit / 2 + 5);
+            controls.target.set(0, 0, -roomD_unit / 6); controls.update();
+
+            document.getElementById('propX').min = -wIn/2; document.getElementById('propX').max = wIn/2;
+            document.getElementById('propY').min = -hIn/2; document.getElementById('propY').max = hIn/2;
+            document.getElementById('propZ').min = -dIn/2; document.getElementById('propZ').max = dIn/2;
+            
+            interactableObjects.forEach(obj => { if(!obj.userData.isLight) alignObjectToWall(obj); });
         }
         buildRoom();
 
-        ['Front','Left','Right','Floor','Ceil'].forEach(id => {
-            document.getElementById('color'+id).addEventListener('input', (e) => {
-                let target = id==='Ceil'?'ceiling':(id==='Floor'?'floor':id.toLowerCase()+'Wall');
-                if(roomParts[target]) { roomParts[target].set('fill', e.target.value); canvas.renderAll(); }
+        // ==========================================
+        // 📋 OBJECT LIST MANAGER
+        // ==========================================
+        function updateObjectListUI() {
+            const container = document.getElementById('objectListContainer');
+            container.innerHTML = '';
+            
+            if(interactableObjects.length === 0) {
+                container.innerHTML = '<div style="font-size: 11px; color: #a0aec0; text-align: center;">No items added yet.</div>';
+                return;
+            }
+
+            interactableObjects.forEach((obj) => {
+                const div = document.createElement('div');
+                div.className = 'obj-list-item';
+                if(obj === activeObject) div.classList.add('active');
+                
+                // Item Name (Click to Select)
+                const nameSpan = document.createElement('span');
+                nameSpan.innerText = obj.userData.name || `Object`;
+                nameSpan.style.flex = "1";
+                nameSpan.onclick = () => setActiveObject(obj);
+                
+                // Visibility Toggle Button (Eye Icon)
+                const eyeBtn = document.createElement('button');
+                eyeBtn.className = 'eye-btn';
+                eyeBtn.innerHTML = obj.visible ? '👁️' : '🙈';
+                eyeBtn.title = "Show/Hide Item";
+                eyeBtn.onclick = (e) => {
+                    e.stopPropagation(); // Click on eye shouldn't trigger select
+                    obj.visible = !obj.visible;
+                    eyeBtn.innerHTML = obj.visible ? '👁️' : '🙈';
+                    if(!obj.visible && obj === activeObject) clearActiveObject(); // Clear selection if hidden
+                };
+                
+                div.appendChild(nameSpan);
+                div.appendChild(eyeBtn);
+                container.appendChild(div);
             });
-        });
-
-        function updateFileName() {
-            const input = document.getElementById('paintingFile'); const btn = document.getElementById('uploadBtnText');
-            if(input.files.length > 0) { btn.innerHTML = "✅ फाइल चुनी गई: " + input.files[0].name.substring(0, 15) + "..."; btn.style.backgroundColor = "#e8f8f5"; } 
-            else { btn.innerHTML = "📁 यहाँ टैप करके पेंटिंग चुनें"; btn.style.backgroundColor = "#fff"; }
         }
 
         // ==========================================
-        // 🔄 टिल्ट स्लाइडर (Manual Perspective)
+        // RAYCASTING & PROPERTIES
         // ==========================================
-        function updateTilt(val) {
-            document.getElementById('tiltVal').innerText = val;
-            let obj = canvas.getActiveObject();
-            if(obj && !obj.isEnv) {
-                obj.set('skewY', parseFloat(val));
-                canvas.renderAll();
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        window.addEventListener('click', (event) => {
+            if(event.target.closest('.sidebar')) return;
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            
+            // Note: Raycaster only hits visible objects naturally.
+            const intersects = raycaster.intersectObjects(interactableObjects, true);
+
+            if (intersects.length > 0) {
+                let obj = intersects[0].object;
+                while(obj.parent && obj.parent.type === "Group") { obj = obj.parent; }
+                setActiveObject(obj);
+            } else {
+                clearActiveObject();
+            }
+        });
+
+        function setActiveObject(obj) {
+            clearActiveObject();
+            activeObject = obj;
+            
+            activeObject.traverse(child => { 
+                if(child.isMesh && child.material && child.material.emissive && child.userData.isHighlightable !== false) {
+                    child.userData.oldEmissive = child.material.emissive.getHex();
+                    child.material.emissive.setHex(0x333333); 
+                }
+            });
+
+            document.getElementById('propsPanel').classList.add('active');
+            
+            const xIn = (activeObject.position.x * UNIT_TO_INCH).toFixed(1);
+            const yIn = (activeObject.position.y * UNIT_TO_INCH).toFixed(1);
+            const zIn = (activeObject.position.z * UNIT_TO_INCH).toFixed(1);
+
+            document.getElementById('propX').value = xIn; document.getElementById('valPropX').innerText = xIn;
+            document.getElementById('propY').value = yIn; document.getElementById('valPropY').innerText = yIn;
+            document.getElementById('propZ').value = zIn; document.getElementById('valPropZ').innerText = zIn;
+            
+            const ud = activeObject.userData;
+            document.getElementById('propW').value = ud.wIn || 0;
+            document.getElementById('propH').value = ud.hIn || 0;
+
+            // Handle Painting UI
+            if (ud.isPainting) {
+                document.getElementById('paintingProps').style.display = 'block';
+                document.getElementById('propBorderMm').value = ud.borderMm || 15;
+                document.getElementById('propBorderColor').value = ud.borderColor || "#000000";
+                document.getElementById('propBorderMat').value = ud.borderMat || "matte";
+            } else {
+                document.getElementById('paintingProps').style.display = 'none';
+            }
+
+            // Handle Light UI
+            if (ud.isLight) {
+                document.getElementById('lightProps').style.display = 'block';
+                document.getElementById('propShowMarker').checked = activeObject.material.visible;
+            } else {
+                document.getElementById('lightProps').style.display = 'none';
+            }
+
+            updateObjectListUI(); // Highlight in list
+        }
+
+        function clearActiveObject() {
+            if(activeObject) {
+                activeObject.traverse(child => { 
+                    if(child.isMesh && child.material && child.material.emissive && child.userData.isHighlightable !== false) {
+                        child.material.emissive.setHex(child.userData.oldEmissive || 0x000000);
+                    }
+                });
+            }
+            activeObject = null;
+            document.getElementById('propsPanel').classList.remove('active');
+            updateObjectListUI(); // Remove highlight in list
+        }
+
+        // Sliders Update
+        function updateObjectFromSliders() {
+            if(!activeObject) return;
+            const xIn = parseFloat(document.getElementById('propX').value);
+            const yIn = parseFloat(document.getElementById('propY').value);
+            const zIn = parseFloat(document.getElementById('propZ').value);
+            
+            document.getElementById('valPropX').innerText = xIn.toFixed(1);
+            document.getElementById('valPropY').innerText = yIn.toFixed(1);
+            document.getElementById('valPropZ').innerText = zIn.toFixed(1);
+
+            activeObject.position.set(xIn * INCH_TO_UNIT, yIn * INCH_TO_UNIT, zIn * INCH_TO_UNIT);
+        }
+
+        // Object Properties Update
+        function updateObjectProperties() {
+            if(!activeObject) return;
+            const ud = activeObject.userData;
+            const newW_In = parseFloat(document.getElementById('propW').value);
+            const newH_In = parseFloat(document.getElementById('propH').value);
+            
+            if (ud.isPainting) {
+                const bMm = parseFloat(document.getElementById('propBorderMm').value);
+                const bCol = document.getElementById('propBorderColor').value;
+                const bMat = document.getElementById('propBorderMat').value;
+                
+                if(newW_In !== ud.wIn || newH_In !== ud.hIn || bMm !== ud.borderMm || bCol !== ud.borderColor || bMat !== ud.borderMat) {
+                    rebuildPainting(activeObject, newW_In, newH_In, bMm, bCol, bMat);
+                }
             }
         }
 
-        // आइटम सेलेक्ट होने पर स्लाइडर की वैल्यू अपडेट करना
-        function syncTools(e) {
-            let obj = e.selected[0];
-            if(obj && !obj.isEnv) {
-                let skew = obj.skewY || 0;
-                document.getElementById('itemTilt').value = skew;
-                document.getElementById('tiltVal').innerText = skew;
+        function deleteActiveObject() {
+            if(!activeObject) return;
+            scene.remove(activeObject);
+            interactableObjects = interactableObjects.filter(o => o !== activeObject);
+            clearActiveObject();
+            updateObjectListUI();
+        }
+
+        // ==========================================
+        // 🖼️ ALIGNMENT & PAINTING
+        // ==========================================
+        function alignObjectToWall(obj) {
+            const wall = obj.userData.wall;
+            const depth = obj.userData.d_unit || 0.05; 
+
+            if(obj.userData.isFloorItem) {
+                obj.position.y = -roomH_unit/2 + depth/2;
+                if (wall === 'left') { obj.position.x = -roomW_unit/2 + 2; obj.rotation.set(0, Math.PI/2, 0); }
+                else if (wall === 'right') { obj.position.x = roomW_unit/2 - 2; obj.rotation.set(0, -Math.PI/2, 0); }
+                else { obj.position.z = -roomD_unit/2 + 2; obj.rotation.set(0, 0, 0); }
+            } else {
+                obj.position.y = 0; 
+                if (wall === 'front') { obj.position.z = -roomD_unit/2 + depth/2; obj.rotation.set(0, 0, 0); }
+                else if (wall === 'left') { obj.position.x = -roomW_unit/2 + depth/2; obj.rotation.set(0, Math.PI/2, 0); }
+                else if (wall === 'right') { obj.position.x = roomW_unit/2 - depth/2; obj.rotation.set(0, -Math.PI/2, 0); }
             }
         }
-        canvas.on('selection:created', syncTools);
-        canvas.on('selection:updated', syncTools);
-        canvas.on('selection:cleared', function() {
-            document.getElementById('itemTilt').value = 0; document.getElementById('tiltVal').innerText = '0';
-        });
 
-        // ==========================================
-        // 🖼️ ऑब्जेक्ट प्लेसमेंट (Auto 3D Skew Logic)
-        // ==========================================
-        function setupObject(item, wPx, hPx, leftPos) {
-            item.set({ top: 300 - hPx/2, left: leftPos, cornerSize: 12, transparentCorners: false, borderColor: '#3498db', cornerColor: '#3498db' });
-            canvas.add(item); canvas.setActiveObject(item);
+        function createFrameMaterial(colorHex, type) {
+            let mat = new THREE.MeshStandardMaterial({ color: colorHex });
+            if(type === 'wood') { mat.roughness = 0.9; mat.color.offsetHSL(0, -0.2, -0.1); } 
+            else if(type === 'metal') { mat.roughness = 0.3; mat.metalness = 0.8; }
+            else { mat.roughness = 0.9; mat.metalness = 0.0; } 
+            return mat;
         }
 
-        function addPainting() {
-            const fileInput = document.getElementById('paintingFile');
-            if (!fileInput.files[0]) return alert("कृपया पहले पेंटिंग की इमेज चुनें!");
+        function uploadPainting() {
+            const fileInput = document.getElementById('paintFile');
+            if (!fileInput.files[0]) return alert("Painting image chunein!");
             
             const wall = document.getElementById('paintWall').value;
-            const wPx = (parseFloat(document.getElementById('paintW').value) || 24) * PPI;
-            const hPx = (parseFloat(document.getElementById('paintH').value) || 36) * PPI;
+            const wIn = parseFloat(document.getElementById('paintW').value) || 36;
+            const hIn = parseFloat(document.getElementById('paintH').value) || 24;
+            const borderMm = parseFloat(document.getElementById('frameMm').value) || 15;
             const fColor = document.getElementById('frameColor').value;
-            const fWidth = parseFloat(document.getElementById('frameWidth').value) || 0;
+            const fMat = document.getElementById('frameMat').value;
 
             const reader = new FileReader();
-            reader.onload = function(f) {
-                fabric.Image.fromURL(f.target.result, function(img) {
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const texture = new THREE.Texture(img); texture.needsUpdate = true;
+                    const group = constructPaintingMesh(wIn, hIn, borderMm, fColor, fMat, texture);
                     
-                    // 3D पर्सपेक्टिव कैलकुलेशन
-                    let skewY = 0, scaleXMod = 1, leftPos = 450 - wPx/2;
-                    if (wall === 'left') { skewY = -22; scaleXMod = 0.75; leftPos = 120; }
-                    else if (wall === 'right') { skewY = 22; scaleXMod = 0.75; leftPos = 780 - (wPx*0.75); }
-
-                    img.set({ 
-                        scaleX: (wPx/img.width) * scaleXMod, 
-                        scaleY: hPx/img.height, 
-                        skewY: skewY,
-                        // ओरिजिनल साइज़ स्टोर कर रहे हैं ताकि डायमेंशन टेक्स्ट सही दिखे
-                        baseScaleX: wPx/img.width, 
-                        baseScaleY: hPx/img.height,
-                        stroke: fColor, strokeWidth: fWidth 
-                    });
-
-                    setupObject(img, wPx, hPx, leftPos);
+                    group.userData = { 
+                        name: "🖼️ Painting " + (objectCounter++),
+                        isPainting: true, wall: wall, 
+                        wIn: wIn, hIn: hIn, d_unit: 1 * INCH_TO_UNIT,
+                        borderMm: borderMm, borderColor: fColor, borderMat: fMat, tex: texture 
+                    };
                     
-                    fileInput.value = '';
-                    document.getElementById('uploadBtnText').innerHTML = "📁 यहाँ टैप करके नई पेंटिंग चुनें";
-                    document.getElementById('uploadBtnText').style.backgroundColor = "#fff";
-                });
-            };
-            reader.readAsDataURL(fileInput.files[0]);
+                    alignObjectToWall(group);
+                    scene.add(group); interactableObjects.push(group); 
+                    setActiveObject(group);
+                    updateObjectListUI();
+                }; img.src = e.target.result;
+            }; reader.readAsDataURL(fileInput.files[0]);
         }
 
-        function addElement() {
-            const type = document.getElementById('elemType').value;
-            const wall = document.getElementById('elemWall').value;
-            const wPx = (parseFloat(document.getElementById('elemW').value) || 40) * PPI;
-            const hPx = (parseFloat(document.getElementById('elemH').value) || 24) * PPI;
-            
-            let skewY = 0, scaleXMod = 1, leftPos = 450 - wPx/2;
-            if (wall === 'left') { skewY = -22; scaleXMod = 0.75; leftPos = 120; }
-            else if (wall === 'right') { skewY = 22; scaleXMod = 0.75; leftPos = 780 - (wPx*0.75); }
+        function constructPaintingMesh(wIn, hIn, borderMm, color, matType, texture) {
+            const group = new THREE.Group();
+            const wUnit = wIn * INCH_TO_UNIT; const hUnit = hIn * INCH_TO_UNIT;
+            const bUnit = borderMm * MM_TO_UNIT; const dUnit = 1 * INCH_TO_UNIT;
 
-            let finalWPx = wPx * scaleXMod;
-            let item;
+            const frameMat = createFrameMaterial(color, matType);
+            const frameMesh = new THREE.Mesh(new THREE.BoxGeometry(wUnit + bUnit*2, hUnit + bUnit*2, dUnit), frameMat);
+            frameMesh.castShadow = true; group.add(frameMesh);
 
-            if (type === 'window') item = new fabric.Rect({ width: finalWPx, height: hPx, fill: 'rgba(173, 216, 230, 0.7)', stroke: '#34495e', strokeWidth: 4 });
-            else if (type === 'door') item = new fabric.Rect({ width: finalWPx, height: hPx, fill: '#8b4513', stroke: '#5c2e0b', strokeWidth: 4 });
-            else if (type === 'ac') item = new fabric.Rect({ width: finalWPx, height: hPx, fill: '#fff', stroke: '#ccc', strokeWidth: 2, rx: 5, ry: 5 });
-            else if (type === 'tv') item = new fabric.Rect({ width: finalWPx, height: hPx, fill: '#1a1a1a', stroke: '#444', strokeWidth: 4, rx: 3, ry: 3 });
+            const paintMat = new THREE.MeshStandardMaterial({ map: texture, roughness: 0.9 });
+            const artMesh = new THREE.Mesh(new THREE.BoxGeometry(wUnit, hUnit, dUnit + 0.01), paintMat);
+            artMesh.castShadow = true; group.add(artMesh);
+
+            return group;
+        }
+
+        function rebuildPainting(obj, newW_In, newH_In, newMm, newColor, newMat) {
+            while(obj.children.length > 0){ obj.remove(obj.children[0]); }
+            const newGroup = constructPaintingMesh(newW_In, newH_In, newMm, newColor, newMat, obj.userData.tex);
+            while(newGroup.children.length > 0) { obj.add(newGroup.children[0]); }
             
-            if (item) {
-                item.set({ 
-                    skewY: skewY, 
-                    baseScaleX: 1 / scaleXMod, // डायमेंशन टेक्स्ट के लिए 
-                    baseScaleY: 1
-                });
-                setupObject(item, wPx, hPx, leftPos);
+            obj.userData.wIn = newW_In; obj.userData.hIn = newH_In;
+            obj.userData.borderMm = newMm; obj.userData.borderColor = newColor; obj.userData.borderMat = newMat;
+            setActiveObject(obj); alignObjectToWall(obj);
+        }
+
+        // ==========================================
+        // 💡 ADVANCED STUDIO LIGHTS 
+        // ==========================================
+        function addStudioLight() {
+            const type = document.getElementById('lightType').value;
+            const lumens = parseFloat(document.getElementById('lightLumens').value) || 800;
+            const color = document.getElementById('lightColor').value;
+            const intensity = lumens / 400; 
+
+            let lightSource, lightMarker;
+            const markerMat = new THREE.MeshBasicMaterial({ color: color });
+            lightMarker = new THREE.Mesh(new THREE.SphereGeometry(3 * INCH_TO_UNIT, 16, 16), markerMat); 
+
+            if (type === 'point') {
+                lightSource = new THREE.PointLight(color, intensity, 300 * INCH_TO_UNIT);
+                lightSource.castShadow = true; lightMarker.add(lightSource);
+            } 
+            else if (type === 'spot') {
+                lightSource = new THREE.SpotLight(color, intensity, 400 * INCH_TO_UNIT, Math.PI / 4, 0.5, 1);
+                lightSource.castShadow = true; lightMarker.add(lightSource);
+                lightMarker.add(lightSource.target);
+            } 
+            else if (type === 'directional') {
+                lightSource = new THREE.DirectionalLight(color, intensity);
+                lightSource.castShadow = true; lightMarker.add(lightSource);
+            }
+
+            lightMarker.position.set(0, roomH_unit/2 - (10 * INCH_TO_UNIT), 0); 
+            lightMarker.userData = { 
+                name: "💡 " + type.toUpperCase() + " Light " + (objectCounter++),
+                isLight: true, lightEngine: lightSource, lType: type 
+            };
+            
+            // Mark the light source (bulb object) so it doesn't get a crazy emissive highlight
+            lightSource.userData.isHighlightable = false;
+
+            scene.add(lightMarker); interactableObjects.push(lightMarker); 
+            setActiveObject(lightMarker); updateObjectListUI();
+        }
+
+        function adjustLightDirection() {
+            if (!activeObject || !activeObject.userData.isLight) return;
+            const targetX_In = parseFloat(document.getElementById('lightDirX').value);
+            const targetX_Unit = targetX_In * INCH_TO_UNIT;
+            const type = activeObject.userData.lType;
+            const engine = activeObject.userData.lightEngine;
+
+            if (type === 'spot') { engine.target.position.set(targetX_Unit, -roomH_unit, 0); } 
+            else if (type === 'directional') {
+                engine.position.set(activeObject.position.x, activeObject.position.y, activeObject.position.z);
+                engine.target.position.set(targetX_Unit, 0, 0);
             }
         }
 
-        // ✏️ साइज़ एडिट
-        function editSelectedSize() {
-            const activeObj = canvas.getActiveObject();
-            if(!activeObj || activeObj.isEnv) return alert("कृपया पहले कैनवास पर उस आइटम को टैप (सेलेक्ट) करें जिसका साइज़ बदलना है।");
-            
-            let renderScaleX = activeObj.baseScaleX || activeObj.scaleX;
-            let renderScaleY = activeObj.baseScaleY || activeObj.scaleY;
-
-            let nW = prompt("नया साइज़ (Inches):\nचौड़ाई:", ((activeObj.width * renderScaleX)/PPI).toFixed(1)); if (!nW) return;
-            let nH = prompt("ऊंचाई:", ((activeObj.height * renderScaleY)/PPI).toFixed(1)); if (!nH) return;
-            
-            // अगर आइटम 3D Skewed है तो नया साइज़ भी उसी अनुपात में कैलकुलेट होगा
-            let ratioX = activeObj.scaleX / renderScaleX; 
-            
-            activeObj.set({ 
-                scaleX: ((parseFloat(nW)*PPI)/activeObj.width) * ratioX, 
-                scaleY: (parseFloat(nH)*PPI)/activeObj.height,
-                baseScaleX: (parseFloat(nW)*PPI)/activeObj.width,
-                baseScaleY: (parseFloat(nH)*PPI)/activeObj.height
-            }); 
-            activeObj.setCoords(); canvas.renderAll();
+        // NEW: Toggle the physical sphere marker of the light
+        function updateLightMarker() {
+            if(!activeObject || !activeObject.userData.isLight) return;
+            activeObject.material.visible = document.getElementById('propShowMarker').checked;
         }
-        canvas.on('mouse:dblclick', function(opt) { editSelectedSize(); });
 
-        // 📏 डायमेंशन्स (True Size Memory के साथ)
-        canvas.on('after:render', function() {
-            if (!document.getElementById('toggleDims').checked) return;
-            const ctx = canvas.contextContainer; const zoom = canvas.getZoom();
-            ctx.save(); ctx.font = 'bold 14px Arial'; ctx.fillStyle = '#ff3838'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.textAlign = 'center';
+        // ==========================================
+        // 🪑 FIXTURES
+        // ==========================================
+        function addFixture() {
+            const type = document.getElementById('elemType').value;
+            const wall = document.getElementById('elemWall').value;
+            const wIn = parseFloat(document.getElementById('elemW').value) || 40;
+            const hIn = parseFloat(document.getElementById('elemH').value) || 24;
             
-            canvas.getActiveObjects().forEach(obj => {
-                if (obj.isEnv || obj.isGuideLine) return; 
-                
-                // baseScaleX का इस्तेमाल करें ताकि 3D Skew के बावजूद असली साइज़ ही दिखे!
-                let renderScaleX = obj.baseScaleX || obj.scaleX;
-                let renderScaleY = obj.baseScaleY || obj.scaleY;
+            const wUnit = wIn * INCH_TO_UNIT; const hUnit = hIn * INCH_TO_UNIT;
+            let mesh, isFloorItem = false, dUnit = 0.5 * INCH_TO_UNIT;
 
-                let text = `${((obj.width * renderScaleX)/PPI).toFixed(1)}" x ${((obj.height * renderScaleY)/PPI).toFixed(1)}"`;
-                let cx = (obj.left + (obj.width * obj.scaleX)/2) * zoom; 
-                let cy = (obj.top - 15) * zoom;
-                
-                ctx.strokeText(text, cx, cy); ctx.fillText(text, cx, cy);
-            }); ctx.restore();
+            if (type === 'ac') { dUnit = 6 * INCH_TO_UNIT; mesh = new THREE.Mesh(new THREE.BoxGeometry(wUnit, hUnit, dUnit), new THREE.MeshStandardMaterial({ color: 0xffffff })); } 
+            else if (type === 'tv') { dUnit = 2 * INCH_TO_UNIT; mesh = new THREE.Mesh(new THREE.BoxGeometry(wUnit, hUnit, dUnit), new THREE.MeshStandardMaterial({ color: 0x111111 })); } 
+            else if (type === 'window') { dUnit = 1 * INCH_TO_UNIT; mesh = new THREE.Mesh(new THREE.BoxGeometry(wUnit, hUnit, dUnit), new THREE.MeshStandardMaterial({ color: 0x87CEEB, transparent: true, opacity: 0.5 })); } 
+            else if (type === 'light') {
+                dUnit = 4 * INCH_TO_UNIT; mesh = new THREE.Group();
+                const fixture = new THREE.Mesh(new THREE.CylinderGeometry(1*INCH_TO_UNIT, 0.5*INCH_TO_UNIT, dUnit, 16), new THREE.MeshStandardMaterial({ color: 0xf1c40f, emissive: 0xf1c40f, emissiveIntensity: 0.5 }));
+                fixture.rotation.x = Math.PI / 2;
+                const pointLight = new THREE.PointLight(0xffddaa, 0.8, 10 * INCH_TO_UNIT);
+                pointLight.position.set(0, 0, dUnit/2); pointLight.castShadow = true;
+                mesh.add(fixture); mesh.add(pointLight);
+            } 
+            else if (type === 'sofa') {
+                isFloorItem = true; dUnit = 24 * INCH_TO_UNIT; mesh = new THREE.Group();
+                const base = new THREE.Mesh(new THREE.BoxGeometry(wUnit, hUnit*0.4, dUnit), new THREE.MeshStandardMaterial({ color: 0x2c3e50 })); base.position.y = (hUnit*0.4)/2;
+                const back = new THREE.Mesh(new THREE.BoxGeometry(wUnit, hUnit*0.6, dUnit*0.2), new THREE.MeshStandardMaterial({ color: 0x34495e })); back.position.set(0, hUnit*0.4 + (hUnit*0.6)/2, -dUnit/2 + (dUnit*0.2)/2);
+                mesh.add(base); mesh.add(back);
+            } 
+            else if (type === 'rug') {
+                isFloorItem = true; dUnit = hUnit; 
+                mesh = new THREE.Mesh(new THREE.BoxGeometry(wUnit, 0.02, dUnit), new THREE.MeshStandardMaterial({ color: 0x74b9ff }));
+            }
+
+            if(mesh) {
+                mesh.castShadow = true; mesh.receiveShadow = true;
+                let emoji = type === 'window' ? '🪟' : type === 'sofa' ? '🛋️' : type === 'tv' ? '📺' : type === 'rug' ? '🟫' : '📦';
+                mesh.userData = { 
+                    name: emoji + " " + type.toUpperCase() + " " + (objectCounter++),
+                    wall: wall, isFloorItem: isFloorItem, wIn: wIn, hIn: hIn, d_unit: dUnit 
+                };
+                alignObjectToWall(mesh);
+                scene.add(mesh); interactableObjects.push(mesh); 
+                setActiveObject(mesh); updateObjectListUI();
+            }
+        }
+
+        // ==========================================
+        // TEXTURES
+        // ==========================================
+        function updateSurfaceColor() { materials[document.getElementById('surfaceSelect').value].color.set(document.getElementById('surfaceColor').value); }
+        function uploadTexture() {
+            const fileInput = document.getElementById('textureFile'); const surface = document.getElementById('surfaceSelect').value;
+            if (!fileInput.files[0]) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image(); img.onload = function() {
+                    const texture = new THREE.Texture(img);
+                    texture.wrapS = THREE.RepeatWrapping; texture.wrapT = THREE.RepeatWrapping;
+                    texture.repeat.set(roomW_unit/4, roomD_unit/4); texture.needsUpdate = true;
+                    materials[surface].map = texture; materials[surface].needsUpdate = true;
+                }; img.src = e.target.result;
+            }; reader.readAsDataURL(fileInput.files[0]);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight; camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
         });
-        document.getElementById('toggleDims').addEventListener('change', () => canvas.renderAll());
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
     </script>
 </body>
 </html>
