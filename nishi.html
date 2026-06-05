@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pro 3D Architecture Studio (Mobile Optimized)</title>
+    <title>Pro 3D Architecture Studio (Mobile UX Optimized)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <style>
@@ -45,13 +45,34 @@
         .eye-btn:hover { filter: grayscale(0); transform: scale(1.1); }
 
         /* ========================================= */
-        /* 📱 MOBILE OPTIMIZATION FIX (Height & Space) */
+        /* 📱 MOBILE UX OPTIMIZATION                 */
         /* ========================================= */
-        @media (max-width: 900px) {
-            body { padding: 12px; box-sizing: border-box; overflow-y: auto; overflow-x: hidden; }
-            .app-wrapper { flex-direction: column; height: auto; width: 100%; gap: 15px; }
-            .canvas-container { flex: none; height: 55vh; min-height: 400px; width: 100%; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); overflow: hidden; }
-            .sidebar { flex: none; max-height: none; width: 100%; border-radius: 12px; padding: 15px; }
+        
+        /* Vertical / Portrait Mode (सीधा फोन) */
+        @media (max-width: 900px) and (orientation: portrait) {
+            body { padding: 10px; box-sizing: border-box; overflow-y: auto; overflow-x: hidden; }
+            .app-wrapper { flex-direction: column; height: auto; width: 100%; gap: 12px; }
+            .canvas-container { flex: none; height: 50vh; min-height: 400px; width: 100%; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); overflow: hidden; }
+            .sidebar { flex: none; max-height: none; width: 100%; border-radius: 10px; padding: 15px; }
+            
+            /* MAGIC: Move Properties Panel to the top when active */
+            #propsPanel.active { 
+                order: -1; /* यह इसे सबसे ऊपर भेज देगा */
+                border-width: 2px; 
+                box-shadow: 0 0 15px rgba(66, 153, 225, 0.5); 
+                margin-bottom: 15px; 
+            }
+        }
+
+        /* Horizontal / Landscape Mode (घुमा हुआ फोन) */
+        @media (max-height: 600px) and (orientation: landscape), (max-width: 900px) and (orientation: landscape) {
+            body { padding: 0; margin: 0; overflow: hidden; }
+            .app-wrapper { flex-direction: row; height: 100vh; width: 100vw; gap: 0; border-radius: 0; }
+            .canvas-container { flex: 2; height: 100%; border-radius: 0; }
+            .sidebar { flex: 1.2; height: 100%; overflow-y: auto; border-radius: 0; padding: 10px; }
+            
+            /* Properties Panel at top here as well for convenience */
+            #propsPanel.active { order: -1; border-width: 2px; margin-bottom: 10px; }
         }
     </style>
 </head>
@@ -64,16 +85,6 @@
 
         <div class="sidebar">
             <h3>🏛️ Pro 3D Architecture Studio</h3>
-
-            <div class="section">
-                <div class="section-title">📐 1. Room Dimensions (in Inches)</div>
-                <div class="input-group">
-                    <div><label>Width (X)</label><input type="number" id="roomW" class="input-style" value="168"></div>
-                    <div><label>Depth (Z)</label><input type="number" id="roomD" class="input-style" value="144"></div>
-                    <div><label>Height (Y)</label><input type="number" id="roomH" class="input-style" value="108"></div>
-                </div>
-                <button class="normal-btn" onclick="buildRoom()">Update Room</button>
-            </div>
 
             <div class="section props-panel" id="propsPanel">
                 <div class="section-title" style="color: #fff;">✏️ Selected Item Properties</div>
@@ -116,15 +127,25 @@
                 <button class="delete-btn" onclick="deleteActiveObject()">🗑️ Delete Item</button>
             </div>
 
+            <div class="section">
+                <div class="section-title">📐 Room Dimensions (in Inches)</div>
+                <div class="input-group">
+                    <div><label>Width (X)</label><input type="number" id="roomW" class="input-style" value="168"></div>
+                    <div><label>Depth (Z)</label><input type="number" id="roomD" class="input-style" value="144"></div>
+                    <div><label>Height (Y)</label><input type="number" id="roomH" class="input-style" value="108"></div>
+                </div>
+                <button class="normal-btn" onclick="buildRoom()">Update Room</button>
+            </div>
+
             <div class="section" style="border-color: #9f7aea;">
-                <div class="section-title">📋 3. Scene Object List</div>
+                <div class="section-title">📋 Scene Object List</div>
                 <div id="objectListContainer">
                     <div style="font-size: 11px; color: #a0aec0; text-align: center;">No items added yet.</div>
                 </div>
             </div>
 
             <div class="section" style="border: 2px solid #3182ce;">
-                <div class="section-title">🖼️ 4. Add Painting</div>
+                <div class="section-title">🖼️ Add Painting</div>
                 <input type="file" id="paintFile" accept="image/*" class="input-style" style="margin-bottom: 5px;">
                 <div class="input-group">
                     <div><label>Wall</label>
@@ -148,7 +169,7 @@
             </div>
 
             <div class="section" style="border-color: #38a169;">
-                <div class="section-title">💡 5. Studio Lights</div>
+                <div class="section-title">💡 Studio Lights</div>
                 <div class="input-group">
                     <div><label>Type</label>
                         <select id="lightType" class="input-style">
@@ -165,15 +186,15 @@
             </div>
 
             <div class="section">
-                <div class="section-title">🪑 6. Add Fixtures</div>
+                <div class="section-title">🪑 Add Fixtures</div>
                 <div class="input-group">
                     <div style="flex: 1 1 100%;"><label>Item Type:</label>
                         <select id="elemType" class="input-style">
-                            <option value="window">🪟 Real Window</option>
-                            <option value="ac">❄️ Split AC</option>
-                            <option value="tv">📺 Smart TV</option>
+                            <option value="window">🪟 Real Window (Framed)</option>
+                            <option value="ac">❄️ Split AC (Realistic)</option>
+                            <option value="tv">📺 Smart TV (Screen/Bezel)</option>
                             <option value="light">💡 Wall Sconce</option>
-                            <option value="sofa">🛋️ Sofa</option>
+                            <option value="sofa">🛋️ Sofa (With Armrests)</option>
                             <option value="rug">🟫 Rug / Carpet</option>
                         </select>
                     </div>
@@ -191,7 +212,7 @@
             </div>
 
             <div class="section">
-                <div class="section-title">🎨 7. Room Surfaces & Textures</div>
+                <div class="section-title">🎨 Room Surfaces & Textures</div>
                 <div class="input-group">
                     <div><label>Surface</label>
                         <select id="surfaceSelect" class="input-style">
@@ -320,6 +341,8 @@
                     e.stopPropagation(); 
                     if(e.target.tagName === 'BUTTON') return; 
                     setActiveObject(obj);
+                    // Mobile auto-scroll to properties panel
+                    if(window.innerWidth <= 900) document.querySelector('.sidebar').scrollTop = 0;
                 };
                 
                 const nameSpan = document.createElement('span');
@@ -507,7 +530,7 @@
         function updateLightMarker() { if(activeObject && activeObject.userData.isLight) activeObject.material.visible = document.getElementById('propShowMarker').checked; }
 
         // ==========================================
-        // 🪑 REALISTIC FIXTURES
+        // 🪑 REALISTIC FIXTURES (MULTI-PART GROUPS)
         // ==========================================
         function addFixture() {
             const type = document.getElementById('elemType').value, wall = document.getElementById('elemWall').value;
