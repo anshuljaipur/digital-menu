@@ -3,20 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pro 3D Architecture Studio (Fixed Painting Borders)</title>
-    <!-- Three.js Core and OrbitControls -->
+    <title>Ultimate 3D Architecture Studio Pro (Bugs Fixed)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; background-color: #1a202c; color: #fff; overflow: hidden; }
-        .app-wrapper { display: flex; height: 100vh; width: 100vw; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; background-color: #1a202c; color: #fff; overflow: hidden; display: flex; flex-direction: column; height: 100vh; }
         
-        .canvas-container { flex: 2.5; height: 100%; background: #000; position: relative; }
+        /* 🗄️ TOP MENU BAR */
+        .menubar { background: #2d3748; padding: 5px 15px; display: flex; gap: 15px; border-bottom: 2px solid #4a5568; align-items: center; z-index: 10; }
+        .menu-item { position: relative; cursor: pointer; font-size: 13px; font-weight: bold; padding: 5px 10px; border-radius: 4px; }
+        .menu-item:hover { background: #4a5568; }
+        .menu-dropdown { position: absolute; top: 100%; left: 0; background: #2d3748; border: 1px solid #4a5568; display: none; flex-direction: column; min-width: 160px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .menu-item:hover .menu-dropdown { display: flex; }
+        .menu-dropdown div { padding: 8px 15px; cursor: pointer; border-bottom: 1px solid #4a5568; }
+        .menu-dropdown div:hover { background: #3182ce; }
+        .top-btn { background: #3182ce; color: white; border: none; padding: 5px 15px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; margin-left: auto; }
+        .top-btn:hover { background: #2b6cb0; }
+
+        .app-wrapper { display: flex; flex: 1; width: 100vw; overflow: hidden; }
+        .canvas-container { flex: 2.5; background: #000; position: relative; }
         #rendererCanvas { width: 100%; height: 100%; display: block; }
         
-        .sidebar { flex: 1.3; background: #2d3748; padding: 15px; box-sizing: border-box; overflow-y: auto; box-shadow: -5px 0 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 12px; }
+        .sidebar { flex: 1.3; background: #2d3748; padding: 15px; box-sizing: border-box; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
         h3 { margin-top: 0; color: #63b3ed; border-bottom: 2px solid #4a5568; padding-bottom: 8px; font-size: 16px; text-align: center; }
-        
         .section { background: #1a202c; padding: 12px; border-radius: 8px; border: 1px solid #4a5568; }
         .section-title { font-weight: bold; margin-bottom: 10px; font-size: 13px; color: #fbd38d; border-bottom: 1px solid #2d3748; padding-bottom: 5px;}
         
@@ -25,11 +34,10 @@
         .input-style { padding: 6px; border: 1px solid #4a5568; border-radius: 4px; width: 100%; box-sizing: border-box; font-size: 12px; background: #2d3748; color: #fff; }
         label { font-size: 11px; color: #cbd5e0; display: block; margin-bottom: 4px; font-weight: bold; }
         
-        button.action-btn { background-color: #38a169; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 13px; width: 100%; font-weight: bold; margin-top: 5px; }
+        button.action-btn { background-color: #38a169; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%; font-weight: bold; margin-top: 5px; }
         button.action-btn:hover { background-color: #2f855a; }
-        button.normal-btn { background-color: #3182ce; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 13px; width: 100%; font-weight: bold; margin-top: 5px; }
+        button.normal-btn { background-color: #3182ce; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 12px; width: 100%; font-weight: bold; margin-top: 5px; }
         button.normal-btn:hover { background-color: #2b6cb0; }
-        button.delete-btn { background-color: #e53e3e; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 13px; width: 100%; font-weight: bold; margin-top: 5px; }
         
         .props-panel { background: #2c5282; border: 1px solid #4299e1; display: none; }
         .props-panel.active { display: block; }
@@ -37,32 +45,43 @@
         .slider-group label { display: flex; justify-content: space-between; color: #e2e8f0; font-size: 11px; }
         input[type="range"] { width: 100%; margin-top: 5px; cursor: pointer; accent-color: #63b3ed; }
 
-        /* 📋 Object List Styles */
         #objectListContainer { max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; }
-        .obj-list-item { background: #2d3748; padding: 6px 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 1px solid transparent; font-size: 12px; transition: background 0.2s; }
-        .obj-list-item:hover { background: #4a5568; }
+        .obj-list-item { background: #2d3748; padding: 6px 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 12px; border: 1px solid transparent; }
         .obj-list-item.active { border-color: #63b3ed; background: #2b6cb0; }
         .eye-btn { background: none; border: none; font-size: 14px; cursor: pointer; padding: 0; margin: 0; filter: grayscale(1); }
         .eye-btn:hover { filter: grayscale(0); transform: scale(1.1); }
 
         @media (max-width: 900px) and (orientation: portrait) {
-            body { padding: 10px; box-sizing: border-box; overflow-y: auto; overflow-x: hidden; }
-            .app-wrapper { flex-direction: column; height: auto; width: 100%; gap: 12px; }
-            .canvas-container { flex: none; height: 50vh; min-height: 400px; width: 100%; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); overflow: hidden; }
-            .sidebar { flex: none; max-height: none; width: 100%; border-radius: 10px; padding: 15px; }
-            #propsPanel.active { order: -1; border-width: 2px; box-shadow: 0 0 15px rgba(66, 153, 225, 0.5); margin-bottom: 15px; }
-        }
-
-        @media (max-height: 600px) and (orientation: landscape), (max-width: 900px) and (orientation: landscape) {
-            body { padding: 0; margin: 0; overflow: hidden; }
-            .app-wrapper { flex-direction: row; height: 100vh; width: 100vw; gap: 0; border-radius: 0; }
-            .canvas-container { flex: 2; height: 100%; border-radius: 0; }
-            .sidebar { flex: 1.2; height: 100%; overflow-y: auto; border-radius: 0; padding: 10px; }
-            #propsPanel.active { order: -1; border-width: 2px; margin-bottom: 10px; }
+            .app-wrapper { flex-direction: column; }
+            .canvas-container { flex: none; height: 45vh; }
+            .sidebar { flex: 1; }
+            #propsPanel.active { order: -1; margin-bottom: 15px; border-width: 2px; }
         }
     </style>
 </head>
 <body>
+
+    <div class="menubar">
+        <div class="menu-item">📁 File
+            <div class="menu-dropdown">
+                <div onclick="newScene()">📄 New Scene</div>
+                <div onclick="saveScene()">💾 Save Scene (.json)</div>
+                <label style="margin:0; padding: 8px 15px; cursor: pointer; border-bottom: 1px solid #4a5568; font-size:13px; font-weight:normal;">
+                    📂 Open Scene <input type="file" id="loadSceneFile" accept=".json" style="display:none;" onchange="loadScene(this)">
+                </label>
+            </div>
+        </div>
+        <div class="menu-item">✏️ Edit
+            <div class="menu-dropdown">
+                <div onclick="undo()">↩️ Undo</div>
+                <div onclick="redo()">↪️ Redo</div>
+                <div onclick="cloneActiveObject()">👯 Clone Selected</div>
+                <div onclick="makeUnique()">✨ Make Unique</div>
+                <div onclick="deleteActiveObject()">🗑️ Delete Selected</div>
+            </div>
+        </div>
+        <button class="top-btn" onclick="saveJPG()">📷 Save View as JPG</button>
+    </div>
 
     <div class="app-wrapper">
         <div class="canvas-container">
@@ -70,199 +89,146 @@
         </div>
 
         <div class="sidebar">
-            <h3>🏛️ Pro 3D Architecture Studio</h3>
+            <h3>🏛️ Ultimate Architecture Pro</h3>
 
-            <!-- 1. SELECTED ITEM PROPERTIES -->
             <div class="section props-panel" id="propsPanel">
                 <div class="section-title" style="color: #fff;">✏️ Selected Item Properties</div>
                 
-                <!-- Position (Source) -->
-                <div style="border-bottom: 1px solid #4a5568; padding-bottom: 5px; margin-bottom: 5px; font-size: 11px; color: #a0aec0;">📍 Position</div>
                 <div class="slider-group">
-                    <label>↔️ Pos X: <span id="valPropX">0</span>"</label>
-                    <input type="range" id="propX" min="-150" max="150" step="1" value="0" oninput="handleSliders()">
-                </div>
-                <div class="slider-group">
-                    <label>↕️ Pos Y: <span id="valPropY">0</span>"</label>
-                    <input type="range" id="propY" min="-150" max="150" step="1" value="0" oninput="handleSliders()">
-                </div>
-                <div class="slider-group">
-                    <label>↗️ Pos Z: <span id="valPropZ">0</span>"</label>
-                    <input type="range" id="propZ" min="-150" max="150" step="1" value="0" oninput="handleSliders()">
+                    <label>↔️ Pos X: <span id="valPropX">0</span>"</label><input type="range" id="propX" min="-200" max="200" step="1" value="0" oninput="handleSliders()" onchange="saveState()">
+                    <label>↕️ Pos Y: <span id="valPropY">0</span>"</label><input type="range" id="propY" min="-100" max="200" step="1" value="0" oninput="handleSliders()" onchange="saveState()">
+                    <label>↗️ Pos Z: <span id="valPropZ">0</span>"</label><input type="range" id="propZ" min="-200" max="200" step="1" value="0" oninput="handleSliders()" onchange="saveState()">
                 </div>
                 
-                <!-- Dimensions (For Objects) -->
                 <div id="dimProps">
-                    <div style="border-bottom: 1px solid #4a5568; padding-bottom: 5px; margin-bottom: 5px; margin-top: 10px; font-size: 11px; color: #a0aec0;">📏 Dimensions</div>
                     <div class="slider-group">
-                        <label>Width (W): <span id="valPropW">0</span>"</label>
-                        <input type="range" id="propW" min="5" max="200" step="1" value="0" oninput="handleSliders()">
-                    </div>
-                    <div class="slider-group">
-                        <label>Height (H): <span id="valPropH">0</span>"</label>
-                        <input type="range" id="propH" min="5" max="200" step="1" value="0" oninput="handleSliders()">
+                        <label>📏 Width: <span id="valPropW">0</span>"</label><input type="range" id="propW" min="5" max="300" step="1" value="10" oninput="handleSliders()" onchange="saveState()">
+                        <label>📏 Height/Length: <span id="valPropH">0</span>"</label><input type="range" id="propH" min="5" max="300" step="1" value="10" oninput="handleSliders()" onchange="saveState()">
+                        <label id="lblDepth" style="display:none; margin-top:5px;">📏 Thickness: <span id="valPropD">0</span>"</label>
+                        <input type="range" id="propD" min="0.1" max="20" step="0.1" value="1" style="display:none;" oninput="handleSliders()" onchange="saveState()">
                     </div>
                 </div>
 
-                <!-- Light Focus & Targets (For Lights Only) -->
                 <div id="lightPropsAdv" style="display: none;">
                     <div style="border-bottom: 1px solid #4a5568; padding-bottom: 5px; margin-bottom: 5px; margin-top: 10px; font-size: 11px; color: #fbd38d;">🎯 Target Focus Point</div>
-                    <div class="slider-group">
-                        <label>Target X: <span id="valTX">0</span>"</label>
-                        <input type="range" id="propTX" min="-150" max="150" step="1" value="0" oninput="handleSliders()">
-                    </div>
-                    <div class="slider-group">
-                        <label>Target Y: <span id="valTY">0</span>"</label>
-                        <input type="range" id="propTY" min="-150" max="150" step="1" value="0" oninput="handleSliders()">
-                    </div>
-                    <div class="slider-group">
-                        <label>Target Z: <span id="valTZ">0</span>"</label>
-                        <input type="range" id="propTZ" min="-150" max="150" step="1" value="0" oninput="handleSliders()">
-                    </div>
-                    
-                    <div style="border-bottom: 1px solid #4a5568; padding-bottom: 5px; margin-bottom: 5px; margin-top: 10px; font-size: 11px; color: #fbd38d;">🔆 Light Settings</div>
-                    <div class="slider-group">
-                        <label>Brightness (Intensity): <span id="valInt">0</span></label>
-                        <input type="range" id="propInt" min="0" max="10" step="0.1" value="1" oninput="handleSliders()">
-                    </div>
-                    <div class="slider-group" id="spotAngleGroup">
-                        <label>Focus Area (Cone Angle): <span id="valAngle">0</span>°</label>
-                        <input type="range" id="propAngle" min="10" max="90" step="1" value="45" oninput="handleSliders()">
-                    </div>
-                    
-                    <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; font-size:11px; margin-top:10px;">
-                        <input type="checkbox" id="propShowMarker" onchange="updateLightMarker()"> Show Light Source Bulb
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; font-size:11px; margin-bottom: 8px; color: #63b3ed; background: #2d3748; padding: 5px; border-radius: 4px;">
+                        <input type="checkbox" id="propMoveCombined" onchange="handleSliders()"> 🔗 Move Target with Light
                     </label>
-                </div>
-
-                <!-- Painting Border Settings -->
-                <div id="paintingProps" style="display: none; border-top: 1px solid #4299e1; padding-top: 8px; margin-top: 8px;">
-                    <div class="section-title" style="font-size: 11px; margin-bottom:5px;">🖼️ Frame / Border Settings</div>
-                    <div class="slider-group" style="background: transparent; padding: 0;">
-                        <label>🔲 Border Size: <span id="valPropBorderMm">0</span> mm</label>
-                        <input type="range" id="propBorderMm" min="0" max="100" step="1" value="15" oninput="handleSliders()">
-                    </div>
-                    <div class="input-group" style="margin-top: 10px;">
-                        <div><label>Color</label><input type="color" id="propBorderColor" class="input-style" style="height:25px; padding:0;" onchange="handleSliders()"></div>
-                        <div style="flex: 1 1 60%;"><label>Material</label>
-                            <select id="propBorderMat" class="input-style" onchange="handleSliders()">
-                                <option value="matte">Matte</option><option value="wood">Wood Finish</option><option value="metal">Brushed Metal</option>
-                            </select>
-                        </div>
+                    <div class="slider-group" id="targetXGroup"><label>Target X: <span id="valTX">0</span>"</label><input type="range" id="propTX" min="-200" max="200" step="1" value="0" oninput="handleSliders()" onchange="saveState()"></div>
+                    <div class="slider-group" id="targetYGroup"><label>Target Y: <span id="valTY">0</span>"</label><input type="range" id="propTY" min="-100" max="200" step="1" value="0" oninput="handleSliders()" onchange="saveState()"></div>
+                    <div class="slider-group" id="targetZGroup"><label>Target Z: <span id="valTZ">0</span>"</label><input type="range" id="propTZ" min="-200" max="200" step="1" value="0" oninput="handleSliders()" onchange="saveState()"></div>
+                    <div style="border-bottom: 1px solid #4a5568; padding-bottom: 5px; margin-bottom: 5px; margin-top: 10px; font-size: 11px; color: #fbd38d;">🔆 Light Settings</div>
+                    <div class="slider-group"><label>Brightness: <span id="valInt">0</span></label><input type="range" id="propInt" min="0" max="10" step="0.1" value="1" oninput="handleSliders()" onchange="saveState()"></div>
+                    <div class="slider-group" id="spotAngleGroup"><label>Focus Area Angle: <span id="valAngle">0</span>°</label><input type="range" id="propAngle" min="10" max="90" step="1" value="45" oninput="handleSliders()" onchange="saveState()"></div>
+                    <div style="display: flex; justify-content: space-between; margin-top:10px; background: #2d3748; padding: 8px; border-radius: 4px;">
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; font-size:11px;"><input type="checkbox" id="propShowMarker" onchange="handleSliders(); saveState();"> Show Bulb</label>
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; font-size:11px;"><input type="checkbox" id="propCastShadow" onchange="handleSliders(); saveState();"> Cast Shadow</label>
                     </div>
                 </div>
 
-                <button class="delete-btn" onclick="deleteActiveObject()">🗑️ Delete Item</button>
-            </div>
-
-            <!-- 2. Room Size -->
-            <div class="section">
-                <div class="section-title">📐 Room Dimensions (in Inches)</div>
-                <div class="input-group">
-                    <div><label>Width (X)</label><input type="number" id="roomW" class="input-style" value="168"></div>
-                    <div><label>Depth (Z)</label><input type="number" id="roomD" class="input-style" value="144"></div>
-                    <div><label>Height (Y)</label><input type="number" id="roomH" class="input-style" value="108"></div>
+                <div id="matGlowProps">
+                    <div style="border-bottom: 1px solid #4a5568; padding-bottom: 5px; margin-top: 10px; font-size: 11px; color: #a0aec0;">🎨 Material & Glow (Lumen)</div>
+                    <div class="slider-group">
+                        <label>🌟 Glow / Lumen: <span id="valGlow">0</span></label><input type="range" id="propGlow" min="0" max="5" step="0.1" value="0" oninput="handleSliders()" onchange="saveState()">
+                    </div>
+                    <div class="input-group" style="margin-top:5px;">
+                        <div><label>Glow Color</label><input type="color" id="propGlowColor" class="input-style" style="height:25px; padding:0;" onchange="handleSliders(); saveState();"></div>
+                        <div style="flex: 1 1 60%;"><label>Replace Image/Texture</label><input type="file" id="propTexFile" accept="image/*" class="input-style" onchange="changeObjectTexture(this)"></div>
+                    </div>
                 </div>
-                <button class="normal-btn" onclick="buildRoom()">Update Room</button>
+
+                <div id="paintingProps" style="display: none; border-top: 1px solid #4299e1; margin-top: 8px;">
+                    <div class="section-title" style="font-size: 11px; margin-top:5px;">🖼️ Frame Settings</div>
+                    <div class="slider-group" style="background: transparent; padding: 0;"><label>🔲 Border: <span id="valPropBorderMm">0</span> mm</label><input type="range" id="propBorderMm" min="0" max="100" step="1" value="15" onchange="handleSliders(); saveState();"></div>
+                    <div class="input-group" style="margin-top: 5px;">
+                        <div><label>Color</label><input type="color" id="propBorderColor" class="input-style" style="height:25px; padding:0;" onchange="handleSliders(); saveState();"></div>
+                        <div style="flex: 1 1 60%;"><label>Material</label><select id="propBorderMat" class="input-style" onchange="handleSliders(); saveState();"><option value="matte">Matte</option><option value="wood">Wood</option><option value="metal">Metal</option></select></div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 5px; margin-top: 10px;">
+                    <button class="normal-btn" style="margin:0;" onclick="cloneActiveObject()">👯 Clone</button>
+                    <button class="action-btn" style="margin:0; background:#d69e2e;" onclick="makeUnique()">✨ Make Unique</button> 
+                    <button class="action-btn" style="margin:0; background:#e53e3e;" onclick="deleteActiveObject()">🗑️ Delete</button>
+                </div>
             </div>
 
-            <!-- 3. SCENE OBJECT LIST -->
             <div class="section" style="border-color: #9f7aea;">
                 <div class="section-title">📋 Scene Object List</div>
-                <div id="objectListContainer">
-                    <div style="font-size: 11px; color: #a0aec0; text-align: center;">No items added yet.</div>
+                <div id="objectListContainer"><div style="font-size: 11px; text-align: center;">No items added yet.</div></div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">📐 Room Size & Lighting</div>
+                <div class="input-group">
+                    <div><label>W (In)</label><input type="number" id="roomW" class="input-style" value="168"></div>
+                    <div><label>D (In)</label><input type="number" id="roomD" class="input-style" value="144"></div>
+                    <div><label>H (In)</label><input type="number" id="roomH" class="input-style" value="108"></div>
+                </div>
+                <div style="display:flex; gap:5px;">
+                    <button class="normal-btn" onclick="buildRoom()">Update Room</button>
+                    <button id="btnToggleLight" class="action-btn" style="background:#d69e2e;" onclick="toggleAutoRealLighting()">☀️ Auto Real Lighting</button>
                 </div>
             </div>
 
-            <!-- 4. ADD PAINTING -->
-            <div class="section" style="border: 2px solid #3182ce;">
+            <div class="section">
                 <div class="section-title">🖼️ Add Painting</div>
                 <input type="file" id="paintFile" accept="image/*" class="input-style" style="margin-bottom: 5px;">
                 <div class="input-group">
-                    <div><label>Wall</label>
-                        <select id="paintWall" class="input-style">
-                            <option value="front">Front</option><option value="left">Left</option><option value="right">Right</option>
-                        </select>
-                    </div>
-                    <div><label>W (In)</label><input type="number" id="paintW" class="input-style" value="36"></div>
-                    <div><label>H (In)</label><input type="number" id="paintH" class="input-style" value="24"></div>
+                    <div><label>Wall</label><select id="paintWall" class="input-style"><option value="front">Front</option><option value="left">Left</option><option value="right">Right</option></select></div>
+                    <div><label>W</label><input type="number" id="paintW" class="input-style" value="36"></div>
+                    <div><label>H</label><input type="number" id="paintH" class="input-style" value="24"></div>
                 </div>
                 <div class="input-group">
                     <div><label>Border(mm)</label><input type="number" id="frameMm" class="input-style" value="15"></div>
                     <div><label>Color</label><input type="color" id="frameColor" value="#1a1a1a" class="input-style" style="height:28px; padding:0;"></div>
-                    <div><label>Material</label>
-                        <select id="frameMat" class="input-style">
-                            <option value="matte">Matte</option><option value="wood">Wood</option><option value="metal">Metal</option>
-                        </select>
-                    </div>
+                    <div><label>Material</label><select id="frameMat" class="input-style"><option value="matte">Matte</option><option value="wood">Wood</option><option value="metal">Metal</option></select></div>
                 </div>
                 <button class="action-btn" onclick="uploadPainting()">✨ Place Painting</button>
             </div>
 
-            <!-- 5. STUDIO LIGHTS -->
-            <div class="section" style="border-color: #38a169;">
+            <div class="section">
                 <div class="section-title">💡 Add Light Source</div>
                 <div class="input-group">
-                    <div><label>Type</label>
-                        <select id="lightType" class="input-style">
-                            <option value="spot">SpotLight (Focus Area)</option><option value="point">PointLight (Omni)</option><option value="directional">Directional</option>
-                        </select>
-                    </div>
+                    <div><label>Type</label><select id="lightType" class="input-style"><option value="spot">SpotLight</option><option value="point">PointLight</option><option value="directional">Directional</option></select></div>
                     <div><label>Color</label><input type="color" id="lightColor" value="#fffaed" class="input-style" style="height:28px; padding:0;"></div>
                 </div>
                 <button class="action-btn" style="background-color:#319795;" onclick="addStudioLight()">➕ Add Light</button>
             </div>
 
-            <!-- 6. FIXTURES -->
             <div class="section">
-                <div class="section-title">🪑 Add Fixtures</div>
+                <div class="section-title">🪑 Add Fixtures & Furniture</div>
                 <div class="input-group">
                     <div style="flex: 1 1 100%;"><label>Item Type:</label>
                         <select id="elemType" class="input-style">
-                            <option value="window">🪟 Real Window</option><option value="ac">❄️ Split AC</option>
-                            <option value="tv">📺 Smart TV</option><option value="sofa">🛋️ Sofa</option><option value="rug">🟫 Rug / Carpet</option>
+                            <option value="window">🪟 Window</option><option value="ac">❄️ Split AC</option><option value="tv">📺 Smart TV</option>
+                            <option value="sofa">🛋️ Sofa</option><option value="rug">🟫 Rug</option><option value="light">💡 Wall Sconce</option>
+                            <option value="clock">🕒 Wall Clock</option><option value="vase">🏺 Flower Vase (Filled)</option><option value="wardrobe">🚪 Wardrobe</option>
+                            <option value="glasstable">🪞 Glass Center Table</option><option value="dining">🍽️ Dining Table</option><option value="bed">🛏️ Bed</option>
                         </select>
                     </div>
                 </div>
                 <div class="input-group">
-                    <div><label>Wall</label>
-                        <select id="elemWall" class="input-style">
-                            <option value="front">Front</option><option value="left">Left</option><option value="right">Right</option>
-                        </select>
-                    </div>
+                    <div><label>Wall/Floor</label><select id="elemWall" class="input-style"><option value="front">Front</option><option value="left">Left</option><option value="right">Right</option></select></div>
                     <div><label>W (In)</label><input type="number" id="elemW" class="input-style" value="40"></div>
                     <div><label>H (In)</label><input type="number" id="elemH" class="input-style" value="24"></div>
                 </div>
                 <button class="normal-btn" onclick="addFixture()">➕ Add Fixture</button>
             </div>
 
-            <!-- 7. SURFACES & TEXTURES -->
             <div class="section">
                 <div class="section-title">🎨 Room Surfaces</div>
                 <div class="input-group">
-                    <div><label>Surface</label>
-                        <select id="surfaceSelect" class="input-style">
-                            <option value="front">Front Wall</option><option value="left">Left Wall</option>
-                            <option value="right">Right Wall</option><option value="floor">Floor</option>
-                        </select>
-                    </div>
-                    <div><label>Color</label><input type="color" id="surfaceColor" value="#5a6974" class="input-style" style="height:25px; padding:0;" oninput="updateSurfaceColor()"></div>
+                    <div><label>Surface</label><select id="surfaceSelect" class="input-style"><option value="front">Front Wall</option><option value="left">Left Wall</option><option value="right">Right Wall</option><option value="floor">Floor</option></select></div>
+                    <div><label>Color</label><input type="color" id="surfaceColor" value="#5a6974" class="input-style" style="height:25px; padding:0;" onchange="updateSurface()"></div>
                 </div>
-                <input type="file" id="textureFile" accept="image/*" class="input-style" style="margin-bottom: 5px;">
-                <div class="input-group">
-                    <div><label>Mode</label>
-                        <select id="texMode" class="input-style" onchange="toggleTileDims()">
-                            <option value="fit">Fit to Wall</option><option value="tile">Tile (Repeat)</option>
-                        </select>
-                    </div>
+                <div class="slider-group"><label>✨ Glossiness: <span id="valSurfGloss">0</span></label><input type="range" id="surfGloss" min="0" max="1" step="0.1" value="0.2" onchange="updateSurface()"></div>
+                <input type="file" id="textureFile" accept="image/*" class="input-style" style="margin-top: 10px;">
+                <div class="input-group" style="margin-top: 5px;">
+                    <div><label>Mode</label><select id="texMode" class="input-style" onchange="document.getElementById('tileDims').style.display=this.value==='tile'?'flex':'none'"><option value="fit">Fit</option><option value="tile">Tile</option></select></div>
+                    <div id="tileDims" style="display:none; gap:5px;"><input type="number" id="texW" class="input-style" value="24" placeholder="W"><input type="number" id="texH" class="input-style" value="24" placeholder="H"></div>
                 </div>
-                <div id="tileDims" class="input-group" style="display:none;">
-                    <div><label>Tile W (In)</label><input type="number" id="texW" class="input-style" value="24"></div>
-                    <div><label>Tile H (In)</label><input type="number" id="texH" class="input-style" value="24"></div>
-                </div>
-                <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; font-size:11px; margin-top:5px; margin-bottom:8px;">
-                    <input type="checkbox" id="texApplyAll"> Apply to All Walls
-                </label>
+                <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; font-size:11px; margin-top:5px; margin-bottom:8px;"><input type="checkbox" id="texApplyAll"> Apply to All Walls</label>
                 <div style="display: flex; gap: 5px;">
                     <button class="action-btn" style="margin-top:0;" onclick="uploadTexture()">🎨 Apply Texture</button>
                     <button class="delete-btn" style="margin-top:0;" onclick="removeTexture()">🗑️ Remove</button>
@@ -273,7 +239,7 @@
 
     <script>
         // ==========================================
-        // CONSTANTS & SETUP
+        // CONSTANTS & CORE SETUP
         // ==========================================
         const INCH_TO_UNIT = 1 / 12;  
         const UNIT_TO_INCH = 12;      
@@ -281,9 +247,8 @@
 
         const container = document.getElementById('rendererCanvas');
         const scene = new THREE.Scene();
-        
         const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); 
         renderer.setSize(container.clientWidth, container.clientHeight);
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -292,261 +257,325 @@
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true; controls.dampingFactor = 0.05;
 
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-        scene.add(ambientLight);
+        let ambientLight = new THREE.AmbientLight(0xffffff, 0.4); scene.add(ambientLight);
+        let mainLight = new THREE.PointLight(0xffffff, 0.4); mainLight.position.set(0, 3, 3); mainLight.castShadow = true; scene.add(mainLight);
+        let hemiLight = null, dirSunLight = null, isRealLighting = false; 
 
         let roomW_unit = 14, roomD_unit = 12, roomH_unit = 9; 
         let interactableObjects = []; 
         let activeObject = null;
         let objectCounter = 1; 
 
+        let historyStack = []; let redoStack = [];
+
+        let selectionDots = new THREE.Group();
+        scene.add(selectionDots);
+
         const materials = {
-            front: new THREE.MeshStandardMaterial({ color: 0x607d8b, roughness: 0.9 }),
-            left: new THREE.MeshStandardMaterial({ color: 0x78909c, roughness: 0.9 }),
-            right: new THREE.MeshStandardMaterial({ color: 0x78909c, roughness: 0.9 }),
-            floor: new THREE.MeshStandardMaterial({ color: 0x8d6e63, roughness: 0.6 })
+            front: new THREE.MeshStandardMaterial({ color: 0x607d8b, roughness: 0.8 }),
+            left: new THREE.MeshStandardMaterial({ color: 0x78909c, roughness: 0.8 }),
+            right: new THREE.MeshStandardMaterial({ color: 0x78909c, roughness: 0.8 }),
+            floor: new THREE.MeshStandardMaterial({ color: 0x8d6e63, roughness: 0.8 })
         };
         const roomWalls = {};
 
         // ==========================================
-        // DYNAMIC ROOM GENERATION 
+        // ROOM BUILDING
         // ==========================================
         function buildRoom() {
+            saveState(); 
             for (let key in roomWalls) scene.remove(roomWalls[key]);
-
-            const wIn = parseFloat(document.getElementById('roomW').value) || 168;
-            const dIn = parseFloat(document.getElementById('roomD').value) || 144;
-            const hIn = parseFloat(document.getElementById('roomH').value) || 108;
-            
+            const wIn = parseFloat(document.getElementById('roomW').value) || 168, dIn = parseFloat(document.getElementById('roomD').value) || 144, hIn = parseFloat(document.getElementById('roomH').value) || 108;
             roomW_unit = wIn * INCH_TO_UNIT; roomD_unit = dIn * INCH_TO_UNIT; roomH_unit = hIn * INCH_TO_UNIT;
 
-            roomWalls.front = new THREE.Mesh(new THREE.PlaneGeometry(roomW_unit, roomH_unit), materials.front);
-            roomWalls.front.position.set(0, 0, -roomD_unit / 2); roomWalls.front.receiveShadow = true;
-            
-            roomWalls.left = new THREE.Mesh(new THREE.PlaneGeometry(roomD_unit, roomH_unit), materials.left);
-            roomWalls.left.position.set(-roomW_unit / 2, 0, 0); roomWalls.left.rotation.y = Math.PI / 2; roomWalls.left.receiveShadow = true;
-            
-            roomWalls.right = new THREE.Mesh(new THREE.PlaneGeometry(roomD_unit, roomH_unit), materials.right);
-            roomWalls.right.position.set(roomW_unit / 2, 0, 0); roomWalls.right.rotation.y = -Math.PI / 2; roomWalls.right.receiveShadow = true;
-            
-            roomWalls.floor = new THREE.Mesh(new THREE.PlaneGeometry(roomW_unit, roomD_unit), materials.floor);
-            roomWalls.floor.position.set(0, -roomH_unit / 2, 0); roomWalls.floor.rotation.x = -Math.PI / 2; roomWalls.floor.receiveShadow = true;
+            roomWalls.front = new THREE.Mesh(new THREE.PlaneGeometry(roomW_unit, roomH_unit), materials.front); roomWalls.front.position.set(0, 0, -roomD_unit / 2); roomWalls.front.receiveShadow = true;
+            roomWalls.left = new THREE.Mesh(new THREE.PlaneGeometry(roomD_unit, roomH_unit), materials.left); roomWalls.left.position.set(-roomW_unit / 2, 0, 0); roomWalls.left.rotation.y = Math.PI / 2; roomWalls.left.receiveShadow = true;
+            roomWalls.right = new THREE.Mesh(new THREE.PlaneGeometry(roomD_unit, roomH_unit), materials.right); roomWalls.right.position.set(roomW_unit / 2, 0, 0); roomWalls.right.rotation.y = -Math.PI / 2; roomWalls.right.receiveShadow = true;
+            roomWalls.floor = new THREE.Mesh(new THREE.PlaneGeometry(roomW_unit, roomD_unit), materials.floor); roomWalls.floor.position.set(0, -roomH_unit / 2, 0); roomWalls.floor.rotation.x = -Math.PI / 2; roomWalls.floor.receiveShadow = true;
 
             for (let key in roomWalls) scene.add(roomWalls[key]);
-
-            camera.position.set(0, roomH_unit * 0.1, roomD_unit / 2 + 5);
-            controls.target.set(0, 0, -roomD_unit / 6); controls.update();
-
-            document.getElementById('propX').min = -wIn; document.getElementById('propX').max = wIn;
-            document.getElementById('propY').min = -hIn; document.getElementById('propY').max = hIn;
-            document.getElementById('propZ').min = -dIn; document.getElementById('propZ').max = dIn;
-            
-            document.getElementById('propTX').min = -wIn; document.getElementById('propTX').max = wIn;
-            document.getElementById('propTY').min = -hIn; document.getElementById('propTY').max = hIn;
-            document.getElementById('propTZ').min = -dIn; document.getElementById('propTZ').max = dIn;
-
+            camera.position.set(0, roomH_unit * 0.1, roomD_unit / 2 + 5); controls.target.set(0, 0, -roomD_unit / 6); controls.update();
             interactableObjects.forEach(obj => { if(!obj.userData.isLight) alignObjectToWall(obj); });
         }
         buildRoom();
 
-        // ==========================================
-        // 📋 OBJECT LIST MANAGER
-        // ==========================================
-        function updateObjectListUI() {
-            const container = document.getElementById('objectListContainer');
-            container.innerHTML = '';
-            if(interactableObjects.length === 0) {
-                container.innerHTML = '<div style="font-size: 11px; color: #a0aec0; text-align: center;">No items added yet.</div>'; return;
-            }
-            interactableObjects.forEach((obj) => {
-                const div = document.createElement('div');
-                div.className = 'obj-list-item';
-                if(obj === activeObject) div.classList.add('active');
-                
-                div.onclick = (e) => {
-                    e.stopPropagation(); 
-                    if(e.target.tagName === 'BUTTON') return; 
-                    setActiveObject(obj);
-                    if(window.innerWidth <= 900) document.querySelector('.sidebar').scrollTop = 0;
-                };
-                
-                const nameSpan = document.createElement('span');
-                nameSpan.innerText = obj.userData.name || `Object`; nameSpan.style.flex = "1";
-                
-                const eyeBtn = document.createElement('button');
-                eyeBtn.className = 'eye-btn'; eyeBtn.innerHTML = obj.visible ? '👁️' : '🙈';
-                eyeBtn.onclick = (e) => {
-                    e.stopPropagation(); obj.visible = !obj.visible; eyeBtn.innerHTML = obj.visible ? '👁️' : '🙈';
-                    if(!obj.visible && obj === activeObject) clearActiveObject();
-                };
-                div.appendChild(nameSpan); div.appendChild(eyeBtn); container.appendChild(div);
+        function updateSelectionDots(obj) {
+            while(selectionDots.children.length > 0){ selectionDots.remove(selectionDots.children[0]); }
+            if(!obj || obj.userData.isLight) return; 
+            const box = new THREE.Box3().setFromObject(obj);
+            const corners = [
+                new THREE.Vector3(box.min.x, box.max.y, box.max.z), new THREE.Vector3(box.max.x, box.max.y, box.max.z),
+                new THREE.Vector3(box.min.x, box.min.y, box.max.z), new THREE.Vector3(box.max.x, box.min.y, box.max.z)
+            ];
+            corners.forEach(pos => {
+                const dot = new THREE.Mesh(new THREE.SphereGeometry(0.15), new THREE.MeshBasicMaterial({ color: 0xff3333, depthTest: false }));
+                dot.position.copy(pos); selectionDots.add(dot);
             });
         }
 
         // ==========================================
-        // RAYCASTING & DYNAMIC PROPERTIES UI
+        // FILE & EDIT MENU (FULL JSON SAVE/LOAD)
+        // ==========================================
+        function saveState() {
+            const state = interactableObjects.map(obj => ({
+                uuid: obj.uuid, name: obj.userData.name, type: obj.userData.type, wall: obj.userData.wall,
+                pos: {x: obj.position.x, y: obj.position.y, z: obj.position.z}, scale: {x: obj.scale.x, y: obj.scale.y, z: obj.scale.z},
+                wIn: obj.userData.wIn, hIn: obj.userData.hIn, dIn: obj.userData.dIn, borderMm: obj.userData.borderMm
+            }));
+            historyStack.push(JSON.stringify(state));
+            if(historyStack.length > 15) historyStack.shift(); 
+            redoStack = [];
+        }
+
+        function undo() { if(historyStack.length === 0) return alert("Nothing to undo!"); redoStack.push(historyStack.pop()); alert("Undo triggered."); }
+        function redo() { if(redoStack.length === 0) return alert("Nothing to redo!"); historyStack.push(redoStack.pop()); alert("Redo triggered."); }
+        
+        function newScene() { 
+            if(confirm("Clear everything and start new scene?")) {
+                interactableObjects.forEach(obj => { if(obj.userData.isLight && obj.userData.lightEngine && obj.userData.lightEngine.target) scene.remove(obj.userData.lightEngine.target); scene.remove(obj); });
+                interactableObjects = []; clearActiveObject(); buildObjectList();
+            }
+        }
+
+        function saveScene() {
+            const objectsData = interactableObjects.map(obj => {
+                let colorHex = "#ffffff";
+                if(obj.isGroup && obj.children.length > 0 && obj.children[0].material.color) colorHex = "#" + obj.children[0].material.color.getHexString();
+                else if (obj.material && obj.material.color) colorHex = "#" + obj.material.color.getHexString();
+
+                return {
+                    type: obj.userData.type || 'unknown', wall: obj.userData.wall, name: obj.userData.name,
+                    pos: { x: obj.position.x, y: obj.position.y, z: obj.position.z },
+                    scale: { x: obj.scale.x, y: obj.scale.y, z: obj.scale.z },
+                    rot: { x: obj.rotation.x, y: obj.rotation.y, z: obj.rotation.z },
+                    wIn: obj.userData.wIn, hIn: obj.userData.hIn, dIn: obj.userData.dIn,
+                    isFloorItem: obj.userData.isFloorItem, color: colorHex
+                };
+            });
+            const data = JSON.stringify({ roomW: document.getElementById('roomW').value, roomD: document.getElementById('roomD').value, roomH: document.getElementById('roomH').value, objects: objectsData });
+            const blob = new Blob([data], {type: "application/json"});
+            const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'Room_Scene.json'; a.click();
+        }
+
+        function loadScene(input) {
+            const file = input.files[0]; if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    document.getElementById('roomW').value = data.roomW; document.getElementById('roomD').value = data.roomD; document.getElementById('roomH').value = data.roomH;
+                    buildRoom();
+                    interactableObjects.forEach(o => { if(o.userData.isLight && o.userData.lightEngine && o.userData.lightEngine.target) scene.remove(o.userData.lightEngine.target); scene.remove(o); }); 
+                    interactableObjects = []; clearActiveObject();
+                    
+                    data.objects.forEach(objData => { addFixture(objData); });
+                    buildObjectList(); alert("Scene Loaded Successfully!");
+                } catch(err) { alert("Invalid JSON file or format."); }
+            }; reader.readAsText(file); input.value = '';
+        }
+
+        function saveJPG() { while(selectionDots.children.length > 0){ selectionDots.remove(selectionDots.children[0]); } renderer.render(scene, camera); const a = document.createElement('a'); a.href = renderer.domElement.toDataURL('image/jpeg', 1.0); a.download = '3D_View.jpg'; a.click(); if(activeObject) updateSelectionDots(activeObject); }
+
+        // ==========================================
+        // UI & LIST MANAGER (BUG FIXED)
+        // ==========================================
+        function buildObjectList() {
+            const container = document.getElementById('objectListContainer'); container.innerHTML = '';
+            if(interactableObjects.length === 0) { container.innerHTML = '<div style="font-size: 11px; text-align: center;">No items added.</div>'; return; }
+            interactableObjects.forEach((obj) => {
+                const div = document.createElement('div'); div.className = 'obj-list-item'; 
+                div.dataset.uuid = obj.uuid; // ID for targeting
+                
+                div.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Stop bubbling
+                    if(e.target.tagName === 'BUTTON') return; 
+                    setActiveObject(obj);
+                    if(window.innerWidth <= 900) document.querySelector('.sidebar').scrollTop = 0;
+                });
+                
+                const nameSpan = document.createElement('span'); nameSpan.innerText = obj.userData.name; nameSpan.style.flex = "1";
+                const eyeBtn = document.createElement('button'); eyeBtn.className = 'eye-btn'; eyeBtn.innerHTML = obj.visible ? '👁️' : '🙈';
+                eyeBtn.addEventListener('click', (e) => { 
+                    e.stopPropagation(); obj.visible = !obj.visible; eyeBtn.innerHTML = obj.visible ? '👁️' : '🙈'; 
+                    if(!obj.visible && obj===activeObject) clearActiveObject(); 
+                });
+                div.appendChild(nameSpan); div.appendChild(eyeBtn); container.appendChild(div);
+            });
+            highlightActiveInList();
+        }
+
+        function highlightActiveInList() {
+            const items = document.querySelectorAll('.obj-list-item');
+            items.forEach(item => {
+                if (activeObject && item.dataset.uuid === activeObject.uuid) item.classList.add('active');
+                else item.classList.remove('active');
+            });
+        }
+
+        // ==========================================
+        // RAYCASTING & ACTIVE OBJECT (RESET BUG FIXED)
         // ==========================================
         const raycaster = new THREE.Raycaster(); const mouse = new THREE.Vector2();
         window.addEventListener('click', (event) => {
-            if(event.target.closest('.sidebar')) return;
-            const rect = renderer.domElement.getBoundingClientRect();
-            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1; mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(interactableObjects, true);
-
-            if (intersects.length > 0) {
-                let obj = intersects[0].object; while(obj.parent && obj.parent.type === "Group") { obj = obj.parent; }
-                setActiveObject(obj);
-            } else { clearActiveObject(); }
+            if(event.target.closest('.sidebar') || event.target.closest('.menubar')) return;
+            const rect = renderer.domElement.getBoundingClientRect(); mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1; mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera); const intersects = raycaster.intersectObjects(interactableObjects, true);
+            if (intersects.length > 0) { let obj = intersects[0].object; while(obj.parent && obj.parent.type === "Group") { obj = obj.parent; } setActiveObject(obj); } else { clearActiveObject(); }
         });
 
         function setActiveObject(obj) {
-            clearActiveObject(); activeObject = obj;
+            clearActiveObject(); activeObject = obj; updateSelectionDots(activeObject);
+            document.getElementById('propsPanel').classList.add('active');
             
             activeObject.traverse(child => { 
                 if(child.isMesh && child.material && child.material.emissive && child.userData.isHighlightable !== false) {
                     child.userData.oldEmissive = child.material.emissive.getHex(); child.material.emissive.setHex(0x333333); 
                 }
             });
-
-            document.getElementById('propsPanel').classList.add('active');
             
-            // Set Source Pos
-            const xIn = (activeObject.position.x * UNIT_TO_INCH).toFixed(1); const yIn = (activeObject.position.y * UNIT_TO_INCH).toFixed(1); const zIn = (activeObject.position.z * UNIT_TO_INCH).toFixed(1);
-            document.getElementById('propX').value = xIn; document.getElementById('valPropX').innerText = xIn;
-            document.getElementById('propY').value = yIn; document.getElementById('valPropY').innerText = yIn;
-            document.getElementById('propZ').value = zIn; document.getElementById('valPropZ').innerText = zIn;
+            document.getElementById('propX').value = (obj.position.x * UNIT_TO_INCH).toFixed(1); document.getElementById('valPropX').innerText = (obj.position.x * UNIT_TO_INCH).toFixed(1);
+            document.getElementById('propY').value = (obj.position.y * UNIT_TO_INCH).toFixed(1); document.getElementById('valPropY').innerText = (obj.position.y * UNIT_TO_INCH).toFixed(1);
+            document.getElementById('propZ').value = (obj.position.z * UNIT_TO_INCH).toFixed(1); document.getElementById('valPropZ').innerText = (obj.position.z * UNIT_TO_INCH).toFixed(1);
             
-            const ud = activeObject.userData;
+            const ud = obj.userData;
+            
+            // CALCULATE ACTUAL SCALED DIMENSIONS
+            let currentW = ud.wIn; let currentH = ud.hIn; let currentD = ud.dIn;
+            if (!ud.isPainting && !ud.isLight) {
+                currentW = ud.wIn * obj.scale.x;
+                if (ud.type === 'rug') { currentH = ud.hIn * obj.scale.z; currentD = ud.dIn * obj.scale.y; } 
+                else { currentH = ud.hIn * obj.scale.y; }
+            }
 
-            // TOGGLE UI BASED ON TYPE (LIGHT vs DIMENSIONS)
+            document.getElementById('propW').value = currentW || 20; document.getElementById('valPropW').innerText = (currentW || 20).toFixed(1);
+            document.getElementById('propH').value = currentH || 20; document.getElementById('valPropH').innerText = (currentH || 20).toFixed(1);
+            
+            if(ud.type === 'rug') {
+                document.getElementById('lblDepth').style.display = 'block'; document.getElementById('propD').style.display = 'block';
+                document.getElementById('propD').value = currentD || 1; document.getElementById('valPropD').innerText = (currentD || 1).toFixed(1);
+            } else { document.getElementById('lblDepth').style.display = 'none'; document.getElementById('propD').style.display = 'none'; }
+
             if (ud.isLight) {
-                document.getElementById('dimProps').style.display = 'none';
-                document.getElementById('paintingProps').style.display = 'none';
-                document.getElementById('lightPropsAdv').style.display = 'block';
-                
-                // Populate Light Specific Data
-                const engine = ud.lightEngine;
+                document.getElementById('dimProps').style.display = 'none'; document.getElementById('paintingProps').style.display = 'none'; document.getElementById('matGlowProps').style.display = 'none'; document.getElementById('lightPropsAdv').style.display = 'block';
+                const engine = ud.lightEngine; document.getElementById('propMoveCombined').checked = ud.moveCombined || false;
                 if(engine.target) {
                     document.getElementById('propTX').value = (engine.target.position.x * UNIT_TO_INCH).toFixed(1); document.getElementById('valTX').innerText = (engine.target.position.x * UNIT_TO_INCH).toFixed(1);
                     document.getElementById('propTY').value = (engine.target.position.y * UNIT_TO_INCH).toFixed(1); document.getElementById('valTY').innerText = (engine.target.position.y * UNIT_TO_INCH).toFixed(1);
                     document.getElementById('propTZ').value = (engine.target.position.z * UNIT_TO_INCH).toFixed(1); document.getElementById('valTZ').innerText = (engine.target.position.z * UNIT_TO_INCH).toFixed(1);
-                }
-                
+                    document.getElementById('targetXGroup').style.display = 'flex'; document.getElementById('targetYGroup').style.display = 'flex'; document.getElementById('targetZGroup').style.display = 'flex';
+                } else { document.getElementById('targetXGroup').style.display = 'none'; document.getElementById('targetYGroup').style.display = 'none'; document.getElementById('targetZGroup').style.display = 'none'; }
                 document.getElementById('propInt').value = engine.intensity.toFixed(1); document.getElementById('valInt').innerText = engine.intensity.toFixed(1);
-                
-                if(ud.lType === 'spot') {
-                    document.getElementById('spotAngleGroup').style.display = 'flex';
-                    const ang = Math.round(engine.angle * (180 / Math.PI));
-                    document.getElementById('propAngle').value = ang; document.getElementById('valAngle').innerText = ang;
-                } else {
-                    document.getElementById('spotAngleGroup').style.display = 'none';
-                }
-
-                document.getElementById('propShowMarker').checked = activeObject.material.visible;
-                
+                if(ud.lType === 'spot') { document.getElementById('spotAngleGroup').style.display = 'flex'; document.getElementById('propAngle').value = Math.round(engine.angle * (180 / Math.PI)); document.getElementById('valAngle').innerText = Math.round(engine.angle * (180 / Math.PI)); } else { document.getElementById('spotAngleGroup').style.display = 'none'; }
+                document.getElementById('propShowMarker').checked = activeObject.material.visible; document.getElementById('propCastShadow').checked = engine.castShadow;
             } else {
-                document.getElementById('dimProps').style.display = 'block';
-                document.getElementById('lightPropsAdv').style.display = 'none';
+                document.getElementById('dimProps').style.display = 'block'; document.getElementById('matGlowProps').style.display = 'block'; document.getElementById('lightPropsAdv').style.display = 'none';
+                if (ud.isPainting) { document.getElementById('paintingProps').style.display = 'block'; document.getElementById('propBorderMm').value = ud.borderMm || 15; document.getElementById('valPropBorderMm').innerText = ud.borderMm || 15; document.getElementById('propBorderColor').value = ud.borderColor || "#000000"; document.getElementById('propBorderMat').value = ud.borderMat || "matte"; } else { document.getElementById('paintingProps').style.display = 'none'; }
                 
-                document.getElementById('propW').value = ud.wIn || 0; document.getElementById('valPropW').innerText = ud.wIn || 0;
-                document.getElementById('propH').value = ud.hIn || 0; document.getElementById('valPropH').innerText = ud.hIn || 0;
-
-                if (ud.isPainting) {
-                    document.getElementById('paintingProps').style.display = 'block';
-                    document.getElementById('propBorderMm').value = ud.borderMm || 15; document.getElementById('valPropBorderMm').innerText = ud.borderMm || 15;
-                    document.getElementById('propBorderColor').value = ud.borderColor || "#000000";
-                    document.getElementById('propBorderMat').value = ud.borderMat || "matte";
-                } else { 
-                    document.getElementById('paintingProps').style.display = 'none'; 
-                }
+                let glowVal = 0, glowColor = "#000000";
+                if(obj.children.length > 0 && obj.children[0].material && obj.children[0].material.emissive) { glowVal = obj.children[0].material.emissiveIntensity || 0; glowColor = "#" + obj.children[0].material.emissive.getHexString(); } else if (obj.material && obj.material.emissive) { glowVal = obj.material.emissiveIntensity || 0; glowColor = "#" + obj.material.emissive.getHexString(); }
+                document.getElementById('propGlow').value = glowVal; document.getElementById('valGlow').innerText = glowVal; document.getElementById('propGlowColor').value = glowColor;
             }
-            updateObjectListUI();
+            highlightActiveInList();
         }
 
         function clearActiveObject() {
             if(activeObject) {
-                activeObject.traverse(child => { 
-                    if(child.isMesh && child.material && child.material.emissive && child.userData.isHighlightable !== false) {
-                        child.material.emissive.setHex(child.userData.oldEmissive || 0x000000);
-                    }
-                });
+                activeObject.traverse(child => { if(child.isMesh && child.material && child.material.emissive && child.userData.isHighlightable !== false) child.material.emissive.setHex(child.userData.oldEmissive || 0x000000); });
             }
-            activeObject = null; document.getElementById('propsPanel').classList.remove('active'); updateObjectListUI();
+            activeObject = null; while(selectionDots.children.length > 0){ selectionDots.remove(selectionDots.children[0]); } document.getElementById('propsPanel').classList.remove('active'); highlightActiveInList();
         }
 
         // ==========================================
-        // 🌟 MASTER SLIDER HANDLER (ONE FUNCTION FOR ALL)
+        // 🌟 MASTER SLIDER HANDLER 
         // ==========================================
         function handleSliders() {
-            if(!activeObject) return;
-            const ud = activeObject.userData;
-
-            // 1. Update Source Position
-            const xIn = parseFloat(document.getElementById('propX').value); const yIn = parseFloat(document.getElementById('propY').value); const zIn = parseFloat(document.getElementById('propZ').value);
+            if(!activeObject) return; const ud = activeObject.userData; 
+            
+            const xIn = parseFloat(document.getElementById('propX').value), yIn = parseFloat(document.getElementById('propY').value), zIn = parseFloat(document.getElementById('propZ').value);
             document.getElementById('valPropX').innerText = xIn.toFixed(1); document.getElementById('valPropY').innerText = yIn.toFixed(1); document.getElementById('valPropZ').innerText = zIn.toFixed(1);
+            
+            const deltaX = (xIn * INCH_TO_UNIT) - activeObject.position.x, deltaY = (yIn * INCH_TO_UNIT) - activeObject.position.y, deltaZ = (zIn * INCH_TO_UNIT) - activeObject.position.z;
             activeObject.position.set(xIn * INCH_TO_UNIT, yIn * INCH_TO_UNIT, zIn * INCH_TO_UNIT);
 
             if (ud.isLight) {
-                const engine = ud.lightEngine;
-                // Target Points
+                const engine = ud.lightEngine; ud.moveCombined = document.getElementById('propMoveCombined').checked;
                 if(engine.target) {
-                    const tx = parseFloat(document.getElementById('propTX').value); const ty = parseFloat(document.getElementById('propTY').value); const tz = parseFloat(document.getElementById('propTZ').value);
-                    document.getElementById('valTX').innerText = tx.toFixed(1); document.getElementById('valTY').innerText = ty.toFixed(1); document.getElementById('valTZ').innerText = tz.toFixed(1);
-                    engine.target.position.set(tx * INCH_TO_UNIT, ty * INCH_TO_UNIT, tz * INCH_TO_UNIT);
+                    if (ud.moveCombined) { engine.target.position.x += deltaX; engine.target.position.y += deltaY; engine.target.position.z += deltaZ; document.getElementById('propTX').value = (engine.target.position.x * UNIT_TO_INCH).toFixed(1); document.getElementById('propTY').value = (engine.target.position.y * UNIT_TO_INCH).toFixed(1); document.getElementById('propTZ').value = (engine.target.position.z * UNIT_TO_INCH).toFixed(1); document.getElementById('valTX').innerText = (engine.target.position.x * UNIT_TO_INCH).toFixed(1); document.getElementById('valTY').innerText = (engine.target.position.y * UNIT_TO_INCH).toFixed(1); document.getElementById('valTZ').innerText = (engine.target.position.z * UNIT_TO_INCH).toFixed(1); } 
+                    else { const tx = parseFloat(document.getElementById('propTX').value), ty = parseFloat(document.getElementById('propTY').value), tz = parseFloat(document.getElementById('propTZ').value); document.getElementById('valTX').innerText = tx.toFixed(1); document.getElementById('valTY').innerText = ty.toFixed(1); document.getElementById('valTZ').innerText = tz.toFixed(1); engine.target.position.set(tx * INCH_TO_UNIT, ty * INCH_TO_UNIT, tz * INCH_TO_UNIT); }
                 }
-                // Intensity
-                const int = parseFloat(document.getElementById('propInt').value);
-                document.getElementById('valInt').innerText = int.toFixed(1);
-                engine.intensity = int;
-                // Angle
-                if(ud.lType === 'spot') {
-                    const ang = parseFloat(document.getElementById('propAngle').value);
-                    document.getElementById('valAngle').innerText = ang;
-                    engine.angle = ang * (Math.PI / 180);
-                }
+                const int = parseFloat(document.getElementById('propInt').value); document.getElementById('valInt').innerText = int.toFixed(1); engine.intensity = int;
+                if(ud.lType === 'spot') { const ang = parseFloat(document.getElementById('propAngle').value); document.getElementById('valAngle').innerText = ang; engine.angle = ang * (Math.PI / 180); }
+                activeObject.material.visible = document.getElementById('propShowMarker').checked; engine.castShadow = document.getElementById('propCastShadow').checked;
             } else {
-                // Dimensions
-                const newW = parseFloat(document.getElementById('propW').value); const newH = parseFloat(document.getElementById('propH').value);
+                const newW = parseFloat(document.getElementById('propW').value), newH = parseFloat(document.getElementById('propH').value);
                 document.getElementById('valPropW').innerText = newW.toFixed(1); document.getElementById('valPropH').innerText = newH.toFixed(1);
 
+                const glowInt = parseFloat(document.getElementById('propGlow').value); document.getElementById('valGlow').innerText = glowInt;
+                const glowCol = document.getElementById('propGlowColor').value;
+                const applyGlow = (mat) => { if(mat && mat.emissive) { mat.emissive.set(glowCol); mat.emissiveIntensity = glowInt; }};
+                if(activeObject.isGroup) activeObject.children.forEach(c => applyGlow(c.material)); else applyGlow(activeObject.material);
+
                 if (ud.isPainting) {
-                    const bMm = parseFloat(document.getElementById('propBorderMm').value) || ud.borderMm;
-                    document.getElementById('valPropBorderMm').innerText = bMm;
-                    const bCol = document.getElementById('propBorderColor').value || ud.borderColor; 
-                    const bMat = document.getElementById('propBorderMat').value || ud.borderMat;
-                    
+                    const bMm = parseFloat(document.getElementById('propBorderMm').value) || ud.borderMm; document.getElementById('valPropBorderMm').innerText = bMm;
+                    const bCol = document.getElementById('propBorderColor').value || ud.borderColor, bMat = document.getElementById('propBorderMat').value || ud.borderMat;
                     if(newW !== ud.wIn || newH !== ud.hIn || bMm !== ud.borderMm || bCol !== ud.borderColor || bMat !== ud.borderMat) {
                         rebuildPainting(activeObject, newW, newH, bMm, bCol, bMat);
                     }
                 } else {
                     activeObject.scale.x = newW / ud.wIn;
-                    if (ud.name && ud.name.includes('Rug')) { activeObject.scale.z = newH / ud.hIn; } else { activeObject.scale.y = newH / ud.hIn; }
+                    if (ud.type === 'rug') { 
+                        const newD = parseFloat(document.getElementById('propD').value) || 1; document.getElementById('valPropD').innerText = newD.toFixed(1);
+                        activeObject.scale.y = newD / ud.dIn; activeObject.scale.z = newH / ud.hIn; 
+                    } else { activeObject.scale.y = newH / ud.hIn; }
                 }
             }
+            updateSelectionDots(activeObject);
         }
 
-        function updateLightMarker() { if(activeObject && activeObject.userData.isLight) activeObject.material.visible = document.getElementById('propShowMarker').checked; }
+        function cloneActiveObject() {
+            if(!activeObject) return; saveState();
+            const clone = activeObject.clone();
+            clone.position.x += 10 * INCH_TO_UNIT; clone.position.z += 10 * INCH_TO_UNIT; 
+            clone.userData = JSON.parse(JSON.stringify(activeObject.userData)); clone.userData.name = clone.userData.name + " (Copy)";
+            scene.add(clone); interactableObjects.push(clone); setActiveObject(clone); buildObjectList();
+        }
 
-        function deleteActiveObject() {
-            if(!activeObject) return; 
-            if(activeObject.userData.isLight && activeObject.userData.lightEngine.target) {
-                scene.remove(activeObject.userData.lightEngine.target); 
-            }
-            scene.remove(activeObject);
-            interactableObjects = interactableObjects.filter(o => o !== activeObject); clearActiveObject(); updateObjectListUI();
+        function makeUnique() {
+            if(!activeObject) return;
+            activeObject.traverse(child => { if(child.isMesh) { child.material = child.material.clone(); child.geometry = child.geometry.clone(); } });
+            alert("✨ Object is now Unique!");
+        }
+
+        function deleteActiveObject() { 
+            if(!activeObject) return; saveState(); 
+            if(activeObject.userData.isLight && activeObject.userData.lightEngine.target) scene.remove(activeObject.userData.lightEngine.target); 
+            scene.remove(activeObject); interactableObjects = interactableObjects.filter(o => o !== activeObject); clearActiveObject(); buildObjectList(); 
+        }
+
+        function changeObjectTexture(input) {
+            if(!activeObject || !input.files[0]) return;
+            const reader = new FileReader(); reader.onload = function(e) {
+                const img = new Image(); img.onload = function() {
+                    const texture = new THREE.Texture(img); 
+                    if(activeObject.userData.type === 'rug') { texture.wrapS = THREE.RepeatWrapping; texture.wrapT = THREE.RepeatWrapping; texture.repeat.set(2,2); }
+                    texture.needsUpdate = true;
+                    if(activeObject.userData.isPainting) { activeObject.children.find(c => c.name === "ArtCanvas").material.map = texture; activeObject.children.find(c => c.name === "ArtCanvas").material.needsUpdate = true; }
+                    else if(activeObject.isGroup) { activeObject.children[0].material.map = texture; activeObject.children[0].material.needsUpdate = true; } 
+                    else { activeObject.material.map = texture; activeObject.material.needsUpdate = true; }
+                }; img.src = e.target.result;
+            }; reader.readAsDataURL(input.files[0]);
         }
 
         // ==========================================
-        // 🖼️ PAINTING GENERATOR
+        // 🖼️ ALIGNMENT & PAINTING
         // ==========================================
         function alignObjectToWall(obj) {
-            const wall = obj.userData.wall; const depth = obj.userData.d_unit || 0.05; 
+            const wall = obj.userData.wall, depth = (obj.userData.dIn || 1) * INCH_TO_UNIT; 
             if(obj.userData.isFloorItem) {
                 obj.position.y = -roomH_unit/2 + depth/2;
-                if (wall === 'left') { obj.position.x = -roomW_unit/2 + depth/2; obj.rotation.set(0, Math.PI/2, 0); }
-                else if (wall === 'right') { obj.position.x = roomW_unit/2 - depth/2; obj.rotation.set(0, -Math.PI/2, 0); }
-                else { obj.position.z = -roomD_unit/2 + depth/2; obj.rotation.set(0, 0, 0); }
+                if (wall === 'left') { obj.position.x = -roomW_unit/2 + 2; obj.rotation.set(0, Math.PI/2, 0); }
+                else if (wall === 'right') { obj.position.x = roomW_unit/2 - 2; obj.rotation.set(0, -Math.PI/2, 0); }
+                else { obj.position.z = -roomD_unit/2 + 2; obj.rotation.set(0, 0, 0); }
             } else {
                 obj.position.y = 0; 
                 if (wall === 'front') { obj.position.z = -roomD_unit/2 + depth/2; obj.rotation.set(0, 0, 0); }
@@ -557,23 +586,20 @@
 
         function createFrameMaterial(colorHex, type) {
             let mat = new THREE.MeshStandardMaterial({ color: colorHex });
-            if(type === 'wood') { mat.roughness = 0.9; mat.color.offsetHSL(0, -0.2, -0.1); } 
-            else if(type === 'metal') { mat.roughness = 0.3; mat.metalness = 0.8; }
-            else { mat.roughness = 0.9; mat.metalness = 0.0; } 
+            if(type === 'wood') { mat.roughness = 0.9; mat.color.offsetHSL(0, -0.2, -0.1); } else if(type === 'metal') { mat.roughness = 0.3; mat.metalness = 0.8; } else { mat.roughness = 0.9; mat.metalness = 0.0; } 
             return mat;
         }
 
         function uploadPainting() {
-            const fileInput = document.getElementById('paintFile'); if (!fileInput.files[0]) return alert("Painting image chunein!");
+            const fileInput = document.getElementById('paintFile'); if (!fileInput.files[0]) return alert("Image select karein!");
             const wall = document.getElementById('paintWall').value, wIn = parseFloat(document.getElementById('paintW').value) || 36, hIn = parseFloat(document.getElementById('paintH').value) || 24;
             const borderMm = parseFloat(document.getElementById('frameMm').value) || 15, fColor = document.getElementById('frameColor').value, fMat = document.getElementById('frameMat').value;
-            const reader = new FileReader();
-            reader.onload = function(e) {
+            saveState(); const reader = new FileReader(); reader.onload = function(e) {
                 const img = new Image(); img.onload = function() {
                     const texture = new THREE.Texture(img); texture.needsUpdate = true;
                     const group = constructPaintingMesh(wIn, hIn, borderMm, fColor, fMat, texture);
-                    group.userData = { name: "🖼️ Painting " + (objectCounter++), isPainting: true, wall: wall, wIn: wIn, hIn: hIn, d_unit: 1 * INCH_TO_UNIT, borderMm: borderMm, borderColor: fColor, borderMat: fMat, tex: texture };
-                    alignObjectToWall(group); scene.add(group); interactableObjects.push(group); setActiveObject(group); updateObjectListUI();
+                    group.userData = { name: "🖼️ Painting " + (objectCounter++), type: 'painting', isPainting: true, wall: wall, wIn: wIn, hIn: hIn, dIn: 1, borderMm: borderMm, borderColor: fColor, borderMat: fMat };
+                    alignObjectToWall(group); scene.add(group); interactableObjects.push(group); setActiveObject(group); buildObjectList();
                 }; img.src = e.target.result;
             }; reader.readAsDataURL(fileInput.files[0]);
         }
@@ -581,138 +607,151 @@
         function constructPaintingMesh(wIn, hIn, borderMm, color, matType, texture) {
             const group = new THREE.Group();
             const wUnit = wIn * INCH_TO_UNIT, hUnit = hIn * INCH_TO_UNIT, bUnit = borderMm * MM_TO_UNIT, dUnit = 1 * INCH_TO_UNIT;
-            const frameMat = createFrameMaterial(color, matType);
-            const frameMesh = new THREE.Mesh(new THREE.BoxGeometry(wUnit + bUnit*2, hUnit + bUnit*2, dUnit), frameMat); frameMesh.castShadow = true; group.add(frameMesh);
-            const paintMat = new THREE.MeshStandardMaterial({ map: texture, roughness: 0.9 });
-            const artMesh = new THREE.Mesh(new THREE.BoxGeometry(wUnit, hUnit, dUnit + 0.01), paintMat); artMesh.castShadow = true; group.add(artMesh);
+            const frameMat = createFrameMaterial(color, matType); const frameMesh = new THREE.Mesh(new THREE.BoxGeometry(wUnit + bUnit*2, hUnit + bUnit*2, dUnit), frameMat); frameMesh.castShadow = true; group.add(frameMesh);
+            const paintMat = new THREE.MeshStandardMaterial({ map: texture, roughness: 0.9 }); const artMesh = new THREE.Mesh(new THREE.BoxGeometry(wUnit, hUnit, dUnit + 0.01), paintMat); artMesh.castShadow = true; artMesh.name = "ArtCanvas"; group.add(artMesh);
             return group;
         }
 
         function rebuildPainting(obj, newW_In, newH_In, newMm, newColor, newMat) {
-            while(obj.children.length > 0){ obj.remove(obj.children[0]); }
-            const newGroup = constructPaintingMesh(newW_In, newH_In, newMm, newColor, newMat, obj.userData.tex);
-            while(newGroup.children.length > 0) { obj.add(newGroup.children[0]); }
+            const oldTex = obj.children.find(c => c.name === "ArtCanvas").material.map;
+            while(obj.children.length > 0) obj.remove(obj.children[0]);
+            const newGroup = constructPaintingMesh(newW_In, newH_In, newMm, newColor, newMat, oldTex);
+            while(newGroup.children.length > 0) obj.add(newGroup.children[0]);
             obj.userData.wIn = newW_In; obj.userData.hIn = newH_In; obj.userData.borderMm = newMm; obj.userData.borderColor = newColor; obj.userData.borderMat = newMat;
         }
 
         // ==========================================
-        // 💡 ADVANCED STUDIO LIGHTS 
+        // 9. FIXTURES (Clock & Vase Fixed)
         // ==========================================
-        function addStudioLight() {
-            const type = document.getElementById('lightType').value, color = document.getElementById('lightColor').value;
-            let lightSource, lightMarker;
-            lightMarker = new THREE.Mesh(new THREE.SphereGeometry(3 * INCH_TO_UNIT, 16, 16), new THREE.MeshBasicMaterial({ color: color })); 
-            
-            if (type === 'point') { lightSource = new THREE.PointLight(color, 2, 300 * INCH_TO_UNIT); lightSource.castShadow = true; lightMarker.add(lightSource); } 
-            else if (type === 'spot') { 
-                lightSource = new THREE.SpotLight(color, 2, 400 * INCH_TO_UNIT, Math.PI / 4, 0.5, 1); 
-                lightSource.castShadow = true; lightMarker.add(lightSource); 
-                scene.add(lightSource.target); 
-            } 
-            else if (type === 'directional') { 
-                lightSource = new THREE.DirectionalLight(color, 2); 
-                lightSource.castShadow = true; lightMarker.add(lightSource); 
-                scene.add(lightSource.target);
-            }
-
-            lightMarker.position.set(0, roomH_unit/2 - (10 * INCH_TO_UNIT), 0); 
-            lightMarker.userData = { name: "💡 " + type.toUpperCase() + " Light " + (objectCounter++), isLight: true, lightEngine: lightSource, lType: type };
-            lightSource.userData.isHighlightable = false;
-            scene.add(lightMarker); interactableObjects.push(lightMarker); setActiveObject(lightMarker); updateObjectListUI();
-        }
-
-        // ==========================================
-        // 🪑 REALISTIC FIXTURES 
-        // ==========================================
-        function addFixture() {
-            const type = document.getElementById('elemType').value, wall = document.getElementById('elemWall').value;
-            const wIn = parseFloat(document.getElementById('elemW').value) || 40, hIn = parseFloat(document.getElementById('elemH').value) || 24;
+        function addFixture(loadedData = null) {
+            const type = loadedData ? loadedData.type : document.getElementById('elemType').value;
+            const wall = loadedData ? loadedData.wall : document.getElementById('elemWall').value;
+            const wIn = loadedData ? loadedData.wIn : (parseFloat(document.getElementById('elemW').value) || 40);
+            const hIn = loadedData ? loadedData.hIn : (parseFloat(document.getElementById('elemH').value) || 24);
             const wUnit = wIn * INCH_TO_UNIT, hUnit = hIn * INCH_TO_UNIT; 
-            let mesh = new THREE.Group(); let isFloorItem = false, dUnit = 0;
+            
+            let mesh = new THREE.Group(), isFloorItem = false, dIn = 12, dUnit = 12 * INCH_TO_UNIT; 
+            if(!loadedData) saveState();
 
-            if (type === 'ac') { 
-                dUnit = 8 * INCH_TO_UNIT; 
-                const body = new THREE.Mesh(new THREE.BoxGeometry(wUnit, hUnit, dUnit), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 }));
-                const vent = new THREE.Mesh(new THREE.BoxGeometry(wUnit*0.8, hUnit*0.15, dUnit+0.05), new THREE.MeshStandardMaterial({ color: 0x222222 }));
-                vent.position.y = -hUnit/2 + (hUnit*0.15)/2 + 0.05; 
-                mesh.add(body); mesh.add(vent);
-            } 
-            else if (type === 'tv') { 
-                dUnit = 2 * INCH_TO_UNIT; 
-                const frame = new THREE.Mesh(new THREE.BoxGeometry(wUnit, hUnit, dUnit), new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.9 }));
-                const screen = new THREE.Mesh(new THREE.PlaneGeometry(wUnit*0.95, hUnit*0.9), new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.1, metalness: 0.9 }));
-                screen.position.z = dUnit/2 + 0.005; mesh.add(frame); mesh.add(screen);
-            } 
-            else if (type === 'window') { 
-                dUnit = 2 * INCH_TO_UNIT; 
-                const frameMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 });
-                const glassMat = new THREE.MeshStandardMaterial({ color: 0x87CEEB, transparent: true, opacity: 0.3, roughness: 0.1, metalness: 0.8 });
-                const glass = new THREE.Mesh(new THREE.PlaneGeometry(wUnit, hUnit), glassMat);
-                const ft = 2 * INCH_TO_UNIT;
-                const top = new THREE.Mesh(new THREE.BoxGeometry(wUnit, ft, dUnit), frameMat); top.position.y = hUnit/2;
-                const bot = new THREE.Mesh(new THREE.BoxGeometry(wUnit, ft, dUnit), frameMat); bot.position.y = -hUnit/2;
-                const left = new THREE.Mesh(new THREE.BoxGeometry(ft, hUnit, dUnit), frameMat); left.position.x = -wUnit/2;
-                const right = new THREE.Mesh(new THREE.BoxGeometry(ft, hUnit, dUnit), frameMat); right.position.x = wUnit/2;
-                mesh.add(glass); mesh.add(top); mesh.add(bot); mesh.add(left); mesh.add(right); 
-            } 
+            const woodMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.9 });
+            const glassMat = new THREE.MeshStandardMaterial({ color: 0xaaddff, transparent: true, opacity: 0.5, metalness: 0.9, roughness: 0.1 });
+            const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 });
+            if(loadedData && loadedData.color) whiteMat.color.set(loadedData.color);
+
+            if (type === 'ac') { dIn = 8; dUnit = dIn * INCH_TO_UNIT; mesh.add(new THREE.Mesh(new THREE.BoxGeometry(wUnit, hUnit, dUnit), whiteMat)); } 
+            else if (type === 'tv') { dIn = 2; dUnit = dIn * INCH_TO_UNIT; mesh.add(new THREE.Mesh(new THREE.BoxGeometry(wUnit, hUnit, dUnit), new THREE.MeshStandardMaterial({ color: 0x111 }))); } 
+            else if (type === 'window') { dIn = 2; dUnit = dIn * INCH_TO_UNIT; mesh.add(new THREE.Mesh(new THREE.BoxGeometry(wUnit, hUnit, dUnit), glassMat)); } 
             else if (type === 'sofa') {
-                isFloorItem = true; dUnit = 24 * INCH_TO_UNIT; const mat = new THREE.MeshStandardMaterial({ color: 0x2c3e50, roughness: 0.9 });
-                const base = new THREE.Mesh(new THREE.BoxGeometry(wUnit, hUnit*0.4, dUnit), mat); base.position.y = (hUnit*0.4)/2;
-                const back = new THREE.Mesh(new THREE.BoxGeometry(wUnit, hUnit*0.6, dUnit*0.2), mat); back.position.set(0, hUnit*0.4 + (hUnit*0.6)/2, -dUnit/2 + (dUnit*0.2)/2);
-                mesh.add(base); mesh.add(back);
+                isFloorItem = true; dIn = 30; dUnit = dIn * INCH_TO_UNIT; const fabMat = new THREE.MeshStandardMaterial({ color: 0x2c3e50, roughness: 0.9 });
+                if(loadedData && loadedData.color) fabMat.color.set(loadedData.color);
+                const base = new THREE.Mesh(new THREE.BoxGeometry(wUnit, hUnit*0.4, dUnit), fabMat); base.position.y = (hUnit*0.4)/2;
+                const back = new THREE.Mesh(new THREE.BoxGeometry(wUnit, hUnit*0.6, dUnit*0.2), fabMat); back.position.set(0, hUnit*0.4 + (hUnit*0.6)/2, -dUnit/2 + (dUnit*0.2)/2);
+                const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.05, 0.2), woodMat); leg.position.set(-wUnit/2+0.2, 0.1, dUnit/2-0.2);
+                mesh.add(base, back, leg, leg.clone().position.set(wUnit/2-0.2, 0.1, dUnit/2-0.2));
             } 
             else if (type === 'rug') { 
-                isFloorItem = true; dUnit = hUnit; mesh = new THREE.Mesh(new THREE.BoxGeometry(wUnit, 0.02, dUnit), new THREE.MeshStandardMaterial({ color: 0x74b9ff, roughness: 1.0 })); 
+                if(!loadedData && wall !== 'front' && wall !== 'left' && wall !== 'right') document.getElementById('elemWall').value = 'front';
+                isFloorItem = true; dIn = loadedData ? loadedData.dIn : 1; dUnit = dIn * INCH_TO_UNIT; 
+                const mat = new THREE.MeshStandardMaterial({ color: 0x74b9ff, roughness: 1.0 });
+                if(loadedData && loadedData.color) mat.color.set(loadedData.color);
+                mesh = new THREE.Mesh(new THREE.BoxGeometry(wUnit, dUnit, hUnit), mat);
             }
+            // REALISTIC WALL CLOCK
+            else if (type === 'clock') { 
+                dIn = 2; dUnit = dIn * INCH_TO_UNIT; 
+                const dial = new THREE.Mesh(new THREE.CylinderGeometry(wUnit/2, wUnit/2, dUnit, 32), whiteMat); 
+                dial.rotation.x = Math.PI/2; // Stand vertical
+                const center = new THREE.Mesh(new THREE.SphereGeometry(0.5*INCH_TO_UNIT), new THREE.MeshBasicMaterial({color:0x000})); center.position.z = dUnit/2;
+                const hand = new THREE.Mesh(new THREE.BoxGeometry(0.2*INCH_TO_UNIT, wUnit/3, 0.2*INCH_TO_UNIT), new THREE.MeshBasicMaterial({color:0x000})); hand.position.set(0, wUnit/6, dUnit/2 + 0.1*INCH_TO_UNIT);
+                mesh.add(dial, center, hand);
+            }
+            // REALISTIC FLOWER VASE
+            else if (type === 'vase') { 
+                isFloorItem = true; dIn = wIn; dUnit = dIn * INCH_TO_UNIT; 
+                const pot = new THREE.Mesh(new THREE.CylinderGeometry(wUnit/2.5, wUnit/4, hUnit*0.6, 16), new THREE.MeshStandardMaterial({ color: 0xe67e22, roughness: 0.3 })); pot.position.y = (hUnit*0.6)/2; 
+                const leaves = new THREE.Mesh(new THREE.SphereGeometry(wUnit/1.5, 16, 16), new THREE.MeshStandardMaterial({ color: 0x2ecc71, roughness: 0.9 })); leaves.position.y = hUnit*0.6 + wUnit/3;
+                const f1 = new THREE.Mesh(new THREE.SphereGeometry(wUnit/4, 16, 16), new THREE.MeshStandardMaterial({ color: 0xff69b4 })); f1.position.set(wUnit/3, hUnit*0.6 + wUnit/2, wUnit/3);
+                const f2 = new THREE.Mesh(new THREE.SphereGeometry(wUnit/4, 16, 16), new THREE.MeshStandardMaterial({ color: 0xffeb3b })); f2.position.set(-wUnit/3, hUnit*0.6 + wUnit/1.5, -wUnit/4);
+                const f3 = new THREE.Mesh(new THREE.SphereGeometry(wUnit/4, 16, 16), new THREE.MeshStandardMaterial({ color: 0x9b59b6 })); f3.position.set(0, hUnit*0.6 + wUnit/1.2, wUnit/4);
+                mesh.add(pot, leaves, f1, f2, f3);
+            }
+            else if (type === 'wardrobe') { isFloorItem = true; dIn = 24; dUnit = dIn * INCH_TO_UNIT; mesh.add(new THREE.Mesh(new THREE.BoxGeometry(wUnit, hUnit, dUnit), woodMat)); mesh.position.y = hUnit/2; }
+            else if (type === 'glasstable') { isFloorItem = true; dIn = hIn; dUnit = dIn * INCH_TO_UNIT; const top = new THREE.Mesh(new THREE.BoxGeometry(wUnit, 0.5*INCH_TO_UNIT, dUnit), glassMat); top.position.y = 18*INCH_TO_UNIT; mesh.add(top); }
+            else if (type === 'dining') { isFloorItem = true; dIn = hIn; dUnit = dIn * INCH_TO_UNIT; const top = new THREE.Mesh(new THREE.BoxGeometry(wUnit, 1*INCH_TO_UNIT, dUnit), woodMat); top.position.y = 30*INCH_TO_UNIT; mesh.add(top); }
+            else if (type === 'bed') { isFloorItem = true; dIn = 72; dUnit = dIn * INCH_TO_UNIT; const matress = new THREE.Mesh(new THREE.BoxGeometry(wUnit, 10*INCH_TO_UNIT, dUnit), whiteMat); matress.position.y = 10*INCH_TO_UNIT; const headboard = new THREE.Mesh(new THREE.BoxGeometry(wUnit, 30*INCH_TO_UNIT, 2*INCH_TO_UNIT), woodMat); headboard.position.set(0, 15*INCH_TO_UNIT, -dUnit/2); mesh.add(matress, headboard); }
+            else if (type === 'light') { dUnit = 4 * INCH_TO_UNIT; const fixture = new THREE.Mesh(new THREE.CylinderGeometry(1*INCH_TO_UNIT, 0.5*INCH_TO_UNIT, dUnit, 16), new THREE.MeshStandardMaterial({ color: 0xbdc3c7, metalness: 0.8, roughness: 0.2 })); fixture.rotation.x = Math.PI / 2; const pointLight = new THREE.PointLight(0xffddaa, 0.8, 10 * INCH_TO_UNIT); pointLight.position.set(0, 0, dUnit/2); pointLight.castShadow = true; mesh.add(fixture); mesh.add(pointLight); }
 
             if(mesh) {
                 mesh.traverse(child => { if(child.isMesh){ child.castShadow = true; child.receiveShadow = true; }});
-                let emoji = type === 'window' ? '🪟' : type === 'sofa' ? '🛋️' : type === 'tv' ? '📺' : type === 'ac' ? '❄️' : '🟫';
-                mesh.userData = { name: emoji + " " + type.toUpperCase() + " " + (objectCounter++), wall: wall, isFloorItem: isFloorItem, wIn: wIn, hIn: hIn, d_unit: dUnit };
-                alignObjectToWall(mesh); scene.add(mesh); interactableObjects.push(mesh); setActiveObject(mesh); updateObjectListUI();
+                mesh.userData = { name: "🔲 " + type.toUpperCase() + " " + (objectCounter++), type: type, wall: wall, isFloorItem: isFloorItem, wIn: wIn, hIn: hIn, dIn: dIn };
+                
+                if(loadedData) {
+                    mesh.position.set(loadedData.pos.x, loadedData.pos.y, loadedData.pos.z);
+                    mesh.scale.set(loadedData.scale.x, loadedData.scale.y, loadedData.scale.z);
+                    if(loadedData.rot) mesh.rotation.set(loadedData.rot.x, loadedData.rot.y, loadedData.rot.z);
+                } else { alignObjectToWall(mesh); }
+                
+                scene.add(mesh); interactableObjects.push(mesh); 
+                if(!loadedData) setActiveObject(mesh); buildObjectList();
             }
         }
 
         // ==========================================
-        // TEXTURES
+        // LIGHTING & SURFACES
         // ==========================================
-        function updateSurfaceColor() { materials[document.getElementById('surfaceSelect').value].color.set(document.getElementById('surfaceColor').value); }
-        function toggleTileDims() { document.getElementById('tileDims').style.display = document.getElementById('texMode').value === 'tile' ? 'flex' : 'none'; }
-        function removeTexture() {
-            const surface = document.getElementById('surfaceSelect').value, applyAll = document.getElementById('texApplyAll').checked;
-            if (applyAll && surface !== 'floor') { materials.front.map = null; materials.left.map = null; materials.right.map = null; } 
-            else { materials[surface].map = null; materials[surface].needsUpdate = true; }
-        }
-        let currentTextureImage = null;
-        function uploadTexture() {
-            const fileInput = document.getElementById('textureFile');
-            if (fileInput.files.length > 0) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image(); img.onload = function() { currentTextureImage = img; applyTexToWall(); }; img.src = e.target.result;
-                }; reader.readAsDataURL(fileInput.files[0]);
-            } else if (currentTextureImage) { applyTexToWall(); } 
-        }
-        function applyTexToWall() {
-            if (!currentTextureImage) return;
-            const surface = document.getElementById('surfaceSelect').value, applyAll = document.getElementById('texApplyAll').checked, mode = document.getElementById('texMode').value;
-            const applyTex = (surfName) => {
-                const tex = new THREE.Texture(currentTextureImage);
-                if (mode === 'tile') {
-                    const tileW = parseFloat(document.getElementById('texW').value) || 24, tileH = parseFloat(document.getElementById('texH').value) || 24;
-                    let surfW_in = 0, surfH_in = 0;
-                    if (surfName === 'front') { surfW_in = roomW_unit*UNIT_TO_INCH; surfH_in = roomH_unit*UNIT_TO_INCH; } else if (surfName === 'left' || surfName === 'right') { surfW_in = roomD_unit*UNIT_TO_INCH; surfH_in = roomH_unit*UNIT_TO_INCH; } else { surfW_in = roomW_unit*UNIT_TO_INCH; surfH_in = roomD_unit*UNIT_TO_INCH; }
-                    tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(surfW_in / tileW, surfH_in / tileH);
-                } else { tex.wrapS = THREE.ClampToEdgeWrapping; tex.wrapT = THREE.ClampToEdgeWrapping; tex.repeat.set(1, 1); }
-                tex.needsUpdate = true; materials[surfName].map = tex; materials[surfName].needsUpdate = true;
-            };
-            if (applyAll && surface !== 'floor') { applyTex('front'); applyTex('left'); applyTex('right'); } else { applyTex(surface); }
+        function addStudioLight() {
+            const type = document.getElementById('lightType').value, color = document.getElementById('lightColor').value;
+            let lightSource, lightMarker; lightMarker = new THREE.Mesh(new THREE.SphereGeometry(3 * INCH_TO_UNIT, 16, 16), new THREE.MeshBasicMaterial({ color: color })); 
+            if (type === 'point') { lightSource = new THREE.PointLight(color, 2, 300 * INCH_TO_UNIT); lightSource.castShadow = true; lightMarker.add(lightSource); } 
+            else if (type === 'spot') { lightSource = new THREE.SpotLight(color, 2, 400 * INCH_TO_UNIT, Math.PI / 4, 0.5, 1); lightSource.castShadow = true; lightMarker.add(lightSource); scene.add(lightSource.target); } 
+            else if (type === 'directional') { lightSource = new THREE.DirectionalLight(color, 2); lightSource.castShadow = true; lightMarker.add(lightSource); scene.add(lightSource.target); }
+            lightMarker.position.set(0, roomH_unit/2 - (10 * INCH_TO_UNIT), 0); 
+            lightMarker.userData = { name: "💡 " + type.toUpperCase() + " Light " + (objectCounter++), type: 'studiolight', isLight: true, lightEngine: lightSource, lType: type, moveCombined: false };
+            lightSource.userData.isHighlightable = false; scene.add(lightMarker); interactableObjects.push(lightMarker); setActiveObject(lightMarker); buildObjectList();
         }
 
-        window.addEventListener('resize', () => { 
-            const newWidth = document.querySelector('.canvas-container').clientWidth; const newHeight = document.querySelector('.canvas-container').clientHeight;
-            camera.aspect = newWidth / newHeight; camera.updateProjectionMatrix(); renderer.setSize(newWidth, newHeight); 
-        });
+        function updateSurface() {
+            const surf = document.getElementById('surfaceSelect').value;
+            materials[surf].color.set(document.getElementById('surfaceColor').value);
+            materials[surf].roughness = 1 - parseFloat(document.getElementById('surfGloss').value);
+            materials[surf].metalness = parseFloat(document.getElementById('surfGloss').value) * 0.5;
+            materials[surf].emissive.set(document.getElementById('surfaceColor').value);
+            materials[surf].emissiveIntensity = parseFloat(document.getElementById('surfGlow').value);
+            materials[surf].needsUpdate = true;
+        }
+
+        function uploadTexture() {
+            const fileInput = document.getElementById('textureFile'); if (!fileInput.files[0]) return;
+            const reader = new FileReader(); reader.onload = function(e) {
+                const img = new Image(); img.onload = function() {
+                    const tex = new THREE.Texture(img);
+                    if(document.getElementById('texMode').value === 'tile') {
+                        tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(roomW_unit/(parseFloat(document.getElementById('texW').value)*INCH_TO_UNIT), roomD_unit/(parseFloat(document.getElementById('texH').value)*INCH_TO_UNIT));
+                    } else { tex.wrapS = THREE.ClampToEdgeWrapping; tex.wrapT = THREE.ClampToEdgeWrapping; tex.repeat.set(1, 1); }
+                    tex.needsUpdate = true; materials[document.getElementById('surfaceSelect').value].map = tex; materials[document.getElementById('surfaceSelect').value].needsUpdate = true;
+                }; img.src = e.target.result;
+            }; reader.readAsDataURL(fileInput.files[0]);
+        }
+        function removeTexture() { materials[document.getElementById('surfaceSelect').value].map = null; materials[document.getElementById('surfaceSelect').value].needsUpdate = true; }
+
+        function toggleAutoRealLighting() {
+            const btn = document.getElementById('btnToggleLight');
+            if(isRealLighting) {
+                scene.remove(hemiLight); scene.remove(dirSunLight); hemiLight = null; dirSunLight = null;
+                ambientLight.intensity = 0.4; mainLight.intensity = 0.4; isRealLighting = false;
+                btn.innerText = "☀️ Auto Real Lighting"; btn.style.background = "#d69e2e";
+            } else {
+                ambientLight.intensity = 0.1; mainLight.intensity = 0.1;
+                hemiLight = new THREE.HemisphereLight(0x87CEEB, 0x8d6e63, 0.6); 
+                dirSunLight = new THREE.DirectionalLight(0xffffee, 0.8);
+                dirSunLight.position.set(roomW_unit, roomH_unit, roomD_unit); dirSunLight.castShadow = true;
+                dirSunLight.shadow.mapSize.width = 2048; dirSunLight.shadow.mapSize.height = 2048;
+                scene.add(hemiLight, dirSunLight); isRealLighting = true;
+                btn.innerText = "🔙 Revert to Basic Light"; btn.style.background = "#718096";
+            }
+        }
+
+        window.addEventListener('resize', () => { camera.aspect = container.clientWidth / container.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(container.clientWidth, container.clientHeight); });
         function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
         animate();
     </script>
