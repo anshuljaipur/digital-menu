@@ -8,7 +8,7 @@ let selectedPainting = null;
 let activePainting = null;   
 let dragOffset = { x: 0, y: 0 };
 
-// Constant scale factor: 1 Inch = 5 Pixels constant mapping.
+// Constant scale factor: 1 Inch = 5 Pixels constant mapping.asdd
 // Wall dimension adjustments will make absolutely NO impact on layout scales.
 const FIXED_PPI = 5; 
 
