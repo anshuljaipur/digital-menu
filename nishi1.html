@@ -2,69 +2,115 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Fixed Scale Art Staging Studio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Complete Art Stager</title>
     <style>
-        body { font-family: sans-serif; background-color: #f4f4f6; margin: 20px; display: flex; flex-direction: column; align-items: center; }
-        #controls { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; gap: 20px; width: 1080px; justify-content: space-between; align-items: center; box-sizing: border-box; }
-        #main-container { display: flex; gap: 20px; }
-        #customizer { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); width: 280px; display: flex; flex-direction: column; gap: 15px; }
-        .control-group { display: flex; flex-direction: column; gap: 5px; }
-        label { font-size: 11px; font-weight: bold; color: #444; text-transform: uppercase; letter-spacing: 0.5px; }
-        input[type="number"], input[type="range"], select { padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
-        .slider-val { font-size: 12px; color: #666; font-weight: bold; margin-top: 2px; }
-        canvas { border: 1px solid #ccc; background-color: #fff; box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
-        .disabled { opacity: 0.4; pointer-events: none; }
-canvas { 
-    border: 1px solid #ccc; 
-    background-color: #fff; 
-    box-shadow: 0 12px 24px rgba(0,0,0,0.1); 
-    /* Add these two lines for mobile: */
-    touch-action: none; 
-    user-select: none; 
-}
+        /* Base & Mobile-First Styles */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: #f4f4f6; 
+            margin: 0; 
+            padding: 10px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+        
+        .panel { 
+            background: white; 
+            padding: 15px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08); 
+            width: 100%; 
+            max-width: 850px; 
+            box-sizing: border-box; 
+            margin-bottom: 15px;
+        }
+
+        #main-container { 
+            display: flex; 
+            flex-direction: column; /* Stacks vertically on mobile */
+            gap: 15px; 
+            width: 100%; 
+            max-width: 850px; 
+        }
+
+        /* Large Touch Targets for Easy Tapping */
+        label { font-size: 13px; font-weight: bold; color: #444; display: block; margin-bottom: 5px; }
+        .val-readout { font-weight: normal; color: #007bff; }
+        
+        input[type="number"], select, input[type="file"] { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ccc; 
+            border-radius: 8px; 
+            font-size: 16px; /* Prevents iOS zoom */
+            box-sizing: border-box;
+        }
+        
+        input[type="range"] { width: 100%; margin: 10px 0; }
+        .control-group { margin-bottom: 15px; }
+        
+        .btn { 
+            background: #ef4444; color: white; border: none; 
+            padding: 15px; border-radius: 8px; cursor: pointer; 
+            font-weight: bold; width: 100%; font-size: 16px; 
+        }
+        
+        /* Responsive Canvas Settings */
+        canvas { 
+            border: 1px solid #ccc; 
+            background-color: #fff; 
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1); 
+            width: 100%; /* Scales dynamically to screen size */
+            height: auto; 
+            touch-action: none; /* Stops screen from scrolling when dragging art */
+            user-select: none; 
+            border-radius: 8px;
+        }
+
+        .disabled { display: none; }
+
+        /* Desktop Layout Overrides */
+        @media (min-width: 768px) {
+            #main-container { flex-direction: row; align-items: flex-start; }
+            canvas { width: 600px; height: 450px; }
+            #customizer { width: 320px; flex-shrink: 0; }
+            .top-controls-wrapper { display: flex; gap: 20px; }
+            .top-controls-wrapper .control-group { flex: 1; margin-bottom: 0; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="controls">
-        <div class="control-group">
-            <label>1. Select Room Background</label>
-            <input type="file" id="bgUpload" accept="image/*">
-        </div>
-        
-        <div style="display: flex; gap: 10px;">
+    <div class="panel">
+        <div class="top-controls-wrapper">
             <div class="control-group">
-                <label>Wall Width (Inches - Meta Only)</label>
-                <input type="number" id="wallWidthInches" value="160">
+                <label>1. Select Room Background</label>
+                <input type="file" id="bgUpload" accept="image/*">
             </div>
             <div class="control-group">
-                <label>Wall Height (Inches - Meta Only)</label>
-                <input type="number" id="wallHeightInches" value="120">
+                <label>2. Upload Custom Artwork</label>
+                <input type="file" id="artUpload" accept="image/*">
             </div>
-        </div>
-
-        <div class="control-group" style="border-left: 2px solid #eee; padding-left: 20px;">
-            <label>2. Upload Custom Artwork Asset</label>
-            <input type="file" id="artUpload" accept="image/*">
         </div>
     </div>
 
     <div id="main-container">
+        
         <canvas id="stageCanvas" width="800" height="600"></canvas>
 
-        <div id="customizer" class="disabled">
-            <h3 style="margin: 0 0 5px 0; color: #2563eb; font-size: 16px;">Customize Artwork</h3>
+        <div id="customizer" class="panel disabled">
+            <h3 style="margin: 0 0 15px 0; color: #2563eb; font-size: 18px;">Customize Selection</h3>
             
             <div class="control-group">
-                <label>Artwork Width</label>
+                <label>Width: <span class="val-readout" id="artWidthVal">36</span> in</label>
                 <input type="range" id="artWidthSlider" min="10" max="80" step="1" value="36">
-                <span id="artWidthVal" class="slider-val">36 inches</span>
             </div>
 
             <div class="control-group">
-                <label>Artwork Height</label>
+                <label>Height: <span class="val-readout" id="artHeightVal">24</span> in</label>
                 <input type="range" id="artHeightSlider" min="10" max="80" step="1" value="24">
-                <span id="artHeightVal" class="slider-val">24 inches</span>
             </div>
 
             <div class="control-group">
@@ -74,24 +120,260 @@ canvas {
                     <option value="#222222">Charcoal Black</option>
                     <option value="#e6c280">Gilded Gold</option>
                     <option value="#f1e4c3">Natural Maple</option>
+                    <option value="#ffffff">Minimalist White</option>
                 </select>
             </div>
 
             <div class="control-group">
-                <label>Frame Border Width</label>
-                <input type="range" id="frameWidthInches" min="0.5" max="4" step="0.25" value="1.5">
-                <span id="frameWidthVal" class="slider-val">1.5 inches</span>
+                <label>Frame Thickness: <span class="val-readout" id="frameWidthVal">1.5</span> in</label>
+                <input type="range" id="frameWidthSlider" min="0.5" max="4" step="0.25" value="1.5">
             </div>
 
             <div class="control-group">
-                <label>Ambient Exposure (Brightness)</label>
-                <input type="range" id="artBrightness" min="60" max="140" value="100">
+                <label>Match Room Lighting (Brightness)</label>
+                <input type="range" id="artBrightnessSlider" min="50" max="150" value="100">
             </div>
-            
-            <button id="deleteArt" style="background: #ef4444; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px;">Remove Art Piece</button>
+
+            <button id="deleteArt" class="btn">Remove Art Piece</button>
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script>
+        const canvas = document.getElementById('stageCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let roomImage = new Image();
+        let paintings = [];          
+        let selectedPainting = null; 
+        let activePainting = null;   
+        let dragOffset = { x: 0, y: 0 };
+        
+        // Fixed scale: 1 inch = 4 pixels on the canvas
+        const FIXED_PPI = 4; 
+
+        // Load Default Background
+        roomImage.src = 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800&auto=format&fit=crop';
+        roomImage.onload = drawCanvas;
+
+        // Background Upload
+        document.getElementById('bgUpload').addEventListener('change', e => {
+            if (e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = event => { roomImage.src = event.target.result; };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+
+        // Art Upload & Instantiation
+        document.getElementById('artUpload').addEventListener('change', e => {
+            if (e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = event => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const defaultW = 36;
+                        const defaultH = Math.round(defaultW * (img.height / img.width));
+                        const item = {
+                            img: img, 
+                            realInchesW: defaultW, 
+                            realInchesH: defaultH,
+                            width: defaultW * FIXED_PPI, 
+                            height: defaultH * FIXED_PPI,
+                            x: canvas.width / 2 - (defaultW * FIXED_PPI / 2),
+                            y: canvas.height / 2 - (defaultH * FIXED_PPI / 2),
+                            frameColor: 'none', 
+                            frameWidthInches: 1.5,
+                            brightness: 100 // Restored property
+                        };
+                        paintings.push(item);
+                        setActivePainting(item);
+                        e.target.value = ''; 
+                    };
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+
+        // Sync Sidebar UI with Selected Art
+        function setActivePainting(art) {
+            activePainting = art;
+            const panel = document.getElementById('customizer');
+            if (!art) {
+                panel.classList.add('disabled');
+            } else {
+                panel.classList.remove('disabled');
+                
+                // Update UI values
+                document.getElementById('artWidthSlider').value = art.realInchesW;
+                document.getElementById('artWidthVal').innerText = art.realInchesW;
+                document.getElementById('artHeightSlider').value = art.realInchesH;
+                document.getElementById('artHeightVal').innerText = art.realInchesH;
+                document.getElementById('frameColor').value = art.frameColor;
+                document.getElementById('frameWidthSlider').value = art.frameWidthInches;
+                document.getElementById('frameWidthVal').innerText = art.frameWidthInches;
+                document.getElementById('artBrightnessSlider').value = art.brightness;
+                
+                // Mobile: Scroll to editor automatically
+                if (window.innerWidth < 768) {
+                    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+            drawCanvas();
+        }
+
+        // --- All Customization Event Listeners ---
+        document.getElementById('artWidthSlider').addEventListener('input', e => {
+            if (activePainting) {
+                activePainting.realInchesW = parseInt(e.target.value);
+                document.getElementById('artWidthVal').innerText = activePainting.realInchesW;
+                activePainting.width = activePainting.realInchesW * FIXED_PPI;
+                drawCanvas();
+            }
+        });
+
+        document.getElementById('artHeightSlider').addEventListener('input', e => {
+            if (activePainting) {
+                activePainting.realInchesH = parseInt(e.target.value);
+                document.getElementById('artHeightVal').innerText = activePainting.realInchesH;
+                activePainting.height = activePainting.realInchesH * FIXED_PPI;
+                drawCanvas();
+            }
+        });
+
+        document.getElementById('frameColor').addEventListener('change', e => { 
+            if(activePainting) { activePainting.frameColor = e.target.value; drawCanvas(); } 
+        });
+
+        // Restored Listeners
+        document.getElementById('frameWidthSlider').addEventListener('input', e => {
+            if(activePainting) {
+                activePainting.frameWidthInches = parseFloat(e.target.value);
+                document.getElementById('frameWidthVal').innerText = activePainting.frameWidthInches;
+                drawCanvas();
+            }
+        });
+
+        document.getElementById('artBrightnessSlider').addEventListener('input', e => {
+            if(activePainting) {
+                activePainting.brightness = parseInt(e.target.value);
+                drawCanvas();
+            }
+        });
+
+        document.getElementById('deleteArt').addEventListener('click', () => { 
+            if(activePainting) { paintings = paintings.filter(p => p !== activePainting); setActivePainting(null); } 
+        });
+
+        // --- Rendering Engine ---
+        function drawCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(roomImage, 0, 0, canvas.width, canvas.height);
+
+            paintings.forEach(art => {
+                ctx.save();
+                
+                // Frame math based on PPI
+                let framePx = art.frameColor !== 'none' ? (art.frameWidthInches * FIXED_PPI) : 0;
+                
+                if (framePx > 0) {
+                    ctx.fillStyle = art.frameColor;
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+                    ctx.shadowBlur = 18;
+                    ctx.shadowOffsetY = 8;
+                    ctx.fillRect(art.x - framePx, art.y - framePx, art.width + (framePx * 2), art.height + (framePx * 2));
+                    ctx.shadowColor = 'transparent'; 
+                } else {
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+                    ctx.shadowBlur = 12;
+                    ctx.shadowOffsetY = 6;
+                }
+
+                // Apply Brightness Filter
+                ctx.filter = `brightness(${art.brightness}%)`;
+                
+                ctx.drawImage(art.img, art.x, art.y, art.width, art.height);
+                ctx.restore(); // Clear filters/shadows
+
+                // Active Selection Highlight
+                if (art === activePainting) {
+                    ctx.strokeStyle = '#2563eb';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(art.x - framePx - 4, art.y - framePx - 4, art.width + (framePx * 2) + 8, art.height + (framePx * 2) + 8);
+                }
+            });
+        }
+
+        // --- Multi-Platform Pointer Logic ---
+        function getPointerPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            // Scaling math is essential for mobile where CSS shrinks the canvas
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            let clientX = e.clientX;
+            let clientY = e.clientY;
+
+            // Override with touch coordinates if on mobile
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            }
+
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+
+        function handlePointerDown(e) {
+            const pos = getPointerPos(e);
+            let hit = false;
+
+            // Search backwards (top layer first)
+            for (let i = paintings.length - 1; i >= 0; i--) {
+                let art = paintings[i];
+                let f = art.frameColor !== 'none' ? (art.frameWidthInches * FIXED_PPI) : 0;
+
+                if (pos.x >= art.x - f && pos.x <= art.x + art.width + f &&
+                    pos.y >= art.y - f && pos.y <= art.y + art.height + f) {
+                    
+                    selectedPainting = art;
+                    dragOffset.x = pos.x - art.x;
+                    dragOffset.y = pos.y - art.y;
+                    
+                    // Bring clicked art to front
+                    paintings.splice(i, 1);
+                    paintings.push(selectedPainting);
+                    
+                    setActivePainting(selectedPainting);
+                    hit = true;
+                    break;
+                }
+            }
+            if (!hit) setActivePainting(null);
+        }
+
+        function handlePointerMove(e) {
+            if (!selectedPainting) return;
+            e.preventDefault(); // Stop mobile screen from dragging
+
+            const pos = getPointerPos(e);
+            selectedPainting.x = pos.x - dragOffset.x;
+            selectedPainting.y = pos.y - dragOffset.y;
+            drawCanvas();
+        }
+
+        function handlePointerUp() { selectedPainting = null; }
+
+        // Event Bindings
+        canvas.addEventListener('mousedown', handlePointerDown);
+        canvas.addEventListener('mousemove', handlePointerMove);
+        window.addEventListener('mouseup', handlePointerUp);
+
+        canvas.addEventListener('touchstart', handlePointerDown, { passive: false });
+        canvas.addEventListener('touchmove', handlePointerMove, { passive: false });
+        window.addEventListener('touchend', handlePointerUp);
+    </script>
 </body>
 </html>
