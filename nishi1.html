@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fixed Scale Art Staging Studio</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f4f6; margin: 20px; display: flex; flex-direction: column; align-items: center; }
+        #controls { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; gap: 20px; width: 1080px; justify-content: space-between; align-items: center; box-sizing: border-box; }
+        #main-container { display: flex; gap: 20px; }
+        #customizer { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); width: 280px; display: flex; flex-direction: column; gap: 15px; }
+        .control-group { display: flex; flex-direction: column; gap: 5px; }
+        label { font-size: 11px; font-weight: bold; color: #444; text-transform: uppercase; letter-spacing: 0.5px; }
+        input[type="number"], input[type="range"], select { padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
+        .slider-val { font-size: 12px; color: #666; font-weight: bold; margin-top: 2px; }
+        canvas { border: 1px solid #ccc; background-color: #fff; box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+        .disabled { opacity: 0.4; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <div id="controls">
+        <div class="control-group">
+            <label>1. Select Room Background</label>
+            <input type="file" id="bgUpload" accept="image/*">
+        </div>
+        
+        <div style="display: flex; gap: 10px;">
+            <div class="control-group">
+                <label>Wall Width (Inches - Meta Only)</label>
+                <input type="number" id="wallWidthInches" value="160">
+            </div>
+            <div class="control-group">
+                <label>Wall Height (Inches - Meta Only)</label>
+                <input type="number" id="wallHeightInches" value="120">
+            </div>
+        </div>
+
+        <div class="control-group" style="border-left: 2px solid #eee; padding-left: 20px;">
+            <label>2. Upload Custom Artwork Asset</label>
+            <input type="file" id="artUpload" accept="image/*">
+        </div>
+    </div>
+
+    <div id="main-container">
+        <canvas id="stageCanvas" width="800" height="600"></canvas>
+
+        <div id="customizer" class="disabled">
+            <h3 style="margin: 0 0 5px 0; color: #2563eb; font-size: 16px;">Customize Artwork</h3>
+            
+            <div class="control-group">
+                <label>Artwork Width</label>
+                <input type="range" id="artWidthSlider" min="10" max="80" step="1" value="36">
+                <span id="artWidthVal" class="slider-val">36 inches</span>
+            </div>
+
+            <div class="control-group">
+                <label>Artwork Height</label>
+                <input type="range" id="artHeightSlider" min="10" max="80" step="1" value="24">
+                <span id="artHeightVal" class="slider-val">24 inches</span>
+            </div>
+
+            <div class="control-group">
+                <label>Frame Finish</label>
+                <select id="frameColor">
+                    <option value="none">Gallery Wrap (No Frame)</option>
+                    <option value="#222222">Charcoal Black</option>
+                    <option value="#e6c280">Gilded Gold</option>
+                    <option value="#f1e4c3">Natural Maple</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Frame Border Width</label>
+                <input type="range" id="frameWidthInches" min="0.5" max="4" step="0.25" value="1.5">
+                <span id="frameWidthVal" class="slider-val">1.5 inches</span>
+            </div>
+
+            <div class="control-group">
+                <label>Ambient Exposure (Brightness)</label>
+                <input type="range" id="artBrightness" min="60" max="140" value="100">
+            </div>
+            
+            <button id="deleteArt" style="background: #ef4444; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px;">Remove Art Piece</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
