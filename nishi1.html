@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Complete Art Stager</title>
+    <title>Complete Art Stager (With Export)</title>
     <style>
-        /* Base & Mobile-First Styles */
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
             background-color: #f4f4f6; 
@@ -29,13 +28,12 @@
 
         #main-container { 
             display: flex; 
-            flex-direction: column; /* Stacks vertically on mobile */
+            flex-direction: column; 
             gap: 15px; 
             width: 100%; 
             max-width: 850px; 
         }
 
-        /* Large Touch Targets for Easy Tapping */
         label { font-size: 13px; font-weight: bold; color: #444; display: block; margin-bottom: 5px; }
         .val-readout { font-weight: normal; color: #007bff; }
         
@@ -44,7 +42,7 @@
             padding: 12px; 
             border: 1px solid #ccc; 
             border-radius: 8px; 
-            font-size: 16px; /* Prevents iOS zoom */
+            font-size: 16px; 
             box-sizing: border-box;
         }
         
@@ -55,23 +53,26 @@
             background: #ef4444; color: white; border: none; 
             padding: 15px; border-radius: 8px; cursor: pointer; 
             font-weight: bold; width: 100%; font-size: 16px; 
+            transition: opacity 0.2s;
         }
+        .btn:active { opacity: 0.8; }
         
-        /* Responsive Canvas Settings */
+        /* New Download Button Style */
+        .btn-success { background: #10b981; margin-bottom: 15px; }
+
         canvas { 
             border: 1px solid #ccc; 
             background-color: #fff; 
             box-shadow: 0 8px 16px rgba(0,0,0,0.1); 
-            width: 100%; /* Scales dynamically to screen size */
+            width: 100%; 
             height: auto; 
-            touch-action: none; /* Stops screen from scrolling when dragging art */
+            touch-action: none; 
             user-select: none; 
             border-radius: 8px;
         }
 
         .disabled { display: none; }
 
-        /* Desktop Layout Overrides */
         @media (min-width: 768px) {
             #main-container { flex-direction: row; align-items: flex-start; }
             canvas { width: 600px; height: 450px; }
@@ -98,7 +99,10 @@
 
     <div id="main-container">
         
-        <canvas id="stageCanvas" width="800" height="600"></canvas>
+        <div>
+            <button id="downloadBtn" class="btn btn-success">💾 Download Staged Scene</button>
+            <canvas id="stageCanvas" width="800" height="600"></canvas>
+        </div>
 
         <div id="customizer" class="panel disabled">
             <h3 style="margin: 0 0 15px 0; color: #2563eb; font-size: 18px;">Customize Selection</h3>
@@ -148,14 +152,11 @@
         let activePainting = null;   
         let dragOffset = { x: 0, y: 0 };
         
-        // Fixed scale: 1 inch = 4 pixels on the canvas
         const FIXED_PPI = 4; 
-
-        // Load Default Background
+	roomImage.crossOrigin = "anonymous";
         roomImage.src = 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800&auto=format&fit=crop';
         roomImage.onload = drawCanvas;
 
-        // Background Upload
         document.getElementById('bgUpload').addEventListener('change', e => {
             if (e.target.files[0]) {
                 const reader = new FileReader();
@@ -164,7 +165,6 @@
             }
         });
 
-        // Art Upload & Instantiation
         document.getElementById('artUpload').addEventListener('change', e => {
             if (e.target.files[0]) {
                 const reader = new FileReader();
@@ -184,7 +184,7 @@
                             y: canvas.height / 2 - (defaultH * FIXED_PPI / 2),
                             frameColor: 'none', 
                             frameWidthInches: 1.5,
-                            brightness: 100 // Restored property
+                            brightness: 100 
                         };
                         paintings.push(item);
                         setActivePainting(item);
@@ -195,7 +195,35 @@
             }
         });
 
-        // Sync Sidebar UI with Selected Art
+        // --- NEW: Download Feature Logic ---
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            // 1. Save the currently selected painting
+            const previouslySelected = activePainting;
+            
+            // 2. Temporarily deselect it and redraw so the blue outline disappears
+            if (previouslySelected) {
+                activePainting = null;
+                drawCanvas();
+            }
+
+            // 3. Grab the clean image data from the canvas
+            const dataURL = canvas.toDataURL('image/png');
+
+            // 4. Create a temporary link element to trigger the download
+            const link = document.createElement('a');
+            link.download = 'staged-art-scene.png';
+            link.href = dataURL;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // 5. Restore the active selection outline so the user can keep working seamlessly
+            if (previouslySelected) {
+                activePainting = previouslySelected;
+                drawCanvas();
+            }
+        });
+
         function setActivePainting(art) {
             activePainting = art;
             const panel = document.getElementById('customizer');
@@ -203,8 +231,6 @@
                 panel.classList.add('disabled');
             } else {
                 panel.classList.remove('disabled');
-                
-                // Update UI values
                 document.getElementById('artWidthSlider').value = art.realInchesW;
                 document.getElementById('artWidthVal').innerText = art.realInchesW;
                 document.getElementById('artHeightSlider').value = art.realInchesH;
@@ -214,7 +240,6 @@
                 document.getElementById('frameWidthVal').innerText = art.frameWidthInches;
                 document.getElementById('artBrightnessSlider').value = art.brightness;
                 
-                // Mobile: Scroll to editor automatically
                 if (window.innerWidth < 768) {
                     panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }
@@ -222,7 +247,6 @@
             drawCanvas();
         }
 
-        // --- All Customization Event Listeners ---
         document.getElementById('artWidthSlider').addEventListener('input', e => {
             if (activePainting) {
                 activePainting.realInchesW = parseInt(e.target.value);
@@ -245,7 +269,6 @@
             if(activePainting) { activePainting.frameColor = e.target.value; drawCanvas(); } 
         });
 
-        // Restored Listeners
         document.getElementById('frameWidthSlider').addEventListener('input', e => {
             if(activePainting) {
                 activePainting.frameWidthInches = parseFloat(e.target.value);
@@ -265,7 +288,6 @@
             if(activePainting) { paintings = paintings.filter(p => p !== activePainting); setActivePainting(null); } 
         });
 
-        // --- Rendering Engine ---
         function drawCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(roomImage, 0, 0, canvas.width, canvas.height);
@@ -273,7 +295,6 @@
             paintings.forEach(art => {
                 ctx.save();
                 
-                // Frame math based on PPI
                 let framePx = art.frameColor !== 'none' ? (art.frameWidthInches * FIXED_PPI) : 0;
                 
                 if (framePx > 0) {
@@ -289,13 +310,10 @@
                     ctx.shadowOffsetY = 6;
                 }
 
-                // Apply Brightness Filter
                 ctx.filter = `brightness(${art.brightness}%)`;
-                
                 ctx.drawImage(art.img, art.x, art.y, art.width, art.height);
-                ctx.restore(); // Clear filters/shadows
+                ctx.restore();
 
-                // Active Selection Highlight
                 if (art === activePainting) {
                     ctx.strokeStyle = '#2563eb';
                     ctx.lineWidth = 3;
@@ -304,17 +322,14 @@
             });
         }
 
-        // --- Multi-Platform Pointer Logic ---
         function getPointerPos(e) {
             const rect = canvas.getBoundingClientRect();
-            // Scaling math is essential for mobile where CSS shrinks the canvas
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
 
             let clientX = e.clientX;
             let clientY = e.clientY;
 
-            // Override with touch coordinates if on mobile
             if (e.touches && e.touches.length > 0) {
                 clientX = e.touches[0].clientX;
                 clientY = e.touches[0].clientY;
@@ -330,7 +345,6 @@
             const pos = getPointerPos(e);
             let hit = false;
 
-            // Search backwards (top layer first)
             for (let i = paintings.length - 1; i >= 0; i--) {
                 let art = paintings[i];
                 let f = art.frameColor !== 'none' ? (art.frameWidthInches * FIXED_PPI) : 0;
@@ -342,7 +356,6 @@
                     dragOffset.x = pos.x - art.x;
                     dragOffset.y = pos.y - art.y;
                     
-                    // Bring clicked art to front
                     paintings.splice(i, 1);
                     paintings.push(selectedPainting);
                     
@@ -356,7 +369,7 @@
 
         function handlePointerMove(e) {
             if (!selectedPainting) return;
-            e.preventDefault(); // Stop mobile screen from dragging
+            e.preventDefault(); 
 
             const pos = getPointerPos(e);
             selectedPainting.x = pos.x - dragOffset.x;
@@ -366,7 +379,6 @@
 
         function handlePointerUp() { selectedPainting = null; }
 
-        // Event Bindings
         canvas.addEventListener('mousedown', handlePointerDown);
         canvas.addEventListener('mousemove', handlePointerMove);
         window.addEventListener('mouseup', handlePointerUp);
