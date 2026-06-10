@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Complete Art Stager (Always-Visible Controls)</title>
+    <title>Complete Art Stager (With Export)</title>
     <style>
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
@@ -24,7 +24,6 @@
             max-width: 850px; 
             box-sizing: border-box; 
             margin-bottom: 15px;
-            transition: opacity 0.3s ease; /* Smooth fade effect */
         }
 
         #main-container { 
@@ -58,6 +57,7 @@
         }
         .btn:active { opacity: 0.8; }
         
+        /* New Download Button Style */
         .btn-success { background: #10b981; margin-bottom: 15px; }
 
         canvas { 
@@ -71,11 +71,7 @@
             border-radius: 8px;
         }
 
-        /* THE FIX: Menu is now always visible, just greyed out and unclickable */
-        .disabled { 
-            opacity: 0.4; 
-            pointer-events: none; 
-        }
+        .disabled { display: none; }
 
         @media (min-width: 768px) {
             #main-container { flex-direction: row; align-items: flex-start; }
@@ -157,9 +153,7 @@
         let dragOffset = { x: 0, y: 0 };
         
         const FIXED_PPI = 4; 
-
-        // CrossOrigin fix to allow downloading with external images
-        roomImage.crossOrigin = "anonymous";
+	roomImage.crossOrigin = "anonymous";
         roomImage.src = 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800&auto=format&fit=crop';
         roomImage.onload = drawCanvas;
 
@@ -201,16 +195,21 @@
             }
         });
 
+        // --- NEW: Download Feature Logic ---
         document.getElementById('downloadBtn').addEventListener('click', () => {
+            // 1. Save the currently selected painting
             const previouslySelected = activePainting;
             
+            // 2. Temporarily deselect it and redraw so the blue outline disappears
             if (previouslySelected) {
                 activePainting = null;
                 drawCanvas();
             }
 
+            // 3. Grab the clean image data from the canvas
             const dataURL = canvas.toDataURL('image/png');
 
+            // 4. Create a temporary link element to trigger the download
             const link = document.createElement('a');
             link.download = 'staged-art-scene.png';
             link.href = dataURL;
@@ -218,6 +217,7 @@
             link.click();
             document.body.removeChild(link);
 
+            // 5. Restore the active selection outline so the user can keep working seamlessly
             if (previouslySelected) {
                 activePainting = previouslySelected;
                 drawCanvas();
@@ -240,10 +240,6 @@
                 document.getElementById('frameWidthSlider').value = art.frameWidthInches;
                 document.getElementById('frameWidthVal').innerText = art.frameWidthInches;
                 document.getElementById('artBrightnessSlider').value = art.brightness;
-                
-                if (window.innerWidth < 768) {
-                    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
             }
             drawCanvas();
         }
