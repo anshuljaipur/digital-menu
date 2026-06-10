@@ -170,25 +170,39 @@ function drawCanvas() {
     });
 }
 
-// --- Interaction Input Target Layer Selection Bound Math ---
-canvas.addEventListener('mousedown', function(e) {
+// --- Helper function to extract coordinates from both Mouse and Touch ---
+function getPointerPos(e) {
     const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    
+    // Check if the event has touch points; if so, use the first finger's coordinates
+    const clientX = e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches && e.touches.length > 0 ? e.touches[0].clientY : e.clientY;
+    
+    return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+    };
+}
+
+// --- Unified Interaction Logic ---
+function handlePointerDown(e) {
+    const pos = getPointerPos(e);
     let hitDetected = false;
 
+    // Search backwards to click the top-most layer
     for (let i = paintings.length - 1; i >= 0; i--) {
         let art = paintings[i];
         const framePx = art.frameColor !== 'none' ? art.frameWidthInches * FIXED_PPI : 0;
 
         if (
-            mouseX >= art.x - framePx && mouseX <= art.x + art.width + framePx &&
-            mouseY >= art.y - framePx && mouseY <= art.y + art.height + framePx
+            pos.x >= art.x - framePx && pos.x <= art.x + art.width + framePx &&
+            pos.y >= art.y - framePx && pos.y <= art.y + art.height + framePx
         ) {
             selectedPainting = art;
-            dragOffset.x = mouseX - art.x;
-            dragOffset.y = mouseY - art.y;
+            dragOffset.x = pos.x - art.x;
+            dragOffset.y = pos.y - art.y;
 
+            // Re-layer to bring selected painting to the front
             paintings.splice(i, 1);
             paintings.push(selectedPainting);
             
@@ -197,16 +211,45 @@ canvas.addEventListener('mousedown', function(e) {
             break;
         }
     }
-    if (!hitDetected) setActivePainting(null);
-});
+    
+    // If user clicked empty wall space, deselect the current painting
+    if (!hitDetected) {
+        setActivePainting(null);
+    }
+}
 
-canvas.addEventListener('mousemove', function(e) {
+function handlePointerMove(e) {
+    // If no painting is currently grabbed, do nothing
     if (!selectedPainting) return;
-    const rect = canvas.getBoundingClientRect();
-    selectedPainting.x = e.clientX - rect.left - dragOffset.x;
-    selectedPainting.y = e.clientY - rect.top - dragOffset.y;
-    drawCanvas();
-});
+    
+    // CRITICAL FOR MOBILE: Prevent the screen from scrolling while dragging the art
+    if (e.cancelable) {
+        e.preventDefault(); 
+    }
 
-canvas.addEventListener('mouseup', () => selectedPainting = null);
-canvas.addEventListener('mouseleave', () => selectedPainting = null);
+    const pos = getPointerPos(e);
+    
+    // Update coordinates based on where the pointer is now
+    selectedPainting.x = pos.x - dragOffset.x;
+    selectedPainting.y = pos.y - dragOffset.y;
+    
+    drawCanvas();
+}
+
+function handlePointerUp() {
+    // Release the painting
+    selectedPainting = null;
+}
+
+// --- Attach Mouse Event Listeners (Desktop) ---
+canvas.addEventListener('mousedown', handlePointerDown);
+canvas.addEventListener('mousemove', handlePointerMove);
+canvas.addEventListener('mouseup', handlePointerUp);
+canvas.addEventListener('mouseleave', handlePointerUp);
+
+// --- Attach Touch Event Listeners (Mobile & Tablet) ---
+// Note: { passive: false } is required so we can call e.preventDefault() during touchmove
+canvas.addEventListener('touchstart', handlePointerDown, { passive: false });
+canvas.addEventListener('touchmove', handlePointerMove, { passive: false });
+canvas.addEventListener('touchend', handlePointerUp);
+canvas.addEventListener('touchcancel', handlePointerUp);
