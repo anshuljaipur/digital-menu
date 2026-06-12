@@ -196,6 +196,7 @@
         const isSubjectTo = document.getElementById('subjectToToggle').checked;
         if (selected.length === 0) return alert("Select records first.");
 
+        // --- EXCEL GENERATION LOGIC ---
         const b = { style: "thin", color: { rgb: "000000" } };
         const border = { top: b, bottom: b, left: b, right: b };
         const hStyle = { fill: {fgColor:{rgb:"000000"}}, font:{color:{rgb:"FFFFFF"}, bold:true}, alignment:{horizontal:"center", vertical:"center"}, border: border };
@@ -207,17 +208,70 @@
             ["S.No", "PAN NO", "DEMAT NO.", "APPLICANT NAME", "RATE", "AMOUNT"].map(h => ({ v: h, s: hStyle }))
         ];
 
+        // Prepare an array to hold the data we are sending to Google Sheets
+        const logData = [];
+        const currentDate = new Date().toLocaleString();
+
         selected.forEach((cb, idx) => {
             const i = cb.value;
+            const panVal = masterData[i].pan.toUpperCase();
+            const nameVal = masterData[i].name.toUpperCase();
+            const dematVal = document.getElementById(`d-${i}`).value;
+            const rateVal = document.getElementById(`r-${i}`).value;
+            const amountVal = document.getElementById(`a-${i}`).value;
+
+            // Add to Excel rows
             rows.push([
                 { v: idx + 1, s: cellCenter },
-                { v: masterData[i].pan.toUpperCase(), s: cellCenter },
-                { v: document.getElementById(`d-${i}`).value, s: cellLeft },
-                { v: masterData[i].name.toUpperCase(), s: cellCenter },
-                { v: document.getElementById(`r-${i}`).value, s: cellLeft },
-                { v: document.getElementById(`a-${i}`).value, s: cellLeft }
+                { v: panVal, s: cellCenter },
+                { v: dematVal, s: cellLeft },
+                { v: nameVal, s: cellCenter },
+                { v: rateVal, s: cellLeft },
+                { v: amountVal, s: cellLeft }
             ]);
+
+            // Add to Google Sheets Log Array
+            logData.push({
+                date: currentDate,
+                company: company.toUpperCase(),
+                pan: panVal,
+                name: nameVal,
+                category: masterData[i].category || 'N/A',
+                tax: masterData[i].isTax || 'No',
+                demat: dematVal,
+                rate: rateVal,
+                amount: amountVal
+            });
         });
+
+        // 1. Download the Excel File
+        const ws = XLSX.utils.aoa_to_sheet(rows);
+        ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 5 } }];
+        ws['!cols'] = [{ wch: 6 }, { wch: 18 }, { wch: 20 }, { wch: 35 }, { wch: 15 }, { wch: 15 }];
+        
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "PAN_LIST");
+        
+        let finalFileName = `${company.toUpperCase().replace(/\s+/g, '_')}_${selected.length}_PAN${isSubjectTo ? "_Subject2" : ""}.xlsx`;
+        XLSX.writeFile(wb, finalFileName);
+
+        // 2. Send the Backup Data to Google Sheets
+        // REPLACE THIS URL WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxcSbouY2r-7Ofm6iQx4bZyLNX23onw4nuRF1S6WTNYKudMdxi8pUO1F0J8QULGTs/exec';
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Bypasses cross-origin restrictions on static sites
+            headers: {
+                'Content-Type': 'text/plain',
+            },
+            body: JSON.stringify(logData)
+        }).then(() => {
+            console.log("Successfully logged to Google Sheets");
+        }).catch((error) => {
+            console.error("Error logging to Google Sheets:", error);
+        });
+    }
 
         const ws = XLSX.utils.aoa_to_sheet(rows);
         ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 5 } }];
