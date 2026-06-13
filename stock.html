@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Stock Taker</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 500px; margin: auto; }
+        #reader { width: 100%; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        input, button { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; }
+        button { background-color: #28a745; color: white; border: none; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+    <h2>Scan Inventory</h2>
+    <div id="reader"></div>
+
+    <div class="form-group">
+        <label>Barcode:</label>
+        <input type="text" id="barcode" readonly>
+    </div>
+    <div class="form-group">
+        <label>Item Name:</label>
+        <input type="text" id="itemName">
+    </div>
+    <div class="form-group">
+        <label>Quantity:</label>
+        <input type="number" id="qty" value="1">
+    </div>
+    
+    <button onclick="submitData()">Save to Google Sheets</button>
+    <p id="status"></p>
+
+    <script>
+        // REPLACE THIS WITH YOUR GOOGLE APPS SCRIPT URL
+        const GOOGLE_APP_URL = 'https://script.google.com/macros/s/AKfycbw_fsd3zdsph-NrkWXS5GwiS5ihbaxAmTqHFC-wHCuj1AL3pRhrVB_ln6XdZr5kf8M/exec';
+
+        // 1. Initialize the Scanner
+        const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+        
+        html5QrcodeScanner.render(onScanSuccess, onScanError);
+
+        function onScanSuccess(decodedText, decodedResult) {
+            // Stop scanning temporarily once a barcode is found
+            document.getElementById('barcode').value = decodedText;
+            document.getElementById('status').innerText = "Looking up item name...";
+            
+            // 2. Look up the item name via a free API (OpenFoodFacts as an example)
+            fetch(`https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`)
+                .then(response => response.json())
+                .then(data => {
+                    if(data.status === 1) {
+                        document.getElementById('itemName').value = data.product.product_name || "Unknown Name";
+                        document.getElementById('status').innerText = "Item found! Enter quantity.";
+                    } else {
+                        document.getElementById('itemName').value = "Not found online";
+                        document.getElementById('status').innerText = "Item not in public database. Please type name.";
+                    }
+                }).catch(err => console.error(err));
+        }
+
+        function onScanError(errorMessage) {
+            // handle errors silently in the background
+        }
+
+        // 3. Submit to Google Sheets
+        function submitData() {
+            const barcode = document.getElementById('barcode').value;
+            const itemName = document.getElementById('itemName').value;
+            const qty = document.getElementById('qty').value;
+
+            if(!barcode) { alert("Please scan a barcode first!"); return; }
+
+            document.getElementById('status').innerText = "Saving...";
+
+            fetch(GOOGLE_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors', // Required to bypass strict CORS policies on Apps Script
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ barcode: barcode, itemName: itemName, qty: qty })
+            }).then(() => {
+                document.getElementById('status').innerText = "Saved successfully!";
+                // Reset form
+                document.getElementById('barcode').value = "";
+                document.getElementById('itemName').value = "";
+                document.getElementById('qty').value = "1";
+            }).catch(error => {
+                document.getElementById('status').innerText = "Error saving data.";
+            });
+        }
+    </script>
+</body>
+</html>
