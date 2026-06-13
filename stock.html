@@ -3,123 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mobile Stock Taker</title>
+    <title>Speed Inventory Scanner</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         body { 
             font-family: Arial, sans-serif; 
-            padding: 20px; 
+            padding: 15px; 
             max-width: 500px; 
             margin: auto; 
             background-color: #f4f4f9;
         }
-        h2 { text-align: center; color: #333; }
+        h2 { text-align: center; color: #333; margin-top: 5px; }
         #reader { 
             width: 100%; 
-            margin-bottom: 20px; 
+            margin-bottom: 15px; 
             background: white;
             padding: 10px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .form-group { margin-bottom: 15px; }
-        label { font-weight: bold; display: block; margin-bottom: 5px; color: #555; }
+        .form-group { margin-bottom: 12px; }
+        label { font-weight: bold; display: block; margin-bottom: 4px; color: #555; font-size: 14px; }
         input { 
             width: 100%; 
-            padding: 10px; 
+            padding: 12px; 
             box-sizing: border-box; 
-            border: 1px solid #ccc; 
-            border-radius: 4px;
-            font-size: 16px;
+            border: 2px solid #ccc; 
+            border-radius: 6px;
+            font-size: 18px;
         }
+        /* Highlight the quantity input to make it obvious */
+        #qty { border-color: #0056b3; background-color: #e8f4ff; font-weight: bold; }
+        
         button { 
             width: 100%; 
             padding: 15px; 
             background-color: #28a745; 
             color: white; 
             border: none; 
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 18px; 
+            font-weight: bold;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 5px;
         }
         button:hover { background-color: #218838; }
-        #status { text-align: center; margin-top: 15px; font-weight: bold; color: #0056b3; }
+        #status { text-align: center; margin-top: 10px; font-weight: bold; color: #0056b3; height: 20px;}
     </style>
 </head>
 <body>
 
-    <h2>Scan Inventory</h2>
+    <h2>Speed Inventory</h2>
     
     <div id="reader"></div>
 
     <div class="form-group">
         <label>Barcode:</label>
-        <input type="text" id="barcode" readonly placeholder="Scan a barcode...">
+        <input type="text" id="barcode" readonly placeholder="Waiting for scan...">
     </div>
     <div class="form-group">
         <label>Item Name:</label>
-        <input type="text" id="itemName" placeholder="Item name will appear here...">
+        <input type="text" id="itemName" placeholder="Fetching name...">
     </div>
     <div class="form-group">
         <label>Quantity:</label>
         <input type="number" id="qty" value="1" min="1">
     </div>
     
-    <button onclick="submitData()">Save to Google Sheets</button>
+    <button onclick="submitData()">Save Data</button>
     <p id="status"></p>
 
     <script>
-        // --- IMPORTANT: REPLACE THIS WITH YOUR GOOGLE APPS SCRIPT URL ---
-        const GOOGLE_APP_URL = 'YOUR_WEB_APP_URL_HERE';
+        // Your specific Google Apps Script URL
+        const GOOGLE_APP_URL = 'https://script.google.com/macros/s/AKfycbw_fsd3zdsph-NrkWXS5GwiS5ihbaxAmTqHFC-wHCuj1AL3pRhrVB_ln6XdZr5kf8M/exec';
 
-        // 1. Initialize the Scanner
-        // Using a wide rectangular box and an aspect ratio suitable for mobile cameras
+        // Audio Context for the Beep Sound
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playBeep() {
+            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); // High pitch beep
+            
+            gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.1);
+        }
+
+        // Initialize the Scanner with aggressive focus and higher FPS
         const html5QrcodeScanner = new Html5QrcodeScanner(
             "reader", 
             { 
-                fps: 10, 
-                qrbox: { width: 250, height: 150 }, 
-                aspectRatio: 1.0 
+                fps: 15, // Faster frame checking
+                qrbox: { width: 250, height: 120 }, // Narrower box to force alignment
+                aspectRatio: 1.0,
+                videoConstraints: {
+                    facingMode: "environment",
+                    advanced: [{ focusMode: "continuous" }] // Force continuous autofocus
+                }
             }
         );
         
         html5QrcodeScanner.render(onScanSuccess, onScanError);
 
         function onScanSuccess(decodedText, decodedResult) {
-            // Vibrate phone on success (works on most Android devices)
-            if (navigator.vibrate) { navigator.vibrate(200); }
+            // 1. Play Beep and Vibrate instantly
+            playBeep();
+            if (navigator.vibrate) { navigator.vibrate(100); }
 
-            // Debugging alert - YOU CAN DELETE THIS LINE LATER
-            alert("Captured successfully! Barcode is: " + decodedText); 
-
-            // Fill the barcode input and update status
+            // 2. Fill the barcode input
             document.getElementById('barcode').value = decodedText;
-            document.getElementById('status').innerText = "Looking up item name...";
+            document.getElementById('status').innerText = "Looking up item...";
             
-            // 2. Look up the item name via a free API (OpenFoodFacts)
+            // 3. Immediately jump to the Quantity field and highlight the "1"
+            const qtyInput = document.getElementById('qty');
+            qtyInput.focus();
+            qtyInput.select();
+
+            // 4. Look up item in background (doesn't stop user from typing quantity)
             fetch(`https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`)
                 .then(response => response.json())
                 .then(data => {
                     if(data.status === 1) {
                         document.getElementById('itemName').value = data.product.product_name || "Unknown Name";
-                        document.getElementById('status').innerText = "Item found! Enter quantity.";
+                        document.getElementById('status').innerText = "Item found!";
                     } else {
-                        document.getElementById('itemName').value = "Not found online";
-                        document.getElementById('status').innerText = "Item not in public database. Please type name manually.";
+                        document.getElementById('itemName').value = "Manual Entry Needed";
+                        document.getElementById('status').innerText = "Not in public DB.";
                     }
                 }).catch(err => {
-                    console.error("API Error:", err);
-                    document.getElementById('status').innerText = "Error looking up item.";
+                    document.getElementById('status').innerText = "API Error.";
                 });
         }
 
         function onScanError(errorMessage) {
-            // We leave this empty to handle errors silently in the background.
-            // The scanner constantly throws "not found" errors until it actually lines up with a valid barcode.
+            // Ignore errors, keep scanning
         }
 
-        // 3. Submit to Google Sheets
+        // Submit to Google Sheets
         function submitData() {
             const barcode = document.getElementById('barcode').value;
             const itemName = document.getElementById('itemName').value;
@@ -131,31 +160,32 @@
             }
 
             document.getElementById('status').innerText = "Saving to Google Sheets...";
+            document.getElementById('status').style.color = "#0056b3";
 
             fetch(GOOGLE_APP_URL, {
                 method: 'POST',
-                mode: 'no-cors', // Required to bypass strict CORS policies on Apps Script
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ barcode: barcode, itemName: itemName, qty: qty })
             }).then(() => {
                 document.getElementById('status').innerText = "Saved successfully!";
                 document.getElementById('status').style.color = "green";
                 
-                // Reset form for the next item after 2 seconds
+                // Clear out for the next scan
                 setTimeout(() => {
                     document.getElementById('barcode').value = "";
                     document.getElementById('itemName').value = "";
                     document.getElementById('qty').value = "1";
-                    document.getElementById('status').innerText = "";
-                    document.getElementById('status').style.color = "#0056b3";
-                }, 2000); 
+                    document.getElementById('status').innerText = "Ready for next scan";
+                    document.getElementById('status').style.color = "#555";
+                    
+                    // Optional: Scroll back to top so camera is visible
+                    window.scrollTo(0, 0);
+                }, 1500); 
 
             }).catch(error => {
                 document.getElementById('status').innerText = "Error saving data.";
                 document.getElementById('status').style.color = "red";
-                console.error("Save Error:", error);
             });
         }
     </script>
