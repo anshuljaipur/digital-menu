@@ -253,15 +253,7 @@
         }
 
         // 2. Send to Google Sheets (iPhone Safe HTML Form Method)
-        
-        // *** PASTE YOUR BRAND NEW WEB APP URL HERE ***
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzguvgxAhNOv6G2ETd_Z2crk9_fNDBqB8aPBDk4ZDc8J6XtGg2BPYaS3encVKeLnKA/exec'; 
-
-        if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbzguvgxAhNOv6G2ETd_Z2crk9_fNDBqB8aPBDk4ZDc8J6XtGg2BPYaS3encVKeLnKA/exec') {
-            alert("Please paste your NEW Google Web App URL into the code!");
-            resetButton(btn, originalText);
-            return;
-        }
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzguvgxAhNOv6G2ETd_Z2crk9_fNDBqB8aPBDk4ZDc8J6XtGg2BPYaS3encVKeLnKA/exec';
 
         // Create an invisible iframe to silently catch the Google success page
         let iframe = document.getElementById('hiddenConfirm');
