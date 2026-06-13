@@ -98,15 +98,20 @@
             oscillator.stop(audioCtx.currentTime + 0.1);
         }
 
-        // Initialize the Scanner with iOS-friendly settings
+    // The iOS "Nuke" Fix
         const html5QrcodeScanner = new Html5QrcodeScanner(
             "reader", 
             { 
-                fps: 10, // Dropped slightly for iOS stability
-                qrbox: { width: 250, height: 150 }, // Slightly taller box
-                aspectRatio: 1.0,
-                // Removed the advanced focus block entirely
-            }
+                fps: 10,
+                // Notice there is NO qrbox or aspectRatio here.
+                // It will scan everything visible on the screen.
+                videoConstraints: {
+                    facingMode: "environment",
+                    width: { ideal: 1280 },  // Force a higher resolution width
+                    height: { ideal: 720 }   // Force a higher resolution height
+                }
+            },
+            false // Hides some extra debugging text
         );
         
         html5QrcodeScanner.render(onScanSuccess, onScanError);
