@@ -2,19 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PAN Export - Tax Checkbox Filter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAN Export - Cloud Backup Edition</title>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <script src="database.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; padding: 20px; margin: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; padding: 20px; }
         .container { background: white; padding: 25px; border-radius: 8px; max-width: 1450px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 100px; }
         
         .header-section { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 20px; border-bottom: 2px solid #eee; margin-bottom: 20px; gap: 10px; flex-wrap: wrap; }
-        .input-group { display: flex; flex-direction: column; gap: 5px; position: relative; flex-grow: 1; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; position: relative; }
         label { font-size: 11px; font-weight: bold; color: #555; }
         
-        .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
+        .input-wrapper { position: relative; display: flex; align-items: center; }
         input[type="text"] { padding: 10px 30px 10px 10px; border: 1px solid #ccc; border-radius: 4px; outline: none; width: 100%; box-sizing: border-box; font-size: 13px; }
         input[type="text"]:focus { border-color: #1a73e8; }
         
@@ -22,23 +22,21 @@
         .clear-icon:hover { color: #dc3545; }
 
         .search-input { border: 2px solid #34a853; width: 300px !important; }
-        .counter-badge { background: #34a853; color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; margin-left: 8px; display: inline-block; }
+        .counter-badge { background: #34a853; color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; margin-left: 8px; }
 
-        /* Filter Checkbox Styling */
-        .filter-options { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-        .option-box { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; height: 38px; box-sizing: border-box; border: 1px solid transparent; transition: 0.2s; white-space: nowrap; }
+        .filter-options { display: flex; align-items: center; gap: 15px; }
+        .option-box { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; height: 38px; box-sizing: border-box; border: 1px solid transparent; transition: 0.2s; }
         .subject-to-box { background: #fff3cd; border-color: #ffeeba; }
         .tax-filter-box { background: #ffdada; border-color: #ffbaba; color: #cc0000; }
         .option-box input { cursor: pointer; margin: 0; }
 
-        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 800px; }
-        th { background: #000; color: #fff; padding: 10px; font-size: 12px; border: 1px solid #333; position: sticky; top: 0; z-index: 10; white-space: nowrap; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: #000; color: #fff; padding: 10px; font-size: 12px; border: 1px solid #333; position: sticky; top: 0; z-index: 10; }
         td { border: 1px solid #bbb; padding: 6px; font-size: 13px; background: #fff; }
         
         .sort-btn { cursor: pointer; margin-left: 5px; display: inline-block; }
 
-        .grid-input { width: 95%; border: none; background: transparent; padding: 2px; font-size: 13px; }
+        .grid-input { width: 95%; border: none; background: transparent; padding: 2px; }
         .grid-input:focus { background: #fff; outline: 1px solid #1a73e8; }
         
         .checkbox-col { text-align: center; width: 35px; }
@@ -54,33 +52,12 @@
             border-radius: 40px; cursor: pointer; font-size: 13px; font-weight: bold; 
             box-shadow: 0 8px 20px rgba(26, 115, 232, 0.3); z-index: 999;
             writing-mode: vertical-rl; text-orientation: mixed; display: flex; align-items: center; justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        /* --- MOBILE RESPONSIVENESS --- */
-        @media (max-width: 768px) {
-            body { padding: 10px; }
-            .container { padding: 15px; margin-bottom: 70px; }
-            
-            .header-section { flex-direction: column; align-items: stretch; gap: 15px; }
-            .filter-options { flex-direction: column; align-items: stretch; gap: 10px; }
-            
-            .search-input { width: 100% !important; }
-            .option-box { justify-content: center; width: 100%; }
-            
-            /* Pin the download button to the bottom for mobile */
-            .btn-download {
-                top: auto; bottom: 0; right: 0; left: 0; 
-                transform: none; width: 100%; border-radius: 0; 
-                writing-mode: horizontal-tb; padding: 15px; 
-                font-size: 15px; box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
-            }
         }
     </style>
 </head>
 <body>
 
-<button class="btn-download" onclick="generateExcel()"><span>GENERATE FORMATTED EXCEL</span></button>
+<button class="btn-download" onclick="generateExcel()" id="genBtn"><span>GENERATE FORMATTED EXCEL</span></button>
 
 <div class="container">
     <div class="header-section">
@@ -106,24 +83,22 @@
         </div>
     </div>
 
-    <div class="table-responsive">
-        <table id="mainTable">
-            <thead>
-                <tr>
-                    <th class="checkbox-col"><input type="checkbox" id="masterCheck" onclick="toggleAll(this)"></th>
-                    <th style="width: 40px;">S.No</th>
-                    <th style="width: 100px;">CAT</th>
-                    <th>APPLICANT NAME <span class="sort-btn" onclick="handleSort()">⇅</span></th>
-                    <th>PAN NO</th>
-                    <th>DEMAT NO.</th>
-                    <th style="width: 80px;">TAX?</th>
-                    <th>RATE</th>
-                    <th>AMOUNT</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    </div>
+    <table id="mainTable">
+        <thead>
+            <tr>
+                <th class="checkbox-col"><input type="checkbox" id="masterCheck" onclick="toggleAll(this)"></th>
+                <th style="width: 40px;">S.No</th>
+                <th style="width: 100px;">CAT</th>
+                <th style="width: 80px;">TAX?</th>
+                <th>PAN NO</th>
+                <th>DEMAT NO.</th>
+                <th>APPLICANT NAME <span class="sort-btn" onclick="handleSort()">⇅</span></th>
+                <th>RATE</th>
+                <th>AMOUNT</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
 </div>
 
 <script>
@@ -146,10 +121,10 @@
                     <td class="checkbox-col"><input type="checkbox" class="row-sel" value="${i}" onchange="updateCounter()"></td>
                     <td align="center">${i + 1}</td>
                     <td align="center"><span class="cat-tag">${item.category || 'N/A'}</span></td>
-                    <td class="name-cell" align="center">${item.name.toUpperCase()}</td>
+                    <td align="center"><span class="tax-tag ${taxClass}">${item.isTax || 'No'}</span></td>
                     <td class="pan-cell" align="center">${item.pan.toUpperCase()}</td>
                     <td><input type="text" class="grid-input" id="d-${i}" value=""></td>
-                    <td align="center"><span class="tax-tag ${taxClass}">${item.isTax || 'No'}</span></td>
+                    <td class="name-cell" align="center">${item.name.toUpperCase()}</td>
                     <td><input type="text" class="grid-input" id="r-${i}"></td>
                     <td><input type="text" class="grid-input" id="a-${i}"></td>
                     <td style="display:none;" class="cat-cell">${(item.category || '').toUpperCase()}</td>
@@ -161,7 +136,6 @@
 
     function handleSearch() {
         toggleIcon('searchInput', 'clearSearch');
-        
         const qSearch = document.getElementById('searchInput').value.toUpperCase();
         const taxOnly = document.getElementById('taxFilterToggle').checked;
         
@@ -173,17 +147,16 @@
             
             const matchGeneral = pan.includes(qSearch) || name.includes(qSearch) || cat.includes(qSearch);
             const matchTax = taxOnly ? (tax === "YES") : true;
-            
             row.style.display = (matchGeneral && matchTax) ? "" : "none";
         });
     }
 
-    // Standard helper functions
     function handleSort() {
         currentSortOrder = (currentSortOrder === 'asc') ? 'desc' : 'asc';
         masterData.sort((a, b) => currentSortOrder === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name));
         renderRows(masterData);
     }
+
     function updateCounter() { document.getElementById('selCount').innerText = `Selected: ${document.querySelectorAll('.row-sel:checked').length}`; }
     function toggleIcon(inputId, iconId) { document.getElementById(iconId).style.display = document.getElementById(inputId).value.length > 0 ? "block" : "none"; }
     function clearField(inputId, iconId) { document.getElementById(inputId).value = ""; document.getElementById(iconId).style.display = "none"; handleSearch(); }
@@ -196,7 +169,12 @@
         const isSubjectTo = document.getElementById('subjectToToggle').checked;
         if (selected.length === 0) return alert("Select records first.");
 
-        // --- EXCEL GENERATION LOGIC ---
+        // Change button visual to show it's working
+        const btn = document.getElementById('genBtn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = "<span>SAVING DATA...</span>";
+        btn.style.background = "#e67e22";
+
         const b = { style: "thin", color: { rgb: "000000" } };
         const border = { top: b, bottom: b, left: b, right: b };
         const hStyle = { fill: {fgColor:{rgb:"000000"}}, font:{color:{rgb:"FFFFFF"}, bold:true}, alignment:{horizontal:"center", vertical:"center"}, border: border };
@@ -208,7 +186,7 @@
             ["S.No", "PAN NO", "DEMAT NO.", "APPLICANT NAME", "RATE", "AMOUNT"].map(h => ({ v: h, s: hStyle }))
         ];
 
-        // Prepare an array to hold the data we are sending to Google Sheets
+        // Prepare data to send to Google Sheets
         const logData = [];
         const currentDate = new Date().toLocaleString();
 
@@ -219,8 +197,10 @@
             const dematVal = document.getElementById(`d-${i}`).value;
             const rateVal = document.getElementById(`r-${i}`).value;
             const amountVal = document.getElementById(`a-${i}`).value;
+            const catVal = masterData[i].category || 'N/A';
+            const taxVal = masterData[i].isTax || 'No';
 
-            // Add to Excel rows
+            // Add to Excel Array
             rows.push([
                 { v: idx + 1, s: cellCenter },
                 { v: panVal, s: cellCenter },
@@ -230,58 +210,60 @@
                 { v: amountVal, s: cellLeft }
             ]);
 
-            // Add to Google Sheets Log Array
+            // Add to Google Sheets Array
             logData.push({
                 date: currentDate,
                 company: company.toUpperCase(),
                 pan: panVal,
                 name: nameVal,
-                category: masterData[i].category || 'N/A',
-                tax: masterData[i].isTax || 'No',
+                category: catVal,
+                tax: taxVal,
                 demat: dematVal,
                 rate: rateVal,
                 amount: amountVal
             });
         });
 
-        // 1. Download the Excel File
+        // 1. Generate and Download Excel File
         const ws = XLSX.utils.aoa_to_sheet(rows);
         ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 5 } }];
         ws['!cols'] = [{ wch: 6 }, { wch: 18 }, { wch: 20 }, { wch: 35 }, { wch: 15 }, { wch: 15 }];
-        
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "PAN_LIST");
-        
         let finalFileName = `${company.toUpperCase().replace(/\s+/g, '_')}_${selected.length}_PAN${isSubjectTo ? "_Subject2" : ""}.xlsx`;
         XLSX.writeFile(wb, finalFileName);
 
-        // 2. Send the Backup Data to Google Sheets
-        // REPLACE THIS URL WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxcSbouY2r-7Ofm6iQx4bZyLNX23onw4nuRF1S6WTNYKudMdxi8pUO1F0J8QULGTs/exec';
+        // 2. Send Data to Google Sheets
+        // *** PASTE YOUR WEB APP URL BELOW ***
+        const SCRIPT_URL = 'YOUR_GOOGLE_WEB_APP_URL_HERE'; 
+
+        if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbyxcSbouY2r-7Ofm6iQx4bZyLNX23onw4nuRF1S6WTNYKudMdxi8pUO1F0J8QULGTs/exec') {
+            alert("Excel Downloaded! However, to save to the cloud, you need to paste your Google Web App URL into the code.");
+            resetButton(btn, originalText);
+            return;
+        }
 
         fetch(SCRIPT_URL, {
             method: 'POST',
-            mode: 'no-cors', // Bypasses cross-origin restrictions on static sites
+            mode: 'no-cors', // Essential for GitHub pages to Google Sheets communication
             headers: {
                 'Content-Type': 'text/plain',
             },
             body: JSON.stringify(logData)
         }).then(() => {
-            console.log("Successfully logged to Google Sheets");
+            console.log("Successfully logged to cloud.");
+            resetButton(btn, originalText);
         }).catch((error) => {
-            console.error("Error logging to Google Sheets:", error);
+            console.error("Error logging to cloud:", error);
+            resetButton(btn, originalText);
         });
     }
 
-        const ws = XLSX.utils.aoa_to_sheet(rows);
-        ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 5 } }];
-        ws['!cols'] = [{ wch: 6 }, { wch: 18 }, { wch: 20 }, { wch: 35 }, { wch: 15 }, { wch: 15 }];
-        
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "PAN_LIST");
-        
-        let finalFileName = `${company.toUpperCase().replace(/\s+/g, '_')}_${selected.length}_PAN${isSubjectTo ? "_Subject2" : ""}.xlsx`;
-        XLSX.writeFile(wb, finalFileName);
+    function resetButton(btn, originalText) {
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.style.background = "#1a73e8";
+        }, 1500);
     }
 
     window.onload = initTable;
