@@ -61,12 +61,11 @@
         /* MOBILE OPTIMIZATION OVERRIDES */
         @media (max-width: 768px) {
             body { padding: 10px; }
-            .container { padding: 15px; margin-bottom: 90px; } /* Room for bottom button */
+            .container { padding: 15px; margin-bottom: 90px; } 
             .header-section { flex-direction: column; align-items: stretch; gap: 15px; }
             .input-group, .filter-options { width: 100%; flex-wrap: wrap; }
             .search-input, .tax-search { width: 100% !important; }
             
-            /* Move button to bottom center horizontally */
             .btn-download {
                 top: auto; 
                 bottom: 15px; 
@@ -78,7 +77,7 @@
                 padding: 15px;
                 box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
             }
-            .btn-download span { transform: none; } /* Revert text rotation */
+            .btn-download span { transform: none; } 
         }
     </style>
 </head>
@@ -145,7 +144,6 @@
             const isTaxYes = item.isTax && item.isTax.toUpperCase() === "YES";
             const taxClass = isTaxYes ? "tax-yes" : "tax-no";
             
-            // Reordered HTML Table Cells (Does not affect Excel output)
             tbody.innerHTML += `
                 <tr class="data-row">
                     <td class="checkbox-col"><input type="checkbox" class="row-sel" value="${i}" onchange="updateCounter()"></td>
@@ -199,7 +197,6 @@
         const isSubjectTo = document.getElementById('subjectToToggle').checked;
         if (selected.length === 0) return alert("Select records first.");
 
-        // Visual feedback
         const btn = document.getElementById('genBtn');
         const originalText = btn.innerHTML;
         btn.innerHTML = "<span>SAVING DATA...</span>";
@@ -211,7 +208,6 @@
         const cellCenter = { alignment: { horizontal: "center", vertical: "center" }, border: border };
         const cellLeft = { alignment: { horizontal: "left", vertical: "center" }, border: border };
 
-        // Output remains EXACTLY the same regardless of HTML view order
         let rows = [
             [{ v: `COMPANY NAME : ${company.toUpperCase()}`, s: { font:{bold:true, sz:14}, alignment:{horizontal:"center", vertical:"center"}, border: border } }, "", "", "", "", ""],
             ["S.No", "PAN NO", "DEMAT NO.", "APPLICANT NAME", "RATE", "AMOUNT"].map(h => ({ v: h, s: hStyle }))
@@ -230,7 +226,6 @@
             const catVal = masterData[i].category || 'N/A';
             const taxVal = masterData[i].isTax || 'No';
 
-            // Pushing in the exact order requested for Excel Export
             rows.push([
                 { v: idx + 1, s: cellCenter },
                 { v: panVal, s: cellCenter },
@@ -263,14 +258,7 @@
         XLSX.writeFile(wb, finalFileName);
 
         // 2. Send to Google Sheets
-        // *** PASTE YOUR ACTIVE WEB APP URL HERE ***
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxwD07ZwbmgVyhdkPnZh50XTTF69vXtj-ubcPEcXVDT-fQtQezFWurqwF0dRMW5Brg/exec'; 
-
-        if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxwD07ZwbmgVyhdkPnZh50XTTF69vXtj-ubcPEcXVDT-fQtQezFWurqwF0dRMW5Brg/exec') {
-            alert("Excel Downloaded! But to save to the cloud, you must paste your Google Web App URL into the code.");
-            resetButton(btn, originalText);
-            return;
-        }
 
         fetch(SCRIPT_URL, {
             method: 'POST',
