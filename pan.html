@@ -180,8 +180,9 @@
     function clearSearchField() { clearField('searchInput', 'clearSearch'); }
     function toggleAll(src) { document.querySelectorAll('.row-sel').forEach(cb => { if(cb.closest('tr').style.display !== "none") cb.checked = src.checked; }); updateCounter(); }
 
-    function generateExcel() {
-        const company = document.getElementById('companyInput').value.trim() || "COMPANY";
+function generateExcel() {
+        const companyInputBox = document.getElementById('companyInput');
+        const company = companyInputBox.value.trim() || "COMPANY";
         const selected = document.querySelectorAll('.row-sel:checked');
         const isSubjectTo = document.getElementById('subjectToToggle').checked;
         if (selected.length === 0) return alert("Select records first.");
@@ -252,24 +253,23 @@
             return; 
         }
 
-        // 2. Send to Google Sheets (iPhone Safe HTML Form Method)
+        // 2. Send to Google Sheets (iPhone Safe Method with Unique IDs)
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzguvgxAhNOv6G2ETd_Z2crk9_fNDBqB8aPBDk4ZDc8J6XtGg2BPYaS3encVKeLnKA/exec';
 
-        // Create an invisible iframe to silently catch the Google success page
-        let iframe = document.getElementById('hiddenConfirm');
-        if (!iframe) {
-            iframe = document.createElement('iframe');
-            iframe.name = 'hiddenConfirm';
-            iframe.id = 'hiddenConfirm';
-            iframe.style.display = 'none';
-            document.body.appendChild(iframe);
-        }
+        // Create a unique ID so Safari never confuses old iframes with new ones
+        let uniqueId = new Date().getTime();
+        let frameName = 'hiddenConfirm_' + uniqueId;
 
-        // Create an invisible form to submit the data exactly like a user clicking submit
+        let iframe = document.createElement('iframe');
+        iframe.name = frameName;
+        iframe.id = frameName;
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+
         let form = document.createElement('form');
         form.method = 'POST';
         form.action = SCRIPT_URL;
-        form.target = 'hiddenConfirm'; 
+        form.target = frameName; 
 
         let input = document.createElement('input');
         input.type = 'hidden';
@@ -279,13 +279,18 @@
         form.appendChild(input);
         document.body.appendChild(form);
 
-        // Submit the form!
+        // Save the Company Name to the browser's local memory before refreshing
+        localStorage.setItem('savedCompanyName', companyInputBox.value);
+
         form.submit();
 
-        // Clean up and reset the button after 2.5 seconds
+        // Clean up everything and trigger your Auto-Refresh
         setTimeout(() => {
             document.body.removeChild(form);
-            resetButton(btn, originalText);
+            document.body.removeChild(iframe); // <-- The missing fix!
+            
+            // Auto Refresh the page
+            window.location.reload();
         }, 2500);
     }
 
@@ -294,7 +299,18 @@
         btn.style.background = "#1a73e8";
     }
 
-    window.onload = initTable;
+    // Updated onload function to restore the Company Name after refresh
+    window.onload = function() {
+        initTable();
+        
+        // Check if a Company Name was saved from a previous session
+        const savedCompany = localStorage.getItem('savedCompanyName');
+        if (savedCompany) {
+            const compInput = document.getElementById('companyInput');
+            compInput.value = savedCompany;
+            toggleIcon('companyInput', 'clearCompany');
+        }
+    };
 </script>
 </body>
 </html>
