@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PAN Export - Mobile Optimized</title>
+    <title>PAN Export - iPhone Safe Edition</title>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <script src="database.js"></script>
     <style>
@@ -30,25 +30,21 @@
         .tax-filter-box { background: #ffdada; border-color: #ffbaba; color: #cc0000; }
         .option-box input { cursor: pointer; margin: 0; }
 
-        /* Table Wrapping for Mobile Scroll */
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 800px; }
         th { background: #000; color: #fff; padding: 10px; font-size: 12px; border: 1px solid #333; position: sticky; top: 0; z-index: 10; }
         td { border: 1px solid #bbb; padding: 6px; font-size: 13px; background: #fff; }
         
         .sort-btn { cursor: pointer; margin-left: 5px; display: inline-block; }
-
         .grid-input { width: 95%; border: none; background: transparent; padding: 2px; }
         .grid-input:focus { background: #fff; outline: 1px solid #1a73e8; }
         
         .checkbox-col { text-align: center; width: 35px; }
         .cat-tag { background: #e8f0fe; color: #1a73e8; padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: bold; text-transform: uppercase; border: 1px solid #c2d7f9; }
-
         .tax-tag { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; display: inline-block; min-width: 40px; text-align: center; }
         .tax-yes { background-color: #ff0000; color: #ffffff; border: 1px solid #cc0000; }
         .tax-no { background-color: #fef9e7; color: #d4ac0d; border: 1px solid #f9e79f; }
 
-        /* Desktop Floating Button */
         .btn-download { 
             position: fixed; right: 25px; top: 50%; transform: translateY(-50%); 
             background: #1a73e8; color: white; border: none; padding: 20px 25px; 
@@ -58,7 +54,6 @@
         }
         .btn-download span { transform: rotate(180deg); }
 
-        /* MOBILE OPTIMIZATION OVERRIDES */
         @media (max-width: 768px) {
             body { padding: 10px; }
             .container { padding: 15px; margin-bottom: 90px; } 
@@ -67,15 +62,9 @@
             .search-input, .tax-search { width: 100% !important; }
             
             .btn-download {
-                top: auto; 
-                bottom: 15px; 
-                right: 50%; 
-                transform: translateX(50%); 
-                writing-mode: horizontal-tb; 
-                width: 90%; 
-                border-radius: 8px; 
-                padding: 15px;
-                box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
+                top: auto; bottom: 15px; right: 50%; transform: translateX(50%); 
+                writing-mode: horizontal-tb; width: 90%; border-radius: 8px; 
+                padding: 15px; box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
             }
             .btn-download span { transform: none; } 
         }
@@ -248,7 +237,7 @@
             });
         });
 
-        // 1. Download Excel (Added Mobile Error Catching)
+        // 1. Download Excel
         try {
             const ws = XLSX.utils.aoa_to_sheet(rows);
             ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 5 } }];
@@ -258,34 +247,59 @@
             let finalFileName = `${company.toUpperCase().replace(/\s+/g, '_')}_${selected.length}_PAN${isSubjectTo ? "_Subject2" : ""}.xlsx`;
             XLSX.writeFile(wb, finalFileName);
         } catch (excelError) {
-            alert("Mobile Excel Error: " + excelError.message + "\nTry opening this site in normal Safari/Chrome, not inside another app.");
+            alert("Mobile Excel Error: " + excelError.message);
             resetButton(btn, originalText);
-            return; // Stop the script if Excel fails
+            return; 
         }
 
-        // 2. Send to Google Sheets (Added Mobile Error Catching)
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxwD07ZwbmgVyhdkPnZh50XTTF69vXtj-ubcPEcXVDT-fQtQezFWurqwF0dRMW5Brg/exec'; 
+        // 2. Send to Google Sheets (iPhone Safe HTML Form Method)
+        
+        // *** PASTE YOUR BRAND NEW WEB APP URL HERE ***
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzguvgxAhNOv6G2ETd_Z2crk9_fNDBqB8aPBDk4ZDc8J6XtGg2BPYaS3encVKeLnKA/exec'; 
 
-        fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify(logData)
-        }).then(() => {
+        if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbzguvgxAhNOv6G2ETd_Z2crk9_fNDBqB8aPBDk4ZDc8J6XtGg2BPYaS3encVKeLnKA/exec') {
+            alert("Please paste your NEW Google Web App URL into the code!");
             resetButton(btn, originalText);
-            // Optional: Uncomment the line below if you want a success popup on mobile
-            // alert("Successfully saved to Cloud!"); 
-        }).catch((error) => {
-            alert("Cloud Connection Error: " + error.message);
+            return;
+        }
+
+        // Create an invisible iframe to silently catch the Google success page
+        let iframe = document.getElementById('hiddenConfirm');
+        if (!iframe) {
+            iframe = document.createElement('iframe');
+            iframe.name = 'hiddenConfirm';
+            iframe.id = 'hiddenConfirm';
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+        }
+
+        // Create an invisible form to submit the data exactly like a user clicking submit
+        let form = document.createElement('form');
+        form.method = 'POST';
+        form.action = SCRIPT_URL;
+        form.target = 'hiddenConfirm'; 
+
+        let input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'payload';
+        input.value = JSON.stringify(logData);
+
+        form.appendChild(input);
+        document.body.appendChild(form);
+
+        // Submit the form!
+        form.submit();
+
+        // Clean up and reset the button after 2.5 seconds
+        setTimeout(() => {
+            document.body.removeChild(form);
             resetButton(btn, originalText);
-        });
+        }, 2500);
     }
 
     function resetButton(btn, originalText) {
-        setTimeout(() => {
-            btn.innerHTML = originalText;
-            btn.style.background = "#1a73e8";
-        }, 1500);
+        btn.innerHTML = originalText;
+        btn.style.background = "#1a73e8";
     }
 
     window.onload = initTable;
