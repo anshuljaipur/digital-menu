@@ -169,7 +169,7 @@
         const isSubjectTo = document.getElementById('subjectToToggle').checked;
         if (selected.length === 0) return alert("Select records first.");
 
-        // Change button visual to show it's working
+        // Visual feedback
         const btn = document.getElementById('genBtn');
         const originalText = btn.innerHTML;
         btn.innerHTML = "<span>SAVING DATA...</span>";
@@ -186,7 +186,6 @@
             ["S.No", "PAN NO", "DEMAT NO.", "APPLICANT NAME", "RATE", "AMOUNT"].map(h => ({ v: h, s: hStyle }))
         ];
 
-        // Prepare data to send to Google Sheets
         const logData = [];
         const currentDate = new Date().toLocaleString();
 
@@ -200,7 +199,6 @@
             const catVal = masterData[i].category || 'N/A';
             const taxVal = masterData[i].isTax || 'No';
 
-            // Add to Excel Array
             rows.push([
                 { v: idx + 1, s: cellCenter },
                 { v: panVal, s: cellCenter },
@@ -210,7 +208,6 @@
                 { v: amountVal, s: cellLeft }
             ]);
 
-            // Add to Google Sheets Array
             logData.push({
                 date: currentDate,
                 company: company.toUpperCase(),
@@ -224,7 +221,7 @@
             });
         });
 
-        // 1. Generate and Download Excel File
+        // 1. Download Excel
         const ws = XLSX.utils.aoa_to_sheet(rows);
         ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 5 } }];
         ws['!cols'] = [{ wch: 6 }, { wch: 18 }, { wch: 20 }, { wch: 35 }, { wch: 15 }, { wch: 15 }];
@@ -233,25 +230,17 @@
         let finalFileName = `${company.toUpperCase().replace(/\s+/g, '_')}_${selected.length}_PAN${isSubjectTo ? "_Subject2" : ""}.xlsx`;
         XLSX.writeFile(wb, finalFileName);
 
-        // 2. Send Data to Google Sheets
-        // *** PASTE YOUR WEB APP URL BELOW ***
-        const SCRIPT_URL = 'YOUR_GOOGLE_WEB_APP_URL_HERE'; 
-
-        if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbyxcSbouY2r-7Ofm6iQx4bZyLNX23onw4nuRF1S6WTNYKudMdxi8pUO1F0J8QULGTs/exec') {
-            alert("Excel Downloaded! However, to save to the cloud, you need to paste your Google Web App URL into the code.");
-            resetButton(btn, originalText);
-            return;
-        }
+        // 2. Send to Google Sheets (URL already injected)
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxwD07ZwbmgVyhdkPnZh50XTTF69vXtj-ubcPEcXVDT-fQtQezFWurqwF0dRMW5Brg/exec'; 
 
         fetch(SCRIPT_URL, {
             method: 'POST',
-            mode: 'no-cors', // Essential for GitHub pages to Google Sheets communication
+            mode: 'no-cors',
             headers: {
                 'Content-Type': 'text/plain',
             },
             body: JSON.stringify(logData)
         }).then(() => {
-            console.log("Successfully logged to cloud.");
             resetButton(btn, originalText);
         }).catch((error) => {
             console.error("Error logging to cloud:", error);
