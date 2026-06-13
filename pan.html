@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PAN Export - Cloud Backup Edition</title>
+    <title>PAN Export - Mobile Optimized</title>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <script src="database.js"></script>
     <style>
@@ -30,7 +30,9 @@
         .tax-filter-box { background: #ffdada; border-color: #ffbaba; color: #cc0000; }
         .option-box input { cursor: pointer; margin: 0; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        /* Table Wrapping for Mobile Scroll */
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 800px; }
         th { background: #000; color: #fff; padding: 10px; font-size: 12px; border: 1px solid #333; position: sticky; top: 0; z-index: 10; }
         td { border: 1px solid #bbb; padding: 6px; font-size: 13px; background: #fff; }
         
@@ -46,12 +48,37 @@
         .tax-yes { background-color: #ff0000; color: #ffffff; border: 1px solid #cc0000; }
         .tax-no { background-color: #fef9e7; color: #d4ac0d; border: 1px solid #f9e79f; }
 
+        /* Desktop Floating Button */
         .btn-download { 
             position: fixed; right: 25px; top: 50%; transform: translateY(-50%); 
             background: #1a73e8; color: white; border: none; padding: 20px 25px; 
             border-radius: 40px; cursor: pointer; font-size: 13px; font-weight: bold; 
             box-shadow: 0 8px 20px rgba(26, 115, 232, 0.3); z-index: 999;
-            writing-mode: vertical-rl; text-orientation: mixed; display: flex; align-items: center; justify-content: center;
+            writing-mode: vertical-rl; text-orientation: mixed; display: flex; align-items: center; justify-content: center; transition: 0.3s ease;
+        }
+        .btn-download span { transform: rotate(180deg); }
+
+        /* MOBILE OPTIMIZATION OVERRIDES */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .container { padding: 15px; margin-bottom: 90px; } /* Room for bottom button */
+            .header-section { flex-direction: column; align-items: stretch; gap: 15px; }
+            .input-group, .filter-options { width: 100%; flex-wrap: wrap; }
+            .search-input, .tax-search { width: 100% !important; }
+            
+            /* Move button to bottom center horizontally */
+            .btn-download {
+                top: auto; 
+                bottom: 15px; 
+                right: 50%; 
+                transform: translateX(50%); 
+                writing-mode: horizontal-tb; 
+                width: 90%; 
+                border-radius: 8px; 
+                padding: 15px;
+                box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
+            }
+            .btn-download span { transform: none; } /* Revert text rotation */
         }
     </style>
 </head>
@@ -73,7 +100,7 @@
             <label class="option-box subject-to-box"><input type="checkbox" id="subjectToToggle"> Subject To</label>
             <label class="option-box tax-filter-box"><input type="checkbox" id="taxFilterToggle" onchange="handleSearch()"> Show Tax 'Yes' Only</label>
             
-            <div class="input-group">
+            <div class="input-group" style="flex-grow: 1;">
                 <label>SEARCH (NAME, PAN, CAT)</label>
                 <div class="input-wrapper">
                     <input type="text" id="searchInput" class="search-input" placeholder="Search..." oninput="handleSearch()">
@@ -83,22 +110,24 @@
         </div>
     </div>
 
-    <table id="mainTable">
-        <thead>
-            <tr>
-                <th class="checkbox-col"><input type="checkbox" id="masterCheck" onclick="toggleAll(this)"></th>
-                <th style="width: 40px;">S.No</th>
-                <th style="width: 100px;">CAT</th>
-                <th style="width: 80px;">TAX?</th>
-                <th>PAN NO</th>
-                <th>DEMAT NO.</th>
-                <th>APPLICANT NAME <span class="sort-btn" onclick="handleSort()">⇅</span></th>
-                <th>RATE</th>
-                <th>AMOUNT</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-    </table>
+    <div class="table-responsive">
+        <table id="mainTable">
+            <thead>
+                <tr>
+                    <th class="checkbox-col"><input type="checkbox" id="masterCheck" onclick="toggleAll(this)"></th>
+                    <th>APPLICANT NAME <span class="sort-btn" onclick="handleSort()">⇅</span></th>
+                    <th>PAN NO</th>
+                    <th style="width: 40px;">S.No</th>
+                    <th style="width: 100px;">CAT</th>
+                    <th style="width: 80px;">TAX?</th>
+                    <th>DEMAT NO.</th>
+                    <th>RATE</th>
+                    <th>AMOUNT</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
 </div>
 
 <script>
@@ -116,15 +145,16 @@
             const isTaxYes = item.isTax && item.isTax.toUpperCase() === "YES";
             const taxClass = isTaxYes ? "tax-yes" : "tax-no";
             
+            // Reordered HTML Table Cells (Does not affect Excel output)
             tbody.innerHTML += `
                 <tr class="data-row">
                     <td class="checkbox-col"><input type="checkbox" class="row-sel" value="${i}" onchange="updateCounter()"></td>
+                    <td class="name-cell" align="center">${item.name.toUpperCase()}</td>
+                    <td class="pan-cell" align="center">${item.pan.toUpperCase()}</td>
                     <td align="center">${i + 1}</td>
                     <td align="center"><span class="cat-tag">${item.category || 'N/A'}</span></td>
                     <td align="center"><span class="tax-tag ${taxClass}">${item.isTax || 'No'}</span></td>
-                    <td class="pan-cell" align="center">${item.pan.toUpperCase()}</td>
                     <td><input type="text" class="grid-input" id="d-${i}" value=""></td>
-                    <td class="name-cell" align="center">${item.name.toUpperCase()}</td>
                     <td><input type="text" class="grid-input" id="r-${i}"></td>
                     <td><input type="text" class="grid-input" id="a-${i}"></td>
                     <td style="display:none;" class="cat-cell">${(item.category || '').toUpperCase()}</td>
@@ -181,6 +211,7 @@
         const cellCenter = { alignment: { horizontal: "center", vertical: "center" }, border: border };
         const cellLeft = { alignment: { horizontal: "left", vertical: "center" }, border: border };
 
+        // Output remains EXACTLY the same regardless of HTML view order
         let rows = [
             [{ v: `COMPANY NAME : ${company.toUpperCase()}`, s: { font:{bold:true, sz:14}, alignment:{horizontal:"center", vertical:"center"}, border: border } }, "", "", "", "", ""],
             ["S.No", "PAN NO", "DEMAT NO.", "APPLICANT NAME", "RATE", "AMOUNT"].map(h => ({ v: h, s: hStyle }))
@@ -199,6 +230,7 @@
             const catVal = masterData[i].category || 'N/A';
             const taxVal = masterData[i].isTax || 'No';
 
+            // Pushing in the exact order requested for Excel Export
             rows.push([
                 { v: idx + 1, s: cellCenter },
                 { v: panVal, s: cellCenter },
@@ -230,15 +262,13 @@
         let finalFileName = `${company.toUpperCase().replace(/\s+/g, '_')}_${selected.length}_PAN${isSubjectTo ? "_Subject2" : ""}.xlsx`;
         XLSX.writeFile(wb, finalFileName);
 
-        // 2. Send to Google Sheets (URL already injected)
+        // 2. Send to Google Sheets
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxwD07ZwbmgVyhdkPnZh50XTTF69vXtj-ubcPEcXVDT-fQtQezFWurqwF0dRMW5Brg/exec'; 
 
         fetch(SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
-            headers: {
-                'Content-Type': 'text/plain',
-            },
+            headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify(logData)
         }).then(() => {
             resetButton(btn, originalText);
