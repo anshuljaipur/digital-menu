@@ -39,7 +39,14 @@
         const GOOGLE_APP_URL = 'https://script.google.com/macros/s/AKfycbw_fsd3zdsph-NrkWXS5GwiS5ihbaxAmTqHFC-wHCuj1AL3pRhrVB_ln6XdZr5kf8M/exec';
 
         // 1. Initialize the Scanner
-        const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+        // Change the qrbox from a single number to an object with width and height
+const html5QrcodeScanner = new Html5QrcodeScanner(
+    "reader", 
+    { 
+        fps: 10, 
+        qrbox: { width: 300, height: 150 } // Wide rectangle for standard barcodes
+    }
+);
         
         html5QrcodeScanner.render(onScanSuccess, onScanError);
 
