@@ -13,38 +13,48 @@
             --accent: #27ae60;
             --bg: #ecf0f1;
             --danger: #c0392b;
+            --info: #2980b9;
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); margin: 0; padding: 20px; color: var(--primary); }
         .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
         .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        h1, h2 { margin-top: 0; color: var(--primary); }
+        h1, h2, h3 { margin-top: 0; color: var(--primary); }
         h1 { grid-column: 1 / -1; text-align: center; margin-bottom: 20px;}
         label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9em; }
         input, select, button { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #bdc3c7; border-radius: 4px; box-sizing: border-box; }
         button { background-color: var(--accent); color: white; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
         button:hover { background-color: #219653; }
+        
         .btn-export { background-color: var(--primary); }
         .btn-export:hover { background-color: #1a252f; }
+        
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9em; }
         th, td { border: 1px solid #bdc3c7; padding: 10px; text-align: left; }
         th { background-color: var(--secondary); color: white; }
+        
         .positive { color: var(--accent); font-weight: bold; }
         .negative { color: var(--danger); font-weight: bold; }
+        
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
         .balance-card { border: 1px solid #bdc3c7; padding: 15px; border-radius: 6px; text-align: center; }
         .balance-card h3 { margin: 0 0 10px 0; font-size: 1.1em; }
         
-        /* New Styles for Edit/Delete List */
         .member-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #ecf0f1; font-weight: bold; }
-        .action-btn { padding: 4px 8px; margin-bottom: 0; font-size: 0.8em; width: auto; display: inline-block; border-radius: 3px;}
-        .btn-edit { background-color: #f39c12; margin-right: 5px;}
+        
+        /* Action Buttons */
+        .action-btn { padding: 4px 8px; margin-bottom: 0; font-size: 0.8em; width: auto; display: inline-block; border-radius: 3px; cursor: pointer;}
+        .btn-edit { background-color: #f39c12; margin-right: 5px; color: white; border: none;}
         .btn-edit:hover { background-color: #d68910; }
-        .btn-delete { background-color: var(--danger); }
+        .btn-delete { background-color: var(--danger); color: white; border: none;}
         .btn-delete:hover { background-color: #a93226; }
         .member-actions { display: flex; gap: 5px; }
+        
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-top: 30px;}
+        .header-flex select { width: 250px; margin-bottom: 0; }
 
         @media (max-width: 768px) {
             .container { grid-template-columns: 1fr; }
+            .header-flex { flex-direction: column; align-items: flex-start; gap: 10px;}
         }
     </style>
 </head>
@@ -99,23 +109,23 @@
             </div>
 
             <div class="card">
-                <h2>Generate Statement</h2>
-                <label>Select Entity to Generate PDF Statement</label>
-                <select id="statementSelect"></select>
-                <button class="btn-export" onclick="generatePDF()">Export Statement to PDF</button>
+                <h2>Generate PDF Statement</h2>
+                <div style="display: flex; gap: 10px;">
+                    <select id="statementSelect" style="margin-bottom: 0;"></select>
+                    <button class="btn-export" style="margin-bottom: 0;" onclick="generatePDF()">Export to PDF</button>
+                </div>
 
-                <h3 style="margin-top: 30px;">Recent Transactions</h3>
+                <div class="header-flex">
+                    <h3>Ledger View</h3>
+                    <select id="ledgerFilter" onchange="renderTransactions()">
+                        <option value="ALL">View All Transactions</option>
+                        </select>
+                </div>
+                
                 <div style="overflow-x:auto;">
                     <table id="txnTable">
                         <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>From</th>
-                                <th>To</th>
-                                <th>Amount</th>
-                                <th>Remarks</th>
-                            </tr>
-                        </thead>
+                            </thead>
                         <tbody>
                             </tbody>
                     </table>
@@ -139,49 +149,41 @@
             measurementId: "G-C00485V7YY"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- Data Architecture ---
         let members = ["Anshul", "Rishaan", "Eureka Broker", "IPO Escrow"];
         let transactions = [];
 
-        // --- Initialization & Storage Logic ---
+        // --- Initialization & Storage ---
         async function init() {
             document.getElementById('txnDate').valueAsDate = new Date();
-            
             try {
                 const docRef = doc(db, "ledgerData", "main");
                 const docSnap = await getDoc(docRef);
-
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     if (data.members) members = data.members;
                     if (data.transactions) transactions = data.transactions;
                 }
             } catch (error) {
-                console.error("Error loading from Firebase:", error);
-                alert("Could not load database. Check browser console.");
+                console.error("Firebase load error:", error);
+                alert("Database load failed. Check internet/console.");
             }
-            
             updateUI();
         }
 
         async function saveData() {
             try {
-                await setDoc(doc(db, "ledgerData", "main"), {
-                    members: members,
-                    transactions: transactions
-                });
+                await setDoc(doc(db, "ledgerData", "main"), { members, transactions });
             } catch (error) {
-                console.error("Error saving to Firebase:", error);
-                alert("Failed to save data. Check your connection.");
+                console.error("Firebase save error:", error);
+                alert("Save failed. Check connection.");
             }
         }
 
-        // --- Core Application Logic ---
-        function updateUI() {
+        // --- Core UI Updates ---
+        window.updateUI = function() {
             updateDropdowns();
             renderMembersList();
             renderBalances();
@@ -192,15 +194,19 @@
             const fromSelect = document.getElementById('txnFrom');
             const toSelect = document.getElementById('txnTo');
             const stmtSelect = document.getElementById('statementSelect');
+            const ledgerFilter = document.getElementById('ledgerFilter');
             
+            const currentFilter = ledgerFilter.value;
             let optionsHTML = members.map(m => `<option value="${m}">${m}</option>`).join('');
             
             fromSelect.innerHTML = `<option value="">Select Sender...</option>` + optionsHTML;
             toSelect.innerHTML = `<option value="">Select Receiver...</option>` + optionsHTML;
             stmtSelect.innerHTML = optionsHTML;
+            
+            ledgerFilter.innerHTML = `<option value="ALL">View All Transactions</option>` + optionsHTML;
+            ledgerFilter.value = currentFilter && members.includes(currentFilter) ? currentFilter : "ALL";
         }
 
-        // New Feature: Render Edit/Delete List
         function renderMembersList() {
             const list = document.getElementById('membersList');
             list.innerHTML = members.map(m => `
@@ -208,13 +214,14 @@
                     <span>${m}</span>
                     <div class="member-actions">
                         <button class="action-btn btn-edit" onclick="editMember('${m}')">Edit</button>
-                        <button class="action-btn btn-delete" onclick="deleteMember('${m}')">Delete</button>
+                        <button class="action-btn btn-delete" onclick="deleteMember('${m}')">Del</button>
                     </div>
                 </div>
             `).join('');
         }
 
-        function calculateBalances() {
+        function renderBalances() {
+            const grid = document.getElementById('balanceGrid');
             let balances = {};
             members.forEach(m => balances[m] = 0);
 
@@ -222,58 +229,80 @@
                 if(balances[t.from] !== undefined) balances[t.from] -= t.amount;
                 if(balances[t.to] !== undefined) balances[t.to] += t.amount;
             });
-            return balances;
-        }
-
-        function renderBalances() {
-            const grid = document.getElementById('balanceGrid');
-            const balances = calculateBalances();
             
             grid.innerHTML = members.map(m => {
                 const bal = balances[m];
-                const colorClass = bal >= 0 ? 'positive' : 'negative';
-                const formatted = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(bal);
+                const cls = bal >= 0 ? 'positive' : 'negative';
                 return `
                     <div class="balance-card">
                         <h3>${m}</h3>
-                        <div class="${colorClass}">${formatted}</div>
+                        <div class="${cls}">₹${bal.toLocaleString('en-IN', {minimumFractionDigits: 2})}</div>
                     </div>
                 `;
             }).join('');
         }
 
-        function renderTransactions() {
+        // --- Render Ledger Table ---
+        window.renderTransactions = function() {
+            const filter = document.getElementById('ledgerFilter').value;
+            const thead = document.querySelector('#txnTable thead');
             const tbody = document.querySelector('#txnTable tbody');
-            const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
-            
-            tbody.innerHTML = sorted.map(t => {
-                const formattedAmt = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(t.amount);
-                return `
+            let html = '';
+
+            if (filter === 'ALL') {
+                thead.innerHTML = `<tr><th>Date</th><th>From</th><th>To</th><th>Amount</th><th>Remarks</th><th>Actions</th></tr>`;
+                const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                html = sorted.map(t => `
                     <tr>
-                        <td>${t.date}</td>
-                        <td>${t.from}</td>
-                        <td>${t.to}</td>
-                        <td>${formattedAmt}</td>
-                        <td>${t.remarks}</td>
+                        <td>${t.date}</td><td>${t.from}</td><td>${t.to}</td>
+                        <td>₹${t.amount.toLocaleString('en-IN')}</td><td>${t.remarks}</td>
+                        <td>
+                            <button class="action-btn btn-edit" onclick="editTransaction(${t.id})">Edit</button>
+                            <button class="action-btn btn-delete" onclick="deleteTransaction(${t.id})">Del</button>
+                        </td>
                     </tr>
-                `;
-            }).join('');
+                `).join('');
+            } else {
+                thead.innerHTML = `<tr><th>Date</th><th>Particulars</th><th>Remarks</th><th>In (Credit)</th><th>Out (Debit)</th><th>Balance</th><th>Actions</th></tr>`;
+                
+                // Sort ascending to calculate running balance properly
+                const filtered = transactions.filter(t => t.from === filter || t.to === filter)
+                                             .sort((a, b) => new Date(a.date) - new Date(b.date));
+                let runningBalance = 0;
+                
+                // Map the rows with running balance
+                const rows = filtered.map(t => {
+                    let inAmt = 0, outAmt = 0, particulars = '';
+                    if (t.from === filter) {
+                        outAmt = t.amount;
+                        runningBalance -= t.amount;
+                        particulars = `To: ${t.to}`;
+                    } else {
+                        inAmt = t.amount;
+                        runningBalance += t.amount;
+                        particulars = `From: ${t.from}`;
+                    }
+                    return `
+                    <tr>
+                        <td>${t.date}</td><td>${particulars}</td><td>${t.remarks}</td>
+                        <td class="positive">${inAmt > 0 ? '₹'+inAmt.toLocaleString('en-IN') : '-'}</td>
+                        <td class="negative">${outAmt > 0 ? '₹'+outAmt.toLocaleString('en-IN') : '-'}</td>
+                        <td><strong>₹${runningBalance.toLocaleString('en-IN')}</strong></td>
+                        <td>
+                            <button class="action-btn btn-edit" onclick="editTransaction(${t.id})">Edit</button>
+                            <button class="action-btn btn-delete" onclick="deleteTransaction(${t.id})">Del</button>
+                        </td>
+                    </tr>`;
+                });
+                
+                // Reverse so the newest transaction (and current balance) is at the top
+                html = rows.reverse().join('');
+            }
+            tbody.innerHTML = html;
         }
 
-        // --- Event Listeners ---
-        document.getElementById('memberForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const newName = document.getElementById('newMemberName').value.trim();
-            if (newName && !members.includes(newName)) {
-                members.push(newName);
-                await saveData();
-                updateUI();
-                document.getElementById('newMemberName').value = '';
-            } else {
-                alert("Entity already exists or name is invalid.");
-            }
-        });
-
+        // --- Transaction Management ---
         document.getElementById('txnForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const date = document.getElementById('txnDate').value;
@@ -282,14 +311,9 @@
             const amount = parseFloat(document.getElementById('txnAmount').value);
             const remarks = document.getElementById('txnRemarks').value;
 
-            if (from === to) {
-                alert("Sender and Receiver cannot be the same.");
-                return;
-            }
+            if (from === to) { alert("Sender and Receiver cannot be the same."); return; }
 
-            const txn = { id: Date.now(), date, from, to, amount, remarks };
-            transactions.push(txn);
-            
+            transactions.push({ id: Date.now(), date, from, to, amount, remarks });
             await saveData();
             updateUI();
             
@@ -297,51 +321,80 @@
             document.getElementById('txnRemarks').value = '';
         });
 
-        // --- Global Functions (Attached to Window for HTML onclick) ---
-        window.editMember = async function(oldName) {
-            const newName = prompt(`Enter new name for "${oldName}":`, oldName);
-            
-            // If user cancels or enters empty string
-            if (!newName || newName.trim() === "" || newName === oldName) return;
-            
-            const trimmedName = newName.trim();
-            if (members.includes(trimmedName)) {
-                alert("An entity with this name already exists.");
+        window.editTransaction = async function(id) {
+            const txn = transactions.find(t => t.id === id);
+            if (!txn) return;
+
+            const newDate = prompt("Edit Date (YYYY-MM-DD):", txn.date);
+            if (newDate === null) return; 
+
+            const newAmountStr = prompt("Edit Amount (₹):", txn.amount);
+            if (newAmountStr === null) return; 
+            const newAmount = parseFloat(newAmountStr);
+
+            const newRemarks = prompt("Edit Remarks:", txn.remarks);
+            if (newRemarks === null) return;
+
+            if (isNaN(newAmount) || newAmount <= 0) {
+                alert("Invalid amount. Edit cancelled.");
                 return;
             }
 
-            // 1. Update the name in the members array
-            const index = members.indexOf(oldName);
-            if (index !== -1) {
-                members[index] = trimmedName;
-            }
-
-            // 2. Scan and update all historical transactions to maintain accounting integrity
-            transactions.forEach(t => {
-                if (t.from === oldName) t.from = trimmedName;
-                if (t.to === oldName) t.to = trimmedName;
-            });
+            txn.date = newDate;
+            txn.amount = newAmount;
+            txn.remarks = newRemarks;
 
             await saveData();
             updateUI();
         };
 
-        window.deleteMember = async function(name) {
-            // Safety Check: Do not allow deletion if the account has transactions
-            const hasHistory = transactions.some(t => t.from === name || t.to === name);
-            if (hasHistory) {
-                alert(`Cannot delete "${name}". This entity has existing transactions in the ledger. You must edit or clear those transactions first to keep balances accurate.`);
-                return;
+        window.deleteTransaction = async function(id) {
+            if (confirm("Are you sure you want to completely delete this transaction? This will permanently alter the net balances.")) {
+                transactions = transactions.filter(t => t.id !== id);
+                await saveData();
+                updateUI();
             }
+        };
 
-            if (confirm(`Are you sure you want to completely remove "${name}"?`)) {
+        // --- Member Management ---
+        document.getElementById('memberForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newName = document.getElementById('newMemberName').value.trim();
+            if (newName && !members.includes(newName)) {
+                members.push(newName);
+                await saveData();
+                updateUI();
+                document.getElementById('newMemberName').value = '';
+            }
+        });
+
+        window.editMember = async function(oldName) {
+            const newName = prompt(`Enter new name for "${oldName}":`, oldName);
+            if (!newName || newName.trim() === "" || newName === oldName) return;
+            const trimmed = newName.trim();
+            if (members.includes(trimmed)) return alert("Name exists.");
+
+            members[members.indexOf(oldName)] = trimmed;
+            transactions.forEach(t => {
+                if (t.from === oldName) t.from = trimmed;
+                if (t.to === oldName) t.to = trimmed;
+            });
+            await saveData();
+            updateUI();
+        };
+
+        window.deleteMember = async function(name) {
+            if (transactions.some(t => t.from === name || t.to === name)) {
+                return alert("Cannot delete. Clear all transactions for this entity first.");
+            }
+            if (confirm(`Remove "${name}" permanently?`)) {
                 members = members.filter(m => m !== name);
                 await saveData();
                 updateUI();
             }
         };
 
-        // --- PDF Export Logic ---
+        // --- PDF Generation ---
         window.generatePDF = function() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -356,30 +409,12 @@
             doc.setFontSize(11);
             doc.text(`Generated on: ${new Date().toLocaleDateString('en-IN')}`, 14, 28);
 
-            let runningBalance = 0;
+            let runBal = 0;
             const tableData = entityTxns.map(t => {
-                let debit = 0;
-                let credit = 0;
-                let type = "";
-                
-                if (t.from === entity) {
-                    debit = t.amount;
-                    runningBalance -= t.amount;
-                    type = `To ${t.to}`;
-                } else {
-                    credit = t.amount;
-                    runningBalance += t.amount;
-                    type = `From ${t.from}`;
-                }
-
-                return [
-                    t.date,
-                    type,
-                    t.remarks,
-                    debit > 0 ? debit.toFixed(2) : "-",
-                    credit > 0 ? credit.toFixed(2) : "-",
-                    runningBalance.toFixed(2)
-                ];
+                let d=0, c=0, type="";
+                if (t.from === entity) { d = t.amount; runBal -= t.amount; type = `To ${t.to}`; } 
+                else { c = t.amount; runBal += t.amount; type = `From ${t.from}`; }
+                return [ t.date, type, t.remarks, d>0 ? d.toFixed(2) : "-", c>0 ? c.toFixed(2) : "-", runBal.toFixed(2) ];
             });
 
             doc.autoTable({
@@ -389,11 +424,9 @@
                 theme: 'striped',
                 headStyles: { fillColor: [44, 62, 80] }
             });
-
             doc.save(`${entity}_Statement_${new Date().getTime()}.pdf`);
         }
 
-        // Boot up
         init();
     </script>
 </body>
