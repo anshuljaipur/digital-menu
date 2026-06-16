@@ -16,10 +16,23 @@
             --info: #2980b9;
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); margin: 0; padding: 20px; color: var(--primary); }
+        
+        /* Login Screen Styles */
+        #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .login-box { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 100%; max-width: 400px; text-align: center; }
+        .login-box h2 { margin-top: 0; margin-bottom: 20px; }
+        .login-box input { margin-bottom: 15px; padding: 12px; font-size: 1em; }
+        .login-box button { padding: 12px; font-size: 1.1em; }
+        .error-msg { color: var(--danger); font-size: 0.9em; margin-bottom: 15px; display: none; }
+        
+        /* Main App Styles */
+        #mainApp { display: none; }
+        .app-header { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto 20px auto; }
+        .btn-logout { background-color: var(--danger); width: auto; padding: 8px 15px; margin: 0; }
+        
         .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
         .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
         h1, h2, h3 { margin-top: 0; color: var(--primary); }
-        h1 { grid-column: 1 / -1; text-align: center; margin-bottom: 20px;}
         label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9em; }
         input, select, button { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #bdc3c7; border-radius: 4px; box-sizing: border-box; }
         button { background-color: var(--accent); color: white; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
@@ -41,7 +54,6 @@
         
         .member-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #ecf0f1; font-weight: bold; }
         
-        /* Action Buttons */
         .action-btn { padding: 4px 8px; margin-bottom: 0; font-size: 0.8em; width: auto; display: inline-block; border-radius: 3px; cursor: pointer;}
         .btn-edit { background-color: #f39c12; margin-right: 5px; color: white; border: none;}
         .btn-edit:hover { background-color: #d68910; }
@@ -49,86 +61,101 @@
         .btn-delete:hover { background-color: #a93226; }
         .member-actions { display: flex; gap: 5px; }
         
-        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-top: 30px;}
-        .header-flex select { width: 250px; margin-bottom: 0; }
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;}
+        .filter-group { display: flex; gap: 10px; align-items: center; background: var(--bg); padding: 10px; border-radius: 6px;}
+        .filter-group input, .filter-group select, .filter-group button { margin-bottom: 0; width: auto; }
 
         @media (max-width: 768px) {
             .container { grid-template-columns: 1fr; }
-            .header-flex { flex-direction: column; align-items: flex-start; gap: 10px;}
+            .header-flex { flex-direction: column; align-items: flex-start; }
+            .filter-group { flex-wrap: wrap; }
         }
     </style>
 </head>
 <body>
 
-    <h1>Financial Tracking Ledger</h1>
+    <div id="loginScreen">
+        <div class="login-box">
+            <h2>Secure Ledger Access</h2>
+            <div id="loginError" class="error-msg">Invalid email or password.</div>
+            <form id="loginForm">
+                <input type="email" id="loginEmail" placeholder="Email Address" required>
+                <input type="password" id="loginPassword" placeholder="Password" required>
+                <button type="submit">Log In</button>
+            </form>
+        </div>
+    </div>
 
-    <div class="container">
-        <div>
-            <div class="card">
-                <h2>Add Transaction</h2>
-                <form id="txnForm">
-                    <label>Date</label>
-                    <input type="date" id="txnDate" required>
-                    
-                    <label>From (Sender)</label>
-                    <select id="txnFrom" required></select>
-                    
-                    <label>To (Receiver)</label>
-                    <select id="txnTo" required></select>
-                    
-                    <label>Amount (₹)</label>
-                    <input type="number" id="txnAmount" min="1" step="0.01" required>
-                    
-                    <label>Remarks / Purpose</label>
-                    <input type="text" id="txnRemarks" placeholder="e.g., IPO Application, Margin Transfer">
-                    
-                    <button type="submit">Record Transaction</button>
-                </form>
-            </div>
-
-            <div class="card">
-                <h2>Manage Entities</h2>
-                <form id="memberForm">
-                    <label>Add New Member / Account</label>
-                    <input type="text" id="newMemberName" placeholder="e.g., Bank Acct, Broker, Name" required>
-                    <button type="submit">Add Entity</button>
-                </form>
-
-                <h3 style="margin-top: 20px; font-size: 1.1em; border-bottom: 2px solid var(--secondary); padding-bottom: 5px;">Current Entities</h3>
-                <div id="membersList">
-                    </div>
-            </div>
+    <div id="mainApp">
+        <div class="app-header">
+            <h1 style="margin: 0;">Financial Tracking Ledger</h1>
+            <button class="btn-logout" id="btnLogout">Secure Logout</button>
         </div>
 
-        <div>
-            <div class="card">
-                <h2>Net Balances</h2>
-                <p style="font-size: 0.8em; color: #7f8c8d;">Positive balance means the entity holds funds. Negative means they have sent more than received.</p>
-                <div class="dashboard-grid" id="balanceGrid">
-                    </div>
+        <div class="container">
+            <div>
+                <div class="card">
+                    <h2>Add Transaction</h2>
+                    <form id="txnForm">
+                        <label>Date</label>
+                        <input type="date" id="txnDate" required>
+                        
+                        <label>From (Sender)</label>
+                        <select id="txnFrom" required></select>
+                        
+                        <label>To (Receiver)</label>
+                        <select id="txnTo" required></select>
+                        
+                        <label>Amount (₹)</label>
+                        <input type="number" id="txnAmount" min="1" step="0.01" required>
+                        
+                        <label>Remarks / Purpose</label>
+                        <input type="text" id="txnRemarks" placeholder="e.g., IPO Application, Margin Transfer">
+                        
+                        <button type="submit">Record Transaction</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h2>Manage Entities</h2>
+                    <form id="memberForm">
+                        <label>Add New Member / Account</label>
+                        <input type="text" id="newMemberName" placeholder="e.g., Bank Acct, Broker, Name" required>
+                        <button type="submit">Add Entity</button>
+                    </form>
+
+                    <h3 style="margin-top: 20px; font-size: 1.1em; border-bottom: 2px solid var(--secondary); padding-bottom: 5px;">Current Entities</h3>
+                    <div id="membersList"></div>
+                </div>
             </div>
 
-            <div class="card">
-                <h2>Generate PDF Statement</h2>
-                <div style="display: flex; gap: 10px;">
-                    <select id="statementSelect" style="margin-bottom: 0;"></select>
-                    <button class="btn-export" style="margin-bottom: 0;" onclick="generatePDF()">Export to PDF</button>
+            <div>
+                <div class="card">
+                    <h2>Net Balances</h2>
+                    <p style="font-size: 0.8em; color: #7f8c8d;">Positive balance means the entity holds funds. Negative means they have sent more than received.</p>
+                    <div class="dashboard-grid" id="balanceGrid"></div>
                 </div>
 
-                <div class="header-flex">
-                    <h3>Ledger View</h3>
-                    <select id="ledgerFilter" onchange="renderTransactions()">
-                        <option value="ALL">View All Transactions</option>
+                <div class="card">
+                    <h2>Ledger & Statements</h2>
+                    
+                    <div class="filter-group">
+                        <label style="margin:0;">From:</label>
+                        <input type="date" id="filterStart" onchange="renderTransactions()">
+                        <label style="margin:0;">To:</label>
+                        <input type="date" id="filterEnd" onchange="renderTransactions()">
+                        <select id="ledgerFilter" onchange="renderTransactions()">
+                            <option value="ALL">View All Transactions</option>
                         </select>
-                </div>
-                
-                <div style="overflow-x:auto;">
-                    <table id="txnTable">
-                        <thead>
-                            </thead>
-                        <tbody>
-                            </tbody>
-                    </table>
+                        <button class="btn-export" onclick="generatePDF()">Export PDF</button>
+                    </div>
+                    
+                    <div style="overflow-x:auto; margin-top: 15px;">
+                        <table id="txnTable">
+                            <thead></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -137,6 +164,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        // Added Authentication Imports
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
         // !!! PASTE YOUR FIREBASE CONFIGURATION HERE !!!
         const firebaseConfig = {
@@ -151,13 +180,51 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app); // Initialize Auth
 
         let members = ["Anshul", "Rishaan", "Eureka Broker", "IPO Escrow"];
         let transactions = [];
 
+        // --- Authentication Logic ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is logged in
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                initData(); // Load data only after verifying auth
+            } else {
+                // User is logged out
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('mainApp').style.display = 'none';
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPassword').value;
+            
+            signInWithEmailAndPassword(auth, email, pass)
+                .catch((error) => {
+                    document.getElementById('loginError').style.display = 'block';
+                });
+        });
+
+        document.getElementById('btnLogout').addEventListener('click', () => {
+            signOut(auth);
+        });
+
+
         // --- Initialization & Storage ---
-        async function init() {
+        async function initData() {
             document.getElementById('txnDate').valueAsDate = new Date();
+            
+            // Set default filters to current month to keep ledger clean initially
+            const today = new Date();
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            document.getElementById('filterStart').valueAsDate = firstDay;
+            document.getElementById('filterEnd').valueAsDate = today;
+
             try {
                 const docRef = doc(db, "ledgerData", "main");
                 const docSnap = await getDoc(docRef);
@@ -168,7 +235,7 @@
                 }
             } catch (error) {
                 console.error("Firebase load error:", error);
-                alert("Database load failed. Check internet/console.");
+                alert("Database load failed. Ensure your Firebase Rules allow authenticated reads.");
             }
             updateUI();
         }
@@ -178,7 +245,7 @@
                 await setDoc(doc(db, "ledgerData", "main"), { members, transactions });
             } catch (error) {
                 console.error("Firebase save error:", error);
-                alert("Save failed. Check connection.");
+                alert("Save failed. Ensure you are logged in.");
             }
         }
 
@@ -193,7 +260,6 @@
         function updateDropdowns() {
             const fromSelect = document.getElementById('txnFrom');
             const toSelect = document.getElementById('txnTo');
-            const stmtSelect = document.getElementById('statementSelect');
             const ledgerFilter = document.getElementById('ledgerFilter');
             
             const currentFilter = ledgerFilter.value;
@@ -201,7 +267,6 @@
             
             fromSelect.innerHTML = `<option value="">Select Sender...</option>` + optionsHTML;
             toSelect.innerHTML = `<option value="">Select Receiver...</option>` + optionsHTML;
-            stmtSelect.innerHTML = optionsHTML;
             
             ledgerFilter.innerHTML = `<option value="ALL">View All Transactions</option>` + optionsHTML;
             ledgerFilter.value = currentFilter && members.includes(currentFilter) ? currentFilter : "ALL";
@@ -220,16 +285,19 @@
             `).join('');
         }
 
-        function renderBalances() {
-            const grid = document.getElementById('balanceGrid');
+        function calculateBalances() {
             let balances = {};
             members.forEach(m => balances[m] = 0);
-
             transactions.forEach(t => {
                 if(balances[t.from] !== undefined) balances[t.from] -= t.amount;
                 if(balances[t.to] !== undefined) balances[t.to] += t.amount;
             });
-            
+            return balances;
+        }
+
+        function renderBalances() {
+            const grid = document.getElementById('balanceGrid');
+            const balances = calculateBalances();
             grid.innerHTML = members.map(m => {
                 const bal = balances[m];
                 const cls = bal >= 0 ? 'positive' : 'negative';
@@ -242,18 +310,36 @@
             }).join('');
         }
 
+        // --- Utility: Filter Transactions by Date ---
+        function getFilteredTransactions(acctFilter) {
+            const startVal = document.getElementById('filterStart').value;
+            const endVal = document.getElementById('filterEnd').value;
+            
+            return transactions.filter(t => {
+                // Account filter
+                if (acctFilter !== 'ALL' && t.from !== acctFilter && t.to !== acctFilter) return false;
+                
+                // Date filter
+                if (startVal && t.date < startVal) return false;
+                if (endVal && t.date > endVal) return false;
+                
+                return true;
+            });
+        }
+
         // --- Render Ledger Table ---
         window.renderTransactions = function() {
             const filter = document.getElementById('ledgerFilter').value;
             const thead = document.querySelector('#txnTable thead');
             const tbody = document.querySelector('#txnTable tbody');
-            let html = '';
+            
+            const filteredTxns = getFilteredTransactions(filter);
 
             if (filter === 'ALL') {
                 thead.innerHTML = `<tr><th>Date</th><th>From</th><th>To</th><th>Amount</th><th>Remarks</th><th>Actions</th></tr>`;
-                const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+                const sorted = filteredTxns.sort((a, b) => new Date(b.date) - new Date(a.date));
                 
-                html = sorted.map(t => `
+                tbody.innerHTML = sorted.map(t => `
                     <tr>
                         <td>${t.date}</td><td>${t.from}</td><td>${t.to}</td>
                         <td>₹${t.amount.toLocaleString('en-IN')}</td><td>${t.remarks}</td>
@@ -267,12 +353,22 @@
                 thead.innerHTML = `<tr><th>Date</th><th>Particulars</th><th>Remarks</th><th>In (Credit)</th><th>Out (Debit)</th><th>Balance</th><th>Actions</th></tr>`;
                 
                 // Sort ascending to calculate running balance properly
-                const filtered = transactions.filter(t => t.from === filter || t.to === filter)
-                                             .sort((a, b) => new Date(a.date) - new Date(b.date));
+                const sorted = filteredTxns.sort((a, b) => new Date(a.date) - new Date(b.date));
+                
+                // We need to calculate the starting balance BEFORE the filtered period for accurate running balance
+                const startVal = document.getElementById('filterStart').value;
                 let runningBalance = 0;
                 
-                // Map the rows with running balance
-                const rows = filtered.map(t => {
+                if (startVal) {
+                    transactions.forEach(t => {
+                        if (t.date < startVal) {
+                            if (t.from === filter) runningBalance -= t.amount;
+                            if (t.to === filter) runningBalance += t.amount;
+                        }
+                    });
+                }
+                
+                const rows = sorted.map(t => {
                     let inAmt = 0, outAmt = 0, particulars = '';
                     if (t.from === filter) {
                         outAmt = t.amount;
@@ -296,10 +392,8 @@
                     </tr>`;
                 });
                 
-                // Reverse so the newest transaction (and current balance) is at the top
-                html = rows.reverse().join('');
+                tbody.innerHTML = rows.reverse().join('');
             }
-            tbody.innerHTML = html;
         }
 
         // --- Transaction Management ---
@@ -335,24 +429,16 @@
             const newRemarks = prompt("Edit Remarks:", txn.remarks);
             if (newRemarks === null) return;
 
-            if (isNaN(newAmount) || newAmount <= 0) {
-                alert("Invalid amount. Edit cancelled.");
-                return;
-            }
+            if (isNaN(newAmount) || newAmount <= 0) { alert("Invalid amount."); return; }
 
-            txn.date = newDate;
-            txn.amount = newAmount;
-            txn.remarks = newRemarks;
-
-            await saveData();
-            updateUI();
+            txn.date = newDate; txn.amount = newAmount; txn.remarks = newRemarks;
+            await saveData(); updateUI();
         };
 
         window.deleteTransaction = async function(id) {
-            if (confirm("Are you sure you want to completely delete this transaction? This will permanently alter the net balances.")) {
+            if (confirm("Delete this transaction? This alters net balances.")) {
                 transactions = transactions.filter(t => t.id !== id);
-                await saveData();
-                updateUI();
+                await saveData(); updateUI();
             }
         };
 
@@ -362,8 +448,7 @@
             const newName = document.getElementById('newMemberName').value.trim();
             if (newName && !members.includes(newName)) {
                 members.push(newName);
-                await saveData();
-                updateUI();
+                await saveData(); updateUI();
                 document.getElementById('newMemberName').value = '';
             }
         });
@@ -379,8 +464,7 @@
                 if (t.from === oldName) t.from = trimmed;
                 if (t.to === oldName) t.to = trimmed;
             });
-            await saveData();
-            updateUI();
+            await saveData(); updateUI();
         };
 
         window.deleteMember = async function(name) {
@@ -389,45 +473,59 @@
             }
             if (confirm(`Remove "${name}" permanently?`)) {
                 members = members.filter(m => m !== name);
-                await saveData();
-                updateUI();
+                await saveData(); updateUI();
             }
         };
 
         // --- PDF Generation ---
         window.generatePDF = function() {
+            const filter = document.getElementById('ledgerFilter').value;
+            if(filter === 'ALL') {
+                alert("Please select a specific entity from the dropdown to generate a statement.");
+                return;
+            }
+
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            const entity = document.getElementById('statementSelect').value;
             
-            const entityTxns = [...transactions]
-                .filter(t => t.from === entity || t.to === entity)
-                .sort((a, b) => new Date(a.date) - new Date(b.date));
+            // Re-use our filtered transactions logic, sort ascending for PDF
+            const entityTxns = getFilteredTransactions(filter).sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            // Calculate Prior Balance
+            const startVal = document.getElementById('filterStart').value;
+            let runningBalance = 0;
+            if (startVal) {
+                transactions.forEach(t => {
+                    if (t.date < startVal) {
+                        if (t.from === filter) runningBalance -= t.amount;
+                        if (t.to === filter) runningBalance += t.amount;
+                    }
+                });
+            }
 
             doc.setFontSize(18);
-            doc.text(`Account Statement: ${entity}`, 14, 20);
-            doc.setFontSize(11);
+            doc.text(`Account Statement: ${filter}`, 14, 20);
+            doc.setFontSize(10);
             doc.text(`Generated on: ${new Date().toLocaleDateString('en-IN')}`, 14, 28);
+            doc.text(`Period: ${startVal || 'Start'} to ${document.getElementById('filterEnd').value || 'Present'}`, 14, 34);
+            if (startVal) doc.text(`Opening Balance: ${runningBalance.toFixed(2)}`, 14, 40);
 
-            let runBal = 0;
             const tableData = entityTxns.map(t => {
                 let d=0, c=0, type="";
-                if (t.from === entity) { d = t.amount; runBal -= t.amount; type = `To ${t.to}`; } 
-                else { c = t.amount; runBal += t.amount; type = `From ${t.from}`; }
-                return [ t.date, type, t.remarks, d>0 ? d.toFixed(2) : "-", c>0 ? c.toFixed(2) : "-", runBal.toFixed(2) ];
+                if (t.from === filter) { d = t.amount; runningBalance -= t.amount; type = `To ${t.to}`; } 
+                else { c = t.amount; runningBalance += t.amount; type = `From ${t.from}`; }
+                return [ t.date, type, t.remarks, d>0 ? d.toFixed(2) : "-", c>0 ? c.toFixed(2) : "-", runningBalance.toFixed(2) ];
             });
 
             doc.autoTable({
-                startY: 35,
+                startY: startVal ? 45 : 40,
                 head: [['Date', 'Particulars', 'Remarks', 'Debit (Out)', 'Credit (In)', 'Balance']],
                 body: tableData,
                 theme: 'striped',
                 headStyles: { fillColor: [44, 62, 80] }
             });
-            doc.save(`${entity}_Statement_${new Date().getTime()}.pdf`);
+            doc.save(`${filter}_Statement_${new Date().getTime()}.pdf`);
         }
-
-        init();
     </script>
 </body>
 </html>
