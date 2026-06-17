@@ -46,10 +46,6 @@
         .positive { color: var(--accent); font-weight: bold; }
         .negative { color: var(--danger); font-weight: bold; }
         
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
-        .balance-card { border: 1px solid #bdc3c7; padding: 15px; border-radius: 6px; text-align: center; }
-        .balance-card h3 { margin: 0 0 10px 0; font-size: 1.1em; }
-        
         .member-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #ecf0f1; font-weight: bold; }
         .action-btn { padding: 4px 8px; margin-bottom: 0; font-size: 0.8em; width: auto; display: inline-block; border-radius: 3px; cursor: pointer;}
         .btn-edit { background-color: #f39c12; margin-right: 5px; color: white; border: none;}
@@ -61,18 +57,6 @@
         .header-flex { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;}
         .filter-group { display: flex; gap: 10px; align-items: center; background: var(--bg); padding: 10px; border-radius: 6px;}
         .filter-group input, .filter-group select, .filter-group button { margin-bottom: 0; width: auto; }
-
-        /* NEW DUPLICATE WARNING STYLE */
-        .duplicate-warning {
-            background-color: #f39c12;
-            color: white;
-            padding: 12px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            font-weight: bold;
-            display: none;
-            border-left: 5px solid #c0392b;
-        }
 
         @media (max-width: 768px) {
             .container { grid-template-columns: 1fr; }
@@ -119,12 +103,8 @@
                         <input type="number" id="txnAmount" min="1" step="0.01" required>
                         
                         <label>Remarks / Purpose</label>
-                        <input type="text" id="txnRemarks" placeholder="e.g., IPO Application, Margin Transfer">
+                        <input type="text" id="txnRemarks" placeholder="e.g., NEFT - CR - Indian Clearing">
                         
-                        <div id="duplicateWarning" class="duplicate-warning">
-                            ⚠️ PLEASE CHECK: A transaction with this exact amount between these entities already exists.
-                        </div>
-
                         <button type="submit">Record Transaction</button>
                     </form>
                 </div>
@@ -146,7 +126,7 @@
                 <div class="card">
                     <h2>Net Balances</h2>
                     <p style="font-size: 0.8em; color: #7f8c8d;">Positive balance means the entity holds funds. Negative means they have sent more than received.</p>
-                    <div class="dashboard-grid" id="balanceGrid"></div>
+                    <div id="balanceGrid" style="overflow-x:auto;"></div>
                 </div>
 
                 <div class="card">
@@ -194,8 +174,17 @@
         const db = getFirestore(app);
         const auth = getAuth(app); 
 
-        let members = ["Anshul", "Rishaan", "Eureka Broker", "IPO Escrow"];
+        // Default set updated, though Firebase will override this once loaded
+        let members = ["Eureka PAPA", "Eureka Akku", "Gopal Krishan Goyal", "Ankita Goyal", "Maa"];
         let transactions = [];
+
+        // Utility Function to format dates
+        function formatDateToYYYYMMDD(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
 
         // --- Authentication Logic ---
         onAuthStateChanged(auth, (user) => {
@@ -224,15 +213,21 @@
             signOut(auth);
         });
 
-
         // --- Initialization & Storage ---
         async function initData() {
             document.getElementById('txnDate').valueAsDate = new Date();
             
+            // Financial Year Default Logic (April 1st to Today)
             const today = new Date();
-            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-            document.getElementById('filterStart').valueAsDate = firstDay;
-            document.getElementById('filterEnd').valueAsDate = today;
+            let startYear = today.getFullYear();
+            // If current month is Jan (0), Feb (1), or Mar (2), the financial year started last year
+            if (today.getMonth() < 3) {
+                startYear--;
+            }
+            const firstDayOfFY = new Date(startYear, 3, 1); // Month 3 is April
+            
+            document.getElementById('filterStart').value = formatDateToYYYYMMDD(firstDayOfFY);
+            document.getElementById('filterEnd').value = formatDateToYYYYMMDD(today);
 
             try {
                 const docRef = doc(db, "ledgerData", "main");
@@ -302,19 +297,35 @@
             return balances;
         }
 
+        // Updated Render Balances: Statement Table Style
         function renderBalances() {
-            const grid = document.getElementById('balanceGrid');
+            const container = document.getElementById('balanceGrid');
             const balances = calculateBalances();
-            grid.innerHTML = members.map(m => {
+            
+            let html = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>Account Name</th>
+                        <th style="text-align: right;">Net Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+
+            members.forEach(m => {
                 const bal = balances[m];
                 const cls = bal >= 0 ? 'positive' : 'negative';
-                return `
-                    <div class="balance-card">
-                        <h3>${m}</h3>
-                        <div class="${cls}">₹${bal.toLocaleString('en-IN', {minimumFractionDigits: 2})}</div>
-                    </div>
+                html += `
+                    <tr>
+                        <td>${m}</td>
+                        <td style="text-align: right;" class="${cls}">₹${bal.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                    </tr>
                 `;
-            }).join('');
+            });
+            
+            html += `</tbody></table>`;
+            container.innerHTML = html;
         }
 
         function getFilteredTransactions(acctFilter) {
@@ -394,38 +405,9 @@
             }
         }
 
-        // --- NEW REAL-TIME DUPLICATE CHECKER ---
-        function checkDuplicateTxn() {
-            const from = document.getElementById('txnFrom').value;
-            const to = document.getElementById('txnTo').value;
-            const amount = parseFloat(document.getElementById('txnAmount').value);
-            const warningBox = document.getElementById('duplicateWarning');
-
-            if (from && to && !isNaN(amount)) {
-                // Check if any existing transaction has the exact same sender, receiver, and amount
-                const isDuplicate = transactions.some(t => t.from === from && t.to === to && t.amount === amount);
-                warningBox.style.display = isDuplicate ? 'block' : 'none';
-            } else {
-                warningBox.style.display = 'none';
-            }
-        }
-
-        // Listen for changes on the form fields
-        document.getElementById('txnFrom').addEventListener('change', checkDuplicateTxn);
-        document.getElementById('txnTo').addEventListener('change', checkDuplicateTxn);
-        document.getElementById('txnAmount').addEventListener('input', checkDuplicateTxn);
-
-
         // --- Transaction Management ---
         document.getElementById('txnForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            // Check if the warning box is visible. If it is, confirm before submitting.
-            if (document.getElementById('duplicateWarning').style.display === 'block') {
-                if (!confirm("⚠️ This looks like a duplicate entry. Are you sure you want to record it anyway?")) {
-                    return; // Stop submission if user clicks Cancel
-                }
-            }
 
             const date = document.getElementById('txnDate').value;
             const from = document.getElementById('txnFrom').value;
@@ -435,15 +417,28 @@
 
             if (from === to) { alert("Sender and Receiver cannot be the same."); return; }
 
+            // Hardwired strict duplicate check
+            const isDuplicate = transactions.some(t => 
+                t.from === from && 
+                t.to === to && 
+                t.amount === amount && 
+                t.date === date
+            );
+
+            if (isDuplicate) {
+                const confirmed = confirm(`⚠️ PLEASE CHECK:\n\nA transaction for ₹${amount} from ${from} to ${to} on ${date} already exists.\n\nAre you sure you want to record a duplicate entry?`);
+                if (!confirmed) {
+                    return; // Stop submission
+                }
+            }
+
             transactions.push({ id: Date.now(), date, from, to, amount, remarks });
             await saveData();
             updateUI();
             
+            // Clear inputs except date
             document.getElementById('txnAmount').value = '';
             document.getElementById('txnRemarks').value = '';
-            
-            // Reset the duplicate checker
-            checkDuplicateTxn();
         });
 
         window.editTransaction = async function(id) {
