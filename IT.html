@@ -6,10 +6,6 @@
     <title>Cloud Tax Audit Dashboard | AY 2026-27</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
     <style>
         :root {
             --navy: #0f172a; --cobalt: #1e40af; --slate: #64748b; 
@@ -70,6 +66,7 @@
         .btn-disk:hover { background: rgba(255,255,255,0.2); }
         .btn-disk.import-csv { border-color: var(--warning); color: #fbbf24; background: rgba(245, 158, 11, 0.1); }
         .btn-disk.print { border-color: #38bdf8; color: #7dd3fc; background: rgba(56, 189, 248, 0.1); }
+        .btn-disk.print:hover { background: rgba(56, 189, 248, 0.2); }
         .btn-disk.logout { border-color: #ef4444; color: #f87171; background: transparent; margin-top: 10px;}
 
         /* Main Content Area */
@@ -174,7 +171,7 @@
             <i class="fas fa-shield-alt" style="font-size: 40px; color: var(--cobalt); margin-bottom: 15px;"></i>
             <h1>Tax Audit Engine</h1>
             <p>Please sign in to access your secure cloud database.</p>
-            <button class="btn-google" onclick="loginWithGoogle()">
+            <button class="btn-google" onclick="appLogin()">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google">
                 Sign in with Google
             </button>
@@ -182,23 +179,23 @@
         <div class="loader" id="authLoader"></div>
     </div>
 
-    <input type="file" id="csvInput" accept=".csv" style="display: none;" onchange="importCSV(event)">
+    <input type="file" id="csvInput" accept=".csv" style="display: none;" onchange="appImportCSV(event)">
 
     <div class="sidebar">
         <div class="sidebar-header">
             <h2>CLIENT LIST</h2>
-            <button class="add-client-btn" onclick="openNewClientModal()"><i class="fas fa-plus"></i> NEW</button>
+            <button class="add-client-btn" onclick="appOpenNewClientModal()"><i class="fas fa-plus"></i> NEW</button>
         </div>
         <div class="client-list" id="clientTabs"></div>
         
         <div class="file-actions">
-            <button class="btn-disk import-csv" onclick="triggerCSVImport()"><i class="fas fa-file-csv"></i> Import Bank CSV</button>
+            <button class="btn-disk import-csv" onclick="appTriggerCSVImport()"><i class="fas fa-file-csv"></i> Import Bank CSV</button>
             <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 5px 0;"></div>
             
-            <button class="btn-disk print" onclick="generatePrintComputation()"><i class="fas fa-file-invoice-dollar"></i> Print Tax Computation</button>
-            <button class="btn-disk print" onclick="generatePrintStatement()"><i class="fas fa-file-alt"></i> Print Ledger Statement</button>
+            <button class="btn-disk print" onclick="appGeneratePrintComputation()"><i class="fas fa-file-invoice-dollar"></i> Print Tax Computation</button>
+            <button class="btn-disk print" onclick="appGeneratePrintStatement()"><i class="fas fa-file-alt"></i> Print Ledger Statement</button>
             
-            <button class="btn-disk logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Secure Logout</button>
+            <button class="btn-disk logout" onclick="appLogout()"><i class="fas fa-sign-out-alt"></i> Secure Logout</button>
         </div>
     </div>
 
@@ -217,7 +214,7 @@
             <div class="year-selector">
                 <i class="fas fa-calendar-alt" style="color: #0369a1;"></i>
                 <label>TAX YEAR:</label>
-                <select id="fiscalYear" onchange="changeYear()">
+                <select id="fiscalYear" onchange="appChangeYear()">
                     <option value="FY26-27" selected>FY 2026-27 (AY 2027-28)</option>
                     <option value="FY25-26">FY 2025-26 (AY 2026-27)</option>
                     <option value="FY24-25">FY 2024-25 (AY 2025-26)</option>
@@ -232,7 +229,7 @@
                 <div class="card">
                     <div class="card-header">
                         <span id="formTitle">POST TRANSACTION</span>
-                        <button id="cancelEditBtn" style="display:none; background:none; border:none; color:var(--danger); font-size:12px; cursor:pointer; font-weight:bold;" onclick="cancelEdit()">CANCEL EDIT</button>
+                        <button id="cancelEditBtn" style="display:none; background:none; border:none; color:var(--danger); font-size:12px; cursor:pointer; font-weight:bold;" onclick="appCancelEdit()">CANCEL EDIT</button>
                     </div>
                     <form id="taxForm" class="input-form">
                         <div class="form-group">
@@ -241,7 +238,7 @@
                         </div>
                         <div class="form-group">
                             <label>Transaction Category</label>
-                            <select id="txnType" required onchange="toggleFormFields()">
+                            <select id="txnType" required onchange="appToggleFormFields()">
                                 <optgroup label="Income from Business & Profession">
                                     <option value="Normal_Business">Regular Business / Profession (Actuals)</option>
                                     <option value="44AD_Business">Presumptive Business (Sec 44AD)</option>
@@ -311,10 +308,10 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th class="sortable active" id="th-date" onclick="toggleSort('date')">Date <i class="fas fa-sort-down"></i></th>
-                                    <th class="sortable" id="th-type" onclick="toggleSort('type')">Category <i class="fas fa-sort"></i></th>
+                                    <th class="sortable active" id="th-date" onclick="appToggleSort('date')">Date <i class="fas fa-sort-down"></i></th>
+                                    <th class="sortable" id="th-type" onclick="appToggleSort('type')">Category <i class="fas fa-sort"></i></th>
                                     <th>Description / Calculation</th>
-                                    <th class="sortable" id="th-amount" style="text-align:right;" onclick="toggleSort('amount')">Net (₹) <i class="fas fa-sort"></i></th>
+                                    <th class="sortable" id="th-amount" style="text-align:right;" onclick="appToggleSort('amount')">Net (₹) <i class="fas fa-sort"></i></th>
                                     <th width="50"></th>
                                 </tr>
                             </thead>
@@ -394,7 +391,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Create New Client Profile</h2>
-                <button class="close-modal" onclick="closeNewClientModal()">&times;</button>
+                <button class="close-modal" onclick="appCloseNewClientModal()">&times;</button>
             </div>
             <form id="newClientForm" style="display: flex; flex-direction: column; gap: 15px;">
                 <div class="form-group">
@@ -414,27 +411,27 @@
         </div>
     </div>
 
-    <script>
-        // -----------------------------------------------------------------
-        // 1. FIREBASE CONFIGURATION (REPLACE WITH YOUR KEYS)
-        // -----------------------------------------------------------------
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // 1. FIREBASE CONFIGURATION - Updated to your new project credentials
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+    apiKey: "AIzaSyDBs090lxPJEDY71idYqOMcPgyuPZB0UR4",
+    authDomain: "it-dashboard-d3388.firebaseapp.com",
+    projectId: "it-dashboard-d3388",
+    storageBucket: "it-dashboard-d3388.firebasestorage.app",
+    messagingSenderId: "1038272950342",
+    appId: "1:1038272950342:web:1d424f7df71f4227135a47",
+    measurementId: "G-8YMRKD490R"
+};
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        // -----------------------------------------------------------------
         // 2. STATE MANAGEMENT
-        // -----------------------------------------------------------------
         let currentUser = null;
         let clients = [];
         let activeId = null;
@@ -443,15 +440,12 @@
         let currentSort = { column: 'date', order: 'desc' };
         let printDataSnapshot = {}; 
 
-        // -----------------------------------------------------------------
         // 3. AUTHENTICATION LOGIC
-        // -----------------------------------------------------------------
-        auth.onAuthStateChanged(async (user) => {
+        onAuthStateChanged(auth, async (user) => {
             const loginBox = document.getElementById('loginBox');
             const authLoader = document.getElementById('authLoader');
             
             if (user) {
-                // User is signed in.
                 currentUser = user;
                 loginBox.style.display = 'none';
                 authLoader.style.display = 'block';
@@ -461,7 +455,6 @@
                 document.getElementById('loginOverlay').style.opacity = '0';
                 setTimeout(() => { document.getElementById('loginOverlay').style.display = 'none'; }, 400);
             } else {
-                // No user is signed in.
                 currentUser = null;
                 clients = [];
                 document.getElementById('loginOverlay').style.display = 'flex';
@@ -471,56 +464,51 @@
             }
         });
 
-        function loginWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(error => {
-                alert("Login Failed: " + error.message);
-            });
-        }
+        // Expose to window so HTML buttons can click them
+        window.appLogin = function() {
+            signInWithPopup(auth, new GoogleAuthProvider()).catch(error => alert("Login Failed: " + error.message));
+        };
 
-        function logout() {
-            auth.signOut();
-        }
+        window.appLogout = function() {
+            signOut(auth);
+        };
 
-        // -----------------------------------------------------------------
         // 4. CLOUD DATA SYNC ENGINE
-        // -----------------------------------------------------------------
         async function loadDataFromFirestore() {
             if (!currentUser) return;
             try {
-                const doc = await db.collection('users').doc(currentUser.uid).collection('taxDashboard').doc('mainData').get();
-                if (doc.exists) {
-                    clients = doc.data().clientsArray || [];
+                const docRef = doc(db, 'users', currentUser.uid, 'taxDashboard', 'mainData');
+                const docSnap = await getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    clients = docSnap.data().clientsArray || [];
                     activeId = clients.length > 0 ? clients[0].id : null;
                 } else {
                     clients = [];
                     activeId = null;
                 }
                 
-                if(clients.length === 0) openNewClientModal(); else init();
+                if(clients.length === 0) window.appOpenNewClientModal(); else appInit();
             } catch (error) {
                 console.error("Error loading data from cloud:", error);
                 alert("Could not load data from secure cloud. Please check your connection.");
             }
         }
 
-        // Replaces the old localStorage logic
         async function saveData() {
             if (!currentUser) return;
             try {
-                // Background sync to cloud
-                db.collection('users').doc(currentUser.uid).collection('taxDashboard').doc('mainData').set({
+                const docRef = doc(db, 'users', currentUser.uid, 'taxDashboard', 'mainData');
+                await setDoc(docRef, {
                     clientsArray: clients,
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                    lastUpdated: serverTimestamp()
                 });
             } catch (error) {
                 console.error("Error saving data:", error);
             }
         }
 
-        // -----------------------------------------------------------------
-        // 5. TAX RULES & CORE APP LOGIC (Unchanged from previous version)
-        // -----------------------------------------------------------------
+        // 5. TAX RULES & CORE APP LOGIC
         const fyRules = {
             "FY23-24": { start: "2023-04-01", end: "2024-03-31", ageDate: "2024-03-31", ay: "2024-25", stdDedNew: 50000, stdDedOld: 50000, rebateNewLimit: 700000, rebateNewMax: 25000, rebateOldLimit: 500000, rebateOldMax: 12500, calcNewTax: (inc) => { let tax=0,t=inc; if(t>1500000){tax+=(t-1500000)*0.30;t=1500000;} if(t>1200000){tax+=(t-1200000)*0.20;t=1200000;} if(t>900000){tax+=(t-900000)*0.15;t=900000;} if(t>600000){tax+=(t-600000)*0.10;t=600000;} if(t>300000){tax+=(t-300000)*0.05;} return tax; } },
             "FY24-25": { start: "2024-04-01", end: "2025-03-31", ageDate: "2025-03-31", ay: "2025-26", stdDedNew: 75000, stdDedOld: 50000, rebateNewLimit: 700000, rebateNewMax: 25000, rebateOldLimit: 500000, rebateOldMax: 12500, calcNewTax: (inc) => { let tax=0,t=inc; if(t>1500000){tax+=(t-1500000)*0.30;t=1500000;} if(t>1200000){tax+=(t-1200000)*0.20;t=1200000;} if(t>1000000){tax+=(t-1000000)*0.15;t=1000000;} if(t>700000){tax+=(t-700000)*0.10;t=700000;} if(t>300000){tax+=(t-300000)*0.05;} return tax; } },
@@ -540,11 +528,11 @@
 
         const inr = (num) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(num);
 
-        function changeYear() {
+        window.appChangeYear = function() {
             activeYear = document.getElementById('fiscalYear').value;
             document.getElementById('calcTitleYear').innerText = activeYear.replace('-', ' - ');
             document.getElementById('ledgerYearTitle').innerText = activeYear.replace('-', ' - ');
-            setFormDefaultDate(); cancelEdit(); init(); 
+            setFormDefaultDate(); window.appCancelEdit(); appInit(); 
         }
 
         function setFormDefaultDate() {
@@ -568,7 +556,7 @@
             return d >= new Date(fyRules[activeYear].start) && d <= new Date(fyRules[activeYear].end);
         }
 
-        function toggleFormFields() {
+        window.appToggleFormFields = function() {
             const type = document.getElementById('txnType').value;
             document.getElementById('standardAmountGroup').style.display = 'none'; document.getElementById('normalBizGroup').style.display = 'none';
             document.getElementById('44adGroup').style.display = 'none'; document.getElementById('44adaGroup').style.display = 'none';
@@ -589,29 +577,34 @@
             }
         }
 
-        function toggleSort(column) {
+        window.appToggleSort = function(column) {
             if (currentSort.column === column) currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
             else { currentSort.column = column; currentSort.order = column === 'date' ? 'desc' : 'asc'; }
-            ['date', 'type', 'amount'].forEach(col => { const th = document.getElementById(`th-${col}`); th.classList.remove('active'); th.querySelector('i').className = 'fas fa-sort'; });
-            const activeTh = document.getElementById(`th-${column}`); activeTh.classList.add('active');
+            ['date', 'type', 'amount'].forEach(col => {
+                const th = document.getElementById(`th-${col}`);
+                th.classList.remove('active'); th.querySelector('i').className = 'fas fa-sort';
+            });
+            const activeTh = document.getElementById(`th-${column}`);
+            activeTh.classList.add('active');
             activeTh.querySelector('i').className = currentSort.order === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
             renderLedger();
         }
 
-        function init() {
+        function appInit() {
             if (clients.length === 0) { document.getElementById('clientTabs').innerHTML = '<div style="text-align: center; padding:20px; color:#94a3b8;">No clients.</div>'; return; }
-            renderSidebar(); loadClientProfile(); toggleFormFields(); renderLedger(); calculateTax();
+            renderSidebar(); loadClientProfile(); window.appToggleFormFields(); renderLedger(); calculateTax();
             if(!document.getElementById('txnDate').value) setFormDefaultDate();
         }
+        window.init = appInit;
 
         function renderSidebar() {
             document.getElementById('clientTabs').innerHTML = clients.map(c => {
                 const isSenior = calculateAge(c.dob) >= 60;
-                return `<div class="client-item ${c.id === activeId ? 'active' : ''}" onclick="switchClient(${c.id})"><i class="fas ${isSenior ? 'fa-user-tie' : 'fa-user'}"></i><div class="client-info"><span>${c.name}</span><small>PAN: ${c.pan}</small></div></div>`
+                return `<div class="client-item ${c.id === activeId ? 'active' : ''}" onclick="appSwitchClient(${c.id})"><i class="fas ${isSenior ? 'fa-user-tie' : 'fa-user'}"></i><div class="client-info"><span>${c.name}</span><small>PAN: ${c.pan}</small></div></div>`
             }).join('');
         }
 
-        function switchClient(id) { activeId = id; cancelEdit(); init(); }
+        window.appSwitchClient = function(id) { activeId = id; window.appCancelEdit(); appInit(); }
 
         function loadClientProfile() {
             const client = clients.find(c => c.id === activeId); if(!client) return;
@@ -643,22 +636,22 @@
             if (editingTxnId) {
                 const txn = client.data.find(t => t.id === editingTxnId);
                 if (txn) { txn.date = date; txn.type = type; txn.desc = desc; txn.amount = amount; txn.tds = tds; txn.raw = raw;}
-                cancelEdit();
+                window.appCancelEdit();
             } else {
                 client.data.push({ id: Date.now(), date, type, desc, amount, tds, raw });
-                document.getElementById('taxForm').reset(); setFormDefaultDate(); toggleFormFields();
+                document.getElementById('taxForm').reset(); setFormDefaultDate(); window.appToggleFormFields();
             }
 
             saveData(); if(!isTxnInActiveFY(date)) alert(`Note: Date outside selected FY. Saved but hidden.`);
             renderLedger(); calculateTax();
         };
 
-        function editTxn(txnId) {
+        window.appEditTxn = function(txnId) {
             const client = clients.find(c => c.id === activeId); const txn = client.data.find(t => t.id === txnId); if(!txn) return;
             document.getElementById('txnDate').value = txn.date || fyRules[activeYear].end;
             document.getElementById('txnType').value = txn.type;
             let cleanDesc = txn.desc; if(['Normal_Business', '44AD_Business', '44ADA_Profession'].includes(txn.type)) cleanDesc = cleanDesc.split(' (')[0];
-            document.getElementById('txnDesc').value = cleanDesc; document.getElementById('txnTds').value = txn.tds || ''; toggleFormFields();
+            document.getElementById('txnDesc').value = cleanDesc; document.getElementById('txnTds').value = txn.tds || ''; window.appToggleFormFields();
             
             if (txn.type === 'Normal_Business') { document.getElementById('bizSales').value = txn.raw?.sales || ''; document.getElementById('bizExp').value = txn.raw?.exp || ''; } 
             else if (txn.type === '44AD_Business') { document.getElementById('biz44adDigi').value = txn.raw?.digi || ''; document.getElementById('biz44adCash').value = txn.raw?.cash || ''; } 
@@ -669,14 +662,14 @@
             document.getElementById('submitBtn').classList.add('btn-update'); document.getElementById('cancelEditBtn').style.display = "inline-block";
         }
 
-        function cancelEdit() {
-            editingTxnId = null; document.getElementById('taxForm').reset(); setFormDefaultDate(); toggleFormFields();
+        window.appCancelEdit = function() {
+            editingTxnId = null; document.getElementById('taxForm').reset(); setFormDefaultDate(); window.appToggleFormFields();
             document.getElementById('formTitle').innerText = "POST TRANSACTION"; document.getElementById('submitBtn').innerText = "POST ENTRY";
             document.getElementById('submitBtn').classList.remove('btn-update'); document.getElementById('cancelEditBtn').style.display = "none";
         }
 
-        function deleteTxn(txnId) { 
-            if(confirm("Delete this transaction?")) { clients.find(c => c.id === activeId).data = clients.find(c => c.id === activeId).data.filter(t => t.id !== txnId); if(editingTxnId === txnId) cancelEdit(); saveData(); renderLedger(); calculateTax(); }
+        window.appDeleteTxn = function(txnId) { 
+            if(confirm("Delete this transaction?")) { clients.find(c => c.id === activeId).data = clients.find(c => c.id === activeId).data.filter(t => t.id !== txnId); if(editingTxnId === txnId) window.appCancelEdit(); saveData(); renderLedger(); calculateTax(); }
         }
 
         function renderLedger() {
@@ -688,7 +681,9 @@
                 if (currentSort.column === 'date') { valA = a.date ? new Date(a.date).getTime() : 0; valB = b.date ? new Date(b.date).getTime() : 0; }
                 else if (currentSort.column === 'type') { valA = labels[a.type].text.toLowerCase(); valB = labels[b.type].text.toLowerCase(); }
                 else if (currentSort.column === 'amount') { valA = a.amount; valB = b.amount; }
-                if (valA < valB) return currentSort.order === 'asc' ? -1 : 1; if (valA > valB) return currentSort.order === 'asc' ? 1 : -1; return 0;
+                if (valA < valB) return currentSort.order === 'asc' ? -1 : 1;
+                if (valA > valB) return currentSort.order === 'asc' ? 1 : -1;
+                return 0;
             });
 
             if(fyData.length === 0) { body.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding: 30px;">No entries found for ${activeYear}.</td></tr>`; return; }
@@ -698,11 +693,10 @@
                 let tdsTag = t.tds > 0 ? `<div style="font-size:10px; color:var(--success); font-weight:bold;">TDS: ₹${t.tds.toLocaleString()}</div>` : '';
                 let amountColor = (t.type === 'STCL' || t.type === 'LTCL' || t.type === 'Cash_With') ? 'color: var(--danger);' : '';
                 let sign = (t.type === 'STCL' || t.type === 'LTCL' || t.type === 'Cash_With') ? '-' : '';
-                return `<tr><td style="color:#64748b; font-size:12px;">${dateDisplay}</td><td><span class="badge ${labels[t.type].cat}">${t.type.split('_')[0]}</span></td><td><div style="font-weight:600">${t.desc}</div><div style="font-size:10px; color:#94a3b8">${labels[t.type].text}</div></td><td style="text-align:right;"><div style="font-weight:600; ${amountColor}">${sign}₹${t.amount.toLocaleString('en-IN')}</div>${tdsTag}</td><td><div class="action-icons"><i class="fas fa-edit edit-icon" title="Edit" onclick="editTxn(${t.id})"></i><i class="fas fa-trash del-icon" title="Delete" onclick="deleteTxn(${t.id})"></i></div></td></tr>`;
+                return `<tr><td style="color:#64748b; font-size:12px;">${dateDisplay}</td><td><span class="badge ${labels[t.type].cat}">${t.type.split('_')[0]}</span></td><td><div style="font-weight:600">${t.desc}</div><div style="font-size:10px; color:#94a3b8">${labels[t.type].text}</div></td><td style="text-align:right;"><div style="font-weight:600; ${amountColor}">${sign}₹${t.amount.toLocaleString('en-IN')}</div>${tdsTag}</td><td><div class="action-icons"><i class="fas fa-edit edit-icon" title="Edit" onclick="appEditTxn(${t.id})"></i><i class="fas fa-trash del-icon" title="Delete" onclick="appDeleteTxn(${t.id})"></i></div></td></tr>`;
             }).join('');
         }
 
-        // --- Tax Engine & Set-Off Rules ---
         function calculateTax() {
             const client = clients.find(c => c.id === activeId); if(!client) return;
             const rules = fyRules[activeYear]; const isSenior = calculateAge(client.dob) >= 60;
@@ -756,10 +750,7 @@
             if(netNew < netOld) { document.getElementById('newBest').style.display = 'block'; nBox.classList.add('winner'); } else if(netOld < netNew) { document.getElementById('oldBest').style.display = 'block'; oBox.classList.add('winner'); }
         }
 
-        // =========================================================
-        // PRINT / EXPORT TO PDF FUNCTIONS
-        // =========================================================
-        function generatePrintComputation() {
+        window.appGeneratePrintComputation = function() {
             if(!activeId) return alert("Select a client first.");
             const pd = printDataSnapshot; const c = pd.client;
             let bestRegimeName = "NEW REGIME (115BAC)"; let bestTax = pd.fN; let bestNet = pd.netNew; let usedDeds = (pd.inc.sal > 0 ? pd.stdDedNew : 0);
@@ -775,7 +766,7 @@
             window.print();
         }
 
-        function generatePrintStatement() {
+        window.appGeneratePrintStatement = function() {
             if(!activeId) return alert("Select a client first."); const c = clients.find(cl => cl.id === activeId);
             let fyData = c.data.filter(t => isTxnInActiveFY(t.date)); fyData.sort((a, b) => new Date(a.date) - new Date(b.date));
             let rowsHtml = fyData.map(t => `<tr><td>${t.date ? new Date(t.date).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'}) : ''}</td><td>${labels[t.type].text}</td><td>${t.desc}</td><td class="money">${inr(t.amount)}</td><td class="money">${t.tds > 0 ? inr(t.tds) : '-'}</td></tr>`).join('');
@@ -785,16 +776,16 @@
             window.print();
         }
 
-        function openNewClientModal() { document.getElementById('clientModal').style.display = 'flex'; }
-        function closeNewClientModal() { document.getElementById('clientModal').style.display = 'none'; document.getElementById('newClientForm').reset(); }
+        window.appOpenNewClientModal = function() { document.getElementById('clientModal').style.display = 'flex'; }
+        window.appCloseNewClientModal = function() { document.getElementById('clientModal').style.display = 'none'; document.getElementById('newClientForm').reset(); }
         document.getElementById('newClientForm').onsubmit = function(e) {
             e.preventDefault();
             clients.push({ id: Date.now(), name: document.getElementById('modalName').value, pan: document.getElementById('modalPan').value.toUpperCase(), dob: document.getElementById('modalDob').value, data: [] });
-            activeId = clients[clients.length-1].id; saveData(); closeNewClientModal(); init();
+            activeId = clients[clients.length-1].id; saveData(); window.appCloseNewClientModal(); appInit();
         };
 
-        function triggerCSVImport() { document.getElementById('csvInput').click(); }
-        function importCSV(e) {
+        window.appTriggerCSVImport = function() { document.getElementById('csvInput').click(); }
+        window.appImportCSV = function(e) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 e.target.result.split('\n').forEach((line, i) => {
@@ -804,12 +795,10 @@
                     let cat = amount > 0 ? (desc.toLowerCase().includes('salary') ? 'Salary' : 'Normal_Business') : (desc.toLowerCase().includes('lic') ? '80C_Insurance' : 'Ignore');
                     if(cat !== 'Ignore') clients.find(c => c.id === activeId).data.push({ id: Date.now()+i, date: fyRules[activeYear].end, type: cat, desc: desc.substring(0,30), amount: Math.abs(amount), tds: 0 });
                 });
-                saveData(); init(); alert(`CSV Imported into ${activeYear}. Check ledger.`);
+                saveData(); appInit(); alert(`CSV Imported into ${activeYear}. Check ledger.`);
             };
             if(e.target.files[0]) reader.readAsText(e.target.files[0]);
         }
-        function exportData() { const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(clients)); a.download = "tax_db.json"; a.click(); }
-        function importData(e) { const reader = new FileReader(); reader.onload = function(e) { clients = JSON.parse(e.target.result); activeId = clients[0].id; saveData(); init(); }; if(e.target.files[0]) reader.readAsText(e.target.files[0]); }
     </script>
 </body>
 </html>
