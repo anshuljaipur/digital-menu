@@ -52,13 +52,16 @@
         .add-client-btn:hover { background: #7dd3fc; }
 
         .client-list { flex-grow: 1; overflow-y: auto; }
-        .client-item { padding: 15px 20px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; border-left: 4px solid transparent; }
+        .client-item { padding: 15px 20px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: 0.2s; border-left: 4px solid transparent; gap: 10px; }
         .client-item:hover { background: rgba(255,255,255,0.05); }
         .client-item.active { background: rgba(255,255,255,0.1); border-left-color: var(--cobalt); color: white; }
-        .client-item i { font-size: 18px; color: #94a3b8; }
-        .client-item.active i { color: #38bdf8; }
-        .client-info span { display: block; font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;}
+        .client-item i.user-icon { font-size: 18px; color: #94a3b8; }
+        .client-item.active i.user-icon { color: #38bdf8; }
+        .client-info span { display: block; font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;}
         .client-info small { font-size: 11px; color: #94a3b8; }
+        .client-item-actions { display: flex; gap: 10px; opacity: 0.3; transition: 0.2s; }
+        .client-item:hover .client-item-actions { opacity: 1; }
+        .client-item-actions i:hover { transform: scale(1.15); }
 
         /* Local File Actions */
         .file-actions { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 10px; flex-direction: column;}
@@ -180,6 +183,7 @@
     </div>
 
     <input type="file" id="csvInput" accept=".csv" style="display: none;" onchange="appImportCSV(event)">
+    <input type="file" id="jsonInput" accept=".json" style="display: none;" onchange="appImportJSON(event)">
 
     <div class="sidebar">
         <div class="sidebar-header">
@@ -190,7 +194,11 @@
         
         <div class="file-actions">
             <button class="btn-disk import-csv" onclick="appTriggerCSVImport()"><i class="fas fa-file-csv"></i> Import Bank CSV</button>
-            <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 5px 0;"></div>
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 3px 0;"></div>
+            
+            <button class="btn-disk" style="border-color: #10b981; color: #34d399; background: rgba(16, 185, 129, 0.1);" onclick="appExportData()"><i class="fas fa-file-download"></i> Export Workspace (JSON)</button>
+            <button class="btn-disk" style="border-color: #a855f7; color: #c084fc; background: rgba(168, 85, 247, 0.1);" onclick="appTriggerJSONImport()"><i class="fas fa-file-upload"></i> Import Workspace (JSON)</button>
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 3px 0;"></div>
             
             <button class="btn-disk print" onclick="appGeneratePrintComputation()"><i class="fas fa-file-invoice-dollar"></i> Print Tax Computation</button>
             <button class="btn-disk print" onclick="appGeneratePrintStatement()"><i class="fas fa-file-alt"></i> Print Ledger Statement</button>
@@ -281,7 +289,7 @@
                             <div><label>Digital/Bank Turnover (₹) <span style="color:var(--success); font-weight:normal;">[Tax @ 6%]</span></label><input type="number" id="biz44adDigi" placeholder="0.00" min="0"></div>
                             <div><label>Cash Turnover (₹) <span style="color:var(--danger); font-weight:normal;">[Tax @ 8%]</span></label><input type="number" id="biz44adCash" placeholder="0.00" min="0"></div>
                         </div>
-                        <div id="44adaGroup" class="dynamic-biz-group full-width" style="display: none; flex-direction: column; gap: 5px;">
+                        <div id="44adaGroup" class="dynamic-biz-group full-width" style="display: none; grid-template-columns: 1fr; gap: 5px;">
                             <label>Gross Professional Receipts (₹) <span style="color:var(--success); font-weight:normal;">[Tax @ 50%]</span></label>
                             <input type="number" id="biz44ada" placeholder="0.00" min="0">
                         </div>
@@ -416,16 +424,16 @@
         import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // 1. FIREBASE CONFIGURATION - Updated to your new project credentials
+        // 1. FIREBASE CONFIGURATION
         const firebaseConfig = {
-    apiKey: "AIzaSyDBs090lxPJEDY71idYqOMcPgyuPZB0UR4",
-    authDomain: "it-dashboard-d3388.firebaseapp.com",
-    projectId: "it-dashboard-d3388",
-    storageBucket: "it-dashboard-d3388.firebasestorage.app",
-    messagingSenderId: "1038272950342",
-    appId: "1:1038272950342:web:1d424f7df71f4227135a47",
-    measurementId: "G-8YMRKD490R"
-};
+            apiKey: "AIzaSyDBs090lxPJEDY71idYqOMcPgyuPZB0UR4",
+            authDomain: "it-dashboard-d3388.firebaseapp.com",
+            projectId: "it-dashboard-d3388",
+            storageBucket: "it-dashboard-d3388.firebasestorage.app",
+            messagingSenderId: "1038272950342",
+            appId: "1:1038272950342:web:1d424f7df71f4227135a47",
+            measurementId: "G-8YMRKD490R"
+        };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -437,6 +445,7 @@
         let activeId = null;
         let activeYear = "FY26-27"; 
         let editingTxnId = null;
+        let editingClientId = null;
         let currentSort = { column: 'date', order: 'desc' };
         let printDataSnapshot = {}; 
 
@@ -464,7 +473,6 @@
             }
         });
 
-        // Expose to window so HTML buttons can click them
         window.appLogin = function() {
             signInWithPopup(auth, new GoogleAuthProvider()).catch(error => alert("Login Failed: " + error.message));
         };
@@ -566,7 +574,7 @@
 
             if (type === 'Normal_Business') { document.getElementById('normalBizGroup').style.display = 'grid'; document.getElementById('txnAmount').removeAttribute('required'); } 
             else if (type === '44AD_Business') { document.getElementById('44adGroup').style.display = 'grid'; document.getElementById('txnAmount').removeAttribute('required'); } 
-            else if (type === '44ADA_Profession') { document.getElementById('44adaGroup').style.display = 'flex'; document.getElementById('txnAmount').removeAttribute('required'); } 
+            else if (type === '44ADA_Profession') { document.getElementById('44adaGroup').style.display = 'grid'; document.getElementById('txnAmount').removeAttribute('required'); } 
             else {
                 document.getElementById('standardAmountGroup').style.display = 'flex';
                 document.getElementById('txnAmount').setAttribute('required', 'true');
@@ -600,7 +608,19 @@
         function renderSidebar() {
             document.getElementById('clientTabs').innerHTML = clients.map(c => {
                 const isSenior = calculateAge(c.dob) >= 60;
-                return `<div class="client-item ${c.id === activeId ? 'active' : ''}" onclick="appSwitchClient(${c.id})"><i class="fas ${isSenior ? 'fa-user-tie' : 'fa-user'}"></i><div class="client-info"><span>${c.name}</span><small>PAN: ${c.pan}</small></div></div>`
+                return `<div class="client-item ${c.id === activeId ? 'active' : ''}" onclick="appSwitchClient(${c.id})">
+                    <div style="display:flex; align-items:center; gap:12px; overflow:hidden;">
+                        <i class="fas ${isSenior ? 'fa-user-tie' : 'fa-user'} user-icon"></i>
+                        <div class="client-info">
+                            <span>${c.name}</span>
+                            <small>PAN: ${c.pan}</small>
+                        </div>
+                    </div>
+                    <div class="client-item-actions">
+                        <i class="fas fa-edit" style="color: var(--warning); font-size:12px;" title="Edit Profile" onclick="event.stopPropagation(); appEditClient(${c.id})"></i>
+                        <i class="fas fa-trash" style="color: var(--danger); font-size:12px;" title="Delete Client" onclick="event.stopPropagation(); appDeleteClient(${c.id})"></i>
+                    </div>
+                </div>`
             }).join('');
         }
 
@@ -776,12 +796,51 @@
             window.print();
         }
 
-        window.appOpenNewClientModal = function() { document.getElementById('clientModal').style.display = 'flex'; }
+        window.appOpenNewClientModal = function() { 
+            editingClientId = null;
+            document.getElementById('newClientForm').reset();
+            document.querySelector('#clientModal h2').innerText = "Create New Client Profile";
+            document.getElementById('clientModal').style.display = 'flex'; 
+        }
+        
         window.appCloseNewClientModal = function() { document.getElementById('clientModal').style.display = 'none'; document.getElementById('newClientForm').reset(); }
+        
+        window.appEditClient = function(id) {
+            const client = clients.find(c => c.id === id);
+            if(!client) return;
+            editingClientId = id;
+            document.getElementById('modalName').value = client.name;
+            document.getElementById('modalPan').value = client.pan;
+            document.getElementById('modalDob').value = client.dob || '';
+            document.querySelector('#clientModal h2').innerText = "Edit Client Profile";
+            document.getElementById('clientModal').style.display = 'flex';
+        }
+
+        window.appDeleteClient = function(id) {
+            const client = clients.find(c => c.id === id);
+            if(!client) return;
+            if(confirm(`Are you sure you want to completely remove "${client.name}" and delete all their historical audit data logs?`)) {
+                clients = clients.filter(c => c.id !== id);
+                if(activeId === id) activeId = clients.length > 0 ? clients[0].id : null;
+                saveData(); appInit();
+            }
+        }
+
         document.getElementById('newClientForm').onsubmit = function(e) {
             e.preventDefault();
-            clients.push({ id: Date.now(), name: document.getElementById('modalName').value, pan: document.getElementById('modalPan').value.toUpperCase(), dob: document.getElementById('modalDob').value, data: [] });
-            activeId = clients[clients.length-1].id; saveData(); window.appCloseNewClientModal(); appInit();
+            const name = document.getElementById('modalName').value;
+            const pan = document.getElementById('modalPan').value.toUpperCase();
+            const dob = document.getElementById('modalDob').value;
+
+            if(editingClientId) {
+                const target = clients.find(c => c.id === editingClientId);
+                if(target) { target.name = name; target.pan = pan; target.dob = dob; }
+                editingClientId = null;
+            } else {
+                clients.push({ id: Date.now(), name, pan, dob, data: [] });
+                activeId = clients[clients.length-1].id;
+            }
+            saveData(); window.appCloseNewClientModal(); appInit();
         };
 
         window.appTriggerCSVImport = function() { document.getElementById('csvInput').click(); }
@@ -798,6 +857,39 @@
                 saveData(); appInit(); alert(`CSV Imported into ${activeYear}. Check ledger.`);
             };
             if(e.target.files[0]) reader.readAsText(e.target.files[0]);
+        }
+
+        // 6. WORKSPACE JSON IMPORT / EXPORT ENGINE
+        window.appExportData = function() {
+            if(clients.length === 0) return alert("No client workspaces available to back up.");
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(clients, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `Tax_Workspace_Backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click(); dlAnchor.remove();
+        }
+
+        window.appTriggerJSONImport = function() { document.getElementById('jsonInput').click(); }
+        window.appImportJSON = function(e) {
+            const file = e.target.files[0]; if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const parsedData = JSON.parse(evt.target.result);
+                    if(!Array.isArray(parsedData)) throw new Error("Root backup object must be a structured client collection array.");
+                    if(confirm("Warning: Uploading this workspace backup will overwrite your current active configuration structure. Proceed?")) {
+                        clients = parsedData;
+                        activeId = clients.length > 0 ? clients[0].id : null;
+                        saveData(); appInit();
+                        alert("Database synchronized. Backup loaded successfully.");
+                    }
+                } catch (err) {
+                    alert("Import Failed! Ensure you uploaded a valid backup JSON file.\nError structural exception: " + err.message);
+                }
+            };
+            reader.readAsText(file);
+            document.getElementById('jsonInput').value = ''; 
         }
     </script>
 </body>
