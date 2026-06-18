@@ -16,7 +16,7 @@
             --bg-light: #f8fafc; --border: #e2e8f0; --white: #ffffff;
         }
 
-        body { font-family: 'Inter', -apple-system, sans-serif; background-color: var(--bg-light); color: var(--navy); margin: 0; display: flex; height: 100vh; overflow: hidden; width: 100vw; max-width: 100%; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background-color: var(--bg-light); color: var(--navy); margin: 0; display: flex; height: 100vh; overflow: hidden; width: 100%; }
 
         /* =========================================
            AUTH LOGIN OVERLAY 
@@ -42,7 +42,6 @@
         .btn-google:hover { background: #f8fafc; border-color: #cbd5e1; }
         .btn-google img { width: 18px; height: 18px; }
 
-        /* Loader */
         .loader { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid var(--cobalt); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; display: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
@@ -70,6 +69,9 @@
         .file-actions { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 10px; flex-direction: column;}
         .btn-disk { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; text-align: center; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;}
         .btn-disk:hover { background: rgba(255,255,255,0.2); }
+        .btn-disk.import-csv { border-color: var(--warning); color: #fbbf24; background: rgba(245, 158, 11, 0.1); }
+        .btn-disk.print { border-color: #38bdf8; color: #7dd3fc; background: rgba(56, 189, 248, 0.1); }
+        .btn-disk.print:hover { background: rgba(56, 189, 248, 0.2); }
         .btn-disk.logout { border-color: #ef4444; color: #f87171; background: transparent; margin-top: 10px;}
 
         /* Mobile Overlay */
@@ -77,7 +79,7 @@
         #mobileOverlay.show { display: block; opacity: 1; }
 
         /* Main Content Area */
-        .main-content { flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding: 20px 30px; display: flex; flex-direction: column; gap: 20px; position: relative; width: 100%; max-width: 100vw; }
+        .main-content { flex-grow: 1; overflow-y: auto; padding: 20px 30px; display: flex; flex-direction: column; gap: 20px; position: relative; width: 100%; }
         
         .top-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
         .top-bar-left { display: flex; align-items: center; gap: 15px; }
@@ -91,8 +93,8 @@
 
         .grid { display: grid; grid-template-columns: 1fr 350px; gap: 25px; align-items: start; width: 100%;}
         
-        /* The crucial min-width: 0 prevents Flexbox/Grid from blowing out the screen width */
-        .card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); min-width: 0; width: 100%; overflow: hidden; }
+        /* Removed horizontal restrictions here */
+        .card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); width: 100%; min-width: 0; overflow: hidden;}
         
         .card-header { padding: 15px 20px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 14px; display: flex; justify-content: space-between; align-items: center; background: #fbfbfc;}
 
@@ -117,10 +119,11 @@
         .tax-val.refund { color: var(--success); }
         .best-tag { position: absolute; right: 10px; top: 10px; background: var(--success); color: white; font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 700; display: none;}
 
-        .table-container { padding: 0; overflow-x: auto; max-height: 400px; overflow-y: auto; width: 100%; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        th { background: #f8fafc; text-align: left; padding: 12px 15px; font-size: 12px; color: var(--slate); text-transform: uppercase; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10;}
-        td { padding: 12px 15px; border-bottom: 1px solid var(--border); font-size: 13px; }
+        /* Fluid Table Container */
+        .table-container { width: 100%; overflow-x: auto; max-height: 400px; -webkit-overflow-scrolling: touch; padding: 0; }
+        table { width: 100%; border-collapse: collapse; min-width: 320px; }
+        th { background: #f8fafc; text-align: left; padding: 12px 10px; font-size: 11px; color: var(--slate); text-transform: uppercase; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; white-space: nowrap;}
+        td { padding: 12px 10px; border-bottom: 1px solid var(--border); font-size: 12px; }
         th.sortable { cursor: pointer; user-select: none; transition: background 0.2s; }
         th.sortable:hover { background: #f1f5f9; color: var(--cobalt); }
         th.sortable i { margin-left: 5px; opacity: 0.3; transition: opacity 0.2s; }
@@ -134,7 +137,7 @@
         .badge-deduction { background: #fff7ed; color: #9a3412; }
         .badge-cash { background: #f3e8ff; color: #7e22ce; }
         
-        .action-icons { display: flex; gap: 10px; justify-content: flex-end; }
+        .action-icons { display: flex; gap: 8px; justify-content: flex-end; }
         .edit-icon, .del-icon { cursor: pointer; opacity: 0.8; font-size: 14px;}
         .edit-icon { color: var(--warning); } .del-icon { color: var(--danger); }
         .edit-icon:hover, .del-icon:hover { opacity: 1; }
@@ -201,9 +204,14 @@
             .full-width { grid-column: span 1; }
             .dynamic-biz-group { grid-template-columns: 1fr !important; }
             
-            .main-content { padding: 15px; width: 100vw;}
-            .card-header { font-size: 13px; padding: 12px 15px; }
+            /* Remove width-forcing padding on mobile */
+            .main-content { padding: 15px; }
+            .card-header { font-size: 13px; padding: 12px 10px; }
             .footer-disclaimer { padding-bottom: 80px; }
+
+            /* Table tight-fit styling */
+            th, td { padding: 10px 5px; font-size: 11px; }
+            .action-icons { gap: 5px; }
         }
     </style>
 </head>
@@ -775,7 +783,15 @@
                 let tdsTag = t.tds > 0 ? `<div style="font-size:10px; color:var(--success); font-weight:bold;">TDS: ₹${t.tds.toLocaleString()}</div>` : '';
                 let amountColor = (t.type === 'STCL' || t.type === 'LTCL' || t.type === 'Cash_With') ? 'color: var(--danger);' : '';
                 let sign = (t.type === 'STCL' || t.type === 'LTCL' || t.type === 'Cash_With') ? '-' : '';
-                return `<tr><td style="color:#64748b; font-size:12px;">${dateDisplay}</td><td><span class="badge ${labels[t.type].cat}">${t.type.split('_')[0]}</span></td><td><div style="font-weight:600">${t.desc}</div><div style="font-size:10px; color:#94a3b8">${labels[t.type].text}</div></td><td style="text-align:right;"><div style="font-weight:600; ${amountColor}">${sign}₹${t.amount.toLocaleString('en-IN')}</div>${tdsTag}</td><td><div class="action-icons"><i class="fas fa-edit edit-icon" title="Edit" onclick="appEditTxn(${t.id})"></i><i class="fas fa-trash del-icon" title="Delete" onclick="appDeleteTxn(${t.id})"></i></div></td></tr>`;
+                
+                // Note: white-space normal on desc allows text to wrap on small screens
+                return `<tr>
+                    <td style="color:#64748b; font-size:12px; white-space: nowrap;">${dateDisplay}</td>
+                    <td><span class="badge ${labels[t.type].cat}">${t.type.split('_')[0]}</span></td>
+                    <td style="min-width: 120px; white-space: normal; line-height: 1.3; word-break: break-word;"><div style="font-weight:600">${t.desc}</div><div style="font-size:10px; color:#94a3b8; margin-top:2px;">${labels[t.type].text}</div></td>
+                    <td style="text-align:right; white-space: nowrap;"><div style="font-weight:600; ${amountColor}">${sign}₹${t.amount.toLocaleString('en-IN')}</div>${tdsTag}</td>
+                    <td style="white-space: nowrap;"><div class="action-icons"><i class="fas fa-edit edit-icon" title="Edit" onclick="appEditTxn(${t.id})"></i><i class="fas fa-trash del-icon" title="Delete" onclick="appDeleteTxn(${t.id})"></i></div></td>
+                </tr>`;
             }).join('');
         }
 
