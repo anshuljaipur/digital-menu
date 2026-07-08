@@ -38,7 +38,6 @@
         button { background-color: var(--accent); color: white; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
         button:hover { background-color: #219653; }
         
-        /* Form Action Layout split button layout */
         .form-actions { display: flex; gap: 10px; }
         .btn-reset { background-color: #95a5a6; }
         .btn-reset:hover { background-color: #7f8c8d; }
@@ -53,7 +52,7 @@
         th.sort-asc::after { content: " ▲"; font-size: 0.8em; position: absolute; right: 5px; }
         th.sort-desc::after { content: " ▼"; font-size: 0.8em; position: absolute; right: 5px; }
         
-        tfoot tr { background-color: #f8f9fa; font-weight: bold; border-top: 2px solid var(--secondary); }
+            tfoot tr { background-color: #f8f9fa; font-weight: bold; border-top: 2px solid var(--secondary); }
         
         .positive { color: var(--accent); font-weight: bold; }
         .negative { color: var(--danger); font-weight: bold; }
@@ -137,8 +136,7 @@
                     <p style="font-size: 0.8em; color: #7f8c8d; margin-bottom: 15px;">
                         Positive assets sit under <b>Cr Balance</b>. Liabilities or payouts sit under <b>Dr Balance</b>. Click column headers to sort profiles.
                     </p>
-                    <div id="balanceContainer" style="overflow-x:auto;">
-                        </div>
+                    <div id="balanceContainer" style="overflow-x:auto;"></div>
                 </div>
 
                 <div class="card">
@@ -291,7 +289,6 @@
         function renderBalances() {
             const container = document.getElementById('balanceContainer');
             
-            // Generate basic structural balances
             let accountBalances = {};
             members.forEach(m => accountBalances[m] = 0);
             transactions.forEach(t => {
@@ -299,7 +296,6 @@
                 if(accountBalances[t.to] !== undefined) accountBalances[t.to] += t.amount;
             });
 
-            // Convert to a sortable list pattern
             let balanceRecords = members.map(name => {
                 const balanceVal = accountBalances[name];
                 return {
@@ -310,11 +306,13 @@
                 };
             });
 
-            // Apply explicit Sorting arrays
             balanceRecords.sort((a, b) => {
                 let valA = a[balanceSortKey];
                 let valB = b[balanceSortKey];
                 
+                if (valA === valB) {
+                    return balanceSortDir === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+                }
                 if (typeof valA === 'string') {
                     return balanceSortDir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
                 } else {
@@ -325,7 +323,6 @@
             let totalCr = 0;
             let totalDr = 0;
 
-            // Generate HTML table structure dynamically with classes matching current direction
             let html = `
             <table>
                 <thead>
@@ -356,7 +353,6 @@
                 `;
             });
 
-            // Summary accounting footer generation
             html += `
                 </tbody>
                 <tfoot>
@@ -417,6 +413,9 @@
                 filteredTxns.sort((a, b) => {
                     let valA = a[ledgerSortKey];
                     let valB = b[ledgerSortKey];
+                    if (valA === valB) {
+                        return ledgerSortDir === 'asc' ? a.id - b.id : b.id - a.id;
+                    }
                     if (typeof valA === 'string') {
                         return ledgerSortDir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
                     } else {
@@ -446,8 +445,12 @@
                         <th>Actions</th>
                     </tr>`;
                 
-                // Balance tracking must occur chronologically first before sorting view configuration changes
-                const chronologicalList = [...filteredTxns].sort((a, b) => new Date(a.date) - new Date(b.date));
+                // FIXED Chronological sequence calculation engine using internal unique incremental ID tie-breakers
+                const chronologicalList = [...filteredTxns].sort((a, b) => {
+                    if (a.date !== b.date) return a.date.localeCompare(b.date);
+                    return a.id - b.id; 
+                });
+
                 const startVal = document.getElementById('filterStart').value;
                 let runningBalance = 0;
                 
@@ -460,7 +463,6 @@
                     });
                 }
                 
-                // Map logical matrix parameters
                 let mappedRows = chronologicalList.map(t => {
                     let inAmt = 0, outAmt = 0, particulars = '';
                     if (t.from === filter) {
@@ -483,10 +485,13 @@
                     };
                 });
 
-                // Apply targeted ledger filters dynamically based on chosen parameters
+                // Display Sort Engine incorporating directional fallback matching the user's view
                 mappedRows.sort((a, b) => {
                     let valA = a[ledgerSortKey];
                     let valB = b[ledgerSortKey];
+                    if (valA === valB) {
+                        return ledgerSortDir === 'asc' ? a.id - b.id : b.id - a.id;
+                    }
                     if (typeof valA === 'string') {
                         return ledgerSortDir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
                     } else {
@@ -499,7 +504,7 @@
                         <td>${row.date}</td><td>${row.particulars}</td><td>${row.remarks}</td>
                         <td class="positive">${row.inAmt > 0 ? '₹'+row.inAmt.toLocaleString('en-IN') : '-'}</td>
                         <td class="negative">${row.outAmt > 0 ? '₹'+row.outAmt.toLocaleString('en-IN') : '-'}</td>
-                        <td><strong>₹${row.balSnapshot.toLocaleString('en-IN')}</strong></td>
+                        <td><strong>₹${row.balSnapshot.toLocaleString('en-IN', {minimumFractionDigits: 2})}</strong></td>
                         <td>
                             <button class="action-btn btn-edit" onclick="editTransaction(${row.id})">Edit</button>
                             <button class="action-btn btn-delete" onclick="deleteTransaction(${row.id})">Del</button>
@@ -508,7 +513,7 @@
             }
         }
 
-        // --- Form Handlers & Processing Elements ---
+        // --- Transaction Management ---
         document.getElementById('txnForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const date = document.getElementById('txnDate').value;
@@ -519,9 +524,16 @@
 
             if (from === to) { alert("Sender and Receiver cannot be the same."); return; }
 
-            const isDuplicate = transactions.some(t => t.from === from && t.to === to && t.amount === amount && t.date === date);
+            // Strict case-insensitive type-safe duplicate lookup
+            const isDuplicate = transactions.some(t => 
+                t.from.trim().toLowerCase() === from.trim().toLowerCase() && 
+                t.to.trim().toLowerCase() === to.trim().toLowerCase() && 
+                Number(t.amount) === Number(amount) && 
+                t.date === date
+            );
+
             if (isDuplicate) {
-                if (!confirm(`⚠️ WARNING: Duplicate Entry Detected!\nA transaction for ₹${amount} from "${from}" to "${to}" on ${date} already exists.\n\nDo you want to process this transaction anyway?`)) {
+                if (!confirm(`⚠️ PLEASE CHECK:\n\nA transaction for ₹${amount} from "${from}" to "${to}" on ${date} already exists.\n\nAre you sure you want to record a duplicate entry?`)) {
                     return;
                 }
             }
@@ -598,7 +610,10 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             
-            const entityTxns = getFilteredTransactions(filter).sort((a, b) => new Date(a.date) - new Date(b.date));
+            const entityTxns = getFilteredTransactions(filter).sort((a, b) => {
+                if (a.date !== b.date) return a.date.localeCompare(b.date);
+                return a.id - b.id;
+            });
             const startVal = document.getElementById('filterStart').value;
             let runningBalance = 0;
 
