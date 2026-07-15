@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cloud Tax Audit Dashboard | AY 2026-27</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Global Reset to prevent width stretching */
+        * { box-sizing: border-box; }
+
+        :root {
+            --navy: #0f172a; --cobalt: #1e40af; --slate: #64748b; 
+            --success: #059669; --warning: #f59e0b; --danger: #dc2626; 
+            --bg-light: #f8fafc; --border: #e2e8f0; --white: #ffffff;
+        }
+
+        body { font-family: 'Inter', -apple-system, sans-serif; background-color: var(--bg-light); color: var(--navy); margin: 0; display: flex; height: 100vh; overflow: hidden; width: 100%; }
+
+        /* =========================================
+           AUTH LOGIN OVERLAY 
+           ========================================= */
+        #loginOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--navy); z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: white; transition: opacity 0.4s ease; padding: 20px;
+        }
+        .login-box {
+            background: white; color: var(--navy); padding: 40px; border-radius: 12px;
+            text-align: center; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+        .login-box h1 { margin-top: 0; font-size: 24px; color: var(--cobalt); }
+        .login-box p { color: var(--slate); font-size: 14px; margin-bottom: 30px; }
+        .btn-google {
+            background: white; border: 1px solid var(--border); padding: 12px 24px;
+            border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: 0.2s;
+        }
+        .btn-google:hover { background: #f8fafc; border-color: #cbd5e1; }
+        .btn-google img { width: 18px; height: 18px; }
+
+        .loader { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid var(--cobalt); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Sidebar Navigation */
+        .sidebar { width: 280px; background-color: var(--navy); color: white; display: flex; flex-direction: column; padding: 20px 0; flex-shrink: 0; z-index: 50; transition: left 0.3s ease;}
+        .sidebar-header { padding: 0 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;}
+        .sidebar-header h2 { font-size: 16px; margin: 0; letter-spacing: 1px; color: #94a3b8; }
+        
+        .add-client-btn { background: #38bdf8; color: var(--navy); border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s;}
+        .add-client-btn:hover { background: #7dd3fc; }
+
+        .client-list { flex-grow: 1; overflow-y: auto; }
+        .client-item { padding: 15px 20px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: 0.2s; border-left: 4px solid transparent; gap: 10px; }
+        .client-item:hover { background: rgba(255,255,255,0.05); }
+        .client-item.active { background: rgba(255,255,255,0.1); border-left-color: var(--cobalt); color: white; }
+        .client-item i.user-icon { font-size: 18px; color: #94a3b8; }
+        .client-item.active i.user-icon { color: #38bdf8; }
+        .client-info span { display: block; font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;}
+        .client-info small { font-size: 11px; color: #94a3b8; }
+        .client-item-actions { display: flex; gap: 10px; opacity: 0.3; transition: 0.2s; }
+        .client-item:hover .client-item-actions { opacity: 1; }
+        .client-item-actions i:hover { transform: scale(1.15); }
+
+        /* Local File Actions */
+        .file-actions { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 10px; flex-direction: column;}
+        .btn-disk { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; text-align: center; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;}
+        .btn-disk:hover { background: rgba(255,255,255,0.2); }
+        .btn-disk.import-csv { border-color: var(--warning); color: #fbbf24; background: rgba(245, 158, 11, 0.1); }
+        .btn-disk.print { border-color: #38bdf8; color: #7dd3fc; background: rgba(56, 189, 248, 0.1); }
+        .btn-disk.print:hover { background: rgba(56, 189, 248, 0.2); }
+        .btn-disk.logout { border-color: #ef4444; color: #f87171; background: transparent; margin-top: 10px;}
+
+        /* Mobile Overlay */
+        #mobileOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 40; opacity: 0; transition: opacity 0.3s; }
+        #mobileOverlay.show { display: block; opacity: 1; }
+
+        /* Main Content Area */
+        .main-content { flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding: 20px 30px; display: flex; flex-direction: column; gap: 20px; position: relative; width: 100%; max-width: 100vw; }
+        
+        .top-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+        .top-bar-left { display: flex; align-items: center; gap: 15px; }
+        .menu-toggle { display: none; background: none; border: none; color: var(--navy); font-size: 22px; cursor: pointer; padding: 0; }
+        
+        .top-bar h1 { font-size: 22px; margin: 0; font-weight: 700; display: flex; align-items: center; flex-wrap: wrap; gap: 10px;}
+        
+        .year-selector { display: flex; align-items: center; gap: 10px; background: #e0f2fe; padding: 8px 15px; border-radius: 6px; border: 1px solid #bae6fd; width: auto; max-width: 100%; }
+        .year-selector label { margin: 0; font-size: 12px; color: #0369a1; font-weight: bold; white-space: nowrap;}
+        .year-selector select { border: none; background: transparent; font-size: 14px; font-weight: bold; color: var(--navy); outline: none; cursor: pointer; max-width: 120px;}
+
+        .grid { display: grid; grid-template-columns: 1fr 350px; gap: 25px; align-items: start; width: 100%;}
+        
+        /* The crucial min-width: 0 prevents Flexbox/Grid from blowing out the screen width */
+        .card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); width: 100%; min-width: 0; overflow: hidden;}
+        
+        .card-header { padding: 15px 20px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 14px; display: flex; justify-content: space-between; align-items: center; background: #fbfbfc;}
+
+        /* Form Styling */
+        .input-form { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; width: 100%; }
+        .full-width { grid-column: span 2; }
+        label { font-size: 12px; font-weight: 600; color: var(--slate); text-transform: uppercase; }
+        select, input { padding: 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 14px; outline: none; width: 100%; background: #fff;}
+        select:focus, input:focus { border-color: var(--cobalt); }
+        .btn-primary { background: var(--navy); color: white; border: none; padding: 12px; border-radius: 4px; font-weight: 700; cursor: pointer; transition: 0.2s; width: 100%;}
+        .btn-primary:hover { background: var(--cobalt); }
+        .btn-update { background: var(--warning); color: white; }
+
+        .dynamic-biz-group { display: none; background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px dashed #cbd5e1; width: 100%;}
+
+        .tax-compare { display: flex; flex-direction: column; gap: 15px; padding: 20px; }
+        .regime-box { padding: 20px; border-radius: 6px; border: 1px solid var(--border); position: relative; }
+        .regime-box.winner { border: 2px solid var(--success); background: #f0fdf4; }
+        .regime-box small { color: var(--slate); font-size: 12px; }
+        .regime-box .tax-val { font-size: 26px; font-weight: 800; margin: 5px 0; }
+        .tax-val.refund { color: var(--success); }
+        .best-tag { position: absolute; right: 10px; top: 10px; background: var(--success); color: white; font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 700; display: none;}
+
+        /* Fluid Table Container */
+        .table-container { width: 100%; overflow-x: auto; max-height: 400px; -webkit-overflow-scrolling: touch; padding: 0; }
+        table { width: 100%; border-collapse: collapse; min-width: 320px; }
+        th { background: #f8fafc; text-align: left; padding: 12px 10px; font-size: 11px; color: var(--slate); text-transform: uppercase; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; white-space: nowrap;}
+        td { padding: 12px 10px; border-bottom: 1px solid var(--border); font-size: 12px; }
+        th.sortable { cursor: pointer; user-select: none; transition: background 0.2s; }
+        th.sortable:hover { background: #f1f5f9; color: var(--cobalt); }
+        th.sortable i { margin-left: 5px; opacity: 0.3; transition: opacity 0.2s; }
+        th.sortable.active { color: var(--cobalt); font-weight: 700; }
+        th.sortable.active i { opacity: 1; }
+
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap;}
+        .badge-income { background: #ecfdf5; color: #065f46; }
+        .badge-gain { background: #eff6ff; color: #1e40af; }
+        .badge-loss { background: #fef2f2; color: #991b1b; }
+        .badge-deduction { background: #fff7ed; color: #9a3412; }
+        .badge-cash { background: #f3e8ff; color: #7e22ce; }
+        
+        .action-icons { display: flex; gap: 8px; justify-content: flex-end; }
+        .edit-icon, .del-icon { cursor: pointer; opacity: 0.8; font-size: 14px;}
+        .edit-icon { color: var(--warning); } .del-icon { color: var(--danger); }
+        .edit-icon:hover, .del-icon:hover { opacity: 1; }
+
+        .status-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; background: #f1f5f9; color: var(--slate); margin-left: 10px;}
+        .status-senior { background: #fef08a; color: #854d0e; }
+
+        .radar-item { margin-bottom: 15px; }
+        .radar-label { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; margin-bottom: 5px;}
+        .progress-bg { background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; }
+        .progress-bar { height: 100%; background: var(--success); transition: width 0.4s ease; border-radius: 4px; }
+        .progress-bar.warning { background: var(--warning); }
+        .progress-bar.danger { background: var(--danger); }
+
+        /* Footer Disclaimer */
+        .footer-disclaimer { margin-top: 30px; padding-top: 20px; padding-bottom: 60px; border-top: 1px solid var(--border); font-size: 11px; color: #94a3b8; text-align: center; line-height: 1.5; width: 100%; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; display: none; padding: 20px;}
+        .modal-content { background: white; padding: 30px; border-radius: 12px; width: 100%; max-width: 450px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);}
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px;}
+        .modal-header h2 { margin: 0; font-size: 18px; color: var(--navy); }
+        .close-modal { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--slate); padding: 0;}
+
+        /* Print Styles */
+        #printArea { display: none; }
+        @media print {
+            body > :not(#printArea) { display: none !important; }
+            body { background: white; margin: 0; padding: 0; width: 100%; }
+            @page { margin: 15mm; size: A4; }
+            #printArea { display: block !important; width: 100%; color: #000; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
+            .print-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+            .print-header h1 { font-size: 18px; margin: 0 0 5px 0; text-transform: uppercase;}
+            .print-header p { margin: 0; font-size: 12px; color: #333; }
+            .print-section { margin-bottom: 20px; }
+            .print-section h3 { font-size: 14px; background: #f0f0f0; padding: 5px 10px; margin: 0 0 10px 0; border: 1px solid #ccc; }
+            .print-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 15px;}
+            .print-table th, .print-table td { border: 1px solid #ccc; padding: 6px; text-align: left; }
+            .print-table th { background-color: #f9f9f9; font-weight: bold; }
+            .print-table td.money { text-align: right; }
+            .print-table tr.total-row td { font-weight: bold; background-color: #f0f0f0;}
+            .print-row { display: flex; justify-content: space-between; padding: 5px 10px; border-bottom: 1px solid #eee; }
+            .print-row.bold { font-weight: bold; }
+            .print-row.sub-total { background: #f9f9f9; border-top: 1px solid #999; border-bottom: 1px solid #999; }
+            .print-row.final-total { font-size: 14px; border-top: 2px solid #000; border-bottom: 2px solid #000; background: #f0f0f0;}
+        }
+
+        /* =========================================
+           MOBILE OPTIMIZATION MEDIA QUERIES
+           ========================================= */
+        @media (max-width: 1100px) { 
+            .grid { grid-template-columns: 1fr; width: 100%; } 
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle { display: block; }
+            .sidebar { position: fixed; left: -300px; height: 100vh; box-shadow: 4px 0 15px rgba(0,0,0,0.1); width: 260px; max-width: 80vw;}
+            .sidebar.open { left: 0; }
+            
+            .top-bar { flex-direction: column; align-items: flex-start; gap: 15px; width: 100%; }
+            .top-bar-left { width: 100%; justify-content: flex-start; }
+            .year-selector { width: 100%; justify-content: space-between; padding: 10px 15px;}
+            
+            .input-form { grid-template-columns: 1fr; gap: 10px; padding: 15px; }
+            .full-width { grid-column: span 1; }
+            .dynamic-biz-group { grid-template-columns: 1fr !important; }
+            
+            .main-content { padding: 15px; width: 100vw;}
+            .card-header { font-size: 13px; padding: 12px 10px; }
+            .footer-disclaimer { padding-bottom: 80px; }
+
+            /* Table tight-fit styling */
+            th, td { padding: 10px 5px; font-size: 11px; }
+            .action-icons { gap: 5px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SECURE LOGIN OVERLAY -->
+    <div id="loginOverlay">
+        <div class="login-box" id="loginBox">
+            <i class="fas fa-shield-alt" style="font-size: 40px; color: var(--cobalt); margin-bottom: 15px;"></i>
+            <h1>Tax Audit Engine</h1>
+            <p>Please sign in to access your secure cloud database.</p>
+            <button class="btn-google" onclick="appLogin()">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google">
+                Sign in with Google
+            </button>
+        </div>
+        <div class="loader" id="authLoader"></div>
+    </div>
+
+    <!-- Hidden File Inputs -->
+    <input type="file" id="csvInput" accept=".csv" style="display: none;" onchange="appImportCSV(event)">
+    <input type="file" id="jsonInput" accept=".json" style="display: none;" onchange="appImportJSON(event)">
+
+    <!-- Mobile Sidebar Overlay -->
+    <div id="mobileOverlay" onclick="appToggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>CLIENT LIST</h2>
+            <button class="add-client-btn" onclick="appOpenNewClientModal()"><i class="fas fa-plus"></i> NEW</button>
+        </div>
+        <div class="client-list" id="clientTabs"></div>
+        
+        <div class="file-actions">
+            <button class="btn-disk import-csv" onclick="appTriggerCSVImport()"><i class="fas fa-file-csv"></i> Import Bank CSV</button>
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 3px 0;"></div>
+            
+            <button class="btn-disk" style="border-color: #10b981; color: #34d399; background: rgba(16, 185, 129, 0.1);" onclick="appExportData()"><i class="fas fa-file-download"></i> Export Workspace</button>
+            <button class="btn-disk" style="border-color: #a855f7; color: #c084fc; background: rgba(168, 85, 247, 0.1);" onclick="appTriggerJSONImport()"><i class="fas fa-file-upload"></i> Import Workspace</button>
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 3px 0;"></div>
+            
+            <button class="btn-disk print" onclick="appGeneratePrintComputation()"><i class="fas fa-file-invoice-dollar"></i> Print Computation</button>
+            <button class="btn-disk print" onclick="appGeneratePrintStatement()"><i class="fas fa-file-alt"></i> Print Statement</button>
+            
+            <button class="btn-disk logout" onclick="appLogout()"><i class="fas fa-sign-out-alt"></i> Secure Logout</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <button class="menu-toggle" onclick="appToggleSidebar()"><i class="fas fa-bars"></i></button>
+                <div>
+                    <h1>
+                        <span id="activeMemberTitle">Client Workspace</span>
+                        <span id="seniorBadge" class="status-badge">Standard Citizen</span>
+                    </h1>
+                    <div style="font-size: 12px; color: var(--slate); margin-top: 5px;">
+                        PAN: <strong id="displayPan">N/A</strong> | DOB: <strong id="displayDob">N/A</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="year-selector">
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <i class="fas fa-calendar-alt" style="color: #0369a1;"></i>
+                    <label>TAX YEAR:</label>
+                </div>
+                <select id="fiscalYear" onchange="appChangeYear()">
+                    <option value="FY26-27" selected>FY 2026-27 (AY 2027-28)</option>
+                    <option value="FY25-26">FY 2025-26 (AY 2026-27)</option>
+                    <option value="FY24-25">FY 2024-25 (AY 2025-26)</option>
+                    <option value="FY23-24">FY 2023-24 (AY 2024-25)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Left Column: Inputs & Ledger -->
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                
+                <div class="card">
+                    <div class="card-header">
+                        <span id="formTitle">POST TRANSACTION</span>
+                        <button id="cancelEditBtn" style="display:none; background:none; border:none; color:var(--danger); font-size:12px; cursor:pointer; font-weight:bold;" onclick="appCancelEdit()">CANCEL EDIT</button>
+                    </div>
+                    <form id="taxForm" class="input-form">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="txnDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Transaction Category</label>
+                            <select id="txnType" required onchange="appToggleFormFields()">
+                                <optgroup label="Income from Business & Profession">
+                                    <option value="Normal_Business">Regular Business / Profession (Actuals)</option>
+                                    <option value="44AD_Business">Presumptive Business (Sec 44AD)</option>
+                                    <option value="44ADA_Profession">Presumptive Profession (Sec 44ADA)</option>
+                                </optgroup>
+                                <optgroup label="Other Operating Income">
+                                    <option value="Salary">Salary / Pension Income</option>
+                                    <option value="BankInterest">Interest Income (Savings/FD)</option>
+                                </optgroup>
+                                <optgroup label="Capital Gains & Losses">
+                                    <option value="STCG">Short Term Capital Gain (STCG)</option>
+                                    <option value="STCL">Short Term Capital Loss (STCL)</option>
+                                    <option value="LTCG">Long Term Capital Gain (LTCG)</option>
+                                    <option value="LTCL">Long Term Capital Loss (LTCL)</option>
+                                </optgroup>
+                                <optgroup label="Cash Compliance (Not Taxable)">
+                                    <option value="Cash_Dep_Sav">Cash Deposit -> Savings A/c</option>
+                                    <option value="Cash_Dep_Cur">Cash Deposit -> Current A/c</option>
+                                    <option value="Cash_With">Cash Withdrawal from Bank</option>
+                                </optgroup>
+                                <optgroup label="Investments / Deductions">
+                                    <option value="80C_Insurance">Life Insurance Premium (80C)</option>
+                                    <option value="80C_ELSS">Mutual Fund ELSS (80C)</option>
+                                    <option value="80C_School">Child School Fees (80C)</option>
+                                    <option value="80D_Health">Health Insurance Premium (80D)</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label>Narration / Description (Optional)</label>
+                            <input type="text" id="txnDesc" placeholder="e.g., General Store Sales, Web Dev Contract">
+                        </div>
+
+                        <div id="normalBizGroup" class="dynamic-biz-group full-width" style="display: none; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div><label>Gross Sales / Turnover (₹)</label><input type="number" id="bizSales" placeholder="0.00" min="0"></div>
+                            <div><label>Total Actual Expenses (₹)</label><input type="number" id="bizExp" placeholder="0.00" min="0"></div>
+                        </div>
+                        <div id="44adGroup" class="dynamic-biz-group full-width" style="display: none; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div><label>Digital/Bank Turnover (₹) <span style="color:var(--success); font-weight:normal;">[Tax @ 6%]</span></label><input type="number" id="biz44adDigi" placeholder="0.00" min="0"></div>
+                            <div><label>Cash Turnover (₹) <span style="color:var(--danger); font-weight:normal;">[Tax @ 8%]</span></label><input type="number" id="biz44adCash" placeholder="0.00" min="0"></div>
+                        </div>
+                        <div id="44adaGroup" class="dynamic-biz-group full-width" style="display: none; grid-template-columns: 1fr; gap: 5px;">
+                            <label>Gross Professional Receipts (₹) <span style="color:var(--success); font-weight:normal;">[Tax @ 50%]</span></label>
+                            <input type="number" id="biz44ada" placeholder="0.00" min="0">
+                        </div>
+
+                        <div id="standardAmountGroup" class="form-group full-width" style="display: flex; flex-direction: column; gap: 5px;">
+                            <label id="amountLabel">Gross Amount / Value (INR)</label>
+                            <input type="number" id="txnAmount" placeholder="0.00" min="1">
+                        </div>
+
+                        <div class="form-group" id="tdsGroup" style="display: none;">
+                            <label>TDS Deducted by Client/Bank (₹)</label>
+                            <input type="number" id="txnTds" placeholder="0.00" min="0">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <button type="submit" id="submitBtn" class="btn-primary">POST ENTRY</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">LEDGER (<span id="ledgerYearTitle">FY 26-27</span>)</div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="sortable active" id="th-date" onclick="appToggleSort('date')">Date <i class="fas fa-sort-down"></i></th>
+                                    <th class="sortable" id="th-type" onclick="appToggleSort('type')">Category <i class="fas fa-sort"></i></th>
+                                    <th>Description / Calculation</th>
+                                    <th class="sortable" id="th-amount" style="text-align:right;" onclick="appToggleSort('amount')">Net (₹) <i class="fas fa-sort"></i></th>
+                                    <th width="50"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="ledgerBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Tax Computation -->
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <div class="card">
+                    <div class="card-header">NET TAX PAYABLE / (REFUND) (<span id="calcTitleYear">FY 26-27</span>)</div>
+                    <div class="tax-compare">
+                        <div class="regime-box" id="newRegimeBox">
+                            <div class="best-tag" id="newBest">MOST BENEFICIAL</div>
+                            <small>NEW REGIME (U/S 115BAC)</small>
+                            <div class="tax-val" id="newTax">₹0</div>
+                            <small id="newRegimeSubtext" style="font-size:10px">Default regime. Incl. 75k Std. Ded.</small>
+                        </div>
+
+                        <div class="regime-box" id="oldRegimeBox">
+                            <div class="best-tag" id="oldBest">MOST BENEFICIAL</div>
+                            <small>OLD REGIME</small>
+                            <div class="tax-val" id="oldTax">₹0</div>
+                            <small id="oldRegimeSubtext" style="font-size:10px">Full deductions applied.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="border-left: 4px solid #7e22ce;">
+                    <div class="card-header">CASH COMPLIANCE RADAR (SFT)</div>
+                    <div style="padding: 20px;">
+                        <p style="font-size: 11px; color: var(--slate); margin-top: 0; margin-bottom: 15px;">Tracks total cash deposited/withdrawn against IT Dept reporting thresholds.</p>
+                        
+                        <div class="radar-item">
+                            <div class="radar-label"><span>Savings A/c Deposits</span><span id="txtSav">₹0 / ₹10L</span></div>
+                            <div class="progress-bg"><div class="progress-bar" id="barSav" style="width: 0%;"></div></div>
+                        </div>
+                        <div class="radar-item">
+                            <div class="radar-label"><span>Current A/c Deposits</span><span id="txtCur">₹0 / ₹50L</span></div>
+                            <div class="progress-bg"><div class="progress-bar" id="barCur" style="width: 0%;"></div></div>
+                        </div>
+                        <div class="radar-item">
+                            <div class="radar-label"><span>Bank Cash Withdrawals</span><span id="txtWith">₹0 / ₹20L</span></div>
+                            <div class="progress-bg"><div class="progress-bar" id="barWith" style="width: 0%;"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="background: var(--navy); color: white;">
+                    <div class="card-header" style="border-bottom-color: rgba(255,255,255,0.1); background: transparent;">TAX SUMMARY REPORT</div>
+                    <div style="padding: 20px;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:13px;">
+                            <span style="color:#94a3b8">Total Gross Normal Income:</span><span id="sumGross" style="font-weight: bold;">₹0</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:13px;">
+                            <span style="color:#94a3b8">Total Deductions Claimed:</span><span id="sumDed" style="color:#38bdf8; font-weight: bold;">₹0</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:13px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 12px;">
+                            <span style="color:#94a3b8">Net Taxable Market Gains:</span><span id="sumGains" style="font-weight: bold;">₹0</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:13px; color: #fca5a5;">
+                            <span style="color:inherit">Unadjusted Capital Losses:</span><span id="sumLosses" style="font-weight: bold; text-align:right;">₹0</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-size:13px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 12px;">
+                            <span style="color:#94a3b8">Total TDS Deducted:</span><span id="sumTds" style="font-weight: bold; color: var(--success);">₹0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liability and Usage Disclaimer Footer -->
+        <div class="footer-disclaimer">
+            <strong>Disclaimer & Usage Liability:</strong> This Tax Audit Engine is provided "as is" for informational and computational assistance only. The software developer and associated entities assume no liability or responsibility for the accuracy of any user-entered data or the resulting tax calculations. The calculations generated by this tool do not constitute official financial or legal advice. Please consult with a certified Chartered Accountant (CA) or tax professional before filing official Income Tax Returns.
+        </div>
+    </div>
+
+    <!-- Hidden Print Container -->
+    <div id="printArea"></div>
+
+    <!-- Modal Form -->
+    <div class="modal-overlay" id="clientModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Client Profile</h2>
+                <button class="close-modal" onclick="appCloseNewClientModal()">&times;</button>
+            </div>
+            <form id="newClientForm" style="display: flex; flex-direction: column; gap: 15px;">
+                <div class="form-group">
+                    <label>Client Full Name</label>
+                    <input type="text" id="modalName" placeholder="e.g. Rahul Sharma" required>
+                </div>
+                <div class="form-group">
+                    <label>PAN Number</label>
+                    <input type="text" id="modalPan" placeholder="ABCDE1234F" style="text-transform: uppercase;" maxlength="10" required>
+                </div>
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <input type="date" id="modalDob" required>
+                </div>
+                <button type="submit" class="btn-primary">Save Client</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================================================================
+         APPLICATION LOGIC & CLOUD FIRESTORE INTEGRATION (Firebase v9+)
+         =================================================================== -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // 1. FIREBASE CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBs090lxPJEDY71idYqOMcPgyuPZB0UR4",
+            authDomain: "it-dashboard-d3388.firebaseapp.com",
+            projectId: "it-dashboard-d3388",
+            storageBucket: "it-dashboard-d3388.firebasestorage.app",
+            messagingSenderId: "1038272950342",
+            appId: "1:1038272950342:web:1d424f7df71f4227135a47",
+            measurementId: "G-8YMRKD490R"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // 2. STATE MANAGEMENT
+        let currentUser = null;
+        let clients = [];
+        let activeId = null;
+        let activeYear = "FY26-27"; 
+        let editingTxnId = null;
+        let editingClientId = null;
+        let currentSort = { column: 'date', order: 'desc' };
+        let printDataSnapshot = {}; 
+
+        // Mobile Toggle Logic
+        window.appToggleSidebar = function() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('mobileOverlay').classList.toggle('show');
+        }
+
+        // 3. AUTHENTICATION LOGIC
+        onAuthStateChanged(auth, async (user) => {
+            const loginBox = document.getElementById('loginBox');
+            const authLoader = document.getElementById('authLoader');
+            
+            if (user) {
+                currentUser = user;
+                loginBox.style.display = 'none';
+                authLoader.style.display = 'block';
+                
+                await loadDataFromFirestore();
+                
+                document.getElementById('loginOverlay').style.opacity = '0';
+                setTimeout(() => { document.getElementById('loginOverlay').style.display = 'none'; }, 400);
+            } else {
+                currentUser = null;
+                clients = [];
+                document.getElementById('loginOverlay').style.display = 'flex';
+                document.getElementById('loginOverlay').style.opacity = '1';
+                loginBox.style.display = 'block';
+                authLoader.style.display = 'none';
+            }
+        });
+
+        window.appLogin = function() {
+            signInWithPopup(auth, new GoogleAuthProvider()).catch(error => alert("Login Failed: " + error.message));
+        };
+
+        window.appLogout = function() {
+            signOut(auth);
+        };
+
+        // 4. CLOUD DATA SYNC ENGINE
+        async function loadDataFromFirestore() {
+            if (!currentUser) return;
+            try {
+                const docRef = doc(db, 'users', currentUser.uid, 'taxDashboard', 'mainData');
+                const docSnap = await getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    clients = docSnap.data().clientsArray || [];
+                    activeId = clients.length > 0 ? clients[0].id : null;
+                } else {
+                    clients = [];
+                    activeId = null;
+                }
+                
+                if(clients.length === 0) window.appOpenNewClientModal(); else appInit();
+            } catch (error) {
+                console.error("Error loading data from cloud:", error);
+                alert("Could not load data from secure cloud. Please check your connection.");
+            }
+        }
+
+        async function saveData() {
+            if (!currentUser) return;
+            try {
+                const docRef = doc(db, 'users', currentUser.uid, 'taxDashboard', 'mainData');
+                await setDoc(docRef, {
+                    clientsArray: clients,
+                    lastUpdated: serverTimestamp()
+                });
+            } catch (error) {
+                console.error("Error saving data:", error);
+            }
+        }
+
+        // 5. TAX RULES & CORE APP LOGIC
+        const fyRules = {
+            "FY23-24": { start: "2023-04-01", end: "2024-03-31", ageDate: "2024-03-31", ay: "2024-25", stdDedNew: 50000, stdDedOld: 50000, rebateNewLimit: 700000, rebateNewMax: 25000, rebateOldLimit: 500000, rebateOldMax: 12500, calcNewTax: (inc) => { let tax=0,t=inc; if(t>1500000){tax+=(t-1500000)*0.30;t=1500000;} if(t>1200000){tax+=(t-1200000)*0.20;t=1200000;} if(t>900000){tax+=(t-900000)*0.15;t=900000;} if(t>600000){tax+=(t-600000)*0.10;t=600000;} if(t>300000){tax+=(t-300000)*0.05;} return tax; } },
+            "FY24-25": { start: "2024-04-01", end: "2025-03-31", ageDate: "2025-03-31", ay: "2025-26", stdDedNew: 75000, stdDedOld: 50000, rebateNewLimit: 700000, rebateNewMax: 25000, rebateOldLimit: 500000, rebateOldMax: 12500, calcNewTax: (inc) => { let tax=0,t=inc; if(t>1500000){tax+=(t-1500000)*0.30;t=1500000;} if(t>1200000){tax+=(t-1200000)*0.20;t=1200000;} if(t>1000000){tax+=(t-1000000)*0.15;t=1000000;} if(t>700000){tax+=(t-700000)*0.10;t=700000;} if(t>300000){tax+=(t-300000)*0.05;} return tax; } },
+            "FY25-26": { start: "2025-04-01", end: "2026-03-31", ageDate: "2026-03-31", ay: "2026-27", stdDedNew: 75000, stdDedOld: 50000, rebateNewLimit: 1200000, rebateNewMax: 60000, rebateOldLimit: 500000, rebateOldMax: 12500, calcNewTax: (inc) => { let tax=0,t=inc; if(t>2400000){tax+=(t-2400000)*0.30;t=2400000;} if(t>2000000){tax+=(t-2000000)*0.25;t=2000000;} if(t>1600000){tax+=(t-1600000)*0.20;t=1600000;} if(t>1200000){tax+=(t-1200000)*0.15;t=1200000;} if(t>800000){tax+=(t-800000)*0.10;t=800000;} if(t>400000){tax+=(t-400000)*0.05;} return tax; } },
+            "FY26-27": { start: "2026-04-01", end: "2027-03-31", ageDate: "2027-03-31", ay: "2027-28", stdDedNew: 75000, stdDedOld: 50000, rebateNewLimit: 1200000, rebateNewMax: 60000, rebateOldLimit: 500000, rebateOldMax: 12500, calcNewTax: (inc) => { let tax=0,t=inc; if(t>2400000){tax+=(t-2400000)*0.30;t=2400000;} if(t>2000000){tax+=(t-2000000)*0.25;t=2000000;} if(t>1600000){tax+=(t-1600000)*0.20;t=1600000;} if(t>1200000){tax+=(t-1200000)*0.15;t=1200000;} if(t>800000){tax+=(t-800000)*0.10;t=800000;} if(t>400000){tax+=(t-400000)*0.05;} return tax; } }
+        };
+
+        const labels = {
+            Normal_Business: { text: "Business (Actuals)", cat: "badge-income" }, "44AD_Business": { text: "Business (44AD)", cat: "badge-income" }, "44ADA_Profession": { text: "Profession (44ADA)", cat: "badge-income" },
+            Salary: { text: "Salary/Pension", cat: "badge-income" }, BankInterest: { text: "Bank Interest", cat: "badge-income" },
+            STCG: { text: "Short Term Gain", cat: "badge-gain" }, LTCG: { text: "Long Term Gain", cat: "badge-gain" },
+            STCL: { text: "Short Term Loss", cat: "badge-loss" }, LTCL: { text: "Long Term Loss", cat: "badge-loss" },
+            Cash_Dep_Sav: { text: "Cash Dep. (Sav)", cat: "badge-cash" }, Cash_Dep_Cur: { text: "Cash Dep. (Cur)", cat: "badge-cash" }, Cash_With: { text: "Cash Withdrawal", cat: "badge-cash" },
+            "80C_Insurance": { text: "Insurance (80C)", cat: "badge-deduction" }, "80C_ELSS": { text: "ELSS (80C)", cat: "badge-deduction" },
+            "80C_School": { text: "School Fee (80C)", cat: "badge-deduction" }, "80D_Health": { text: "Health Ins (80D)", cat: "badge-deduction" }
+        };
+
+        const inr = (num) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(num);
+
+        window.appChangeYear = function() {
+            activeYear = document.getElementById('fiscalYear').value;
+            document.getElementById('calcTitleYear').innerText = activeYear.replace('-', ' - ');
+            document.getElementById('ledgerYearTitle').innerText = activeYear.replace('-', ' - ');
+            setFormDefaultDate(); window.appCancelEdit(); appInit(); 
+        }
+
+        function setFormDefaultDate() {
+            const today = new Date();
+            const start = new Date(fyRules[activeYear].start); const end = new Date(fyRules[activeYear].end);
+            if(today >= start && today <= end) { document.getElementById('txnDate').value = today.toISOString().split('T')[0]; } 
+            else { document.getElementById('txnDate').value = fyRules[activeYear].end; }
+        }
+
+        function calculateAge(dob) {
+            if (!dob) return 0;
+            const d = new Date(dob); const fyEnd = new Date(fyRules[activeYear].ageDate);
+            let age = fyEnd.getFullYear() - d.getFullYear();
+            if (fyEnd.getMonth() - d.getMonth() < 0 || (fyEnd.getMonth() === d.getMonth() && fyEnd.getDate() < d.getDate())) { age--; }
+            return age;
+        }
+
+        function isTxnInActiveFY(dateStr) {
+            if(!dateStr) return true;
+            const d = new Date(dateStr);
+            return d >= new Date(fyRules[activeYear].start) && d <= new Date(fyRules[activeYear].end);
+        }
+
+        window.appToggleFormFields = function() {
+            const type = document.getElementById('txnType').value;
+            document.getElementById('standardAmountGroup').style.display = 'none'; document.getElementById('normalBizGroup').style.display = 'none';
+            document.getElementById('44adGroup').style.display = 'none'; document.getElementById('44adaGroup').style.display = 'none';
+            
+            if (['Salary', 'Normal_Business', '44AD_Business', '44ADA_Profession', 'BankInterest'].includes(type)) { document.getElementById('tdsGroup').style.display = 'flex'; } 
+            else { document.getElementById('tdsGroup').style.display = 'none'; document.getElementById('txnTds').value = ''; }
+
+            if (type === 'Normal_Business') { document.getElementById('normalBizGroup').style.display = 'grid'; document.getElementById('txnAmount').removeAttribute('required'); } 
+            else if (type === '44AD_Business') { document.getElementById('44adGroup').style.display = 'grid'; document.getElementById('txnAmount').removeAttribute('required'); } 
+            else if (type === '44ADA_Profession') { document.getElementById('44adaGroup').style.display = 'grid'; document.getElementById('txnAmount').removeAttribute('required'); } 
+            else {
+                document.getElementById('standardAmountGroup').style.display = 'flex';
+                document.getElementById('txnAmount').setAttribute('required', 'true');
+                const label = document.getElementById('amountLabel');
+                if (['Cash_Dep_Sav', 'Cash_Dep_Cur', 'Cash_With'].includes(type)) label.innerText = "Cash Amount (INR)";
+                else if (['STCL', 'LTCL'].includes(type)) label.innerText = "Loss Value (INR)";
+                else label.innerText = "Gross Amount (INR)";
+            }
+        }
+
+        window.appToggleSort = function(column) {
+            if (currentSort.column === column) currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
+            else { currentSort.column = column; currentSort.order = column === 'date' ? 'desc' : 'asc'; }
+            ['date', 'type', 'amount'].forEach(col => {
+                const th = document.getElementById(`th-${col}`);
+                th.classList.remove('active'); th.querySelector('i').className = 'fas fa-sort';
+            });
+            const activeTh = document.getElementById(`th-${column}`);
+            activeTh.classList.add('active');
+            activeTh.querySelector('i').className = currentSort.order === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+            renderLedger();
+        }
+
+        function appInit() {
+            if (clients.length === 0) { document.getElementById('clientTabs').innerHTML = '<div style="text-align: center; padding:20px; color:#94a3b8;">No clients.</div>'; return; }
+            renderSidebar(); loadClientProfile(); window.appToggleFormFields(); renderLedger(); calculateTax();
+            if(!document.getElementById('txnDate').value) setFormDefaultDate();
+        }
+        window.init = appInit;
+
+        function renderSidebar() {
+            document.getElementById('clientTabs').innerHTML = clients.map(c => {
+                const isSenior = calculateAge(c.dob) >= 60;
+                return `<div class="client-item ${c.id === activeId ? 'active' : ''}" onclick="appSwitchClient(${c.id})">
+                    <div style="display:flex; align-items:center; gap:12px; overflow:hidden;">
+                        <i class="fas ${isSenior ? 'fa-user-tie' : 'fa-user'} user-icon"></i>
+                        <div class="client-info">
+                            <span>${c.name}</span>
+                            <small>PAN: ${c.pan}</small>
+                        </div>
+                    </div>
+                    <div class="client-item-actions">
+                        <i class="fas fa-edit" style="color: var(--warning); font-size:12px;" title="Edit Profile" onclick="event.stopPropagation(); appEditClient(${c.id})"></i>
+                        <i class="fas fa-trash" style="color: var(--danger); font-size:12px;" title="Delete Client" onclick="event.stopPropagation(); appDeleteClient(${c.id})"></i>
+                    </div>
+                </div>`
+            }).join('');
+        }
+
+        window.appSwitchClient = function(id) { 
+            activeId = id; window.appCancelEdit(); appInit(); 
+            if (window.innerWidth <= 768) window.appToggleSidebar();
+        }
+
+        function loadClientProfile() {
+            const client = clients.find(c => c.id === activeId); if(!client) return;
+            document.getElementById('activeMemberTitle').innerText = client.name;
+            document.getElementById('displayPan').innerText = client.pan || "N/A";
+            document.getElementById('displayDob').innerText = client.dob || "N/A";
+            const age = calculateAge(client.dob); const badge = document.getElementById('seniorBadge');
+            if (age >= 60) { badge.innerText = "Senior Citizen (60+)"; badge.className = "status-badge status-senior"; document.getElementById('oldRegimeSubtext').innerText = "Includes ₹3L Exemption & ₹50k 80D/80TTB limits."; } 
+            else { badge.innerText = "Standard Citizen (<60)"; badge.className = "status-badge"; document.getElementById('oldRegimeSubtext').innerText = "Includes ₹2.5L Exemption."; }
+            document.getElementById('newRegimeSubtext').innerText = `Incl. ₹${(fyRules[activeYear].stdDedNew/1000)}k Std. Ded. Rebate up to ₹${fyRules[activeYear].rebateNewLimit/100000}L.`;
+        }
+
+        document.getElementById('taxForm').onsubmit = (e) => {
+            e.preventDefault(); if(!activeId) return;
+            const type = document.getElementById('txnType').value; const date = document.getElementById('txnDate').value; const tds = parseFloat(document.getElementById('txnTds').value) || 0;
+            let desc = document.getElementById('txnDesc').value || labels[type].text; let amount = 0; let raw = {};
+
+            if (type === 'Normal_Business') {
+                raw.sales = parseFloat(document.getElementById('bizSales').value) || 0; raw.exp = parseFloat(document.getElementById('bizExp').value) || 0;
+                amount = Math.max(0, raw.sales - raw.exp); desc = `${desc} (Sales: ₹${raw.sales}, Exp: ₹${raw.exp})`;
+            } else if (type === '44AD_Business') {
+                raw.digi = parseFloat(document.getElementById('biz44adDigi').value) || 0; raw.cash = parseFloat(document.getElementById('biz44adCash').value) || 0;
+                amount = (raw.digi * 0.06) + (raw.cash * 0.08); desc = `${desc} (Bank: ₹${raw.digi}, Cash: ₹${raw.cash})`;
+            } else if (type === '44ADA_Profession') {
+                raw.rec = parseFloat(document.getElementById('biz44ada').value) || 0; amount = raw.rec * 0.50; desc = `${desc} (Receipts: ₹${raw.rec})`;
+            } else { amount = parseFloat(document.getElementById('txnAmount').value) || 0; }
+
+            const client = clients.find(c => c.id === activeId);
+            if (editingTxnId) {
+                const txn = client.data.find(t => t.id === editingTxnId);
+                if (txn) { txn.date = date; txn.type = type; txn.desc = desc; txn.amount = amount; txn.tds = tds; txn.raw = raw;}
+                window.appCancelEdit();
+            } else {
+                client.data.push({ id: Date.now(), date, type, desc, amount, tds, raw });
+                document.getElementById('taxForm').reset(); setFormDefaultDate(); window.appToggleFormFields();
+            }
+
+            saveData(); if(!isTxnInActiveFY(date)) alert(`Note: Date outside selected FY. Saved but hidden.`);
+            renderLedger(); calculateTax();
+        };
+
+        window.appEditTxn = function(txnId) {
+            const client = clients.find(c => c.id === activeId); const txn = client.data.find(t => t.id === txnId); if(!txn) return;
+            document.getElementById('txnDate').value = txn.date || fyRules[activeYear].end;
+            document.getElementById('txnType').value = txn.type;
+            let cleanDesc = txn.desc; if(['Normal_Business', '44AD_Business', '44ADA_Profession'].includes(txn.type)) cleanDesc = cleanDesc.split(' (')[0];
+            document.getElementById('txnDesc').value = cleanDesc; document.getElementById('txnTds').value = txn.tds || ''; window.appToggleFormFields();
+            
+            if (txn.type === 'Normal_Business') { document.getElementById('bizSales').value = txn.raw?.sales || ''; document.getElementById('bizExp').value = txn.raw?.exp || ''; } 
+            else if (txn.type === '44AD_Business') { document.getElementById('biz44adDigi').value = txn.raw?.digi || ''; document.getElementById('biz44adCash').value = txn.raw?.cash || ''; } 
+            else if (txn.type === '44ADA_Profession') { document.getElementById('biz44ada').value = txn.raw?.rec || ''; } 
+            else { document.getElementById('txnAmount').value = txn.amount; }
+
+            editingTxnId = txnId; document.getElementById('formTitle').innerText = "EDIT TRANSACTION"; document.getElementById('submitBtn').innerText = "UPDATE ENTRY";
+            document.getElementById('submitBtn').classList.add('btn-update'); document.getElementById('cancelEditBtn').style.display = "inline-block";
+            
+            if (window.innerWidth <= 768) window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.appCancelEdit = function() {
+            editingTxnId = null; document.getElementById('taxForm').reset(); setFormDefaultDate(); window.appToggleFormFields();
+            document.getElementById('formTitle').innerText = "POST TRANSACTION"; document.getElementById('submitBtn').innerText = "POST ENTRY";
+            document.getElementById('submitBtn').classList.remove('btn-update'); document.getElementById('cancelEditBtn').style.display = "none";
+        }
+
+        window.appDeleteTxn = function(txnId) { 
+            if(confirm("Delete this transaction?")) { clients.find(c => c.id === activeId).data = clients.find(c => c.id === activeId).data.filter(t => t.id !== txnId); if(editingTxnId === txnId) window.appCancelEdit(); saveData(); renderLedger(); calculateTax(); }
+        }
+
+        function renderLedger() {
+            const client = clients.find(c => c.id === activeId); const body = document.getElementById('ledgerBody');
+            let fyData = client ? client.data.filter(t => isTxnInActiveFY(t.date)) : [];
+            
+            fyData.sort((a, b) => {
+                let valA, valB;
+                if (currentSort.column === 'date') { valA = a.date ? new Date(a.date).getTime() : 0; valB = b.date ? new Date(b.date).getTime() : 0; }
+                else if (currentSort.column === 'type') { valA = labels[a.type].text.toLowerCase(); valB = labels[b.type].text.toLowerCase(); }
+                else if (currentSort.column === 'amount') { valA = a.amount; valB = b.amount; }
+                if (valA < valB) return currentSort.order === 'asc' ? -1 : 1;
+                if (valA > valB) return currentSort.order === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            if(fyData.length === 0) { body.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding: 30px;">No entries found for ${activeYear}.</td></tr>`; return; }
+
+            body.innerHTML = fyData.map(t => {
+                let dateDisplay = t.date ? new Date(t.date).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'}) : 'N/A';
+                let tdsTag = t.tds > 0 ? `<div style="font-size:10px; color:var(--success); font-weight:bold;">TDS: ₹${t.tds.toLocaleString()}</div>` : '';
+                let amountColor = (t.type === 'STCL' || t.type === 'LTCL' || t.type === 'Cash_With') ? 'color: var(--danger);' : '';
+                let sign = (t.type === 'STCL' || t.type === 'LTCL' || t.type === 'Cash_With') ? '-' : '';
+                
+                // Note: white-space normal on desc allows text to wrap on small screens
+                return `<tr>
+                    <td style="color:#64748b; font-size:12px; white-space: nowrap;">${dateDisplay}</td>
+                    <td><span class="badge ${labels[t.type].cat}">${t.type.split('_')[0]}</span></td>
+                    <td style="min-width: 120px; white-space: normal; line-height: 1.3; word-break: break-word;"><div style="font-weight:600">${t.desc}</div><div style="font-size:10px; color:#94a3b8; margin-top:2px;">${labels[t.type].text}</div></td>
+                    <td style="text-align:right; white-space: nowrap;"><div style="font-weight:600; ${amountColor}">${sign}₹${t.amount.toLocaleString('en-IN')}</div>${tdsTag}</td>
+                    <td style="white-space: nowrap;"><div class="action-icons"><i class="fas fa-edit edit-icon" title="Edit" onclick="appEditTxn(${t.id})"></i><i class="fas fa-trash del-icon" title="Delete" onclick="appDeleteTxn(${t.id})"></i></div></td>
+                </tr>`;
+            }).join('');
+        }
+
+        function calculateTax() {
+            const client = clients.find(c => c.id === activeId); if(!client) return;
+            const rules = fyRules[activeYear]; const isSenior = calculateAge(client.dob) >= 60;
+            let inc = { norm: 0, sal: 0, bank: 0 }; let cg = { stcg: 0, ltcg: 0, stcl: 0, ltcl: 0 }; let ded = { c80: 0, d80: 0 }; let cash = { sav: 0, cur: 0, with: 0 }; let totalTds = 0;
+
+            const fyData = client.data.filter(t => isTxnInActiveFY(t.date));
+            fyData.forEach(t => {
+                if(t.type === 'Salary') inc.sal += t.amount; else if(['Normal_Business', '44AD_Business', '44ADA_Profession'].includes(t.type)) inc.norm += t.amount; else if(t.type === 'BankInterest') inc.bank += t.amount;
+                else if(t.type === 'STCG') cg.stcg += t.amount; else if(t.type === 'LTCG') cg.ltcg += t.amount; else if(t.type === 'STCL') cg.stcl += t.amount; else if(t.type === 'LTCL') cg.ltcl += t.amount;
+                else if(t.type === 'Cash_Dep_Sav') cash.sav += t.amount; else if(t.type === 'Cash_Dep_Cur') cash.cur += t.amount; else if(t.type === 'Cash_With') cash.with += t.amount;
+                else if(t.type.startsWith('80C')) ded.c80 += t.amount; else if(t.type === '80D_Health') ded.d80 += t.amount; totalTds += (t.tds || 0);
+            });
+
+            document.getElementById('txtSav').innerText = `₹${(cash.sav/100000).toFixed(1)}L / ₹10L`; document.getElementById('txtCur').innerText = `₹${(cash.cur/100000).toFixed(1)}L / ₹50L`; document.getElementById('txtWith').innerText = `₹${(cash.with/100000).toFixed(1)}L / ₹20L`;
+            const setBar = (id, pct) => { const bar = document.getElementById(id); bar.style.width = pct + '%'; bar.className = 'progress-bar'; if (pct >= 100) bar.classList.add('danger'); else if (pct >= 80) bar.classList.add('warning'); };
+            setBar('barSav', Math.min((cash.sav/1000000)*100, 100)); setBar('barCur', Math.min((cash.cur/5000000)*100, 100)); setBar('barWith', Math.min((cash.with/2000000)*100, 100));
+
+            let netLtcg = cg.ltcg - cg.ltcl; let carryForwardLtcl = 0; if (netLtcg < 0) { carryForwardLtcl = Math.abs(netLtcg); netLtcg = 0; }
+            let netStcg = cg.stcg - cg.stcl; let carryForwardStcl = 0;
+            if (netStcg < 0) {
+                let remainingStcl = Math.abs(netStcg); netStcg = 0;
+                if (netLtcg > 0) { if (remainingStcl <= netLtcg) { netLtcg -= remainingStcl; remainingStcl = 0; } else { remainingStcl -= netLtcg; netLtcg = 0; } }
+                carryForwardStcl = remainingStcl;
+            }
+
+            const grossNormal = inc.sal + inc.norm + inc.bank; let nTaxable = Math.max(0, grossNormal - (inc.sal > 0 ? rules.stdDedNew : 0)); let tN = rules.calcNewTax(nTaxable);
+            let oldDeductionsSum = (inc.sal > 0 ? rules.stdDedOld : 0) + Math.min(ded.c80, 150000) + Math.min(ded.d80, isSenior ? 50000 : 25000) + Math.min(inc.bank, isSenior ? 50000 : 10000);
+            let oTaxable = Math.max(0, grossNormal - oldDeductionsSum); let tO = 0, bL = isSenior ? 300000 : 250000; 
+            if(oTaxable > bL) { let t = oTaxable; if(t > 1000000) { tO += (t - 1000000) * 0.30; t = 1000000; } if(t > 500000) { tO += (t - 500000) * 0.20; t = 500000; } if(t > bL) { tO += (t - bL) * 0.05; } }
+
+            // UPDATED CAPITAL GAINS LOGIC FOR BUDGET 2025/2026
+            let ltcgRate = (activeYear === "FY23-24") ? 0.10 : 0.125; 
+            let ltcgExempt = (activeYear === "FY23-24") ? 100000 : 125000;
+            const gainsTax = (netStcg * 0.20) + (Math.max(0, netLtcg - ltcgExempt) * ltcgRate);
+
+            // New 87A Rebate logic: Exclude special rate taxes (gainsTax) from rebate for FY25-26 onwards
+            let totalIncomeNew = nTaxable + netStcg + netLtcg;
+            let totalIncomeOld = oTaxable + netStcg + netLtcg;
+            
+            let rebateEligibleNew = (activeYear === "FY25-26" || activeYear === "FY26-27") ? tN : tN + (netStcg * 0.20);
+            let rebateEligibleOld = (activeYear === "FY25-26" || activeYear === "FY26-27") ? tO : tO + (netStcg * 0.20);
+
+            let fN = tN + gainsTax; if(totalIncomeNew <= rules.rebateNewLimit) fN = Math.max(0, fN - Math.min(rebateEligibleNew, rules.rebateNewMax));
+            let fO = tO + gainsTax; if(totalIncomeOld <= rules.rebateOldLimit) fO = Math.max(0, fO - Math.min(rebateEligibleOld, rules.rebateOldMax));
+
+            fN = Math.round(fN * 1.04); fO = Math.round(fO * 1.04);
+            let netNew = fN - totalTds; let netOld = fO - totalTds;
+            
+            printDataSnapshot = { client, rules, isSenior, inc, netStcg, netLtcg, carryForwardStcl, carryForwardLtcl, grossNormal, nTaxable, oTaxable, oldDeductionsSum, ded, fN, fO, netNew, netOld, totalTds, stdDedNew: rules.stdDedNew, stdDedOld: rules.stdDedOld };
+
+            const nBoxUI = document.getElementById('newTax'), oBoxUI = document.getElementById('oldTax');
+            if (netNew < 0) { nBoxUI.innerHTML = `<span style="font-size: 16px; color: var(--slate);">Refund:</span> ₹${Math.abs(netNew).toLocaleString('en-IN')}`; nBoxUI.classList.add('refund'); } else { nBoxUI.innerHTML = `₹${netNew.toLocaleString('en-IN')}`; nBoxUI.classList.remove('refund'); }
+            if (netOld < 0) { oBoxUI.innerHTML = `<span style="font-size: 16px; color: var(--slate);">Refund:</span> ₹${Math.abs(netOld).toLocaleString('en-IN')}`; oBoxUI.classList.add('refund'); } else { oBoxUI.innerHTML = `₹${netOld.toLocaleString('en-IN')}`; oBoxUI.classList.remove('refund'); }
+
+            document.getElementById('sumGross').innerText = `₹${grossNormal.toLocaleString('en-IN')}`; document.getElementById('sumDed').innerText = `₹${oldDeductionsSum.toLocaleString('en-IN')}`; document.getElementById('sumGains').innerText = `₹${(netStcg + netLtcg).toLocaleString('en-IN')}`;
+            
+            // Format loss text for UI to show lapses
+            let ltclText = (activeYear === "FY25-26" || activeYear === "FY26-27") ? " (Lapses)" : " (C/F)";
+            document.getElementById('sumLosses').innerHTML = `STCL: ₹${carryForwardStcl.toLocaleString('en-IN')} (C/F)<br>LTCL: ₹${carryForwardLtcl.toLocaleString('en-IN')}${ltclText}`;
+            
+            document.getElementById('sumTds').innerText = `₹${totalTds.toLocaleString('en-IN')}`;
+
+            const nBox = document.getElementById('newRegimeBox'), oBox = document.getElementById('oldRegimeBox');
+            document.getElementById('newBest').style.display = document.getElementById('oldBest').style.display = 'none'; nBox.classList.remove('winner'); oBox.classList.remove('winner');
+            if(netNew < netOld) { document.getElementById('newBest').style.display = 'block'; nBox.classList.add('winner'); } else if(netOld < netNew) { document.getElementById('oldBest').style.display = 'block'; oBox.classList.add('winner'); }
+        }
+
+        window.appGeneratePrintComputation = function() {
+            if(!activeId) return alert("Select a client first.");
+            const pd = printDataSnapshot; const c = pd.client;
+            let bestRegimeName = "NEW REGIME (115BAC)"; let bestTax = pd.fN; let bestNet = pd.netNew; let usedDeds = (pd.inc.sal > 0 ? pd.stdDedNew : 0);
+            if (pd.netOld < pd.netNew) { bestRegimeName = "OLD REGIME"; bestTax = pd.fO; bestNet = pd.netOld; usedDeds = pd.oldDeductionsSum; }
+
+            document.getElementById('printArea').innerHTML = `
+                <div class="print-header"><h1>INCOME TAX COMPUTATION</h1><p><strong>Assessment Year:</strong> ${pd.rules.ay} | <strong>Financial Year:</strong> ${activeYear.replace('FY', '')}</p></div>
+                <div class="print-section"><h3>1. PERSONAL DETAILS</h3><div style="display: grid; grid-template-columns: 1fr 1fr; row-gap: 8px;"><div><strong>Name of Assessee:</strong> ${c.name}</div><div><strong>PAN:</strong> ${c.pan || "Not Provided"}</div><div><strong>Date of Birth:</strong> ${c.dob ? new Date(c.dob).toLocaleDateString('en-GB') : "Not Provided"}</div><div><strong>Status:</strong> ${pd.isSenior ? "Senior Citizen" : "Individual (Standard)"}</div></div></div>
+                <div class="print-section"><h3>2. COMPUTATION OF TOTAL INCOME</h3><div class="print-row bold">A. Income from Salary / Pension</div><div class="print-row"><span>Gross Salary Received</span> <span>${inr(pd.inc.sal)}</span></div><div class="print-row bold">B. Income from Business / Profession</div><div class="print-row"><span>Net Business Profit (Sec 44AD / 44ADA / Normal)</span> <span>${inr(pd.inc.norm)}</span></div><div class="print-row bold">C. Income from Other Sources</div><div class="print-row"><span>Bank Interest (Savings & FD)</span> <span>${inr(pd.inc.bank)}</span></div><div class="print-row sub-total"><strong>Gross Normal Income (A+B+C)</strong> <strong>${inr(pd.grossNormal)}</strong></div><br><div class="print-row bold">D. Income from Capital Gains</div><div class="print-row"><span>Short-Term Capital Gain (After Set-off)</span> <span>${inr(pd.netStcg)}</span></div><div class="print-row"><span>Long-Term Capital Gain (After Set-off)</span> <span>${inr(pd.netLtcg)}</span></div><div class="print-row sub-total"><strong>Gross Total Income</strong> <strong>${inr(pd.grossNormal + pd.netStcg + pd.netLtcg)}</strong></div><br><div class="print-row bold">E. Deductions Allowed (${bestRegimeName})</div><div class="print-row"><span>Standard Deduction & Chapter VI-A Applied</span> <span>${inr(usedDeds)}</span></div><div class="print-row final-total"><strong>TOTAL TAXABLE INCOME</strong> <strong>${inr((bestRegimeName === "OLD REGIME" ? pd.oTaxable : pd.nTaxable) + pd.netStcg + pd.netLtcg)}</strong></div></div>
+                <div class="print-section"><h3>3. COMPUTATION OF TAX LIABILITY</h3><div class="print-row"><span>Tax on Total Income (Including Cess)</span> <span>${inr(bestTax)}</span></div><div class="print-row"><span>Less: Tax Deducted at Source (TDS)</span> <span>${inr(pd.totalTds)}</span></div><div class="print-row final-total"><strong>${bestNet < 0 ? 'NET TAX REFUND DUE' : 'NET TAX PAYABLE'}</strong> <strong>${inr(Math.abs(bestNet))}</strong></div></div>
+                ${(pd.carryForwardStcl > 0 || pd.carryForwardLtcl > 0) ? `<div class="print-section"><h3>4. LOSSES TO BE CARRIED FORWARD / UNADJUSTED</h3><div class="print-row"><span>Short Term Capital Loss (C/F to next 8 AYs)</span> <span>${inr(pd.carryForwardStcl)}</span></div><div class="print-row"><span>Long Term Capital Loss ${(pd.rules.ay === '2026-27' || pd.rules.ay === '2027-28') ? '(Lapses - Cannot be carried forward)' : '(C/F to next 8 AYs)'}</span> <span>${inr(pd.carryForwardLtcl)}</span></div></div>` : ''}
+                <div style="margin-top: 50px; text-align: right;"><p>___________________________</p><p><strong>Signature of Assessee</strong></p></div>`;
+            window.print();
+        }
+
+        window.appGeneratePrintStatement = function() {
+            if(!activeId) return alert("Select a client first."); const c = clients.find(cl => cl.id === activeId);
+            let fyData = c.data.filter(t => isTxnInActiveFY(t.date)); fyData.sort((a, b) => new Date(a.date) - new Date(b.date));
+            let rowsHtml = fyData.map(t => `<tr><td>${t.date ? new Date(t.date).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'}) : ''}</td><td>${labels[t.type].text}</td><td>${t.desc}</td><td class="money">${inr(t.amount)}</td><td class="money">${t.tds > 0 ? inr(t.tds) : '-'}</td></tr>`).join('');
+            document.getElementById('printArea').innerHTML = `
+                <div class="print-header"><h1>TRANSACTION LEDGER STATEMENT</h1><p><strong>Financial Year:</strong> ${activeYear.replace('FY', '')}</p></div><div style="margin-bottom: 20px;"><strong>Client Name:</strong> ${c.name} <br><strong>PAN:</strong> ${c.pan || "N/A"}</div>
+                <table class="print-table"><thead><tr><th width="12%">Date</th><th width="25%">Category</th><th width="35%">Description / Narration</th><th width="15%" class="money">Net Amount</th><th width="13%" class="money">TDS Deducted</th></tr></thead><tbody>${rowsHtml || '<tr><td colspan="5" style="text-align:center;">No transactions.</td></tr>'}</tbody></table>`;
+            window.print();
+        }
+
+        window.appOpenNewClientModal = function() { 
+            editingClientId = null;
+            document.getElementById('newClientForm').reset();
+            document.querySelector('#clientModal h2').innerText = "Create New Client Profile";
+            document.getElementById('clientModal').style.display = 'flex'; 
+        }
+        
+        window.appCloseNewClientModal = function() { document.getElementById('clientModal').style.display = 'none'; document.getElementById('newClientForm').reset(); }
+        
+        window.appEditClient = function(id) {
+            const client = clients.find(c => c.id === id);
+            if(!client) return;
+            editingClientId = id;
+            document.getElementById('modalName').value = client.name;
+            document.getElementById('modalPan').value = client.pan;
+            document.getElementById('modalDob').value = client.dob || '';
+            document.querySelector('#clientModal h2').innerText = "Edit Client Profile";
+            document.getElementById('clientModal').style.display = 'flex';
+        }
+
+        window.appDeleteClient = function(id) {
+            const client = clients.find(c => c.id === id);
+            if(!client) return;
+            if(confirm(`Are you sure you want to completely remove "${client.name}" and delete all their historical audit data logs?`)) {
+                clients = clients.filter(c => c.id !== id);
+                if(activeId === id) activeId = clients.length > 0 ? clients[0].id : null;
+                saveData(); appInit();
+            }
+        }
+
+        document.getElementById('newClientForm').onsubmit = function(e) {
+            e.preventDefault();
+            const name = document.getElementById('modalName').value;
+            const pan = document.getElementById('modalPan').value.toUpperCase();
+            const dob = document.getElementById('modalDob').value;
+
+            if(editingClientId) {
+                const target = clients.find(c => c.id === editingClientId);
+                if(target) { target.name = name; target.pan = pan; target.dob = dob; }
+                editingClientId = null;
+            } else {
+                clients.push({ id: Date.now(), name, pan, dob, data: [] });
+                activeId = clients[clients.length-1].id;
+            }
+            saveData(); window.appCloseNewClientModal(); appInit();
+        };
+
+        window.appTriggerCSVImport = function() { document.getElementById('csvInput').click(); }
+        window.appImportCSV = function(e) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                e.target.result.split('\n').forEach((line, i) => {
+                    const cols = line.split(','); if(cols.length < 3 || i === 0) return;
+                    const desc = cols[1].trim(), amount = parseFloat(cols[2].replace(/[^0-9.-]+/g,""));
+                    if(isNaN(amount) || amount === 0) return;
+                    let cat = amount > 0 ? (desc.toLowerCase().includes('salary') ? 'Salary' : 'Normal_Business') : (desc.toLowerCase().includes('lic') ? '80C_Insurance' : 'Ignore');
+                    if(cat !== 'Ignore') clients.find(c => c.id === activeId).data.push({ id: Date.now()+i, date: fyRules[activeYear].end, type: cat, desc: desc.substring(0,30), amount: Math.abs(amount), tds: 0 });
+                });
+                saveData(); appInit(); alert(`CSV Imported into ${activeYear}. Check ledger.`);
+            };
+            if(e.target.files[0]) reader.readAsText(e.target.files[0]);
+        }
+
+        // 6. WORKSPACE JSON IMPORT / EXPORT ENGINE
+        window.appExportData = function() {
+            if(clients.length === 0) return alert("No client workspaces available to back up.");
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(clients, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `Tax_Workspace_Backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click(); dlAnchor.remove();
+        }
+
+        window.appTriggerJSONImport = function() { document.getElementById('jsonInput').click(); }
+        window.appImportJSON = function(e) {
+            const file = e.target.files[0]; if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const parsedData = JSON.parse(evt.target.result);
+                    if(!Array.isArray(parsedData)) throw new Error("Root backup object must be a structured client collection array.");
+                    if(confirm("Warning: Uploading this workspace backup will overwrite your current active configuration structure. Proceed?")) {
+                        clients = parsedData;
+                        activeId = clients.length > 0 ? clients[0].id : null;
+                        saveData(); appInit();
+                        alert("Database synchronized. Backup loaded successfully.");
+                    }
+                } catch (err) {
+                    alert("Import Failed! Ensure you uploaded a valid backup JSON file.\nError structural exception: " + err.message);
+                }
+            };
+            reader.readAsText(file);
+            document.getElementById('jsonInput').value = ''; 
+        }
+    </script>
+</body>
+</html>
