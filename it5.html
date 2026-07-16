@@ -195,7 +195,6 @@
 </head>
 <body>
 
-    <!-- SECURE LOGIN OVERLAY -->
     <div id="loginOverlay">
         <div class="login-box" id="loginBox">
             <i class="fas fa-shield-alt" style="font-size: 40px; color: var(--cobalt); margin-bottom: 15px;"></i>
@@ -209,10 +208,8 @@
         <div class="loader" id="authLoader"></div>
     </div>
 
-    <!-- Hidden File Inputs -->
     <input type="file" id="csvInput" accept=".csv" style="display: none;" onchange="appImportCSV(event)">
     <input type="file" id="jsonInput" accept=".json" style="display: none;" onchange="appImportJSON(event)">
-
     <div id="mobileOverlay" onclick="appToggleSidebar()"></div>
 
     <!-- Sidebar -->
@@ -526,7 +523,6 @@
         let editingClientId = null;
         let currentSort = { column: 'date', order: 'desc' };
         
-        // Detailed Computation Global State
         let printDataSnapshot = {}; 
         let detailedBreakdown = {};
 
@@ -574,7 +570,6 @@
             catch (error) { console.error("Error saving data:", error); }
         }
 
-        // TAX ENGINE (Slabs detailed for Breakdown logic)
         const fyRules = {
             "FY23-24": { ay: "2024-25", stdDedNew: 50000, stdDedOld: 50000, rebateNewLimit: 700000, rebateNewMax: 25000, rebateOldLimit: 500000, rebateOldMax: 12500, start: "2023-04-01", end: "2024-03-31", ageDate: "2024-03-31" },
             "FY24-25": { ay: "2025-26", stdDedNew: 75000, stdDedOld: 50000, rebateNewLimit: 700000, rebateNewMax: 25000, rebateOldLimit: 500000, rebateOldMax: 12500, start: "2024-04-01", end: "2025-03-31", ageDate: "2025-03-31" },
@@ -756,7 +751,6 @@
                 carryForwardStcl = remainingStcl;
             }
 
-            // Deduction Optimization Radar
             let limit80C = 150000;
             let limit80D = isSenior ? 50000 : 25000;
             let limitBank = isSenior ? 50000 : 10000;
@@ -781,25 +775,62 @@
             const grossNormal = inc.sal + inc.norm + inc.bank; 
             let nTaxable = Math.max(0, grossNormal - (inc.sal > 0 ? rules.stdDedNew : 0)); 
             
+            // --- NEW REGIME CALCULATION ---
+            let basicExemptionNew = (activeYear === "FY25-26" || activeYear === "FY26-27") ? 400000 : 300000;
+            let unexhaustedNew = Math.max(0, basicExemptionNew - nTaxable);
+            
+            let ltcgRate = (activeYear === "FY23-24") ? 0.10 : 0.125; 
+            let ltcgExempt = (activeYear === "FY23-24") ? 100000 : 125000;
+            
+            let remainingStcgNew = netStcg;
+            let remainingLtcgNew = Math.max(0, netLtcg - ltcgExempt);
+            
+            let adjustedStcgNew = 0; let adjustedLtcgNew = 0;
+            if (unexhaustedNew > 0) {
+                adjustedStcgNew = Math.min(remainingStcgNew, unexhaustedNew);
+                remainingStcgNew -= adjustedStcgNew;
+                unexhaustedNew -= adjustedStcgNew;
+                
+                adjustedLtcgNew = Math.min(remainingLtcgNew, unexhaustedNew);
+                remainingLtcgNew -= adjustedLtcgNew;
+            }
+            
+            const gainsTaxNew = (remainingStcgNew * 0.20) + (remainingLtcgNew * ltcgRate);
             let newCalc = computeNewRegimeTaxDetails(nTaxable, rules);
             let tN = newCalc.tax;
 
-            let chapVIA = Math.min(ded.c80, 150000) + Math.min(ded.d80, isSenior ? 50000 : 25000) + Math.min(inc.bank, isSenior ? 50000 : 10000);
+
+            // --- OLD REGIME CALCULATION ---
+            let chapVIA = Math.min(ded.c80, 150000) + Math.min(ded.d80, limit80D) + Math.min(inc.bank, limitBank);
             let oldDeductionsSum = (inc.sal > 0 ? rules.stdDedOld : 0) + chapVIA;
             let oTaxable = Math.max(0, grossNormal - oldDeductionsSum); 
             
-            let tO = 0, bL = isSenior ? 300000 : 250000; 
+            let basicExemptionOld = isSenior ? 300000 : 250000;
+            let unexhaustedOld = Math.max(0, basicExemptionOld - oTaxable);
+
+            let remainingStcgOld = netStcg;
+            let remainingLtcgOld = Math.max(0, netLtcg - ltcgExempt);
+            
+            let adjustedStcgOld = 0; let adjustedLtcgOld = 0;
+            if (unexhaustedOld > 0) {
+                adjustedStcgOld = Math.min(remainingStcgOld, unexhaustedOld);
+                remainingStcgOld -= adjustedStcgOld;
+                unexhaustedOld -= adjustedStcgOld;
+                
+                adjustedLtcgOld = Math.min(remainingLtcgOld, unexhaustedOld);
+                remainingLtcgOld -= adjustedLtcgOld;
+            }
+
+            const gainsTaxOld = (remainingStcgOld * 0.20) + (remainingLtcgOld * ltcgRate);
+
+            let tO = 0; 
             let oldSlabs = { s1:0, s2:0, s3:0 };
-            if(oTaxable > bL) { 
+            if(oTaxable > basicExemptionOld) { 
                 let t = oTaxable; 
                 if(t > 1000000) { oldSlabs.s3 = (t - 1000000) * 0.30; tO += oldSlabs.s3; t = 1000000; } 
                 if(t > 500000) { oldSlabs.s2 = (t - 500000) * 0.20; tO += oldSlabs.s2; t = 500000; } 
-                if(t > bL) { oldSlabs.s1 = (t - bL) * 0.05; tO += oldSlabs.s1; } 
+                if(t > basicExemptionOld) { oldSlabs.s1 = (t - basicExemptionOld) * 0.05; tO += oldSlabs.s1; } 
             }
-
-            let ltcgRate = (activeYear === "FY23-24") ? 0.10 : 0.125; 
-            let ltcgExempt = (activeYear === "FY23-24") ? 100000 : 125000;
-            const gainsTax = (netStcg * 0.20) + (Math.max(0, netLtcg - ltcgExempt) * ltcgRate);
 
             let totalIncomeNew = nTaxable + netStcg + netLtcg;
             let totalIncomeOld = oTaxable + netStcg + netLtcg;
@@ -807,14 +838,14 @@
             let rebateEligibleNew = (activeYear === "FY25-26" || activeYear === "FY26-27") ? tN : tN + (netStcg * 0.20);
             let rebateEligibleOld = (activeYear === "FY25-26" || activeYear === "FY26-27") ? tO : tO + (netStcg * 0.20);
 
-            let fN_before_cess = tN + gainsTax; 
+            let fN_before_cess = tN + gainsTaxNew; 
             let rebateNewVal = 0;
             if(totalIncomeNew <= rules.rebateNewLimit) {
                 rebateNewVal = Math.min(rebateEligibleNew, rules.rebateNewMax);
                 fN_before_cess = Math.max(0, fN_before_cess - rebateNewVal);
             }
             
-            let fO_before_cess = tO + gainsTax; 
+            let fO_before_cess = tO + gainsTaxOld; 
             let rebateOldVal = 0;
             if(totalIncomeOld <= rules.rebateOldLimit) {
                 rebateOldVal = Math.min(rebateEligibleOld, rules.rebateOldMax);
@@ -831,17 +862,18 @@
             
             printDataSnapshot = { client, rules, isSenior, inc, netStcg, netLtcg, carryForwardStcl, carryForwardLtcl, grossNormal, nTaxable, oTaxable, oldDeductionsSum, ded, fN, fO, netNew, netOld, totalTds, stdDedNew: rules.stdDedNew, stdDedOld: rules.stdDedOld };
 
-            // State for the Detailed Breakdown UI Modal
             detailedBreakdown = {
-                gross: grossNormal, netStcg, netLtcg, gainsTax, totalTds,
+                gross: grossNormal, netStcg, netLtcg, totalTds,
                 salaryGross: inc.sal, pgbp: inc.norm, ifos: inc.bank, rules: rules, chapVIA: chapVIA,
                 new: {
                     taxable: nTaxable, totalInc: totalIncomeNew, deds: (inc.sal > 0 ? rules.stdDedNew : 0),
-                    tSlab: tN, slabs: newCalc.slabs, rebate: rebateNewVal, cess: cessNew, final: fN, payable: netNew
+                    tSlab: tN, slabs: newCalc.slabs, rebate: rebateNewVal, cess: cessNew, final: fN, payable: netNew,
+                    gainsTax: gainsTaxNew, adjustedStcg: adjustedStcgNew, adjustedLtcg: adjustedLtcgNew
                 },
                 old: {
                     taxable: oTaxable, totalInc: totalIncomeOld, deds: oldDeductionsSum,
-                    tSlab: tO, slabs: oldSlabs, rebate: rebateOldVal, cess: cessOld, final: fO, payable: netOld
+                    tSlab: tO, slabs: oldSlabs, rebate: rebateOldVal, cess: cessOld, final: fO, payable: netOld,
+                    gainsTax: gainsTaxOld, adjustedStcg: adjustedStcgOld, adjustedLtcg: adjustedLtcgOld
                 }
             };
 
@@ -878,6 +910,7 @@
                     
                     <div class="b-row" style="margin-top: 10px;"><span>4. Capital Gains (STCG):</span> <span>${inr(d.netStcg)}</span></div>
                     <div class="b-row"><span>5. Capital Gains (LTCG):</span> <span>${inr(d.netLtcg)}</span></div>
+                    ${(d.new.adjustedStcg > 0 || d.new.adjustedLtcg > 0) ? `<div class="b-row indent" style="color:var(--success)"><span>Less: Adjusted vs Unexhausted Exemption:</span> <span>- ${inr(d.new.adjustedStcg + d.new.adjustedLtcg)}</span></div>` : ''}
                     <div class="b-row total"><span>Total Aggregate Income:</span> <span>${inr(d.new.totalInc)}</span></div>
 
                     <div style="margin: 15px 0 10px 0; padding: 10px; background: #f8fafc; border-radius:4px; border: 1px solid var(--border);">
@@ -891,7 +924,7 @@
                         <div class="b-row bold" style="margin-top:5px; border-top: 1px solid var(--border); padding-top: 5px;"><span>Base Slab Tax:</span> <span>${inr(d.new.tSlab)}</span></div>
                     </div>
                     
-                    <div class="b-row"><span>Capital Gains Tax (Special Rates):</span> <span>${inr(d.gainsTax)}</span></div>
+                    <div class="b-row"><span>Capital Gains Tax (Special Rates):</span> <span>${inr(d.new.gainsTax)}</span></div>
                     <div class="b-row" style="color:var(--success)"><span>Less: 87A Rebate:</span> <span>- ${inr(d.new.rebate)}</span></div>
                     <div class="b-row"><span>Health & Education Cess (4%):</span> <span>${inr(d.new.cess)}</span></div>
                     
@@ -921,6 +954,7 @@
                     
                     <div class="b-row" style="margin-top: 10px;"><span>4. Capital Gains (STCG):</span> <span>${inr(d.netStcg)}</span></div>
                     <div class="b-row"><span>5. Capital Gains (LTCG):</span> <span>${inr(d.netLtcg)}</span></div>
+                    ${(d.old.adjustedStcg > 0 || d.old.adjustedLtcg > 0) ? `<div class="b-row indent" style="color:var(--success)"><span>Less: Adjusted vs Unexhausted Exemption:</span> <span>- ${inr(d.old.adjustedStcg + d.old.adjustedLtcg)}</span></div>` : ''}
                     <div class="b-row total"><span>Total Aggregate Income:</span> <span>${inr(d.old.totalInc)}</span></div>
 
                     <div style="margin: 15px 0 10px 0; padding: 10px; background: #f8fafc; border-radius:4px; border: 1px solid var(--border);">
@@ -931,7 +965,7 @@
                         <div class="b-row bold" style="margin-top:5px; border-top: 1px solid var(--border); padding-top: 5px;"><span>Base Slab Tax:</span> <span>${inr(d.old.tSlab)}</span></div>
                     </div>
                     
-                    <div class="b-row"><span>Capital Gains Tax (Special Rates):</span> <span>${inr(d.gainsTax)}</span></div>
+                    <div class="b-row"><span>Capital Gains Tax (Special Rates):</span> <span>${inr(d.old.gainsTax)}</span></div>
                     <div class="b-row" style="color:var(--success)"><span>Less: 87A Rebate:</span> <span>- ${inr(d.old.rebate)}</span></div>
                     <div class="b-row"><span>Health & Education Cess (4%):</span> <span>${inr(d.old.cess)}</span></div>
                     
