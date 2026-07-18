@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ratio - Vegetarian Restaurant POS</title>
+<style>
+/* ==========================================================================
+   CSS VARIABLES & RATIO THEME
+   ========================================================================== */
+:root {
+    --bg-gradient: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.6);
+    --text-main: #2c3e50;
+    --text-muted: #607d8b;
+    --primary: #2e7d32;
+    --primary-light: #4caf50;
+    --success: #2ecc71;
+    --danger: #e74c3c;
+    --warning: #f39c12;
+    --card-shadow: 0 8px 32px 0 rgba(46, 125, 50, 0.1);
+    --panel-bg: rgba(255, 255, 255, 0.9);
+    --print-width: 80mm;
+}
+
+[data-theme="dark"] {
+    --bg-gradient: linear-gradient(135deg, #1b2621 0%, #0d1410 100%);
+    --glass-bg: rgba(20, 30, 25, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --text-main: #ecf0f1;
+    --text-muted: #95a5a6;
+    --panel-bg: rgba(20, 25, 22, 0.95);
+    --primary: #4caf50;
+    --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* ==========================================================================
+   GLOBAL RESET & TYPOGRAPHY
+   ========================================================================== */
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+body {
+    background: var(--bg-gradient); color: var(--text-main); height: 100vh; overflow: hidden;
+    display: flex; flex-direction: column; transition: all 0.3s ease;
+}
+
+/* ==========================================================================
+   GLASSMORPHISM & UI COMPONENTS
+   ========================================================================== */
+.glass {
+    background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border); border-radius: 12px; box-shadow: var(--card-shadow);
+}
+button, .btn-label {
+    cursor: pointer; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold;
+    transition: transform 0.1s, opacity 0.2s, background 0.2s; color: white; display: inline-flex; align-items: center; gap: 5px; justify-content: center; text-decoration: none;
+}
+button:active, .btn-label:active { transform: scale(0.96); }
+.btn-primary { background: var(--primary); }
+.btn-primary:hover { background: var(--primary-light); }
+.btn-success { background: var(--success); }
+.btn-danger { background: var(--danger); }
+.btn-warning { background: var(--warning); color: #fff; }
+.btn-icon { background: transparent; color: var(--text-main); font-size: 1.2rem; padding: 5px; }
+
+input, select, textarea {
+    width: 100%; padding: 10px; border: 1px solid var(--glass-border); border-radius: 8px;
+    background: var(--glass-bg); color: var(--text-main); margin-bottom: 10px; outline: none; transition: border 0.3s;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--glass-border); }
+th { background: rgba(0,0,0,0.05); font-weight: 600; }
+
+/* ==========================================================================
+   LAYOUT
+   ========================================================================== */
+#app { display: flex; height: 100vh; width: 100vw; }
+#sidebar {
+    width: 80px; display: flex; flex-direction: column; align-items: center; padding: 20px 0;
+    gap: 20px; z-index: 10;
+}
+.nav-item {
+    width: 50px; height: 50px; display: flex; justify-content: center; align-items: center;
+    border-radius: 12px; cursor: pointer; font-size: 1.5rem; transition: 0.3s;
+}
+.nav-item:hover, .nav-item.active { background: var(--primary); color: white; box-shadow: 0 0 15px var(--primary); }
+
+#main-content { flex: 1; position: relative; overflow: hidden; padding: 10px; display: flex; }
+.view { display: none; height: 100%; width: 100%; flex-direction: column; animation: fadeIn 0.3s; overflow-y: auto; }
+.view.active { display: flex; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ==========================================================================
+   POS SCREEN
+   ========================================================================== */
+#pos-view { flex-direction: row; gap: 15px; overflow: hidden; }
+.pos-left { flex: 3; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+.pos-categories { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; min-height: 50px; }
+.category-btn { padding: 8px 16px; white-space: nowrap; background: var(--glass-bg); color: var(--text-main); border: 1px solid var(--glass-border); }
+.category-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+.pos-items { flex: 1; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; align-content: start; padding-right: 5px; }
+
+.item-card { 
+    padding: 12px; text-align: center; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; position: relative;
+}
+.item-card:hover { transform: translateY(-3px); border-color: var(--primary); box-shadow: 0 5px 15px rgba(46, 125, 50, 0.2); }
+.item-image-wrap { font-size: 3rem; height: 60px; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; }
+.item-image-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; }
+.item-type { position: absolute; top: 8px; right: 8px; font-size: 10px; padding: 2px 4px; border-radius: 4px; font-weight: bold; }
+.type-Veg { border: 1px solid green; color: green; }
+.item-title { font-size: 0.9rem; font-weight: 600; line-height: 1.2; }
+.item-price { color: var(--primary); font-weight: bold; }
+.custom-badge { position: absolute; top: 8px; left: 8px; font-size: 10px; background: var(--warning); color: white; padding: 2px 6px; border-radius: 10px; }
+
+.pos-right { flex: 1.5; display: flex; flex-direction: column; min-width: 320px; background: var(--panel-bg); padding: 15px; border-radius: 12px; overflow: hidden; }
+.bill-header { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.bill-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.bill-items { flex: 1; overflow-y: auto; margin-bottom: 10px; border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); padding: 10px 0; }
+.bill-item { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; font-size: 0.9rem; }
+.qty-controls { display: flex; align-items: center; gap: 5px; }
+.qty-btn { width: 25px; height: 25px; padding: 0; display: flex; justify-content: center; align-items: center; border-radius: 5px; }
+.bill-totals { margin-bottom: 10px; }
+.total-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 1rem; align-items: center; }
+.total-row input { padding: 4px; margin-bottom: 0; text-align: right; width: 80px; border: 1px solid var(--glass-border); border-radius: 5px; }
+.grand-total { font-size: 1.4rem; font-weight: bold; color: var(--primary); margin-top: 5px; border-top: 1px dashed var(--glass-border); padding-top: 5px; }
+.pos-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ==========================================================================
+   MODAL (CUSTOMIZATIONS)
+   ========================================================================== */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); z-index: 100;
+    display: none; justify-content: center; align-items: center;
+}
+.modal-overlay.active { display: flex; animation: fadeIn 0.2s; }
+.modal-content {
+    background: var(--panel-bg); padding: 20px; border-radius: 12px; width: 90%; max-width: 400px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3); border: 1px solid var(--glass-border);
+    max-height: 90vh; overflow-y: auto;
+}
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; }
+.custom-group { margin-bottom: 15px; background: var(--glass-bg); padding: 10px; border-radius: 8px; }
+.custom-group h4 { margin-bottom: 8px; font-size: 0.95rem; color: var(--primary); }
+.custom-option { display: flex; justify-content: space-between; margin-bottom: 5px; align-items: center; font-size: 0.9rem; }
+.custom-option label { display: flex; align-items: center; gap: 8px; cursor: pointer; flex: 1; }
+
+/* ==========================================================================
+   MENU BUILDER UI
+   ========================================================================== */
+.addon-group { border: 1px solid var(--primary-light); padding: 12px; border-radius: 8px; margin-bottom: 12px; background: rgba(0,0,0,0.03); }
+.addon-group input, .addon-group select { padding: 8px; margin-bottom: 0; font-size: 0.9rem; border: 1px solid var(--glass-border); }
+.addon-option-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+
+/* ==========================================================================
+   KITCHEN DISPLAY (KDS) & OTHER VIEWS
+   ========================================================================== */
+.kds-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; overflow-y: auto; flex: 1; padding: 5px; }
+.kot-card { padding: 15px; display: flex; flex-direction: column; gap: 10px; position: relative; }
+.status-badge { position: absolute; top: 10px; right: 10px; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; color: white; text-transform: uppercase; letter-spacing: 0.5px;}
+.status-Pending { background: var(--danger); }
+.status-Preparing { background: var(--warning); color: #fff; }
+.status-Ready { background: var(--primary); }
+.status-Served { background: var(--success); }
+.status-Cancelled { background: var(--text-muted); }
+.kot-items { font-size: 0.95rem; border-top: 1px dashed var(--glass-border); padding-top: 10px; margin-top: 5px; line-height: 1.5; }
+
+.dashboard-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+.stat-card { padding: 20px; text-align: center; }
+.stat-value { font-size: 2.2rem; font-weight: bold; color: var(--primary); margin-top: 10px; }
+
+/* ==========================================================================
+   TOASTS & PRINT 
+   ========================================================================== */
+#toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+.toast { background: var(--text-main); color: var(--bg-gradient); padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); animation: slideIn 0.3s, fadeOut 0.3s 2.7s forwards; }
+@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes fadeOut { to { opacity: 0; transform: translateY(20px); } }
+
+#print-container { display: none; }
+
+/* FIXED PRINT CSS - Forces exact width bounds and removes browser margins */
+@media print {
+    @page { margin: 0; padding: 0; }
+    body * { visibility: hidden; }
+    #print-container, #print-container * { visibility: visible; }
+    
+    #print-container { 
+        display: block; position: absolute; left: 0; top: 0; 
+        width: 100%; max-width: var(--print-width); 
+        padding: 5mm; /* Inner padding so text doesn't touch the exact edge */
+        box-sizing: border-box; 
+        font-family: monospace; font-size: 12px; color: #000; background: #fff;
+    }
+    .print-header { text-align: center; margin-bottom: 10px; border-bottom: 1px dashed #000; padding-bottom: 5px; word-wrap: break-word; }
+    .print-table { width: 100%; text-align: left; border-collapse: collapse; margin-bottom: 10px; table-layout: fixed; word-wrap: break-word; }
+    .print-table th, .print-table td { padding: 4px 0; border-bottom: 1px dashed #eee; }
+    .print-footer { text-align: center; border-top: 1px dashed #000; padding-top: 5px; font-weight: bold; }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+    <!-- SIDEBAR NAVIGATION -->
+    <div id="sidebar" class="glass">
+        <div class="nav-item active" onclick="app.switchView('pos-view')" title="POS (F2)">🥬</div>
+        <div class="nav-item" onclick="app.switchView('kds-view')" title="Kitchen Display">🍳</div>
+        <div class="nav-item" onclick="app.switchView('dashboard-view')" title="Dashboard (F6)">📊</div>
+        <div class="nav-item" onclick="app.switchView('history-view')" title="History">📜</div>
+        <div class="nav-item" onclick="app.switchView('menu-view')" title="Menu Settings">🥑</div>
+        <div class="nav-item" onclick="app.switchView('settings-view')" title="App Settings">⚙️</div>
+        <div style="flex:1"></div>
+        <div class="nav-item" onclick="app.toggleTheme()" title="Toggle Theme">🌗</div>
+    </div>
+
+    <!-- MAIN CONTENT AREA -->
+    <div id="main-content">
+        
+        <!-- 1. POS VIEW -->
+        <div id="pos-view" class="view active">
+            <div class="pos-left">
+                <input type="text" id="pos-search" placeholder="Search healthy menu... (F3)" onkeyup="pos.filterItems()" style="margin-bottom: 5px;">
+                <div class="pos-categories glass" id="pos-categories">
+                    <!-- Categories auto-generated -->
+                </div>
+                <div class="pos-items" id="pos-items">
+                    <!-- Items auto-generated -->
+                </div>
+            </div>
+            <div class="pos-right glass">
+                <div class="bill-header">
+                    <select id="order-type">
+                        <option>Dine In</option><option>Take Away</option><option>Delivery</option>
+                    </select>
+                    <input type="text" id="order-table" placeholder="Table No.">
+                    <input type="text" id="order-customer" placeholder="Customer Name">
+                    <input type="text" id="order-captain" placeholder="Captain">
+                </div>
+                
+                <div class="bill-options">
+                    <input type="text" id="order-note" placeholder="Order Note for Chef..." style="grid-column: span 2;">
+                    <select id="order-cutlery" style="font-size: 0.85rem;"><option value="No">No Cutlery</option><option value="Yes">🍴 Include Cutlery</option></select>
+                    <select id="order-thermal" style="font-size: 0.85rem;"><option value="No">Normal Packing</option><option value="Yes">🔥 Thermal Packing</option></select>
+                </div>
+
+                <div class="bill-items" id="bill-items">
+                    <!-- Cart items -->
+                </div>
+                
+                <div class="bill-totals" id="bill-totals-container">
+                    <div class="total-row"><span>Subtotal:</span> <span id="bill-subtotal">₹0.00</span></div>
+                    <div class="total-row"><span>Packing Charge (+):</span> <input type="number" id="bill-packing" value="0" min="0" oninput="pos.calculateTotal()"></div>
+                    <div class="total-row"><span>Discount (-):</span> <input type="number" id="bill-discount" value="0" min="0" oninput="pos.calculateTotal()"></div>
+                    <div class="total-row"><span>GST <span id="gst-label"></span>:</span> <span id="bill-gst">₹0.00</span></div>
+                    <div class="total-row grand-total"><span>Total:</span> <span id="bill-total">₹0.00</span></div>
+                </div>
+                
+                <!-- Display message if in KOT Only Mode -->
+                <div id="kot-mode-notice" style="display:none; text-align:center; padding:10px; color:var(--danger); font-weight:bold; border: 1px dashed var(--danger); margin-bottom:10px; border-radius:5px;">
+                    Running in KOT Only Mode (Prices Hidden)
+                </div>
+
+                <div class="pos-actions">
+                    <button class="btn-primary" onclick="pos.saveKOT(true)" style="width: 100%; grid-column: span 2; padding: 15px; font-size: 1.1rem;">🖨️ Print KOT (F4)</button>
+                    <button class="btn-warning" onclick="pos.saveKOT(false)">💾 Save Only (F5)</button>
+                    <button class="btn-danger" onclick="pos.clearCart()">🗑️ Clear</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. KITCHEN DISPLAY SYSTEM -->
+        <div id="kds-view" class="view">
+            <h2 class="glass" style="padding:15px; margin-bottom:15px;">Live Kitchen Status</h2>
+            <div class="kds-grid" id="kds-grid">
+                <!-- Live KOTs render here -->
+            </div>
+        </div>
+
+        <!-- 3. DASHBOARD VIEW -->
+        <div id="dashboard-view" class="view">
+            <h2 class="glass" style="padding:15px; margin-bottom:15px;">Today's Overview</h2>
+            <div class="dashboard-stats">
+                <div class="stat-card glass"><h3>Total Orders</h3><div class="stat-value" id="dash-orders">0</div></div>
+                <div class="stat-card glass"><h3>Total Sales</h3><div class="stat-value" id="dash-sales">₹0</div></div>
+                <div class="stat-card glass"><h3>Pending Orders</h3><div class="stat-value" id="dash-pending">0</div></div>
+                <div class="stat-card glass"><h3>Avg. Bill Value</h3><div class="stat-value" id="dash-avg">₹0</div></div>
+            </div>
+            <button class="btn-primary" onclick="dataManager.manualExportCSV()" style="padding: 15px;">📥 Export Today's Data (Excel/CSV)</button>
+        </div>
+
+        <!-- 4. HISTORY VIEW -->
+        <div id="history-view" class="view">
+            <h2 class="glass" style="padding:15px; margin-bottom:15px;">Order History</h2>
+            <div class="glass" style="padding: 15px; display: flex; gap: 10px; margin-bottom: 15px;">
+                <input type="date" id="history-date" onchange="historyModule.render()" style="margin-bottom:0;">
+                <button class="btn-primary" onclick="historyModule.render()">🔍 Filter</button>
+            </div>
+            <div class="glass" style="flex:1; overflow-y:auto; padding:15px;">
+                <table id="history-table">
+                    <thead><tr><th>KOT No</th><th>Time</th><th>Type</th><th>Table/Cust</th><th>Items</th><th>Total</th><th>Status</th><th>Action</th></tr></thead>
+                    <tbody><!-- History Rows --></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 5. MENU MANAGEMENT -->
+        <div id="menu-view" class="view" style="overflow-y: auto;">
+            <h2 class="glass" style="padding:15px; margin-bottom:15px; flex-shrink: 0;">Menu & Customizations Management</h2>
+            <div style="display:flex; gap:15px; flex:1; flex-wrap: wrap; padding-bottom: 30px; align-content: flex-start;">
+                
+                <div class="glass" style="flex:1; min-width: 350px; padding:20px;">
+                    <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border);">
+                        <h4 style="margin-bottom: 10px; color: var(--primary);">Bulk Data Management</h4>
+                        <div style="display:flex; gap:10px; flex-wrap: wrap;">
+                            <button class="btn-primary" onclick="menuManager.downloadSampleCSV()" style="flex:1; font-size: 0.85rem; min-width: 110px;">📄 Sample CSV</button>
+                            <label class="btn-label btn-success" style="flex:1; font-size: 0.85rem; min-width: 110px;">
+                                📁 Import CSV
+                                <input type="file" accept=".csv" style="display:none;" onchange="menuManager.importCSV(event)">
+                            </label>
+                            <button class="btn-warning" onclick="menuManager.exportCSV()" style="flex:1; font-size: 0.85rem; min-width: 110px;">📤 Export CSV</button>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-bottom:15px; color: var(--primary);">Add/Edit Healthy Item</h3>
+                    <input type="hidden" id="menu-id">
+                    <input type="text" id="menu-name" placeholder="Item Name (e.g. Avocado Toast)" required>
+                    <input type="text" id="menu-category" placeholder="Category (e.g. Toasties, Salads)" required>
+                    
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                        <input type="number" id="menu-price" placeholder="Base Price (₹)" required>
+                        <select id="menu-type"><option value="Veg">Vegetarian</option><option value="Vegan">Vegan</option></select>
+                    </div>
+                    
+                    <label style="font-size: 0.85rem; color: var(--text-muted); display:block; margin-bottom:5px;">Visual Recognition (Icon/Image)</label>
+                    <div style="display:flex; gap:10px; margin-bottom: 15px;">
+                        <input type="text" id="menu-icon" placeholder="Emoji 🥑" style="flex:1; margin-bottom:0;">
+                        <input type="file" id="menu-image" accept="image/*" style="flex:2; margin-bottom:0; padding: 7px;">
+                    </div>
+
+                    <hr style="margin: 15px 0; border: 1px solid var(--glass-border);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <label style="font-size: 0.95rem; font-weight:600; color: var(--primary);">Add-ons & Modifiers</label>
+                        <button class="btn-success" onclick="menuManager.addAddonGroup()" style="font-size: 0.75rem; padding: 5px 10px;">+ Add Group</button>
+                    </div>
+                    <div id="addon-builder"></div>
+                    <div style="display:flex; gap:10px; margin-top: 20px;">
+                        <button class="btn-primary" onclick="menuManager.saveItem()" style="flex:1;">💾 Save Item</button>
+                        <button class="btn-warning" onclick="menuManager.clearForm()">🆕 Clear Form</button>
+                    </div>
+                </div>
+
+                <div class="glass" style="flex:1.5; min-width: 350px; padding:15px; max-height: 80vh; overflow-y: auto;">
+                    <table id="menu-table">
+                        <thead><tr><th>Visual</th><th>Name / Category</th><th>Price</th><th>Action</th></tr></thead>
+                        <tbody><!-- Menu Items --></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. SETTINGS VIEW -->
+        <div id="settings-view" class="view" style="padding-bottom: 20px;">
+            <h2 class="glass" style="padding:15px; margin-bottom:15px;">Restaurant Profile & Settings</h2>
+            <div class="glass" style="padding:25px; max-width:600px; margin:0 auto; width:100%;">
+                
+                <h3 style="margin-bottom:15px; color: var(--primary);">Settings Configuration (File)</h3>
+                <div style="display:flex; gap:15px; margin-bottom: 25px;">
+                    <button class="btn-primary" onclick="settings.exportSettings()" style="flex:1;">💾 Export Settings</button>
+                    <label class="btn-label btn-warning" style="flex:1;">
+                        📂 Import Settings
+                        <input type="file" accept=".json" style="display:none;" onchange="settings.importSettings(event)">
+                    </label>
+                </div>
+                <hr style="margin:25px 0; border:1px solid var(--glass-border);">
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom: 10px;">
+                    <div><label>Restaurant Name</label><input type="text" id="set-name"></div>
+                    <div>
+                        <label style="color:var(--danger); font-weight:bold;">System Mode</label>
+                        <select id="set-sys-mode" style="border-color:var(--danger);">
+                            <option value="kot_invoice">KOT + Invoicing (Shows Prices & Total)</option>
+                            <option value="kot_only">KOT Only Mode (Only Item & Qty)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <label>Address</label>
+                <textarea id="set-address" rows="3"></textarea>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    <div><label>Phone Number</label><input type="text" id="set-phone"></div>
+                    <div><label>Printer Width</label>
+                        <select id="set-printer"><option value="58mm">58mm Thermal</option><option value="80mm">80mm Thermal</option></select>
+                    </div>
+                    <div><label>GST Number</label><input type="text" id="set-gst"></div>
+                    <div><label>FSSAI Number</label><input type="text" id="set-fssai"></div>
+                </div>
+
+                <div style="margin-top: 15px; background: rgba(0,0,0,0.03); padding: 15px; border-radius: 8px; border: 1px solid var(--glass-border);">
+                    <h4 style="margin-bottom: 10px; color: var(--primary);">Tax Configuration</h4>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                        <div><label>Enable GST on Bill?</label><select id="set-gst-enable"><option value="yes">Yes</option><option value="no">No</option></select></div>
+                        <div><label>GST Percentage (%)</label><input type="number" id="set-gst-pct" min="0" step="0.1"></div>
+                    </div>
+                </div>
+                
+                <button class="btn-success" onclick="settings.save()" style="width:100%; margin-top:25px; margin-bottom: 25px; padding: 15px; font-size: 1.1rem;">Save Settings</button>
+                
+                <hr style="margin:25px 0; border:1px solid var(--glass-border);">
+                <h3 style="margin-bottom:15px;">Full Data Management (DB)</h3>
+                <div style="display:flex; gap:15px;">
+                    <button class="btn-primary" onclick="dataManager.exportBackup()" style="flex:1;">💾 Backup Full DB</button>
+                    <button class="btn-danger" onclick="dataManager.clearData()" style="flex:1;">⚠️ Reset All Data</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- CUSTOMIZATION MODAL -->
+<div class="modal-overlay" id="custom-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modal-item-name" style="color: var(--primary);">Item Name</h2>
+            <button class="btn-icon" onclick="pos.closeCustomModal()" style="font-size: 1.5rem;">&times;</button>
+        </div>
+        <div id="modal-options-container"></div>
+        <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 1.2rem; font-weight: bold;">Total: ₹<span id="modal-total-price">0</span></div>
+            <button class="btn-success" onclick="pos.confirmCustomizedItem()">Add to KOT</button>
+        </div>
+    </div>
+</div>
+
+<!-- INVISIBLE PRINT CONTAINER -->
+<div id="print-container"></div>
+<div id="toast-container"></div>
+
+<!-- ==========================================================================
+     JAVASCRIPT LOGIC
+     ========================================================================== -->
+<script>
+/* --- CORE UTILS --- */
+const $ = (id) => document.getElementById(id);
+const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
+const formatMoney = (amt) => `₹${parseFloat(amt).toFixed(2)}`;
+
+class Toast {
+    static show(msg, type='info') {
+        const cont = $('toast-container'); const t = document.createElement('div');
+        t.className = `toast`; t.style.borderLeft = `5px solid ${type==='success'?'#2ecc71':type==='error'?'#e74c3c':'#4caf50'}`;
+        t.innerText = msg; cont.appendChild(t); setTimeout(() => t.remove(), 3000);
+    }
+}
+
+/* CSV Parser to handle nested quotes correctly */
+function parseCSVLine(text) {
+    let ret = [], val = '', quote = false;
+    for (let i = 0; i < text.length; i++) {
+        let c = text[i], nc = text[i+1];
+        if (c === '"' && quote && nc === '"') { val += '"'; i++; }
+        else if (c === '"') { quote = !quote; }
+        else if (c === ',' && !quote) { ret.push(val); val = ''; }
+        else { val += c; }
+    }
+    ret.push(val); return ret;
+}
+
+/* --- DATA MANAGEMENT (LocalStorage, Backup, CSV) --- */
+class DataManager {
+    constructor() {
+        this.db = this.loadData();
+        this.checkInitialData();
+        setInterval(() => this.autoBackup(), 10 * 60 * 1000);
+    }
+    loadData() {
+        const data = localStorage.getItem('ratio_kot_db');
+        return data ? JSON.parse(data) : { settings: {}, menu: [], orders: [] };
+    }
+    saveData() { localStorage.setItem('ratio_kot_db', JSON.stringify(this.db)); }
+    checkInitialData() {
+        if(!this.db.settings.name) {
+            this.db.settings = { 
+                name: "Ratio - Vegetarian Restaurant", address: "Green Valley Blvd, Fresh City", 
+                phone: "9876543210", gst: "27RATIO1234F1Z5", fssai: "10012011000123", printer: "80mm",
+                gstEnabled: "yes", gstPct: "5", sysMode: "kot_invoice"
+            };
+            this.db.menu = [
+                { id: generateId(), name: "Classic Eggplant Toastie", category: "Toasties", price: 180, type: "Veg", icon: "🍆", customizations: [
+                    { id: "grp_0", name: "Bread Choice", type: "single", options: [{opt: "Multigrain", price: 0}, {opt: "Sourdough", price: 30}] }
+                ]},
+                { id: generateId(), name: "Green Detox Juice", category: "Beverages", price: 150, type: "Vegan", icon: "🥤", customizations: []}
+            ];
+            this.saveData();
+        }
+        if(!this.db.settings.hasOwnProperty('sysMode')) { this.db.settings.sysMode = "kot_invoice"; this.saveData(); }
+    }
+    generateKOTNumber() {
+        const today = new Date();
+        const dateStr = today.getFullYear().toString() + (today.getMonth()+1).toString().padStart(2,'0') + today.getDate().toString().padStart(2,'0');
+        const prefix = `KOT-${dateStr}-`; const todayOrders = this.db.orders.filter(o => o.id.startsWith(prefix));
+        return prefix + (todayOrders.length + 1).toString().padStart(3, '0');
+    }
+    autoBackup() { localStorage.setItem('ratio_kot_backup', JSON.stringify(this.db)); }
+    exportBackup() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.db));
+        const anchor = document.createElement('a'); anchor.href = dataStr;
+        anchor.download = `Ratio_FullBackup_${new Date().toISOString().slice(0,10)}.json`; anchor.click();
+    }
+    clearData() { if(confirm("Are you sure? This deletes ALL data!")) { localStorage.removeItem('ratio_kot_db'); location.reload(); } }
+    exportSalesToCSV() {
+        const today = new Date().toISOString().slice(0,10);
+        const orders = this.db.orders.filter(o => o.date === today); if(orders.length === 0) return;
+        
+        let csv = "Date,Time,KOT Number,Type,Table,Customer,Captain,Subtotal,Packing,Discount,GST,Total,Status,Items\n";
+        orders.forEach(o => {
+            let itemNames = o.items.map(i => {
+                let modStr = i.mods && i.mods.length ? ` [${i.mods.map(m=>m.opt).join('|')}]` : '';
+                return `${i.name}${modStr}(${i.qty})`;
+            }).join(';');
+            csv += `${o.date},${o.time},${o.id},${o.type},${o.table},${o.customer},${o.captain},${o.sub},${o.packing},${o.discount},${o.gst},${o.total},${o.status},"${itemNames}"\n`;
+        });
+        
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a'); anchor.href = url; anchor.download = `Ratio_Sales_${today}.csv`; anchor.click(); URL.revokeObjectURL(url);
+    }
+    manualExportCSV() { this.exportSalesToCSV(); Toast.show("Exported successfully to CSV"); }
+}
+const dataManager = new DataManager();
+
+/* --- APPLICATION & UI CONTROLLER --- */
+class App {
+    constructor() {
+        this.theme = localStorage.getItem('ratio_kot_theme') || 'light';
+        document.body.setAttribute('data-theme', this.theme);
+        this.initShortcuts();
+        
+        settings.load(); menuManager.render(); pos.renderCategories(); pos.renderItems();
+        kds.render(); dashboard.render(); setInterval(() => kds.render(), 60000);
+    }
+    switchView(viewId) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        $(viewId).classList.add('active'); event.currentTarget.classList.add('active');
+        if(viewId === 'dashboard-view') dashboard.render(); if(viewId === 'history-view') historyModule.render();
+        if(viewId === 'kds-view') kds.render(); if(viewId === 'pos-view') pos.calculateTotal(); 
+    }
+    toggleTheme() {
+        this.theme = this.theme === 'light' ? 'dark' : 'light';
+        document.body.setAttribute('data-theme', this.theme); localStorage.setItem('ratio_kot_theme', this.theme);
+    }
+    initShortcuts() {
+        window.addEventListener('keydown', (e) => {
+            if(e.key === 'F2') { e.preventDefault(); document.querySelectorAll('.nav-item')[0].click(); $('pos-search').focus(); }
+            if(e.key === 'F3') { e.preventDefault(); $('pos-search').focus(); }
+            if(e.key === 'F4') { e.preventDefault(); pos.saveKOT(true); }
+            if(e.key === 'F5') { e.preventDefault(); pos.saveKOT(false); }
+            if(e.key === 'F6') { e.preventDefault(); document.querySelectorAll('.nav-item')[2].click(); }
+        });
+    }
+}
+
+/* --- SETTINGS MODULE --- */
+const settings = {
+    load: () => {
+        const s = dataManager.db.settings;
+        $('set-name').value = s.name || ''; $('set-address').value = s.address || '';
+        $('set-phone').value = s.phone || ''; $('set-gst').value = s.gst || '';
+        $('set-fssai').value = s.fssai || ''; $('set-printer').value = s.printer || '80mm';
+        $('set-gst-enable').value = s.gstEnabled || 'yes'; $('set-gst-pct').value = s.gstPct || '5';
+        $('set-sys-mode').value = s.sysMode || 'kot_invoice';
+        
+        document.documentElement.style.setProperty('--print-width', s.printer === '58mm' ? '58mm' : '80mm');
+        pos.applyModeUI();
+    },
+    save: () => {
+        dataManager.db.settings = {
+            name: $('set-name').value, address: $('set-address').value, phone: $('set-phone').value, 
+            gst: $('set-gst').value, fssai: $('set-fssai').value, printer: $('set-printer').value,
+            gstEnabled: $('set-gst-enable').value, gstPct: $('set-gst-pct').value, sysMode: $('set-sys-mode').value
+        };
+        dataManager.saveData(); document.documentElement.style.setProperty('--print-width', $('set-printer').value);
+        pos.applyModeUI(); Toast.show('Settings saved successfully', 'success');
+    },
+    exportSettings: () => {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataManager.db.settings));
+        const anchor = document.createElement('a'); anchor.href = dataStr;
+        anchor.download = `Ratio_Settings_${new Date().toISOString().slice(0,10)}.json`; anchor.click();
+    },
+    importSettings: (e) => {
+        const file = e.target.files[0]; if(!file) return; const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const imported = JSON.parse(event.target.result);
+                if(imported.name && imported.printer) {
+                    dataManager.db.settings = imported; dataManager.saveData(); settings.load();
+                    Toast.show("Settings imported successfully!", "success");
+                } else { Toast.show("Invalid settings file format", "error"); }
+            } catch(err) { Toast.show("Failed to parse JSON file", "error"); }
+        }; reader.readAsText(file); e.target.value = ''; 
+    }
+};
+
+/* --- MENU MANAGER MODULE --- */
+const menuManager = {
+    groupCounter: 0,
+    render: () => {
+        const tbody = document.querySelector('#menu-table tbody'); tbody.innerHTML = '';
+        dataManager.db.menu.forEach(item => {
+            let visual = item.imgBase64 ? `<img src="${item.imgBase64}" style="width:40px;height:40px;object-fit:cover;border-radius:5px;">` : `<span style="font-size:24px;">${item.icon || '🍽️'}</span>`;
+            tbody.innerHTML += `<tr><td>${visual}</td><td><b>${item.name}</b><br><small style="color:var(--text-muted)">${item.category}</small></td>
+                <td>₹${item.price}</td><td><button class="btn-icon" onclick="menuManager.edit('${item.id}')">✏️</button>
+                <button class="btn-icon" onclick="menuManager.deleteItem('${item.id}')">❌</button></td></tr>`;
+        });
+        pos.renderCategories(); pos.renderItems();
+    },
+    addAddonGroup: (groupData = null) => {
+        let gId = `addon_grp_${menuManager.groupCounter++}`;
+        let html = `
+            <div class="addon-group" id="${gId}">
+                <div style="display:flex; gap:10px; margin-bottom: 8px;">
+                    <input type="text" class="grp-name" placeholder="Group Name" value="${groupData ? groupData.name : ''}" style="flex:2;" required>
+                    <select class="grp-type" style="flex:1;">
+                        <option value="single" ${groupData && groupData.type==='single' ? 'selected' : ''}>Single</option>
+                        <option value="multi" ${groupData && groupData.type==='multi' ? 'selected' : ''}>Multi</option>
+                    </select>
+                    <button class="btn-danger btn-icon" style="border-radius:5px;" onclick="this.parentElement.parentElement.remove()">🗑️</button>
+                </div>
+                <div class="addon-options" id="${gId}_opts"></div>
+                <button class="btn-primary" style="font-size: 0.75rem; padding: 4px 8px;" onclick="menuManager.addAddonOption('${gId}')">+ Add Option</button>
+            </div>
+        `;
+        $('addon-builder').insertAdjacentHTML('beforeend', html);
+        if (groupData && groupData.options) { groupData.options.forEach(opt => menuManager.addAddonOption(gId, opt)); } 
+        else { menuManager.addAddonOption(gId); }
+    },
+    addAddonOption: (gId, optData = null) => {
+        let html = `<div class="addon-option-row"><input type="text" class="opt-name" placeholder="Option" value="${optData ? optData.opt : ''}" style="flex:2;" required>
+            <input type="number" class="opt-price" placeholder="Price Add" value="${optData ? optData.price : '0'}" style="flex:1;" required>
+            <button class="btn-danger btn-icon" onclick="this.parentElement.remove()">❌</button></div>`;
+        $(`${gId}_opts`).insertAdjacentHTML('beforeend', html);
+    },
+    saveItem: () => {
+        const id = $('menu-id').value; const fileInput = $('menu-image'); let customizations = [];
+        document.querySelectorAll('.addon-group').forEach((grpDiv, idx) => {
+            let name = grpDiv.querySelector('.grp-name').value; let type = grpDiv.querySelector('.grp-type').value; let options = [];
+            grpDiv.querySelectorAll('.addon-option-row').forEach(optDiv => {
+                let oName = optDiv.querySelector('.opt-name').value; let oPrice = parseFloat(optDiv.querySelector('.opt-price').value) || 0;
+                if(oName) options.push({ opt: oName, price: oPrice });
+            });
+            if(name && options.length > 0) customizations.push({ id: `grp_${idx}`, name, type, options });
+        });
+        
+        let finalizeSave = (base64Img) => {
+            const item = {
+                id: id || generateId(), name: $('menu-name').value, category: $('menu-category').value,
+                price: parseFloat($('menu-price').value), type: $('menu-type').value,
+                icon: $('menu-icon').value, imgBase64: base64Img, customizations: customizations
+            };
+            if(!item.name || !item.category || isNaN(item.price)) return Toast.show("Fill required fields", "error");
+            if(id) {
+                const idx = dataManager.db.menu.findIndex(i => i.id === id);
+                if(!base64Img && dataManager.db.menu[idx].imgBase64 && fileInput.files.length === 0) item.imgBase64 = dataManager.db.menu[idx].imgBase64;
+                dataManager.db.menu[idx] = item;
+            } else { dataManager.db.menu.push(item); }
+            dataManager.saveData(); menuManager.render(); menuManager.clearForm(); Toast.show("Item saved", "success");
+        };
+        if(fileInput.files && fileInput.files[0]) {
+            const reader = new FileReader(); reader.onload = (e) => finalizeSave(e.target.result); reader.readAsDataURL(fileInput.files[0]);
+        } else { finalizeSave(null); }
+    },
+    edit: (id) => {
+        const item = dataManager.db.menu.find(i => i.id === id);
+        $('menu-id').value = item.id; $('menu-name').value = item.name; $('menu-category').value = item.category; 
+        $('menu-price').value = item.price; $('menu-type').value = item.type; $('menu-icon').value = item.icon || '';
+        $('menu-image').value = ''; $('addon-builder').innerHTML = ''; 
+        if(item.customizations && item.customizations.length > 0) { item.customizations.forEach(grp => menuManager.addAddonGroup(grp)); }
+    },
+    deleteItem: (id) => {
+        if(confirm("Delete this menu item?")) { dataManager.db.menu = dataManager.db.menu.filter(i => i.id !== id); dataManager.saveData(); menuManager.render(); }
+    },
+    clearForm: () => { 
+        $('menu-id').value = ''; $('menu-name').value = ''; $('menu-price').value = ''; $('menu-category').value = ''; $('menu-icon').value = ''; $('menu-image').value = ''; $('addon-builder').innerHTML = ''; 
+    },
+    downloadSampleCSV: () => {
+        const csv = "Name,Category,Price,Type,Icon,Customizations_JSON\nAvocado Salad,Salads,250,Vegan,🥗,[]\nClassic Toastie,Toasties,180,Veg,🥪,\"[{""id"":""grp_0"",""name"":""Bread"",""type"":""single"",""options"":[{""opt"":""Sourdough"",""price"":30}]}]\"";
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a'); anchor.href = url; anchor.download = `Menu_Sample.csv`; anchor.click(); URL.revokeObjectURL(url);
+    },
+    importCSV: (e) => {
+        const file = e.target.files[0]; if(!file) return; const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const text = event.target.result; const rows = text.split('\n').filter(r => r.trim() !== ''); let added = 0;
+                for(let i = 1; i < rows.length; i++) {
+                    const cols = parseCSVLine(rows[i]);
+                    if(cols.length >= 3) {
+                        let customArr = [];
+                        try { if(cols[5]) customArr = JSON.parse(cols[5]); } catch(e){}
+                        dataManager.db.menu.push({
+                            id: generateId(), name: cols[0].trim(), category: cols[1].trim(),
+                            price: parseFloat(cols[2]) || 0, type: cols[3] ? cols[3].trim() : 'Veg',
+                            icon: cols[4] ? cols[4].trim() : '🍽️', customizations: customArr
+                        }); added++;
+                    }
+                }
+                dataManager.saveData(); menuManager.render(); Toast.show(`Imported ${added} items successfully!`, "success");
+            } catch(err) { Toast.show("Error reading CSV format", "error"); }
+        }; reader.readAsText(file); e.target.value = ''; 
+    },
+    exportCSV: () => {
+        const menu = dataManager.db.menu; if(menu.length === 0) return Toast.show("No menu items to export", "warning");
+        let csv = "Name,Category,Price,Type,Icon,Customizations_JSON\n";
+        menu.forEach(item => {
+            let name = `"${item.name.replace(/"/g, '""')}"`; let category = `"${item.category.replace(/"/g, '""')}"`; let type = `"${item.type.replace(/"/g, '""')}"`;
+            let icon = item.icon ? `"${item.icon.replace(/"/g, '""')}"` : "";
+            let customJSON = item.customizations && item.customizations.length ? JSON.stringify(item.customizations) : "[]";
+            let customCol = `"${customJSON.replace(/"/g, '""')}"`;
+            csv += `${name},${category},${item.price},${type},${icon},${customCol}\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a'); anchor.href = url; anchor.download = `Menu_Export_${new Date().toISOString().slice(0,10)}.csv`; 
+        anchor.click(); URL.revokeObjectURL(url); Toast.show("Menu exported to CSV", "success");
+    }
+};
+
+/* --- POS & CART MODULE --- */
+const pos = {
+    cart: [], activeCategory: 'All', tempCustomItem: null,
+    
+    applyModeUI: () => {
+        const s = dataManager.db.settings;
+        if(s.sysMode === 'kot_only') {
+            $('bill-totals-container').style.display = 'none';
+            $('kot-mode-notice').style.display = 'block';
+        } else {
+            $('bill-totals-container').style.display = 'block';
+            $('kot-mode-notice').style.display = 'none';
+        }
+        pos.calculateTotal();
+    },
+
+    renderCategories: () => {
+        const cats = ['All', ...new Set(dataManager.db.menu.map(i => i.category))];
+        $('pos-categories').innerHTML = cats.map(c => `<button class="category-btn ${pos.activeCategory===c?'active':''}" onclick="pos.setCategory('${c}')">${c}</button>`).join('');
+    },
+    setCategory: (cat) => { pos.activeCategory = cat; pos.renderCategories(); pos.renderItems(); },
+    renderItems: (query = '') => {
+        let items = dataManager.db.menu;
+        if(pos.activeCategory !== 'All') items = items.filter(i => i.category === pos.activeCategory);
+        if(query) items = items.filter(i => i.name.toLowerCase().includes(query.toLowerCase()));
+        
+        $('pos-items').innerHTML = items.map(i => {
+            let visual = i.imgBase64 ? `<img src="${i.imgBase64}">` : i.icon || '🍽️';
+            let hasCustom = i.customizations && i.customizations.length > 0 ? `<span class="custom-badge">Customizable</span>` : '';
+            return `
+            <div class="item-card glass" onclick="pos.handleItemClick('${i.id}')">
+                <span class="item-type type-${i.type}">${i.type}</span>${hasCustom}
+                <div class="item-image-wrap">${visual}</div><div class="item-title">${i.name}</div>
+                <div class="item-price">₹${i.price}</div>
+            </div>`
+        }).join('');
+    },
+    filterItems: () => pos.renderItems($('pos-search').value),
+    
+    handleItemClick: (id) => {
+        const item = dataManager.db.menu.find(i => i.id === id);
+        if(item.customizations && item.customizations.length > 0) { pos.openCustomModal(item, item.customizations); } 
+        else { pos.addToCart(item, [], item.price); }
+    },
+    openCustomModal: (item, groups) => {
+        pos.tempCustomItem = { item: item, groups: groups, selectedTotal: item.price };
+        $('modal-item-name').innerText = item.name; $('modal-total-price').innerText = item.price;
+        let html = groups.map(g => `
+            <div class="custom-group"><h4>${g.name} ${g.type==='multi'?'(Choose Multiple)':'(Choose One)'}</h4>
+                ${g.options.map((opt, idx) => `
+                    <div class="custom-option">
+                        <label><input type="${g.type==='single'?'radio':'checkbox'}" name="${g.id}" value="${opt.price}" data-optname="${opt.opt}" data-grpid="${g.id}"
+                                   ${g.type==='single' && idx===0 ? 'checked' : ''} onchange="pos.recalcModal()"> ${opt.opt}</label>
+                        <span>${opt.price > 0 ? '+₹'+opt.price : ''}</span>
+                    </div>`).join('')}
+            </div>`).join('');
+        $('modal-options-container').innerHTML = html; $('custom-modal').classList.add('active'); pos.recalcModal(); 
+    },
+    closeCustomModal: () => { $('custom-modal').classList.remove('active'); pos.tempCustomItem = null; },
+    recalcModal: () => {
+        let total = pos.tempCustomItem.item.price;
+        document.querySelectorAll('#modal-options-container input:checked').forEach(input => { total += parseFloat(input.value); });
+        pos.tempCustomItem.selectedTotal = total; $('modal-total-price').innerText = total;
+    },
+    confirmCustomizedItem: () => {
+        let mods = [];
+        document.querySelectorAll('#modal-options-container input:checked').forEach(input => { mods.push({ grp: input.dataset.grpid, opt: input.dataset.optname, price: parseFloat(input.value) }); });
+        pos.addToCart(pos.tempCustomItem.item, mods, pos.tempCustomItem.selectedTotal); pos.closeCustomModal();
+    },
+
+    addToCart: (item, mods = [], finalPrice = null) => {
+        let price = finalPrice !== null ? finalPrice : item.price;
+        let modSig = mods.map(m=>m.opt).sort().join('_'); let cartItemId = item.id + (modSig ? '_'+modSig : '');
+        const existing = pos.cart.find(c => c.cartItemId === cartItemId);
+        if(existing) { existing.qty++; } 
+        else { pos.cart.push({ cartItemId: cartItemId, baseId: item.id, name: item.name, price: price, qty: 1, notes: '', mods: mods }); }
+        pos.renderCart();
+    },
+    updateQty: (cId, delta) => {
+        const item = pos.cart.find(c => c.cartItemId === cId); if(!item) return; item.qty += delta;
+        if(item.qty <= 0) pos.cart = pos.cart.filter(c => c.cartItemId !== cId); pos.renderCart();
+    },
+    addNote: (cId) => {
+        const note = prompt("Enter kitchen note (e.g. Less oil, No Onion):");
+        if(note !== null) { pos.cart.find(c => c.cartItemId === cId).notes = note; pos.renderCart(); }
+    },
+    renderCart: () => {
+        const s = dataManager.db.settings;
+        $('bill-items').innerHTML = pos.cart.map(c => {
+            let modHtml = c.mods && c.mods.length > 0 ? `<div style="font-size:0.75rem; color:var(--primary)">+ ${c.mods.map(m=>m.opt).join(', ')}</div>` : '';
+            let priceHtml = s.sysMode === 'kot_only' ? '' : `<div style="font-size:0.8rem; color:var(--text-muted)">₹${c.price} x ${c.qty}</div>`;
+            let totalHtml = s.sysMode === 'kot_only' ? '' : `<div style="width:65px; text-align:right; font-weight:bold; color:var(--primary);">₹${c.price * c.qty}</div>`;
+            
+            return `
+            <div class="bill-item">
+                <div style="flex:1">
+                    <div style="font-weight:600;">${c.name}</div>${modHtml}
+                    ${c.notes ? `<div style="font-size:0.75rem; color:var(--warning)">* ${c.notes}</div>` : ''}
+                    ${priceHtml}
+                </div>
+                <div class="qty-controls">
+                    <button class="btn-icon" onclick="pos.addNote('${c.cartItemId}')">📝</button>
+                    <button class="btn-danger qty-btn" onclick="pos.updateQty('${c.cartItemId}', -1)">-</button>
+                    <span style="font-weight:bold;">${c.qty}</span>
+                    <button class="btn-success qty-btn" onclick="pos.updateQty('${c.cartItemId}', 1)">+</button>
+                </div>
+                ${totalHtml}
+            </div>`
+        }).join('');
+        pos.calculateTotal();
+    },
+    calculateTotal: () => {
+        const sub = pos.cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+        const packing = parseFloat($('bill-packing').value) || 0;
+        const discount = parseFloat($('bill-discount').value) || 0;
+        
+        let net = sub + packing - discount; if (net < 0) net = 0;
+        let gst = 0; const s = dataManager.db.settings;
+        
+        if (s.gstEnabled === 'yes') {
+            const pct = parseFloat(s.gstPct) || 0; gst = net * (pct / 100); $('gst-label').innerText = `(${pct}%)`;
+        } else { $('gst-label').innerText = "(Off)"; }
+        
+        const total = net + gst;
+        $('bill-subtotal').innerText = formatMoney(sub); $('bill-gst').innerText = formatMoney(gst); $('bill-total').innerText = formatMoney(total);
+        return { sub, packing, discount, gst, total };
+    },
+    clearCart: () => { 
+        pos.cart = []; $('order-table').value=''; $('order-customer').value=''; $('order-captain').value=''; 
+        $('order-note').value=''; $('order-cutlery').value='No'; $('order-thermal').value='No';
+        $('bill-packing').value = 0; $('bill-discount').value = 0; pos.renderCart(); 
+    },
+    saveKOT: (print = true) => {
+        if(pos.cart.length === 0) return Toast.show("Cart is empty!", "error");
+        const totals = pos.calculateTotal(); const now = new Date();
+        const order = {
+            id: dataManager.generateKOTNumber(), date: now.toISOString().slice(0,10), time: now.toTimeString().slice(0,5), timestamp: now.getTime(),
+            type: $('order-type').value, table: $('order-table').value || 'N/A', customer: $('order-customer').value || 'Guest', captain: $('order-captain').value || 'Self',
+            orderNote: $('order-note').value.trim(), cutlery: $('order-cutlery').value, thermal: $('order-thermal').value,
+            items: JSON.parse(JSON.stringify(pos.cart)),
+            sub: totals.sub, packing: totals.packing, discount: totals.discount, gst: totals.gst, total: totals.total, status: 'Pending'
+        };
+        dataManager.db.orders.push(order); dataManager.saveData();
+        if(print) printer.printKOT(order); Toast.show(`KOT ${order.id} Saved!`, "success"); pos.clearCart(); kds.render(); 
+    }
+};
+
+/* --- KITCHEN DISPLAY (KDS) MODULE --- */
+const kds = {
+    render: () => {
+        const activeOrders = dataManager.db.orders.filter(o => !['Served','Cancelled'].includes(o.status));
+        $('kds-grid').innerHTML = activeOrders.reverse().map(o => {
+            const elapsed = Math.floor((Date.now() - o.timestamp) / 60000);
+            return `
+            <div class="kot-card glass" style="border-left: 5px solid ${o.status==='Pending'?'var(--danger)':o.status==='Preparing'?'var(--warning)':'var(--primary)'}">
+                <span class="status-badge status-${o.status}">${o.status}</span>
+                <h3 style="margin-right:70px;">${o.id.split('-').pop()} - ${o.table !== 'N/A' ? 'T:'+o.table : o.type}</h3>
+                <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:5px;">⏱️ ${elapsed}m ago | 🧑‍🍳 ${o.captain}</div>
+                ${o.orderNote ? `<div style="background:rgba(231,76,60,0.1); color:var(--danger); padding:5px; border-radius:5px; font-size:0.85rem; font-weight:bold; margin-bottom:5px;">📝 ${o.orderNote}</div>` : ''}
+                <div style="display:flex; gap:5px; margin-bottom:5px;">
+                    ${o.cutlery === 'Yes' ? `<span style="background:var(--primary); color:white; padding:2px 6px; border-radius:4px; font-size:0.75rem;">🍴 Cutlery</span>` : ''}
+                    ${o.thermal === 'Yes' ? `<span style="background:var(--warning); color:white; padding:2px 6px; border-radius:4px; font-size:0.75rem;">🔥 Thermal Pkg</span>` : ''}
+                </div>
+                <div class="kot-items">
+                    ${o.items.map(i => {
+                        let modHtml = i.mods && i.mods.length ? `<br><small style="color:var(--primary)">+ ${i.mods.map(m=>m.opt).join(', ')}</small>` : '';
+                        let noteHtml = i.notes ? `<br><small style="color:var(--warning)"><i>* ${i.notes}</i></small>` : '';
+                        return `<div style="margin-bottom:6px;"><b>${i.qty}x</b> ${i.name} ${modHtml} ${noteHtml}</div>`;
+                    }).join('')}
+                </div>
+                <div style="margin-top:10px; display:flex; gap:5px;">
+                    ${o.status === 'Pending' ? `<button class="btn-warning" style="flex:1;" onclick="kds.updateStatus('${o.id}', 'Preparing')">Start Prep</button>`:''}
+                    ${o.status === 'Preparing' ? `<button class="btn-primary" style="flex:1;" onclick="kds.updateStatus('${o.id}', 'Ready')">Mark Ready</button>`:''}
+                    ${['Pending','Preparing','Ready'].includes(o.status) ? `<button class="btn-success" style="flex:1;" onclick="kds.updateStatus('${o.id}', 'Served')">Served</button>`:''}
+                </div>
+            </div>`
+        }).join('');
+    },
+    updateStatus: (id, status) => { const order = dataManager.db.orders.find(o => o.id === id); if(order) { order.status = status; dataManager.saveData(); kds.render(); } }
+};
+
+/* --- DASHBOARD MODULE --- */
+const dashboard = {
+    render: () => {
+        const today = new Date().toISOString().slice(0,10); const todayOrders = dataManager.db.orders.filter(o => o.date === today && o.status !== 'Cancelled');
+        const totalSales = todayOrders.reduce((sum, o) => sum + o.total, 0); const pending = todayOrders.filter(o => ['Pending','Preparing','Ready'].includes(o.status)).length;
+        const avg = todayOrders.length ? (totalSales / todayOrders.length) : 0;
+        $('dash-orders').innerText = todayOrders.length; $('dash-sales').innerText = formatMoney(totalSales);
+        $('dash-pending').innerText = pending; $('dash-avg').innerText = formatMoney(avg);
+    }
+};
+
+/* --- HISTORY MODULE --- */
+const historyModule = {
+    render: () => {
+        const dateFilter = $('history-date').value; let orders = dataManager.db.orders; if(dateFilter) orders = orders.filter(o => o.date === dateFilter);
+        $('history-table').querySelector('tbody').innerHTML = orders.reverse().map(o => `
+            <tr><td style="font-size:0.85rem;">${o.id}</td><td>${o.time}</td><td>${o.type}</td><td>${o.table} <br><small>${o.customer}</small></td>
+                <td style="font-size:0.8rem">${o.items.map(i=>`${i.qty}x ${i.name}`).join(', ')}</td><td style="font-weight:bold;">₹${o.total.toFixed(2)}</td>
+                <td><span class="status-badge status-${o.status}" style="position:static;">${o.status}</span></td>
+                <td><button class="btn-icon" onclick="printer.printKOT(dataManager.db.orders.find(x=>x.id==='${o.id}'))" title="Reprint">🖨️</button></td></tr>
+        `).join('');
+    }
+};
+
+/* --- PRINTER MODULE --- */
+const printer = {
+    printKOT: (order) => {
+        const s = dataManager.db.settings;
+        const isKotOnly = s.sysMode === 'kot_only';
+        
+        let headerHtml = `
+            <div class="print-header">
+                <h2>${s.name}</h2>
+                <div>${s.address}</div>
+                ${!isKotOnly && s.gst ? `<div>GST: ${s.gst}</div>` : ''}
+                <hr style="border:1px dashed #000; margin:5px 0;">
+                <h3>KITCHEN ORDER TICKET</h3>
+                <div style="text-align:left; margin-top:10px;">
+                    <div><b>KOT No:</b> ${order.id}</div>
+                    <div><b>Date:</b> ${order.date} ${order.time}</div>
+                    <div><b>Type:</b> ${order.type} &nbsp;&nbsp; <b>Table:</b> ${order.table}</div>
+                    <div><b>Captain:</b> ${order.captain}</div>
+                </div>
+            </div>
+            
+            ${order.orderNote ? `<div style="border:1px dashed #000; padding:5px; margin:5px 0; font-weight:bold; font-size:1.1em; text-align:center;">NOTE: ${order.orderNote}</div>` : ''}
+            ${order.cutlery === 'Yes' || order.thermal === 'Yes' ? `<div style="text-align:center; font-weight:bold; margin: 5px 0;">
+                ${order.cutlery === 'Yes' ? '[ + INCLUDE CUTLERY ]<br>' : ''}
+                ${order.thermal === 'Yes' ? '[ + THERMAL PACKING ]' : ''}
+            </div>` : ''}
+        `;
+
+        let tableHead = isKotOnly 
+            ? `<tr><th style="width:75%">Item</th><th style="text-align:right; width:25%">Qty</th></tr>`
+            : `<tr><th style="width:55%">Item</th><th style="text-align:right; width:15%">Qty</th><th style="text-align:right; width:30%">Amt</th></tr>`;
+
+        let tableBody = order.items.map(i => {
+            let modStr = i.mods && i.mods.length ? `<br><small>[+ ${i.mods.map(m=>m.opt).join(', ')}]</small>` : '';
+            let noteStr = i.notes ? `<br><small><i>* ${i.notes}</i></small>` : '';
+            
+            let nameFmt = isKotOnly ? `<span style="font-size:1.3em; font-weight:bold; display:block; padding-bottom:5px;">${i.name}</span>` : `<b>${i.name}</b>`;
+            let qtyFmt = isKotOnly ? `<span style="font-size:1.4em; font-weight:bold;">${i.qty}</span>` : `${i.qty}`;
+
+            if(isKotOnly) {
+                return `<tr><td style="padding-bottom:10px;">${nameFmt}${modStr}${noteStr}</td>
+                        <td style="text-align:right; vertical-align:top; padding-bottom:10px;">${qtyFmt}</td></tr>`;
+            } else {
+                return `<tr><td>${nameFmt}${modStr}${noteStr}</td>
+                        <td style="text-align:right; font-weight:bold; vertical-align:top;">${qtyFmt}</td>
+                        <td style="text-align:right; vertical-align:top;">${i.price * i.qty}</td></tr>`;
+            }
+        }).join('');
+
+        let totalsBlock = '';
+        if(!isKotOnly) {
+            totalsBlock = `
+                <table style="width:100%; border-top: 1px dashed #000; margin-top:10px;">
+                    <tr><td>Subtotal</td><td style="text-align:right">₹${order.sub.toFixed(2)}</td></tr>
+                    ${order.packing > 0 ? `<tr><td>Packing Charge</td><td style="text-align:right">₹${order.packing.toFixed(2)}</td></tr>` : ''}
+                    ${order.discount > 0 ? `<tr><td>Discount</td><td style="text-align:right">-₹${order.discount.toFixed(2)}</td></tr>` : ''}
+                    ${order.gst > 0 ? `<tr><td>GST</td><td style="text-align:right">₹${order.gst.toFixed(2)}</td></tr>` : ''}
+                </table>
+                <div style="text-align:right; margin:10px 0; font-size:1.2em; border-top: 2px solid #000; padding-top:5px;">
+                    <b>Grand Total: ₹${order.total.toFixed(2)}</b>
+                </div>`;
+        }
+
+        let html = `
+            ${headerHtml}
+            <table class="print-table">
+                <thead>${tableHead}</thead>
+                <tbody>${tableBody}</tbody>
+            </table>
+            ${totalsBlock}
+            <div class="print-footer">
+                <div>*** KITCHEN COPY ***</div>
+                <div style="margin-top:5px;">Thank You!</div>
+            </div>
+        `;
+        $('print-container').innerHTML = html; window.print();
+    }
+};
+
+// Init app
+const app = new App();
+$('history-date').value = new Date().toISOString().slice(0,10);
+</script>
+</body>
+</html>
