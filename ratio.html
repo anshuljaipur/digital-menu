@@ -174,13 +174,14 @@ th { background: rgba(0,0,0,0.05); font-weight: 600; }
    TOASTS & PRINT 
    ========================================================================== */
 #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-.toast { background: var(--text-main); color: var(--bg-gradient); padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); animation: slideIn 0.3s, fadeOut 0.3s 2.7s forwards; }
+/* BUG FIX: Changed text color to white (#fff) so errors are highly visible */
+.toast { background: var(--text-main); color: #fff; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); animation: slideIn 0.3s, fadeOut 0.3s 2.7s forwards; }
 @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 @keyframes fadeOut { to { opacity: 0; transform: translateY(20px); } }
 
 #print-container { display: none; }
 
-/* FIXED PRINT CSS - Forces exact width bounds and removes browser margins */
+/* FIXED PRINT CSS */
 @media print {
     @page { margin: 0; padding: 0; }
     body * { visibility: hidden; }
@@ -206,14 +207,16 @@ th { background: rgba(0,0,0,0.05); font-weight: 600; }
     #app { flex-direction: column; }
     
     /* Move sidebar to bottom as a tab bar */
-    #main-content { order: 1; flex: 1; padding-bottom: 15px; }
+    #main-content { order: 1; flex: 1; padding-bottom: 0px; }
     #sidebar { 
-        order: 2; width: 100vw; height: auto; flex-direction: row; justify-content: space-between; 
-        padding: 10px 15px; border-radius: 0; border-top: 1px solid var(--glass-border); 
-        overflow-x: auto; gap: 5px; box-shadow: 0 -4px 15px rgba(0,0,0,0.1); padding-bottom: 25px; /* for safe area */
+        order: 2; width: 100vw; height: auto; flex-direction: row; justify-content: space-around; 
+        padding: 10px 5px; border-radius: 0; border-top: 1px solid var(--glass-border); 
+        overflow-x: auto; gap: 5px; box-shadow: 0 -4px 15px rgba(0,0,0,0.1); 
+        padding-bottom: env(safe-area-inset-bottom, 20px); /* iPhone safe area padding */
+        z-index: 999; position: relative;
     }
     .nav-item { width: 45px; height: 45px; font-size: 1.3rem; flex-shrink: 0; }
-
+    
     /* Stack POS components */
     #pos-view { flex-direction: column; overflow-y: auto; gap: 15px; }
     .pos-left, .pos-right { flex: none; height: auto; min-width: 100%; }
@@ -232,20 +235,21 @@ th { background: rgba(0,0,0,0.05); font-weight: 600; }
     /* Stats grid */
     .dashboard-stats { grid-template-columns: 1fr 1fr; }
     .stat-value { font-size: 1.5rem; }
+    .mobile-hide { display: none !important; }
 }
 </style>
 </head>
 <body>
 
 <div id="app">
-    <!-- SIDEBAR NAVIGATION -->
+    <!-- SIDEBAR NAVIGATION: Bug fix - explicitly passed 'this' to prevent iOS event crash -->
     <div id="sidebar" class="glass">
-        <div class="nav-item active" onclick="app.switchView('pos-view')" title="POS (F2)">🥬</div>
-        <div class="nav-item" onclick="app.switchView('kds-view')" title="Kitchen Display">🍳</div>
-        <div class="nav-item" onclick="app.switchView('dashboard-view')" title="Dashboard (F6)">📊</div>
-        <div class="nav-item" onclick="app.switchView('history-view')" title="History">📜</div>
-        <div class="nav-item" onclick="app.switchView('menu-view')" title="Menu Settings">🥑</div>
-        <div class="nav-item" onclick="app.switchView('settings-view')" title="App Settings">⚙️</div>
+        <div class="nav-item active" onclick="app.switchView('pos-view', this)" title="POS (F2)">🥬</div>
+        <div class="nav-item" onclick="app.switchView('kds-view', this)" title="Kitchen Display">🍳</div>
+        <div class="nav-item" onclick="app.switchView('dashboard-view', this)" title="Dashboard (F6)">📊</div>
+        <div class="nav-item" onclick="app.switchView('history-view', this)" title="History">📜</div>
+        <div class="nav-item" onclick="app.switchView('menu-view', this)" title="Menu Settings">🥑</div>
+        <div class="nav-item" onclick="app.switchView('settings-view', this)" title="App Settings">⚙️</div>
         <div style="flex:1" class="mobile-hide"></div>
         <div class="nav-item" onclick="app.toggleTheme()" title="Toggle Theme">🌗</div>
     </div>
@@ -491,7 +495,7 @@ class Toast {
     }
 }
 
-/* CSV Parser to handle nested quotes correctly */
+/* CSV Parser */
 function parseCSVLine(text) {
     let ret = [], val = '', quote = false;
     for (let i = 0; i < text.length; i++) {
@@ -576,13 +580,22 @@ class App {
         settings.load(); menuManager.render(); pos.renderCategories(); pos.renderItems();
         kds.render(); dashboard.render(); setInterval(() => kds.render(), 60000);
     }
-    switchView(viewId) {
+    
+    // BUG FIX: Added 'el' parameter to prevent iOS crash when reading event.currentTarget
+    switchView(viewId, el) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        $(viewId).classList.add('active'); event.currentTarget.classList.add('active');
-        if(viewId === 'dashboard-view') dashboard.render(); if(viewId === 'history-view') historyModule.render();
-        if(viewId === 'kds-view') kds.render(); if(viewId === 'pos-view') pos.calculateTotal(); 
+        $(viewId).classList.add('active'); 
+        if(el) {
+            el.classList.add('active');
+        }
+        
+        if(viewId === 'dashboard-view') dashboard.render(); 
+        if(viewId === 'history-view') historyModule.render();
+        if(viewId === 'kds-view') kds.render(); 
+        if(viewId === 'pos-view') pos.calculateTotal(); 
     }
+    
     toggleTheme() {
         this.theme = this.theme === 'light' ? 'dark' : 'light';
         document.body.setAttribute('data-theme', this.theme); localStorage.setItem('ratio_kot_theme', this.theme);
