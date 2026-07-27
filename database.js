@@ -10,6 +10,7 @@ const masterData = [
     { pan: "AAJPW1017E", name: "NEELAM WATTS", category: "CHARU", isTax: "No" },
     { pan: "AALHN5098L", name: "NEELAM WATTS HUF", category: "CHARU", isTax: "No" },
     { pan: "AAFHC4341H", name: "CHARU WATTS HUF", category: "CHARU", isTax: "No" },
+    { pan: "SMBPS1212M", name: "ARHAAN SHARMA", category: "CHARU", isTax: "No" },
 
     { pan: "AKPPB2980H", name: "Mradul Bhutra", category: "MRADUL", isTax: "Yes" },
     { pan: "BRFPS7922G", name: "Rashmi Bhutra", category: "MRADUL", isTax: "Yes" },
