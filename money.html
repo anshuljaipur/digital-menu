@@ -52,7 +52,7 @@
         th.sort-asc::after { content: " ▲"; font-size: 0.8em; position: absolute; right: 5px; }
         th.sort-desc::after { content: " ▼"; font-size: 0.8em; position: absolute; right: 5px; }
         
-            tfoot tr { background-color: #f8f9fa; font-weight: bold; border-top: 2px solid var(--secondary); }
+        tfoot tr { background-color: #f8f9fa; font-weight: bold; border-top: 2px solid var(--secondary); }
         
         .positive { color: var(--accent); font-weight: bold; }
         .negative { color: var(--danger); font-weight: bold; }
@@ -63,18 +63,26 @@
         .btn-delete { background-color: var(--danger); color: white; border: none;}
         .btn-delete:hover { background-color: #a93226; }
         
-        .filter-group { display: flex; gap: 10px; align-items: center; background: var(--bg); padding: 10px; border-radius: 6px;}
+        .filter-group { display: flex; gap: 10px; align-items: center; background: var(--bg); padding: 10px; border-radius: 6px; flex-wrap: wrap;}
         .filter-group input, .filter-group select, .filter-group button { margin-bottom: 0; width: auto; }
+        #searchTxn { flex-grow: 1; min-width: 200px; border: 2px solid var(--secondary); }
+
+        /* Modal Styles */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
+        .modal-content { background-color: white; padding: 25px; border-radius: 8px; width: 100%; max-width: 500px; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .close-btn { position: absolute; top: 15px; right: 15px; font-size: 24px; font-weight: bold; cursor: pointer; color: #7f8c8d; transition: 0.2s;}
+        .close-btn:hover { color: var(--danger); }
 
         @media (max-width: 768px) {
             .container { grid-template-columns: 1fr; }
-            .filter-group { flex-wrap: wrap; }
             .form-actions { flex-direction: column; gap: 0; }
+            #searchTxn { width: 100%; }
         }
     </style>
 </head>
 <body>
 
+    <!-- SECURE LOGIN SCREEN -->
     <div id="loginScreen">
         <div class="login-box">
             <h2>Secure Ledger Access</h2>
@@ -87,6 +95,7 @@
         </div>
     </div>
 
+    <!-- MAIN APPLICATION -->
     <div id="mainApp">
         <div class="app-header">
             <h1 style="margin: 0;">Financial Tracking Ledger</h1>
@@ -94,6 +103,7 @@
         </div>
 
         <div class="container">
+            <!-- Left Controls Column -->
             <div>
                 <div class="card">
                     <h2>Add Transaction</h2>
@@ -130,12 +140,10 @@
                 </div>
             </div>
 
+            <!-- Right Display Column -->
             <div>
                 <div class="card">
                     <h2>Net Balances & Entity Management</h2>
-                    <p style="font-size: 0.8em; color: #7f8c8d; margin-bottom: 15px;">
-                        Positive assets sit under <b>Cr Balance</b>. Liabilities or payouts sit under <b>Dr Balance</b>. Click column headers to sort profiles.
-                    </p>
                     <div id="balanceContainer" style="overflow-x:auto;"></div>
                 </div>
 
@@ -147,9 +155,16 @@
                         <input type="date" id="filterStart" onchange="renderTransactions()">
                         <label style="margin:0;">To:</label>
                         <input type="date" id="filterEnd" onchange="renderTransactions()">
+                        <!-- Clear Dates Button -->
+                        <button class="btn-reset" onclick="clearDates()" title="Clear Dates to see all history" style="padding: 10px; width: 40px;">✖</button>
+                        
                         <select id="ledgerFilter" onchange="renderTransactions()">
                             <option value="ALL">View All Transactions</option>
                         </select>
+                        
+                        <!-- Search Bar -->
+                        <input type="text" id="searchTxn" placeholder="Search Amount, Name, or Remarks..." oninput="renderTransactions()">
+                        
                         <button class="btn-export" onclick="generatePDF()">Export PDF</button>
                     </div>
                     
@@ -164,6 +179,34 @@
         </div>
     </div>
 
+    <!-- EDIT TRANSACTION MODAL -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeEditModal()">&times;</span>
+            <h2 style="margin-top:0;">Edit Transaction</h2>
+            <form id="editTxnForm">
+                <input type="hidden" id="editTxnId">
+                <label>Date</label>
+                <input type="date" id="editTxnDate" required>
+                
+                <label>From (Sender)</label>
+                <select id="editTxnFrom" required></select>
+                
+                <label>To (Receiver)</label>
+                <select id="editTxnTo" required></select>
+                
+                <label>Amount (₹)</label>
+                <input type="number" id="editTxnAmount" min="1" step="0.01" required>
+                
+                <label>Remarks / Purpose</label>
+                <input type="text" id="editTxnRemarks">
+                
+                <button type="submit" style="margin-top:15px; margin-bottom:0;">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Application Script Engine -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -224,7 +267,6 @@
         async function initData() {
             document.getElementById('txnDate').valueAsDate = new Date();
             
-            // Auto calculate Indian Financial Year Bounds (Starts April 1)
             const today = new Date();
             let startYear = today.getFullYear();
             if (today.getMonth() < 3) { startYear--; }
@@ -260,22 +302,34 @@
             const fromSelect = document.getElementById('txnFrom');
             const toSelect = document.getElementById('txnTo');
             const ledgerFilter = document.getElementById('ledgerFilter');
+            const editFromSelect = document.getElementById('editTxnFrom');
+            const editToSelect = document.getElementById('editTxnTo');
             const currentFilter = ledgerFilter.value;
             
             let optionsHTML = members.map(m => `<option value="${m}">${m}</option>`).join('');
             fromSelect.innerHTML = `<option value="">Select Sender...</option>` + optionsHTML;
             toSelect.innerHTML = `<option value="">Select Receiver...</option>` + optionsHTML;
+            
+            editFromSelect.innerHTML = optionsHTML;
+            editToSelect.innerHTML = optionsHTML;
+
             ledgerFilter.innerHTML = `<option value="ALL">View All Transactions</option>` + optionsHTML;
             ledgerFilter.value = currentFilter && members.includes(currentFilter) ? currentFilter : "ALL";
         }
 
-        // --- Form Resets Engine (Requirement 1) ---
+        // --- Utility Functions ---
+        window.clearDates = function() {
+            document.getElementById('filterStart').value = '';
+            document.getElementById('filterEnd').value = '';
+            renderTransactions();
+        }
+
         document.getElementById('btnResetForm').addEventListener('click', () => {
             document.getElementById('txnForm').reset();
             document.getElementById('txnDate').valueAsDate = new Date();
         });
 
-        // --- Balance Matrix Sorting Logic (Requirement 2 & 3 & 4) ---
+        // --- Balance Matrix Logic ---
         window.toggleBalanceSort = function(key) {
             if (balanceSortKey === key) {
                 balanceSortDir = balanceSortDir === 'asc' ? 'desc' : 'asc';
@@ -288,7 +342,6 @@
 
         function renderBalances() {
             const container = document.getElementById('balanceContainer');
-            
             let accountBalances = {};
             members.forEach(m => accountBalances[m] = 0);
             transactions.forEach(t => {
@@ -298,18 +351,12 @@
 
             let balanceRecords = members.map(name => {
                 const balanceVal = accountBalances[name];
-                return {
-                    name: name,
-                    cr: balanceVal >= 0 ? balanceVal : 0,
-                    dr: balanceVal < 0 ? Math.abs(balanceVal) : 0,
-                    raw: balanceVal
-                };
+                return { name: name, cr: balanceVal >= 0 ? balanceVal : 0, dr: balanceVal < 0 ? Math.abs(balanceVal) : 0 };
             });
 
             balanceRecords.sort((a, b) => {
                 let valA = a[balanceSortKey];
                 let valB = b[balanceSortKey];
-                
                 if (valA === valB) {
                     return balanceSortDir === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
                 }
@@ -320,9 +367,7 @@
                 }
             });
 
-            let totalCr = 0;
-            let totalDr = 0;
-
+            let totalCr = 0; let totalDr = 0;
             let html = `
             <table>
                 <thead>
@@ -333,13 +378,10 @@
                         <th style="text-align: center;">Modify Account</th>
                     </tr>
                 </thead>
-                <tbody>
-            `;
+                <tbody>`;
 
             balanceRecords.forEach(rec => {
-                totalCr += rec.cr;
-                totalDr += rec.dr;
-
+                totalCr += rec.cr; totalDr += rec.dr;
                 html += `
                     <tr>
                         <td><b>${rec.name}</b></td>
@@ -349,8 +391,7 @@
                             <button class="action-btn btn-edit" onclick="editMember('${rec.name}')">Edit</button>
                             <button class="action-btn btn-delete" onclick="deleteMember('${rec.name}')">Del</button>
                         </td>
-                    </tr>
-                `;
+                    </tr>`;
             });
 
             html += `
@@ -364,29 +405,39 @@
                     </tr>
                 </tfoot>
             </table>`;
-            
             container.innerHTML = html;
         }
 
-        // --- Sorting Hooks for Transaction Ledger ---
+        // --- Ledger Filtering and Search ---
         window.toggleLedgerSort = function(key) {
-            if (ledgerSortKey === key) {
-                ledgerSortDir = ledgerSortDir === 'asc' ? 'desc' : 'asc';
-            } else {
-                ledgerSortKey = key;
-                ledgerSortDir = 'asc';
-            }
+            if (ledgerSortKey === key) { ledgerSortDir = ledgerSortDir === 'asc' ? 'desc' : 'asc'; } 
+            else { ledgerSortKey = key; ledgerSortDir = 'asc'; }
             renderTransactions();
         };
 
         function getFilteredTransactions(acctFilter) {
             const startVal = document.getElementById('filterStart').value;
             const endVal = document.getElementById('filterEnd').value;
+            const searchTerm = document.getElementById('searchTxn').value.toLowerCase().trim();
             
             return transactions.filter(t => {
+                // Account Filter
                 if (acctFilter !== 'ALL' && t.from !== acctFilter && t.to !== acctFilter) return false;
+                
+                // Date Filter
                 if (startVal && t.date < startVal) return false;
                 if (endVal && t.date > endVal) return false;
+                
+                // Global Search Filter
+                if (searchTerm) {
+                    const matchFrom = t.from.toLowerCase().includes(searchTerm);
+                    const matchTo = t.to.toLowerCase().includes(searchTerm);
+                    const matchRemarks = t.remarks.toLowerCase().includes(searchTerm);
+                    const matchAmount = t.amount.toString().includes(searchTerm);
+                    
+                    if (!matchFrom && !matchTo && !matchRemarks && !matchAmount) return false;
+                }
+                
                 return true;
             });
         }
@@ -411,16 +462,10 @@
                     </tr>`;
                 
                 filteredTxns.sort((a, b) => {
-                    let valA = a[ledgerSortKey];
-                    let valB = b[ledgerSortKey];
-                    if (valA === valB) {
-                        return ledgerSortDir === 'asc' ? a.id - b.id : b.id - a.id;
-                    }
-                    if (typeof valA === 'string') {
-                        return ledgerSortDir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
-                    } else {
-                        return ledgerSortDir === 'asc' ? valA - valB : valB - valA;
-                    }
+                    let valA = a[ledgerSortKey]; let valB = b[ledgerSortKey];
+                    if (valA === valB) return ledgerSortDir === 'asc' ? a.id - b.id : b.id - a.id;
+                    if (typeof valA === 'string') return ledgerSortDir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                    return ledgerSortDir === 'asc' ? valA - valB : valB - valA;
                 });
 
                 tbody.innerHTML = filteredTxns.map(t => `
@@ -445,7 +490,6 @@
                         <th>Actions</th>
                     </tr>`;
                 
-                // FIXED Chronological sequence calculation engine using internal unique incremental ID tie-breakers
                 const chronologicalList = [...filteredTxns].sort((a, b) => {
                     if (a.date !== b.date) return a.date.localeCompare(b.date);
                     return a.id - b.id; 
@@ -465,38 +509,16 @@
                 
                 let mappedRows = chronologicalList.map(t => {
                     let inAmt = 0, outAmt = 0, particulars = '';
-                    if (t.from === filter) {
-                        outAmt = t.amount;
-                        runningBalance -= t.amount;
-                        particulars = `To: ${t.to}`;
-                    } else {
-                        inAmt = t.amount;
-                        runningBalance += t.amount;
-                        particulars = `From: ${t.from}`;
-                    }
-                    return {
-                        id: t.id,
-                        date: t.date,
-                        particulars: particulars,
-                        remarks: t.remarks,
-                        inAmt: inAmt,
-                        outAmt: outAmt,
-                        balSnapshot: runningBalance
-                    };
+                    if (t.from === filter) { outAmt = t.amount; runningBalance -= t.amount; particulars = `To: ${t.to}`; } 
+                    else { inAmt = t.amount; runningBalance += t.amount; particulars = `From: ${t.from}`; }
+                    return { id: t.id, date: t.date, particulars: particulars, remarks: t.remarks, inAmt: inAmt, outAmt: outAmt, balSnapshot: runningBalance };
                 });
 
-                // Display Sort Engine incorporating directional fallback matching the user's view
                 mappedRows.sort((a, b) => {
-                    let valA = a[ledgerSortKey];
-                    let valB = b[ledgerSortKey];
-                    if (valA === valB) {
-                        return ledgerSortDir === 'asc' ? a.id - b.id : b.id - a.id;
-                    }
-                    if (typeof valA === 'string') {
-                        return ledgerSortDir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
-                    } else {
-                        return ledgerSortDir === 'asc' ? valA - valB : valB - valA;
-                    }
+                    let valA = a[ledgerSortKey]; let valB = b[ledgerSortKey];
+                    if (valA === valB) return ledgerSortDir === 'asc' ? a.id - b.id : b.id - a.id;
+                    if (typeof valA === 'string') return ledgerSortDir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                    return ledgerSortDir === 'asc' ? valA - valB : valB - valA;
                 });
 
                 tbody.innerHTML = mappedRows.map(row => `
@@ -513,7 +535,7 @@
             }
         }
 
-        // --- Transaction Management ---
+        // --- Main Transaction Form ---
         document.getElementById('txnForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const date = document.getElementById('txnDate').value;
@@ -524,7 +546,6 @@
 
             if (from === to) { alert("Sender and Receiver cannot be the same."); return; }
 
-            // Strict case-insensitive type-safe duplicate lookup
             const isDuplicate = transactions.some(t => 
                 t.from.trim().toLowerCase() === from.trim().toLowerCase() && 
                 t.to.trim().toLowerCase() === to.trim().toLowerCase() && 
@@ -533,34 +554,60 @@
             );
 
             if (isDuplicate) {
-                if (!confirm(`⚠️ PLEASE CHECK:\n\nA transaction for ₹${amount} from "${from}" to "${to}" on ${date} already exists.\n\nAre you sure you want to record a duplicate entry?`)) {
-                    return;
-                }
+                if (!confirm(`⚠️ PLEASE CHECK:\n\nA transaction for ₹${amount} from "${from}" to "${to}" on ${date} already exists.\n\nAre you sure you want to record a duplicate entry?`)) return;
             }
 
             transactions.push({ id: Date.now(), date, from, to, amount, remarks });
-            await saveData();
-            updateUI();
+            await saveData(); updateUI();
             
             document.getElementById('txnAmount').value = '';
             document.getElementById('txnRemarks').value = '';
         });
 
-        window.editTransaction = async function(id) {
+        // --- Edit Modal Engine ---
+        window.editTransaction = function(id) {
+            const txn = transactions.find(t => t.id === id);
+            if (!txn) return;
+            
+            document.getElementById('editTxnId').value = txn.id;
+            document.getElementById('editTxnDate').value = txn.date;
+            document.getElementById('editTxnFrom').value = txn.from;
+            document.getElementById('editTxnTo').value = txn.to;
+            document.getElementById('editTxnAmount').value = txn.amount;
+            document.getElementById('editTxnRemarks').value = txn.remarks;
+            
+            document.getElementById('editModal').style.display = 'flex';
+        };
+
+        window.closeEditModal = function() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        document.getElementById('editTxnForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('editTxnId').value);
             const txn = transactions.find(t => t.id === id);
             if (!txn) return;
 
-            const newDate = prompt("Edit Date (YYYY-MM-DD):", txn.date); if (newDate === null) return; 
-            const newAmountStr = prompt("Edit Amount (₹):", txn.amount); if (newAmountStr === null) return; 
-            const newAmount = parseFloat(newAmountStr);
-            const newRemarks = prompt("Edit Remarks:", txn.remarks); if (newRemarks === null) return;
+            const newFrom = document.getElementById('editTxnFrom').value;
+            const newTo = document.getElementById('editTxnTo').value;
+            const newAmount = parseFloat(document.getElementById('editTxnAmount').value);
 
+            if (newFrom === newTo) { alert("Sender and Receiver cannot be the same."); return; }
             if (isNaN(newAmount) || newAmount <= 0) { alert("Invalid amount."); return; }
 
-            txn.date = newDate; txn.amount = newAmount; txn.remarks = newRemarks;
-            await saveData(); updateUI();
-        };
+            txn.date = document.getElementById('editTxnDate').value;
+            txn.from = newFrom;
+            txn.to = newTo;
+            txn.amount = newAmount;
+            txn.remarks = document.getElementById('editTxnRemarks').value;
 
+            await saveData(); 
+            updateUI();
+            closeEditModal();
+        });
+
+        // Delete functionality
         window.deleteTransaction = async function(id) {
             if (confirm("Delete this transaction permanently?")) {
                 transactions = transactions.filter(t => t.id !== id);
@@ -568,6 +615,7 @@
             }
         };
 
+        // --- Account Setup Logic ---
         document.getElementById('memberForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const newName = document.getElementById('newMemberName').value.trim();
@@ -602,7 +650,7 @@
             }
         };
 
-        // --- Financial PDF Engine Extraction ---
+        // --- Financial PDF Export Engine ---
         window.generatePDF = function() {
             const filter = document.getElementById('ledgerFilter').value;
             if(filter === 'ALL') { return alert("Please isolate a specific profile to pull an official statement."); }
