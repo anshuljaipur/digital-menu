@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
-    <title>Glacier & Grocery - Digital Store</title>
+    <title>Glacier Ice Cream - Digital Menu</title>
     
     <link rel="preconnect" href="https://i.postimg.cc" crossorigin>
     <link rel="dns-prefetch" href="https://i.postimg.cc">
@@ -934,7 +934,7 @@
     <script>
         // 🔗 URL CONFIGURATION 🔗
         const iceCreamSheetUrl = "https://script.google.com/macros/s/AKfycbwq17hSzF9mgPqqKw8FDVWFktoxpugpZNKYRjc6hmTSOKxQm4fY2jC1talNoEpMdDQ/exec"; 
-        const grocerySheetUrl = "https://script.google.com/macros/s/AKfycbxxX9Jd8wDjNZDy5ds9eIJAbrLJqPcHGLUty_kfPHLj7YM4tLgcDye8LpZHtIzuAspX/exec"; // <--- Add your new grocery sheet URL here!
+        const grocerySheetUrl = "https://script.google.com/macros/s/AKfycbxxX9Jd8wDjNZDy5ds9eIJAbrLJqPcHGLUty_kfPHLj7YM4tLgcDye8LpZHtIzuAspX/exec"; 
         const WHATSAPP_NUMBER = "919829610570"; 
         
         let allItems = []; 
@@ -1186,13 +1186,14 @@
             btn.innerHTML = '⏳ Loading...';
             btn.style.pointerEvents = 'none';
 
+            // Wait for images to load before printing
             let imagePromises = currentFilteredItems.map(item => {
                 return new Promise(resolve => {
                     let img = new Image();
                     img.onload = () => resolve();
-                    img.onerror = () => resolve(); 
+                    img.onerror = () => resolve(); // continue even if error
                     img.src = item.img;
-                    setTimeout(resolve, 2000); 
+                    setTimeout(resolve, 2000); // 2 sec fallback
                 });
             });
 
@@ -1201,7 +1202,7 @@
             const BRAND = {
                 name: currentStoreMode === 'icecream' ? "GLACIER ICE CREAM" : "GLACIER GROCERY",
                 tagline: currentStoreMode === 'icecream' ? "Delicious Treats For Everyone!" : "Fresh Everyday Essentials!",
-                colors: ["#f8f9fc","#f8f9fc","#f8f9fc","#f8f9fc"],
+                colors: ["#f8f9fc","#f8f9fc","#f8f9fc","#f8f9fc"], // Clean white/grey gradient for print
                 qr: "https://i.postimg.cc/P56qHSLD/order.png",
                 whatsapp: "919829610570"
             };
@@ -1312,12 +1313,6 @@
             window.setupAppUI(); 
             window.updateCategoryVisibility();
             window.applyFilters();
-            
-            if(mode === 'grocery' && allGroceryItems.length === 0 && grocerySheetUrl.includes('YOUR_GROCERY_SHEET_MACRO_URL_HERE')) {
-                const statusMsg = document.getElementById('status-msg'); 
-                statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🛒</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">Grocery Store Empty</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Please configure your grocerySheetUrl in the code.</p></div>`; 
-                statusMsg.style.display = 'block'; 
-            }
         };
 
         const productsArea = document.getElementById('products-area');
@@ -1658,7 +1653,6 @@
             try {
                 const noCacheParam = "?t=" + new Date().getTime();
                 
-                // Fetch both Ice Cream and Grocery data
                 const [iceCreamRes, groceryRes] = await Promise.all([
                     fetch(iceCreamSheetUrl + noCacheParam),
                     fetch(grocerySheetUrl + noCacheParam).catch(() => null)
@@ -1684,7 +1678,15 @@
 
                 if(!allItems || allItems.length === 0) { 
                     statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="window.clearAllFilters()" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
-                    if(loadingBar) loadingBar.style.width = '100%'; return; 
+                    if(loadingBar) loadingBar.style.width = '100%'; 
+                    
+                    const splash = document.getElementById('splash-screen');
+                    if(splash) {
+                        splash.style.opacity = '0';
+                        splash.style.visibility = 'hidden';
+                        setTimeout(() => splash.remove(), 600); 
+                    }
+                    return; 
                 }
                 
                 const urlParams = new URLSearchParams(window.location.search);
@@ -1713,8 +1715,18 @@
                 console.error(error);
                 const splashSub = document.querySelector('.splash-subtext');
                 if(splashSub) splashSub.innerText = "⚠️ Error loading menu!";
+                
+                setTimeout(() => {
+                    const splash = document.getElementById('splash-screen');
+                    if(splash) {
+                        splash.style.opacity = '0';
+                        splash.style.visibility = 'hidden';
+                        setTimeout(() => splash.remove(), 600); 
+                    }
+                }, 1500);
+
                 if(loadingBar) { loadingBar.style.width = '100%'; loadingBar.style.backgroundColor = '#e74c3c'; }
-                statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">⚠️</span><h3 style="color: #e74c3c; margin: 10px 0 5px 0;">Failed to load data</h3></div>`;
+                statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">⚠️</span><h3 style="color: #e74c3c; margin: 10px 0 5px 0;">Failed to load data</h3><p style="font-size:0.85em; color:var(--text-muted);">Please check your Google Sheet Links.</p></div>`;
                 statusMsg.style.display = 'block';
             }
         }
@@ -1734,7 +1746,6 @@
                 let iconHTML = ''; let name = cat;
                 const lCat = cat.toLowerCase();
                 
-                // Grocery-specific icons
                 if (currentStoreMode === 'grocery') {
                     if (lCat === 'new arrivals') { iconHTML = '✨'; name = 'New Arrivals'; } 
                     else if (lCat === 'all items') { iconHTML = '🛒'; name = 'All Items'; } 
@@ -2061,7 +2072,6 @@
                                `</div>`;
                 }
 
-                // 🛒 NEW: Grocery Stock Badge
                 let stock = window.getItemStock(item);
                 let stockHTML = '';
                 let isOutOfStock = false;
@@ -2136,7 +2146,6 @@
             let priceHTML = discountNum > 0 ? `<span class="item-price">₹${item.price}</span> <span class="item-mrp" style="text-decoration:line-through; color:var(--text-muted); font-size:0.8em; margin-left:5px;">₹${item.mrp}</span>` : `<span class="item-price">₹${item.price}</span>`;
             priceWrap.innerHTML = priceHTML;
 
-            // 🛒 NEW: Stock limitation in Modal
             const btnWrap = document.getElementById('pd-modal-btn-wrap');
             let stock = window.getItemStock(item);
             
@@ -2170,7 +2179,6 @@
             });
         }
 
-        // 🛒 NEW: Enforce Stock Limit on Add
         window.addToCart = (name, price, brand, maxStock) => { 
             let currentQty = cart[name] ? cart[name].qty : 0;
             if (currentStoreMode === 'grocery' && maxStock !== null && currentQty >= maxStock) {
@@ -2187,7 +2195,6 @@
             if(document.getElementById('product-detail-modal').style.display === 'flex') window.openProductDetail(name);
         }
 
-        // 🛒 NEW: Enforce Stock Limit on Plus Button
         window.changeQty = (name, delta) => { 
             if(cart[name]) { 
                 let newQty = cart[name].qty + delta;
