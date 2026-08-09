@@ -14,6 +14,7 @@
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     
+    <!-- 🟢 Libraries: Confetti & PDF Export 🟢 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>    
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -901,12 +902,12 @@
     <script>
         // 🔗 URL CONFIGURATION 🔗
         const iceCreamSheetUrl = "https://script.google.com/macros/s/AKfycbwq17hSzF9mgPqqKw8FDVWFktoxpugpZNKYRjc6hmTSOKxQm4fY2jC1talNoEpMdDQ/exec"; 
-        const grocerySheetUrl = "https://script.google.com/macros/s/AKfycbxNEtZH-ugGQgTwcfDFNdJ8Thd46FxeZJ8emO4v3mqeCkhcQKqW0UQNDj63XitbNwE/exec"; // 🟢 CORRECTED LIVE URL 🟢
+        const grocerySheetUrl = "https://script.google.com/macros/s/AKfycbxNEtZH-ugGQgTwcfDFNdJ8Thd46FxeZJ8emO4v3mqeCkhcQKqW0UQNDj63XitbNwE/exec"; 
         const WHATSAPP_NUMBER = "919829610570"; 
         
         // 🛒 APPSHEET CONFIGURATION 🛒
         const APPSHEET_APP_NAME = "LiveInventroy-257487838"; 
-        const APPSHEET_TABLE_NAME = "Live Inventroy"; 
+        const APPSHEET_TABLE_NAME = "Live Inventroy"; // <-- CHECK THIS NAME IN APPSHEET -> DATA -> TABLES
         
         let allItems = []; 
         let allIceCreamItems = [];
@@ -930,11 +931,12 @@
                     }).join(' ');
                 }
                 
-                // 🟢 DYNAMIC APPSHEET IMAGE CONVERTER (FIXED PATH) 🟢
+                // 🟢 DYNAMIC APPSHEET IMAGE CONVERTER (FIXED URL ENCODING) 🟢
                 if (isGrocery && item.img && String(item.img).includes('Products_Images/')) {
                     let fileName = String(item.img).trim();
-                    let safeFileName = fileName.split('/').map(encodeURIComponent).join('/');
-                    item.img = `https://www.appsheet.com/template/gettablefileurl?appName=${encodeURIComponent(APPSHEET_APP_NAME)}&tableName=${encodeURIComponent(APPSHEET_TABLE_NAME)}&fileName=${safeFileName}`;
+                    // Fully encode the path, so '/' becomes '%2F' (AppSheet strict requirement)
+                    let safeFileName = encodeURIComponent(fileName); 
+                    item.img = `https://www.appsheet.com/template/gettablefileurl?appName=${APPSHEET_APP_NAME}&tableName=${encodeURIComponent(APPSHEET_TABLE_NAME)}&fileName=${safeFileName}`;
                 }
                 
                 return item;
@@ -1123,7 +1125,6 @@
             }
         });
 
-        // 🎨 PREMIUM POSTER EXPORT
         function groupByCategory(data){
             let grouped = {};
             data.forEach(item=>{
