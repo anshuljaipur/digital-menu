@@ -186,10 +186,22 @@
         .section-header-left h2 { margin: 0; font-size: 1.4em; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
         .section-header-right { display: flex; align-items: center; gap: 10px; }
         .section-count { font-size: 0.9em; font-weight: 500; color: var(--text-muted); }
+        
+        /* 🛒 HIDE OUT OF STOCK TOGGLE CSS */
+        .hide-oos-wrapper { display: flex; align-items: center; gap: 6px; font-size: 0.8em; font-weight: 700; color: var(--text-main); background: var(--card-bg); padding: 0 12px; border-radius: 50px; border: 1px solid var(--border-color); cursor: pointer; height: 35px; user-select: none; transition: 0.2s;}
+        .hide-oos-wrapper:hover { border-color: var(--glacier-blue); background: var(--hover-bg); }
+        @media (min-width: 1000px) { .hide-oos-wrapper { height: 40px; font-size: 0.85em; } }
 
         .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; align-items: start; padding-bottom: 20px; box-sizing: border-box; width: 100%;}
+        
         .menu-card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color); display: flex; flex-direction: column; position: relative; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s; height: 100%; box-sizing: border-box;}
         .menu-card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.1); transform: translateY(-3px); }
+        
+        /* 🛒 DISABLED OUT OF STOCK CARD CSS */
+        .oos-card { opacity: 0.55; filter: grayscale(100%); transition: all 0.3s ease; cursor: not-allowed; }
+        .oos-card:hover { opacity: 0.8; filter: grayscale(50%); transform: none; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .oos-card .red-discount-icon { background: #94a3b8; box-shadow: none; }
+
         .card-img-wrapper { position: relative; background: #fff; border-radius: 12px; height: 160px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; flex-shrink: 0; cursor: pointer; }
         .card-img-wrapper img { width: 90%; height: 90%; object-fit: contain; mix-blend-mode: multiply; border-radius: 12px;}
         [data-theme="dark"] .card-img-wrapper { background: #e2e8f0; } 
@@ -200,7 +212,7 @@
         /* 📦 STOCK BADGE CSS */
         .stock-badge { position: absolute; bottom: 8px; left: 8px; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 3px 8px; border-radius: 8px; font-size: 0.65em; font-weight: 800; z-index: 5; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);}
         .stock-badge.low-stock { background: rgba(245, 158, 11, 0.15); color: #d97706; border-color: rgba(245, 158, 11, 0.3); }
-        .out-of-stock-text { color: var(--active-brand-red); font-size: 0.75em; font-weight: 800; text-align: right; margin-top: 5px; background: var(--chip-bg); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(231,76,60,0.2);}
+        .out-of-stock-text { color: var(--text-main); font-size: 0.75em; font-weight: 800; text-align: right; margin-top: 5px; background: var(--chip-bg); padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border-color);}
 
         .btn-container { position: absolute; right: 12px; bottom: -18px; z-index: 10; }
         
@@ -568,7 +580,14 @@
                     <option value="size-high-low">Size: Large - Small</option>
                 </select>
             </div>
-            <button onclick="window.refreshMenu()" class="action-btn" style="padding: 8px 16px; font-size: 0.85em; border-color: var(--glacier-blue); color: var(--glacier-blue);">🔄 Refresh</button>
+            
+            <!-- 🛒 DESKTOP: HIDE OOS TOGGLE 🛒 -->
+            <label class="hide-oos-wrapper" id="hide-oos-wrap-desk" style="display:none; margin-left: 10px;">
+                <input type="checkbox" id="hide-oos-desk" onchange="window.syncOOS(this.checked)" style="width: 16px; height: 16px; margin: 0; cursor: pointer;">
+                <span style="white-space: nowrap;">Hide OOS</span>
+            </label>
+
+            <button onclick="window.refreshMenu()" class="action-btn" style="padding: 8px 16px; font-size: 0.85em; border-color: var(--glacier-blue); color: var(--glacier-blue); margin-left: auto;">🔄 Refresh</button>
             <button id="clear-filters-btn-desktop" onclick="window.clearAllFilters()" class="action-btn" style="display:none; padding: 8px 16px; font-size: 0.85em; border-color: var(--active-brand-red); color: var(--active-brand-red);">✖ Clear</button>
         </div>
     </div>
@@ -614,8 +633,15 @@
                                 <option value="size-high-low">Size: Large - Small</option>
                             </select>
                         </div>
-                        <button onclick="window.refreshMenu()" id="inline-refresh-btn" class="action-btn" style="padding: 6px 12px; font-size: 0.8em; border-color: var(--glacier-blue); color: var(--glacier-blue);">🔄 Refresh</button>
-                        <button id="clear-filters-btn" onclick="window.clearAllFilters()" class="action-btn" style="display:none; padding: 6px 12px; font-size: 0.8em; border-color: var(--active-brand-red); color: var(--active-brand-red);">✖ Clear</button>
+                        
+                        <!-- 🛒 MOBILE: HIDE OOS TOGGLE 🛒 -->
+                        <label class="hide-oos-wrapper" id="hide-oos-wrap-mob" style="display:none;">
+                            <input type="checkbox" id="hide-oos-mob" onchange="window.syncOOS(this.checked)" style="width: 16px; height: 16px; margin: 0; cursor: pointer;">
+                            <span style="white-space: nowrap;">Hide OOS</span>
+                        </label>
+
+                        <button onclick="window.refreshMenu()" id="inline-refresh-btn" class="action-btn" style="padding: 6px 12px; font-size: 0.8em; border-color: var(--glacier-blue); color: var(--glacier-blue);">🔄</button>
+                        <button id="clear-filters-btn" onclick="window.clearAllFilters()" class="action-btn" style="display:none; padding: 6px 12px; font-size: 0.8em; border-color: var(--active-brand-red); color: var(--active-brand-red);">✖</button>
                     </div>
                     <span class="section-count" id="item-count">0 items</span>
                 </div>
@@ -706,7 +732,7 @@
             <div style="display: flex; justify-content: flex-end; margin-bottom: -10px;">
                 <div class="close-modal-icon" onclick="window.closeSpecificModal('product-detail-modal')">×</div>
             </div>
-            <img id="pd-modal-img" src="" alt="Product">
+            <img id="pd-modal-img" src="" alt="Product" crossorigin="anonymous">
             
             <div class="pd-modal-brand-row">
                 <div class="pd-brand-icon" id="pd-modal-brand-logo"></div>
@@ -907,12 +933,15 @@
         
         // 🛒 APPSHEET CONFIGURATION 🛒
         const APPSHEET_APP_NAME = "LiveInventroy-257487838"; 
-        const APPSHEET_TABLE_NAME = "Products"; // <-- 🟢 FIXED: Your actual Table name in AppSheet!
+        const APPSHEET_TABLE_NAME = "Products"; 
         
         let allItems = []; 
         let allIceCreamItems = [];
         let allGroceryItems = [];
         
+        // 🛒 NEW: STATE VARIABLE FOR HIDING OOS ITEMS
+        let hideOutOfStock = false;
+
         let currentStoreMode = 'icecream'; 
         let currentCategory = 'All Items'; 
         let currentBrand = 'All Brands'; 
@@ -931,11 +960,10 @@
                     }).join(' ');
                 }
                 
-                // 🟢 DYNAMIC APPSHEET IMAGE CONVERTER 🟢
                 if (isGrocery && item.img && String(item.img).includes('Products_Images/')) {
                     let fileName = String(item.img).trim();
                     let safeFileName = encodeURIComponent(fileName); 
-                    item.img = `https://www.appsheet.com/template/gettablefileurl?appName=${APPSHEET_APP_NAME}&tableName=${encodeURIComponent(APPSHEET_TABLE_NAME)}&fileName=${safeFileName}`;
+                    item.img = `https://www.appsheet.com/template/gettablefileurl?appName=${encodeURIComponent(APPSHEET_APP_NAME)}&tableName=${encodeURIComponent(APPSHEET_TABLE_NAME)}&fileName=${safeFileName}`;
                 }
                 
                 return item;
@@ -970,6 +998,13 @@
             currentCategory = 'All Items';
             currentBrand = 'All Brands';
             currentTagFilter = 'All';
+            
+            // 🛒 Reset Hide OOS
+            hideOutOfStock = false;
+            let dDesk = document.getElementById('hide-oos-desk');
+            let dMob = document.getElementById('hide-oos-mob');
+            if(dDesk) dDesk.checked = false;
+            if(dMob) dMob.checked = false;
 
             window.history.replaceState({}, '', window.location.pathname); 
 
@@ -1124,6 +1159,7 @@
             }
         });
 
+        // 🎨 PREMIUM POSTER EXPORT
         function groupByCategory(data){
             let grouped = {};
             data.forEach(item=>{
@@ -1272,6 +1308,17 @@
             document.getElementById('tab-grocery').classList.remove('active');
             document.getElementById(`tab-${mode}`).classList.add('active');
 
+            // 🛒 Toggle "Hide OOS" button visibility based on store
+            let oosDesk = document.getElementById('hide-oos-wrap-desk');
+            let oosMob = document.getElementById('hide-oos-wrap-mob');
+            if (mode === 'grocery') {
+                if(oosDesk) oosDesk.style.display = 'flex';
+                if(oosMob) oosMob.style.display = 'flex';
+            } else {
+                if(oosDesk) oosDesk.style.display = 'none';
+                if(oosMob) oosMob.style.display = 'none';
+            }
+
             allItems = mode === 'icecream' ? allIceCreamItems : allGroceryItems;
             
             currentCategory = 'All Items';
@@ -1383,6 +1430,16 @@
             window.applyFilters();
         }
 
+        // 🛒 NEW: SYNC OOS TOGGLE 🛒
+        window.syncOOS = (checked) => {
+            hideOutOfStock = checked;
+            let dDesk = document.getElementById('hide-oos-desk');
+            let dMob = document.getElementById('hide-oos-mob');
+            if(dDesk && dDesk.checked !== checked) dDesk.checked = checked;
+            if(dMob && dMob.checked !== checked) dMob.checked = checked;
+            window.applyFilters();
+        }
+
         const brandImageLinks = {
             "baskin robbins": "https://i.postimg.cc/j5FTdyfz/brlogo.png",
             "london dairy": "https://i.postimg.cc/jdtSC4nV/LD-logo.png",
@@ -1402,7 +1459,7 @@
             for (let key in brandImageLinks) { if (b.includes(key)) { matchedImg = brandImageLinks[key]; break; } }
             if (matchedImg) return `<img src="${matchedImg}" alt="${brandName}">`;
             let text = brandName.substring(0, 2).toUpperCase();
-            return `<svg viewBox="0 0 100 100" style="width:100%; height:100%; background:var(--chip-bg);"><text x="50" y="55" font-size="34" fill="var(--text-muted)" font-weight="bold" font-family="Montserrat, sans-serif" text-anchor="middle" dominant-baseline="middle">${text}</text></svg>`;
+            return `<svg viewBox="0 0 100 100" style="width:100%; height:100%; background:var(--chip-bg);"><text x="50" y="55" font-size="38" fill="var(--text-muted)" font-weight="bold" font-family="Montserrat, sans-serif" text-anchor="middle" dominant-baseline="middle">${text}</text></svg>`;
         }
 
         window.protectImages = (e) => { if (e.target.tagName === 'IMG' || e.target.tagName === 'svg') { e.preventDefault(); return false; } return true; }
@@ -1916,20 +1973,33 @@
                 const itemTags = window.getItemTags(item);
                 const matchesTagFilter = currentTagFilter === 'All' ? true : itemTags.includes(currentTagFilter);
 
-                return { item, isValid: isAvailable && matchesBrand && matchesCategory && matchesSearch && matchesTagFilter, relevanceScore };
+                // 🛒 NEW: APPLY HIDE OOS LOGIC
+                let stock = window.getItemStock(item);
+                let isOOS = currentStoreMode === 'grocery' && stock === 0;
+                let passesOosFilter = !(hideOutOfStock && isOOS);
+
+                return { item, isValid: isAvailable && matchesBrand && matchesCategory && matchesSearch && matchesTagFilter && passesOosFilter, relevanceScore };
             }).filter(obj => obj.isValid);
 
-            if (sortValue === 'default' && searchTerm !== '') {
-                filteredData.sort((a, b) => b.relevanceScore - a.relevanceScore);
-            } else if (currentCategory === 'New Arrivals' && sortValue === 'default') {
-                filteredData.sort((a, b) => {
+            // 🛒 NEW: SORTING LOGIC TO PUSH OOS ITEMS TO BOTTOM
+            filteredData.sort((a, b) => {
+                let stockA = window.getItemStock(a.item);
+                let stockB = window.getItemStock(b.item);
+                let isOosA = (currentStoreMode === 'grocery' && stockA === 0) ? 1 : 0;
+                let isOosB = (currentStoreMode === 'grocery' && stockB === 0) ? 1 : 0;
+                
+                // If one is OOS and the other is not, the OOS one goes to the bottom
+                if (isOosA !== isOosB) return isOosA - isOosB; 
+
+                // Regular Sorting fallback
+                if (sortValue === 'default' && searchTerm !== '') {
+                    return b.relevanceScore - a.relevanceScore;
+                } else if (currentCategory === 'New Arrivals' && sortValue === 'default') {
                     let dateA = window.getLaunchDate(a.item); let dateB = window.getLaunchDate(b.item);
                     let valA = dateA ? (dateA.year * 12 + dateA.month) : 0;
                     let valB = dateB ? (dateB.year * 12 + dateB.month) : 0;
                     return valB - valA;
-                });
-            } else {
-                filteredData.sort((a, b) => {
+                } else {
                     let itemA = a.item, itemB = b.item;
                     if (sortValue === 'price-low-high') return itemA.price - itemB.price; 
                     else if (sortValue === 'price-high-low') return itemB.price - itemA.price; 
@@ -1943,8 +2013,8 @@
                         return String(ingA).localeCompare(String(ingB));
                     }
                     return 0;
-                });
-            }
+                }
+            });
 
             let filteredItems = filteredData.map(obj => obj.item);
 
@@ -1957,7 +2027,7 @@
 
             let clearBtn = document.getElementById('clear-filters-btn');
             let clearBtnDesk = document.getElementById('clear-filters-btn-desktop');
-            let hasFilters = (searchTerm !== '' || currentCategory !== 'All Items' || currentBrand !== 'All Brands' || currentTagFilter !== 'All' || sortValue !== 'default');
+            let hasFilters = (searchTerm !== '' || currentCategory !== 'All Items' || currentBrand !== 'All Brands' || currentTagFilter !== 'All' || sortValue !== 'default' || hideOutOfStock);
             
             if (clearBtn) clearBtn.style.display = hasFilters ? 'flex' : 'none';
             if (clearBtnDesk) clearBtnDesk.style.display = hasFilters ? 'flex' : 'none';
@@ -2020,6 +2090,8 @@
                 let stock = window.getItemStock(item);
                 let stockHTML = '';
                 let isOutOfStock = false;
+                
+                // 🛒 NEW: Stock visual logic
                 if (currentStoreMode === 'grocery' && stock !== null) {
                     if (stock === 0) {
                         isOutOfStock = true;
@@ -2029,8 +2101,9 @@
                     }
                 }
 
+                // Append the oos-card CSS class if it's out of stock
                 newHTML += `
-                    <div class="menu-card" onclick="window.openProductDetail('${item.name.replace(/'/g, "\\'")}')">
+                    <div class="menu-card ${isOutOfStock ? 'oos-card' : ''}" onclick="window.openProductDetail('${item.name.replace(/'/g, "\\'")}')">
                         <div class="card-img-wrapper skeleton-bg">
                             ${window.isNewArrival(item) ? `<div class="new-badge">✨ NEW</div>` : ''}
                             ${discountNum > 0 ? `<div class="red-discount-icon">⬇</div>` : ''}
