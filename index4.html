@@ -14,7 +14,6 @@
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     
-    <!-- 🟢 Libraries: Confetti & PDF Export 🟢 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>    
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -553,6 +552,7 @@
         <div class="desktop-tags-panel" id="desktop-tags-grid"></div>
     </div>
 
+    <!-- 🟢 FIXED DESKTOP CONTROLS BAR (Sort & Refresh & Clear) 🟢 -->
     <div class="desktop-tools-bar">
         <div class="tools-left">
             <div class="control-chip sort-chip" style="padding: 6px 15px; min-width: 250px; height: 40px; background: var(--card-bg);">
@@ -599,6 +599,7 @@
                 </div>
                 
                 <div class="section-header-right">
+                    <!-- Mobile ONLY Sort Dropdown -->
                     <div class="mobile-controls" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                         <div class="control-chip sort-chip desktop-sort" style="padding: 4px 10px; min-width: auto; height: 35px; background: var(--card-bg);">
                             ↕️ <select id="sort-dropdown-main" onchange="window.syncInputs('main')" style="font-size: 0.85em; margin-left: 5px;">
@@ -659,6 +660,7 @@
         <button class="fab-main" id="fab-main-btn" onclick="window.toggleFab()">✨</button>
     </div>
 
+    <!-- 🟢 BOTTOM SHEET MODALS FOR FAB 🟢 -->
     <div id="mobile-category-modal" class="custom-modal bottom-sheet" onclick="window.closeSpecificModal('mobile-category-modal')">
         <div class="modal-content-box" onclick="event.stopPropagation()">
             <div class="modal-header-row" style="margin-bottom: 10px;">
@@ -679,10 +681,12 @@
         </div>
     </div>
 
+    <!-- 🟢 BACK TO TOP BUTTON 🟢 -->
     <button class="back-to-top-btn" id="back-to-top" onclick="window.scrollTo({top:0, behavior:'smooth'}); document.documentElement.scrollTop = 0; if(document.getElementById('products-area')) document.getElementById('products-area').scrollTo({top:0, behavior:'smooth'});">
         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
     </button>
 
+    <!-- 🟢 FLOATING CART BUTTON 🟢 -->
     <button class="floating-cart-btn" id="floating-cart" onclick="window.toggleCart()">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="9" cy="21" r="1"></circle>
@@ -692,6 +696,7 @@
         <span class="cart-badge" id="cart-badge-count">0</span>
     </button>
 
+    <!-- 🟢 CENTERED TOAST NOTIFICATION 🟢 -->
     <div id="toast-container"></div>
 
     <!-- 🌟 PRODUCT DETAIL MODAL 🌟 -->
@@ -700,7 +705,7 @@
             <div style="display: flex; justify-content: flex-end; margin-bottom: -10px;">
                 <div class="close-modal-icon" onclick="window.closeSpecificModal('product-detail-modal')">×</div>
             </div>
-            <img id="pd-modal-img" src="" alt="Product" crossorigin="anonymous">
+            <img id="pd-modal-img" src="" alt="Product">
             
             <div class="pd-modal-brand-row">
                 <div class="pd-brand-icon" id="pd-modal-brand-logo"></div>
@@ -878,17 +883,16 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
+    <!-- 🟢 MAIN APP JS 🟢 -->
     <script>
         // 🔗 URL CONFIGURATION 🔗
         const iceCreamSheetUrl = "https://script.google.com/macros/s/AKfycbwq17hSzF9mgPqqKw8FDVWFktoxpugpZNKYRjc6hmTSOKxQm4fY2jC1talNoEpMdDQ/exec"; 
         const grocerySheetUrl = "https://script.google.com/macros/s/AKfycbxxX9Jd8wDjNZDy5ds9eIJAbrLJqPcHGLUty_kfPHLj7YM4tLgcDye8LpZHtIzuAspX/exec"; 
         const WHATSAPP_NUMBER = "919829610570"; 
         
-        // 🛒 APPSHEET IMAGE CONFIGURATION 🛒
-        // AppSheet URL से 'appName=' के बाद वाला हिस्सा यहाँ डालें:
-        const APPSHEET_APP_NAME = "GlacierGrocery-1234567"; // <-- इसे अपने असल App Name से बदलें
-        // AppSheet में आपके Data Table का जो नाम है वो यहाँ डालें:
-        const APPSHEET_TABLE_NAME = "Live Inventroy"; // <-- आपकी शीट के अनुसार
+        // 🛒 APPSHEET CONFIGURATION 🛒
+        const APPSHEET_APP_NAME = "LiveInventroy-257487838"; 
+        const APPSHEET_TABLE_NAME = "Live Inventroy"; 
         
         let allItems = []; 
         let allIceCreamItems = [];
@@ -912,13 +916,10 @@
                     }).join(' ');
                 }
                 
-                // 🟢 DYNAMIC APPSHEET IMAGE CONVERTER 🟢
+                // 🟢 DYNAMIC APPSHEET IMAGE CONVERTER (FALLBACK) 🟢
+                // अगर Apps Script से सही URL नहीं आता है, तो फ्रंटएंड यह स्मार्ट URL बना देगा
                 if (isGrocery && item.img && String(item.img).includes('Products_Images/')) {
-                    if (APPSHEET_APP_NAME === "YOUR_APP_NAME_HERE") {
-                        item.img = "https://placehold.co/300x220/f4f6f9/a0a0a0?text=Set+AppSheet+Name";
-                    } else {
-                        item.img = `https://www.appsheet.com/template/gettablefileurl?appName=${encodeURIComponent(APPSHEET_APP_NAME)}&tableName=${encodeURIComponent(APPSHEET_TABLE_NAME)}&fileName=${encodeURIComponent(item.img)}`;
-                    }
+                    item.img = `https://www.appsheet.com/template/gettablefileurl?appName=${encodeURIComponent(APPSHEET_APP_NAME)}&tableName=${encodeURIComponent(APPSHEET_TABLE_NAME)}&fileName=${encodeURIComponent(item.img)}`;
                 }
                 
                 return item;
@@ -1107,7 +1108,7 @@
             }
         });
 
-        // 🎨 NATIVE BROWSER PDF EXPORT (RELIABLE)
+        // 🎨 PREMIUM POSTER EXPORT
         function groupByCategory(data){
             let grouped = {};
             data.forEach(item=>{
@@ -1139,98 +1140,153 @@
             return html;
         }
 
-        window.exportPDF = async function(){
-            if(!currentFilteredItems || currentFilteredItems.length === 0){
-                alert("No items available to export.");
-                return;
-            }
-
-            const btn = document.getElementById('pdf-btn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '⏳ Loading...';
-            btn.style.pointerEvents = 'none';
-
-            let imagePromises = currentFilteredItems.map(item => {
-                return new Promise(resolve => {
-                    let img = new Image();
-                    img.onload = () => resolve();
-                    img.onerror = () => resolve(); 
-                    img.src = item.img;
-                    setTimeout(resolve, 2000); 
-                });
-            });
-
-            await Promise.all(imagePromises);
-
+        function generateFullMenu(items){
             const BRAND = {
                 name: currentStoreMode === 'icecream' ? "GLACIER ICE CREAM" : "GLACIER GROCERY",
                 tagline: currentStoreMode === 'icecream' ? "Delicious Treats For Everyone!" : "Fresh Everyday Essentials!",
-                colors: ["#f8f9fc","#f8f9fc","#f8f9fc","#f8f9fc"], 
+                colors: ["#ffffff","#ffffff","#ffffff","#ffffff"],
                 qr: "https://i.postimg.cc/P56qHSLD/order.png",
                 whatsapp: "919829610570"
             };
 
-            let grouped = groupByCategory(currentFilteredItems);
+            let grouped = groupByCategory(items);
             let categories = Object.keys(grouped);
 
-            let html = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Glacier Menu - ${currentBrand === 'All Brands' ? 'All' : currentBrand}</title>
-                <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
-                <style>
-                    @page { size: A4 portrait; margin: 10mm; }
-                    body { font-family: 'Poppins', sans-serif; background: #ffffff; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                    .page-container { width: 100%; max-width: 800px; margin: 0 auto; padding-bottom: 20px;}
-                    .header { text-align: center; padding: 20px; background: linear-gradient(135deg, #1f51c6, #1a42a4); color: #ffffff; border-radius: 15px; margin-bottom: 20px;}
-                    .header h1 { font-family: 'Montserrat', sans-serif; margin: 0; font-size: 32px; }
-                    .header p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.9; }
-                    .footer { text-align: center; margin-top: 30px; border-top: 2px dashed #eee; padding-top: 20px; display: flex; justify-content: space-between; align-items: center;}
-                </style>
-            </head>
-            <body>
-                <div class="page-container">
-                    <div class="header">
-                        <h1>${BRAND.name}</h1>
-                        <p>${BRAND.tagline} | Menu: ${currentBrand === 'All Brands' ? 'All Brands' : currentBrand}</p>
-                    </div>
-            `;
-
+            let html = `<div style="font-family:Arial;">`;
             let colorIndex = 0;
-            categories.forEach((cat) => {
+
+            categories.forEach((cat, i)=>{
+                if(i % 3 === 0){
+                    if(i !== 0) html += `</div>`; 
+
+                    html += `
+                    <div style="width:794px; height:1122px; display:flex; flex-direction:column; background:linear-gradient(180deg,#ff2d2d,#ffcc00); page-break-after:always; position:relative; overflow:hidden;">
+                    <!-- HEADER -->
+                    <div style="text-align:center;padding:15px;color:#fff;">
+                        <div style="background:#fff; color:#e11d48; padding:8px 20px; border-radius:40px; font-size:30px; font-weight:bold; display:inline-block;">${BRAND.name}</div>
+                        <div style="margin-top:6px;font-size:14px;font-weight:bold;">${BRAND.tagline}</div>
+                    </div>
+                    <div style="flex:1;">
+                    `;
+                }
+
                 let color = BRAND.colors[colorIndex % BRAND.colors.length];
                 colorIndex++;
+
                 html += createCategoryBlock(cat, grouped[cat], color);
+
+                if(i % 3 === 2 || i === categories.length - 1){
+                    html += `
+                    </div>
+                    <!-- FOOTER -->
+                    <div style="background:#065f46; color:#fff; display:flex; justify-content:space-between; align-items:center; padding:10px 15px; position:absolute; bottom:25px; left:0; width:100%; box-sizing:border-box;">
+                        <div>
+                            <img src="${BRAND.qr}" crossorigin="anonymous" style="height:50px;">
+                            <div style="font-size:10px;font-weight:bold;">Scan to Order</div>
+                        </div>
+                        <div style="font-size:14px;font-weight:bold;">📲 +${BRAND.whatsapp}</div>
+                    </div>
+                    <div style="background:#ffcc00; text-align:center; padding:6px; font-weight:bold; position:absolute; bottom:0; left:0; width:100%; box-sizing:border-box;">
+                        Cool Treats • Great Prices • Freshly Made
+                    </div>
+                    </div>
+                    `;
+                }
             });
 
-            html += `
-                    <div class="footer">
-                        <div style="text-align: left;">
-                            <div style="font-size: 14px; font-weight: bold; color: #1f51c6;">Fast Delivery • Fresh Stock</div>
-                            <div style="font-size: 16px; font-weight: bold; margin-top: 5px;">📞 WhatsApp: +${BRAND.whatsapp}</div>
-                        </div>
-                        <div style="text-align: right;">
-                            <img src="${BRAND.qr}" style="height: 60px;">
-                            <div style="font-size: 10px; font-weight: bold; color: #64748b;">Scan to Order</div>
-                        </div>
-                    </div>
-                </div>
-                <script>
-                    window.onload = () => { setTimeout(() => { window.print(); }, 500); }
-                <\/script>
-            </body>
-            </html>
-            `;
+            return html;
+        }
 
-            btn.innerHTML = originalText;
-            btn.style.pointerEvents = 'auto';
+        window.exportPDF = async function(){
+            const btn = document.getElementById('pdf-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ Processing...';
+            btn.style.pointerEvents = 'none';
 
-            let printWin = window.open('', '_blank');
-            printWin.document.write(html);
-            printWin.document.close();
+            if(!currentFilteredItems || currentFilteredItems.length === 0){
+                alert("No items available to export.");
+                btn.innerHTML = originalText;
+                btn.style.pointerEvents = 'auto';
+                return;
+            }
+
+            try {
+                const container = document.createElement('div');
+                container.style.position = 'absolute';
+                container.style.top = '0';
+                container.style.left = '-9999px'; 
+                container.style.width = '794px';
+                
+                let html = generateFullMenu(currentFilteredItems);
+                container.innerHTML = html;
+                document.body.appendChild(container);
+
+                let imagePromises = [];
+                container.querySelectorAll('img').forEach(img => {
+                    let imgP = new Promise(resolve => {
+                        if (img.complete) return resolve();
+                        let tempImg = new Image();
+                        tempImg.crossOrigin = "Anonymous";
+                        tempImg.onload = () => resolve();
+                        tempImg.onerror = () => resolve(); 
+                        tempImg.src = img.src;
+                        setTimeout(resolve, 2500); 
+                    });
+                    imagePromises.push(imgP);
+                });
+
+                await Promise.all(imagePromises);
+                await new Promise(r => setTimeout(r, 600));
+
+                const canvas = await html2canvas(container, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: "#ffffff",
+                    windowWidth: 794,
+                    height: container.scrollHeight,
+                    scrollY: -window.scrollY 
+                });
+
+                const { jsPDF } = window.jspdf;
+                const pdfWidth = 794;
+                const pdfHeight = 1122;
+
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'px',
+                    format: [pdfWidth, pdfHeight]
+                });
+
+                const scale = pdfWidth / canvas.width;
+                const imgHeight = canvas.height * scale;
+                const imgData = canvas.toDataURL("image/jpeg", 0.9);
+
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight, undefined, 'FAST');
+                heightLeft -= pdfHeight;
+
+                while (heightLeft > 10) {
+                    position -= pdfHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight, undefined, 'FAST');
+                    heightLeft -= pdfHeight;
+                }
+
+                pdf.save(`Glacier_Menu_${currentBrand.replace(/\s+/g,'_')}.pdf`);
+                document.body.removeChild(container);
+
+            } catch(error) {
+                console.error("PDF Export Error: ", error);
+                alert("Something went wrong generating the PDF. Please try again.");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.style.pointerEvents = 'auto';
+            }
         };
-        
+
         window.shareWebsite = () => { 
             let shareUrl = new URL(window.location.href);
             if(navigator.share) {
@@ -1561,21 +1617,6 @@
             const loadingBar = document.getElementById('loading-bar');
             if(loadingBar) { loadingBar.style.opacity = '1'; loadingBar.style.width = '30%'; }
             
-            // 🟢 ANTI-STUCK FAILSAFE (Timeout after 8 seconds) 🟢
-            let failsafeTimer = setTimeout(() => {
-                const splash = document.getElementById('splash-screen');
-                if(splash && splash.style.opacity !== '0') {
-                    const sub = document.querySelector('.splash-subtext');
-                    if(sub) sub.innerText = "Network taking too long... Please refresh.";
-                    setTimeout(() => {
-                        if(splash && splash.style.opacity !== '0') {
-                            splash.style.opacity = '0';
-                            setTimeout(() => splash.remove(), 600); 
-                        }
-                    }, 4000); 
-                }
-            }, 8000);
-
             try {
                 const noCacheParam = "?t=" + new Date().getTime();
                 
@@ -1599,8 +1640,6 @@
                         allGroceryItems = window.normalizeData(JSON.parse(groceryText), true);
                     } catch(e) { console.warn("Grocery JSON parse error or empty."); }
                 }
-
-                clearTimeout(failsafeTimer);
 
                 allItems = currentStoreMode === 'icecream' ? allIceCreamItems : allGroceryItems;
 
