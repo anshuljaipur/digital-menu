@@ -198,8 +198,8 @@
         .menu-card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.1); transform: translateY(-3px); }
         
         /* 🛒 DISABLED OUT OF STOCK CARD CSS */
-        .oos-card { opacity: 0.55; filter: grayscale(100%); transition: all 0.3s ease; cursor: not-allowed; }
-        .oos-card:hover { opacity: 0.8; filter: grayscale(50%); transform: none; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .oos-card { opacity: 0.6; filter: grayscale(100%); transition: all 0.3s ease; }
+        .oos-card:hover { opacity: 0.9; filter: grayscale(50%); transform: none; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .oos-card .red-discount-icon { background: #94a3b8; box-shadow: none; }
 
         .card-img-wrapper { position: relative; background: #fff; border-radius: 12px; height: 160px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; flex-shrink: 0; cursor: pointer; }
@@ -212,7 +212,7 @@
         /* 📦 STOCK BADGE CSS */
         .stock-badge { position: absolute; bottom: 8px; left: 8px; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 3px 8px; border-radius: 8px; font-size: 0.65em; font-weight: 800; z-index: 5; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);}
         .stock-badge.low-stock { background: rgba(245, 158, 11, 0.15); color: #d97706; border-color: rgba(245, 158, 11, 0.3); }
-        .out-of-stock-text { color: var(--text-main); font-size: 0.75em; font-weight: 800; text-align: right; margin-top: 5px; background: var(--chip-bg); padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border-color);}
+        .out-of-stock-text { color: var(--active-brand-red); font-size: 0.75em; font-weight: 800; text-align: right; margin-top: 5px; background: var(--chip-bg); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(231,76,60,0.2);}
 
         .btn-container { position: absolute; right: 12px; bottom: -18px; z-index: 10; }
         
@@ -956,21 +956,19 @@
             const timeStamp = Date.now();
             return items.map(item => {
                 
-                // 1. Brand Name को Title Case में बदलना
+                // 🟢 TITLE CASE LOGIC 🟢
                 if (item.brand && typeof item.brand === 'string') {
                     item.brand = item.brand.trim().split(/\s+/).map(word => {
                         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
                     }).join(' ');
                 }
-                
-                // 🟢 2. NEW: Item Name को Title Case में बदलना 🟢
                 if (item.name && typeof item.name === 'string') {
                     item.name = item.name.trim().split(/\s+/).map(word => {
                         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
                     }).join(' ');
                 }
                 
-                // 3. DYNAMIC APPSHEET IMAGE CONVERTER (FIXED PATH)
+                // 🟢 DYNAMIC APPSHEET IMAGE CONVERTER 🟢
                 if (isGrocery && item.img && String(item.img).includes('Products_Images/')) {
                     let fileName = String(item.img).trim();
                     let safeFileName = fileName.split('/').map(encodeURIComponent).join('/');
@@ -1266,7 +1264,6 @@
                 html += createCategoryBlock(cat, grouped[cat], color);
             });
 
-            // 🟢 BUG FIX: FORMATTER-PROOF SCRIPT TAG GENERATION 🟢
             html += `
                     <div class="footer">
                         <div style="text-align: left;">
@@ -1279,9 +1276,9 @@
                         </div>
                     </div>
                 </div>
-                <` + `script>
+                <script>
                     window.onload = () => { setTimeout(() => { window.print(); }, 500); }
-                <` + `/script>
+                <\/script>
             </body>
             </html>
             `;
@@ -1328,6 +1325,7 @@
             } else {
                 if(oosDesk) oosDesk.style.display = 'none';
                 if(oosMob) oosMob.style.display = 'none';
+                window.syncOOS(false); // Reset OOS filter when switching to ice cream
             }
 
             allItems = mode === 'icecream' ? allIceCreamItems : allGroceryItems;
@@ -1451,7 +1449,9 @@
             window.applyFilters();
         }
 
+        // 🟢 NEW: ADDED ALL GROCERY BRAND LOGOS 🟢
         const brandImageLinks = {
+            // Ice Cream
             "baskin robbins": "https://i.postimg.cc/j5FTdyfz/brlogo.png",
             "london dairy": "https://i.postimg.cc/jdtSC4nV/LD-logo.png",
             "mother dairy": "https://i.postimg.cc/4dSGNpcB/md_logo.png",
@@ -1461,7 +1461,21 @@
             "gianis": "https://i.postimg.cc/L6kw6Gr2/lgo-gianis.png",
             "havmor": "https://i.postimg.cc/KvD45HhZ/logo_havmor.png",
             "hocco": "https://i.postimg.cc/CLsd4Qph/hocco_logo.png",
-            "frubon": "https://i.postimg.cc/0y5Q0rM3/logo_fb.png"
+            "frubon": "https://i.postimg.cc/0y5Q0rM3/logo_fb.png",
+            
+            // Grocery
+            "veeba": "https://logo.clearbit.com/veeba.in",
+            "hersheys": "https://logo.clearbit.com/hersheyland.com",
+            "cadbury": "https://logo.clearbit.com/cadbury.co.uk",
+            "karachi bakery": "https://logo.clearbit.com/karachibakery.com",
+            "orion": "https://logo.clearbit.com/orionindia.com",
+            "fererro": "https://logo.clearbit.com/ferrero.com",
+            "pringles": "https://logo.clearbit.com/pringles.com",
+            "nissin": "https://logo.clearbit.com/nissin.com",
+            "aakash": "https://logo.clearbit.com/aakashnamkeen.com",
+            "bagrrys": "https://logo.clearbit.com/bagrrys.com",
+            "puregrab": "https://ui-avatars.com/api/?name=Pure+Grab&background=8e44ad&color=fff&bold=true",
+            "shahi agarwal": "https://ui-avatars.com/api/?name=Shahi+Agarwal&background=c0392b&color=fff&bold=true"
         };
 
         window.getBrandLogo = (brandName) => {
@@ -1652,10 +1666,11 @@
             try {
                 // 🟢 SAFE CACHE BUSTER 🟢
                 const noCacheParam = "?_t=" + Date.now() + Math.random().toString(36).substring(2);
+                const fetchOpts = { cache: "no-store", headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } };
                 
                 const [iceCreamRes, groceryRes] = await Promise.all([
-                    fetch(iceCreamSheetUrl + noCacheParam),
-                    fetch(grocerySheetUrl + noCacheParam).catch(e => { console.warn("Grocery fetch issue:", e); return null; })
+                    fetch(iceCreamSheetUrl + noCacheParam, fetchOpts),
+                    fetch(grocerySheetUrl + noCacheParam, fetchOpts).catch(e => { console.warn("Grocery fetch issue:", e); return null; })
                 ]);
 
                 if (!iceCreamRes.ok) throw new Error("Ice Cream Network response failed");
@@ -1736,12 +1751,13 @@
             }, 8000);
 
             try {
-                // 🟢 SAFE CACHE BUSTER 🟢
+                // 🟢 HARDCORE CACHE BUSTER 🟢
                 const noCacheParam = "?_t=" + Date.now() + Math.random().toString(36).substring(2);
+                const fetchOpts = { cache: "no-store", headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } };
                 
                 const [iceCreamRes, groceryRes] = await Promise.all([
-                    fetch(iceCreamSheetUrl + noCacheParam),
-                    fetch(grocerySheetUrl + noCacheParam).catch(e => { console.warn("Grocery fetch issue:", e); return null; })
+                    fetch(iceCreamSheetUrl + noCacheParam, fetchOpts),
+                    fetch(grocerySheetUrl + noCacheParam, fetchOpts).catch(e => { console.warn("Grocery fetch issue:", e); return null; })
                 ]);
 
                 if(loadingBar) loadingBar.style.width = '70%'; 
@@ -2060,7 +2076,7 @@
                 const itemTags = window.getItemTags(item);
                 const matchesTagFilter = currentTagFilter === 'All' ? true : itemTags.includes(currentTagFilter);
 
-                // 🛒 NEW: APPLY HIDE OOS LOGIC
+                // 🛒 APPLY HIDE OOS LOGIC
                 let stock = window.getItemStock(item);
                 let isOOS = currentStoreMode === 'grocery' && stock === 0;
                 let passesOosFilter = !(hideOutOfStock && isOOS);
@@ -2068,17 +2084,15 @@
                 return { item, isValid: isAvailable && matchesBrand && matchesCategory && matchesSearch && matchesTagFilter && passesOosFilter, relevanceScore };
             }).filter(obj => obj.isValid);
 
-            // 🛒 NEW: SORTING LOGIC TO PUSH OOS ITEMS TO BOTTOM
+            // 🛒 SORTING LOGIC TO PUSH OOS ITEMS TO BOTTOM
             filteredData.sort((a, b) => {
                 let stockA = window.getItemStock(a.item);
                 let stockB = window.getItemStock(b.item);
                 let isOosA = (currentStoreMode === 'grocery' && stockA === 0) ? 1 : 0;
                 let isOosB = (currentStoreMode === 'grocery' && stockB === 0) ? 1 : 0;
                 
-                // If one is OOS and the other is not, the OOS one goes to the bottom
                 if (isOosA !== isOosB) return isOosA - isOosB; 
 
-                // Regular Sorting fallback
                 if (sortValue === 'default' && searchTerm !== '') {
                     return b.relevanceScore - a.relevanceScore;
                 } else if (currentCategory === 'New Arrivals' && sortValue === 'default') {
@@ -2178,7 +2192,7 @@
                 let stockHTML = '';
                 let isOutOfStock = false;
                 
-                // 🛒 NEW: Stock visual logic
+                // 🛒 Stock visual logic
                 if (currentStoreMode === 'grocery' && stock !== null) {
                     if (stock === 0) {
                         isOutOfStock = true;
@@ -2188,7 +2202,7 @@
                     }
                 }
 
-                // Append the oos-card CSS class if it's out of stock
+                // 🛒 OOS Styling Class
                 newHTML += `
                     <div class="menu-card ${isOutOfStock ? 'oos-card' : ''}" onclick="window.openProductDetail('${item.name.replace(/'/g, "\\'")}')">
                         <div class="card-img-wrapper skeleton-bg">
