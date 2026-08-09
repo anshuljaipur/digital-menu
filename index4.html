@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
-    <title>Glacier Ice Cream - Digital Menu</title>
+    <title>Glacier & Grocery - Digital Store</title>
     
     <link rel="preconnect" href="https://i.postimg.cc" crossorigin>
     <link rel="dns-prefetch" href="https://i.postimg.cc">
@@ -14,7 +14,6 @@
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     
-    <!-- 🟢 Libraries: Confetti & PDF Export 🟢 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>    
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -929,8 +928,10 @@
         </div>
     </div>
 
+    <!-- 🗺️ FREE LEAFLET MAP JS 🗺️ -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
+    <!-- 🟢 MAIN APP JS 🟢 -->
     <script>
         // 🔗 URL CONFIGURATION 🔗
         const iceCreamSheetUrl = "https://script.google.com/macros/s/AKfycbwq17hSzF9mgPqqKw8FDVWFktoxpugpZNKYRjc6hmTSOKxQm4fY2jC1talNoEpMdDQ/exec"; 
@@ -1186,14 +1187,13 @@
             btn.innerHTML = '⏳ Loading...';
             btn.style.pointerEvents = 'none';
 
-            // Wait for images to load before printing
             let imagePromises = currentFilteredItems.map(item => {
                 return new Promise(resolve => {
                     let img = new Image();
                     img.onload = () => resolve();
-                    img.onerror = () => resolve(); // continue even if error
+                    img.onerror = () => resolve(); 
                     img.src = item.img;
-                    setTimeout(resolve, 2000); // 2 sec fallback
+                    setTimeout(resolve, 2000); 
                 });
             });
 
@@ -1202,7 +1202,7 @@
             const BRAND = {
                 name: currentStoreMode === 'icecream' ? "GLACIER ICE CREAM" : "GLACIER GROCERY",
                 tagline: currentStoreMode === 'icecream' ? "Delicious Treats For Everyone!" : "Fresh Everyday Essentials!",
-                colors: ["#f8f9fc","#f8f9fc","#f8f9fc","#f8f9fc"], // Clean white/grey gradient for print
+                colors: ["#f8f9fc","#f8f9fc","#f8f9fc","#f8f9fc"], 
                 qr: "https://i.postimg.cc/P56qHSLD/order.png",
                 whatsapp: "919829610570"
             };
@@ -1284,7 +1284,7 @@
             }
         }
 
-        // 🛒 NEW: TAB SWITCHING LOGIC 🛒
+        // 🛒 STORE SWITCHER TABS 🛒
         window.switchStore = (mode) => {
             if (currentStoreMode === mode) return;
             currentStoreMode = mode;
@@ -1549,57 +1549,6 @@
             window.history.replaceState({}, '', url);
         };
 
-        window.refreshMenu = async () => {
-            const inlineBtn = document.getElementById('inline-refresh-btn');
-            
-            if(inlineBtn) { inlineBtn.innerHTML = '⏳'; inlineBtn.style.pointerEvents = 'none'; inlineBtn.style.opacity = '0.5'; }
-            
-            try {
-                const noCacheParam = "?t=" + new Date().getTime();
-                
-                const [iceCreamRes, groceryRes] = await Promise.all([
-                    fetch(iceCreamSheetUrl + noCacheParam),
-                    fetch(grocerySheetUrl + noCacheParam).catch(() => null)
-                ]);
-
-                if (!iceCreamRes.ok) throw new Error("Ice Cream Network response failed");
-                const iceCreamText = await iceCreamRes.text();
-                allIceCreamItems = window.normalizeData(JSON.parse(iceCreamText));
-
-                if (groceryRes && groceryRes.ok) {
-                    const groceryText = await groceryRes.text();
-                    try {
-                        allGroceryItems = window.normalizeData(JSON.parse(groceryText));
-                    } catch(e) {}
-                }
-
-                allItems = currentStoreMode === 'icecream' ? allIceCreamItems : allGroceryItems;
-                window.setupAppUI(); 
-                window.updateCategoryVisibility();
-                
-                document.querySelectorAll('.cat-item').forEach(btn => {
-                    const name = btn.querySelector('.cat-name').innerText.trim();
-                    if (name.toLowerCase() === currentCategory.toLowerCase() || (currentCategory.includes('New') && name.includes('New'))) { btn.classList.add('active'); } else btn.classList.remove('active');
-                });
-                document.querySelectorAll('.brand-item').forEach(btn => {
-                    const name = btn.querySelector('.brand-name').innerText.trim();
-                    let matchName = currentBrand === 'All Brands' ? 'ALL' : currentBrand.toUpperCase();
-                    if (name === matchName) btn.classList.add('active'); else btn.classList.remove('active');
-                });
-                document.querySelectorAll('.filter-tag-chip').forEach(btn => {
-                    if(btn.getAttribute('data-tag') === currentTagFilter) btn.classList.add('active'); else btn.classList.remove('active');
-                });
-
-                window.applyFilters();
-
-                if (window.globalUser && typeof window.fetchUserData === 'function') {
-                    await window.fetchUserData(window.userDocId);
-                }
-            } catch(e) { console.error("Refresh Error:", e); }
-            
-            if(inlineBtn) { inlineBtn.innerHTML = '🔄 Refresh'; inlineBtn.style.pointerEvents = 'auto'; inlineBtn.style.opacity = '1'; }
-        }
-
         window.updateCategoryVisibility = () => {
             const uniqueCats = [...new Set(allItems.map(item => item.category || 'More Favorites').filter(c => c))];
             const categories = ['New Arrivals', 'All Items', ...uniqueCats];
@@ -1632,7 +1581,6 @@
             }
         };
 
-        // 🛒 NEW: Dynamic Stock Parsing 🛒
         window.getItemStock = (item) => {
             if(!item) return null;
             for (let key in item) {
@@ -1642,7 +1590,7 @@
                     if (typeof item[key] === 'string' && !isNaN(parseInt(item[key]))) return parseInt(item[key]);
                 }
             }
-            return null; // Unlimited or unknown
+            return null; 
         };
 
         async function loadData() {
@@ -1655,7 +1603,7 @@
                 
                 const [iceCreamRes, groceryRes] = await Promise.all([
                     fetch(iceCreamSheetUrl + noCacheParam),
-                    fetch(grocerySheetUrl + noCacheParam).catch(() => null)
+                    fetch(grocerySheetUrl + noCacheParam).catch(e => { console.warn("Grocery fetch issue:", e); return null; })
                 ]);
 
                 if(loadingBar) loadingBar.style.width = '70%'; 
@@ -1679,13 +1627,14 @@
                 if(!allItems || allItems.length === 0) { 
                     statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="window.clearAllFilters()" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
                     if(loadingBar) loadingBar.style.width = '100%'; 
-                    
-                    const splash = document.getElementById('splash-screen');
-                    if(splash) {
-                        splash.style.opacity = '0';
-                        splash.style.visibility = 'hidden';
-                        setTimeout(() => splash.remove(), 600); 
-                    }
+                    setTimeout(() => {
+                        const splash = document.getElementById('splash-screen');
+                        if(splash) {
+                            splash.style.opacity = '0';
+                            splash.style.visibility = 'hidden';
+                            setTimeout(() => splash.remove(), 600); 
+                        }
+                    }, 500);
                     return; 
                 }
                 
@@ -2263,7 +2212,7 @@
                     if(!addr) addr = window.globalUserData.addresses[0]; 
                     let fullDeliveryAddress = `${addr.house}, ${addr.area}`;
                     message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
-                    if (addr.lat && addr.lng) { message += `📍 *Location Link:* https://maps.google.com/maps?q=26.8901148,75.8097553&t=&z=16&ie=UTF8&iwloc=&output=embed{addr.lat},${addr.lng}\n`; }
+                    if (addr.lat && addr.lng) { message += `📍 *Location Link:* https://maps.google.com/maps?q=${addr.lat},${addr.lng}\n`; }
                     addDoc(collection(db, "orders"), { userId: window.userDocId, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() });
                 } else if (window.globalUser) { 
                     alert("Please add a delivery address in 'Addresses' before checking out!"); return;
@@ -2273,6 +2222,9 @@
                 window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
             }
         };
+
+        // 🟢 SAFELY INITIALIZE APP 🟢
+        document.addEventListener('DOMContentLoaded', loadData);
     </script>
 </body>
 </html>
