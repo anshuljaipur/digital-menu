@@ -1160,7 +1160,6 @@
             }
         });
 
-        // 🎨 PREMIUM POSTER EXPORT
         function groupByCategory(data){
             let grouped = {};
             data.forEach(item=>{
@@ -1192,153 +1191,99 @@
             return html;
         }
 
-        function generateFullMenu(items){
+        window.exportPDF = async function(){
+            if(!currentFilteredItems || currentFilteredItems.length === 0){
+                alert("No items available to export.");
+                return;
+            }
+
+            const btn = document.getElementById('pdf-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ Loading...';
+            btn.style.pointerEvents = 'none';
+
+            let imagePromises = currentFilteredItems.map(item => {
+                return new Promise(resolve => {
+                    let img = new Image();
+                    img.onload = () => resolve();
+                    img.onerror = () => resolve(); 
+                    img.src = item.img;
+                    setTimeout(resolve, 2000); 
+                });
+            });
+
+            await Promise.all(imagePromises);
+
             const BRAND = {
                 name: currentStoreMode === 'icecream' ? "GLACIER ICE CREAM" : "GLACIER GROCERY",
                 tagline: currentStoreMode === 'icecream' ? "Delicious Treats For Everyone!" : "Fresh Everyday Essentials!",
-                colors: ["#ffffff","#ffffff","#ffffff","#ffffff"],
+                colors: ["#f8f9fc","#f8f9fc","#f8f9fc","#f8f9fc"], 
                 qr: "https://i.postimg.cc/P56qHSLD/order.png",
                 whatsapp: "919829610570"
             };
 
-            let grouped = groupByCategory(items);
+            let grouped = groupByCategory(currentFilteredItems);
             let categories = Object.keys(grouped);
 
-            let html = `<div style="font-family:Arial;">`;
-            let colorIndex = 0;
-
-            categories.forEach((cat, i)=>{
-                if(i % 3 === 0){
-                    if(i !== 0) html += `</div>`; 
-
-                    html += `
-                    <div style="width:794px; height:1122px; display:flex; flex-direction:column; background:linear-gradient(180deg,#ff2d2d,#ffcc00); page-break-after:always; position:relative; overflow:hidden;">
-                    <!-- HEADER -->
-                    <div style="text-align:center;padding:15px;color:#fff;">
-                        <div style="background:#fff; color:#e11d48; padding:8px 20px; border-radius:40px; font-size:30px; font-weight:bold; display:inline-block;">${BRAND.name}</div>
-                        <div style="margin-top:6px;font-size:14px;font-weight:bold;">${BRAND.tagline}</div>
+            let html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Glacier Menu - ${currentBrand === 'All Brands' ? 'All' : currentBrand}</title>
+                <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+                <style>
+                    @page { size: A4 portrait; margin: 10mm; }
+                    body { font-family: 'Poppins', sans-serif; background: #ffffff; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                    .page-container { width: 100%; max-width: 800px; margin: 0 auto; padding-bottom: 20px;}
+                    .header { text-align: center; padding: 20px; background: linear-gradient(135deg, #1f51c6, #1a42a4); color: #ffffff; border-radius: 15px; margin-bottom: 20px;}
+                    .header h1 { font-family: 'Montserrat', sans-serif; margin: 0; font-size: 32px; }
+                    .header p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.9; }
+                    .footer { text-align: center; margin-top: 30px; border-top: 2px dashed #eee; padding-top: 20px; display: flex; justify-content: space-between; align-items: center;}
+                </style>
+            </head>
+            <body>
+                <div class="page-container">
+                    <div class="header">
+                        <h1>${BRAND.name}</h1>
+                        <p>${BRAND.tagline} | Menu: ${currentBrand === 'All Brands' ? 'All Brands' : currentBrand}</p>
                     </div>
-                    <div style="flex:1;">
-                    `;
-                }
+            `;
 
+            let colorIndex = 0;
+            categories.forEach((cat) => {
                 let color = BRAND.colors[colorIndex % BRAND.colors.length];
                 colorIndex++;
-
                 html += createCategoryBlock(cat, grouped[cat], color);
-
-                if(i % 3 === 2 || i === categories.length - 1){
-                    html += `
-                    </div>
-                    <!-- FOOTER -->
-                    <div style="background:#065f46; color:#fff; display:flex; justify-content:space-between; align-items:center; padding:10px 15px; position:absolute; bottom:25px; left:0; width:100%; box-sizing:border-box;">
-                        <div>
-                            <img src="${BRAND.qr}" crossorigin="anonymous" style="height:50px;">
-                            <div style="font-size:10px;font-weight:bold;">Scan to Order</div>
-                        </div>
-                        <div style="font-size:14px;font-weight:bold;">📲 +${BRAND.whatsapp}</div>
-                    </div>
-                    <div style="background:#ffcc00; text-align:center; padding:6px; font-weight:bold; position:absolute; bottom:0; left:0; width:100%; box-sizing:border-box;">
-                        Cool Treats • Great Prices • Freshly Made
-                    </div>
-                    </div>
-                    `;
-                }
             });
 
-            return html;
-        }
+            // 🟢 BUG FIX: FORMATTER-PROOF SCRIPT TAG GENERATION 🟢
+            html += `
+                    <div class="footer">
+                        <div style="text-align: left;">
+                            <div style="font-size: 14px; font-weight: bold; color: #1f51c6;">Fast Delivery • Fresh Stock</div>
+                            <div style="font-size: 16px; font-weight: bold; margin-top: 5px;">📞 WhatsApp: +${BRAND.whatsapp}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <img src="${BRAND.qr}" style="height: 60px;">
+                            <div style="font-size: 10px; font-weight: bold; color: #64748b;">Scan to Order</div>
+                        </div>
+                    </div>
+                </div>
+                <` + `script>
+                    window.onload = () => { setTimeout(() => { window.print(); }, 500); }
+                <` + `/script>
+            </body>
+            </html>
+            `;
 
-        window.exportPDF = async function(){
-            const btn = document.getElementById('pdf-btn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '⏳ Processing...';
-            btn.style.pointerEvents = 'none';
+            btn.innerHTML = originalText;
+            btn.style.pointerEvents = 'auto';
 
-            if(!currentFilteredItems || currentFilteredItems.length === 0){
-                alert("No items available to export.");
-                btn.innerHTML = originalText;
-                btn.style.pointerEvents = 'auto';
-                return;
-            }
-
-            try {
-                const container = document.createElement('div');
-                container.style.position = 'absolute';
-                container.style.top = '0';
-                container.style.left = '-9999px'; 
-                container.style.width = '794px';
-                
-                let html = generateFullMenu(currentFilteredItems);
-                container.innerHTML = html;
-                document.body.appendChild(container);
-
-                let imagePromises = [];
-                container.querySelectorAll('img').forEach(img => {
-                    let imgP = new Promise(resolve => {
-                        if (img.complete) return resolve();
-                        let tempImg = new Image();
-                        tempImg.crossOrigin = "Anonymous";
-                        tempImg.onload = () => resolve();
-                        tempImg.onerror = () => resolve(); 
-                        tempImg.src = img.src;
-                        setTimeout(resolve, 2500); 
-                    });
-                    imagePromises.push(imgP);
-                });
-
-                await Promise.all(imagePromises);
-                await new Promise(r => setTimeout(r, 600));
-
-                const canvas = await html2canvas(container, {
-                    scale: 2,
-                    useCORS: true,
-                    allowTaint: true,
-                    backgroundColor: "#ffffff",
-                    windowWidth: 794,
-                    height: container.scrollHeight,
-                    scrollY: -window.scrollY 
-                });
-
-                const { jsPDF } = window.jspdf;
-                const pdfWidth = 794;
-                const pdfHeight = 1122;
-
-                const pdf = new jsPDF({
-                    orientation: 'portrait',
-                    unit: 'px',
-                    format: [pdfWidth, pdfHeight]
-                });
-
-                const scale = pdfWidth / canvas.width;
-                const imgHeight = canvas.height * scale;
-                const imgData = canvas.toDataURL("image/jpeg", 0.9);
-
-                let heightLeft = imgHeight;
-                let position = 0;
-
-                pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight, undefined, 'FAST');
-                heightLeft -= pdfHeight;
-
-                while (heightLeft > 10) {
-                    position -= pdfHeight;
-                    pdf.addPage();
-                    pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight, undefined, 'FAST');
-                    heightLeft -= pdfHeight;
-                }
-
-                pdf.save(`Glacier_Menu_${currentBrand.replace(/\s+/g,'_')}.pdf`);
-                document.body.removeChild(container);
-
-            } catch(error) {
-                console.error("PDF Export Error: ", error);
-                alert("Something went wrong generating the PDF. Please try again.");
-            } finally {
-                btn.innerHTML = originalText;
-                btn.style.pointerEvents = 'auto';
-            }
+            let printWin = window.open('', '_blank');
+            printWin.document.write(html);
+            printWin.document.close();
         };
-
+        
         window.shareWebsite = () => { 
             let shareUrl = new URL(window.location.href);
             if(navigator.share) {
@@ -1695,13 +1640,12 @@
             });
             
             try {
-                // 🟢 HARDCORE CACHE BUSTER 🟢
+                // 🟢 SAFE CACHE BUSTER 🟢
                 const noCacheParam = "?_t=" + Date.now() + Math.random().toString(36).substring(2);
-                const fetchOpts = { cache: "no-store", headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } };
                 
                 const [iceCreamRes, groceryRes] = await Promise.all([
-                    fetch(iceCreamSheetUrl + noCacheParam, fetchOpts),
-                    fetch(grocerySheetUrl + noCacheParam, fetchOpts).catch(e => { console.warn("Grocery fetch issue:", e); return null; })
+                    fetch(iceCreamSheetUrl + noCacheParam),
+                    fetch(grocerySheetUrl + noCacheParam).catch(e => { console.warn("Grocery fetch issue:", e); return null; })
                 ]);
 
                 if (!iceCreamRes.ok) throw new Error("Ice Cream Network response failed");
@@ -1782,13 +1726,12 @@
             }, 8000);
 
             try {
-                // 🟢 HARDCORE CACHE BUSTER 🟢
+                // 🟢 SAFE CACHE BUSTER 🟢
                 const noCacheParam = "?_t=" + Date.now() + Math.random().toString(36).substring(2);
-                const fetchOpts = { cache: "no-store", headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } };
                 
                 const [iceCreamRes, groceryRes] = await Promise.all([
-                    fetch(iceCreamSheetUrl + noCacheParam, fetchOpts),
-                    fetch(grocerySheetUrl + noCacheParam, fetchOpts).catch(e => { console.warn("Grocery fetch issue:", e); return null; })
+                    fetch(iceCreamSheetUrl + noCacheParam),
+                    fetch(grocerySheetUrl + noCacheParam).catch(e => { console.warn("Grocery fetch issue:", e); return null; })
                 ]);
 
                 if(loadingBar) loadingBar.style.width = '70%'; 
