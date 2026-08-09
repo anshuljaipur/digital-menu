@@ -955,12 +955,22 @@
         window.normalizeData = (items, isGrocery = false) => {
             const timeStamp = Date.now();
             return items.map(item => {
+                
+                // 1. Brand Name को Title Case में बदलना
                 if (item.brand && typeof item.brand === 'string') {
                     item.brand = item.brand.trim().split(/\s+/).map(word => {
                         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
                     }).join(' ');
                 }
                 
+                // 🟢 2. NEW: Item Name को Title Case में बदलना 🟢
+                if (item.name && typeof item.name === 'string') {
+                    item.name = item.name.trim().split(/\s+/).map(word => {
+                        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                    }).join(' ');
+                }
+                
+                // 3. DYNAMIC APPSHEET IMAGE CONVERTER (FIXED PATH)
                 if (isGrocery && item.img && String(item.img).includes('Products_Images/')) {
                     let fileName = String(item.img).trim();
                     let safeFileName = fileName.split('/').map(encodeURIComponent).join('/');
