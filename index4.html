@@ -198,7 +198,7 @@
         .menu-card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.1); transform: translateY(-3px); }
         
         /* 🛒 DISABLED OUT OF STOCK CARD CSS */
-        .oos-card { opacity: 0.6; filter: grayscale(100%); transition: all 0.3s ease; }
+        .oos-card { opacity: 0.6; filter: grayscale(100%); transition: all 0.3s ease; cursor: default; }
         .oos-card:hover { opacity: 0.9; filter: grayscale(50%); transform: none; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .oos-card .red-discount-icon { background: #94a3b8; box-shadow: none; }
 
@@ -212,7 +212,7 @@
         /* 📦 STOCK BADGE CSS */
         .stock-badge { position: absolute; bottom: 8px; left: 8px; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 3px 8px; border-radius: 8px; font-size: 0.65em; font-weight: 800; z-index: 5; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);}
         .stock-badge.low-stock { background: rgba(245, 158, 11, 0.15); color: #d97706; border-color: rgba(245, 158, 11, 0.3); }
-        .out-of-stock-text { color: var(--active-brand-red); font-size: 0.75em; font-weight: 800; text-align: right; margin-top: 5px; background: var(--chip-bg); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(231,76,60,0.2);}
+        .out-of-stock-text { color: var(--text-main); font-size: 0.75em; font-weight: 800; text-align: right; margin-top: 5px; background: var(--chip-bg); padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border-color);}
 
         .btn-container { position: absolute; right: 12px; bottom: -18px; z-index: 10; }
         
@@ -1654,83 +1654,6 @@
             return null; 
         };
 
-        window.refreshMenu = async () => {
-            const refreshBtns = document.querySelectorAll('.action-btn[onclick="window.refreshMenu()"], #inline-refresh-btn');
-            refreshBtns.forEach(btn => {
-                if(!btn.dataset.orig) btn.dataset.orig = btn.innerHTML;
-                btn.innerHTML = '⏳';
-                btn.style.pointerEvents = 'none';
-                btn.style.opacity = '0.5';
-            });
-            
-            try {
-                // 🟢 SAFE CACHE BUSTER 🟢
-                const noCacheParam = "?_t=" + Date.now() + Math.random().toString(36).substring(2);
-                const fetchOpts = { cache: "no-store", headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } };
-                
-                const [iceCreamRes, groceryRes] = await Promise.all([
-                    fetch(iceCreamSheetUrl + noCacheParam, fetchOpts),
-                    fetch(grocerySheetUrl + noCacheParam, fetchOpts).catch(e => { console.warn("Grocery fetch issue:", e); return null; })
-                ]);
-
-                if (!iceCreamRes.ok) throw new Error("Ice Cream Network response failed");
-                const iceCreamText = await iceCreamRes.text();
-                allIceCreamItems = window.normalizeData(JSON.parse(iceCreamText), false); 
-
-                if (groceryRes && groceryRes.ok) {
-                    const groceryText = await groceryRes.text();
-                    try {
-                        allGroceryItems = window.normalizeData(JSON.parse(groceryText), true);
-                    } catch(e) {}
-                }
-
-                allItems = currentStoreMode === 'icecream' ? allIceCreamItems : allGroceryItems;
-                
-                window.setupAppUI(); 
-                window.updateCategoryVisibility();
-                
-                document.querySelectorAll('.cat-item').forEach(btn => {
-                    const name = btn.querySelector('.cat-name').innerText.trim();
-                    if (name.toLowerCase() === currentCategory.toLowerCase() || (currentCategory.includes('New') && name.includes('New'))) { btn.classList.add('active'); } else btn.classList.remove('active');
-                });
-                document.querySelectorAll('.brand-item').forEach(btn => {
-                    const name = btn.querySelector('.brand-name').innerText.trim();
-                    let matchName = currentBrand === 'All Brands' ? 'ALL' : currentBrand.toUpperCase();
-                    if (name === matchName) btn.classList.add('active'); else btn.classList.remove('active');
-                });
-                document.querySelectorAll('.filter-tag-chip').forEach(btn => {
-                    if(btn.getAttribute('data-tag') === currentTagFilter) btn.classList.add('active'); else btn.classList.remove('active');
-                });
-
-                window.applyFilters();
-                
-                // 🛒 NEW: AUTO PRUNE CART ON REFRESH
-                for (let name in cart) {
-                    let found = allGroceryItems.find(i => i.name === name) || allIceCreamItems.find(i => i.name === name);
-                    if (found) {
-                        let s = window.getItemStock(found);
-                        let isGrocery = allGroceryItems.some(i => i.name === name);
-                        if (isGrocery && s !== null) {
-                            cart[name].maxStock = s;
-                            if (s === 0) delete cart[name];
-                            else if (cart[name].qty > s) cart[name].qty = s;
-                        }
-                    }
-                }
-                window.updateCartUI();
-
-                if (window.globalUser && typeof window.fetchUserData === 'function') {
-                    await window.fetchUserData(window.userDocId);
-                }
-            } catch(e) { console.error("Refresh Error:", e); }
-            
-            refreshBtns.forEach(btn => {
-                btn.innerHTML = btn.dataset.orig;
-                btn.style.pointerEvents = 'auto';
-                btn.style.opacity = '1';
-            });
-        }
-
         async function loadData() {
             const statusMsg = document.getElementById('status-msg'); 
             const loadingBar = document.getElementById('loading-bar');
@@ -1751,13 +1674,12 @@
             }, 8000);
 
             try {
-                // 🟢 HARDCORE CACHE BUSTER 🟢
+                // 🟢 SAFE CACHE BUSTER 🟢
                 const noCacheParam = "?_t=" + Date.now() + Math.random().toString(36).substring(2);
-                const fetchOpts = { cache: "no-store", headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } };
                 
                 const [iceCreamRes, groceryRes] = await Promise.all([
-                    fetch(iceCreamSheetUrl + noCacheParam, fetchOpts),
-                    fetch(grocerySheetUrl + noCacheParam, fetchOpts).catch(e => { console.warn("Grocery fetch issue:", e); return null; })
+                    fetch(iceCreamSheetUrl + noCacheParam),
+                    fetch(grocerySheetUrl + noCacheParam).catch(e => { console.warn("Grocery fetch issue:", e); return null; })
                 ]);
 
                 if(loadingBar) loadingBar.style.width = '70%'; 
@@ -2202,7 +2124,7 @@
                     }
                 }
 
-                // 🛒 OOS Styling Class
+                // Append the oos-card CSS class if it's out of stock
                 newHTML += `
                     <div class="menu-card ${isOutOfStock ? 'oos-card' : ''}" onclick="window.openProductDetail('${item.name.replace(/'/g, "\\'")}')">
                         <div class="card-img-wrapper skeleton-bg">
