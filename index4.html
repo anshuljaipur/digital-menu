@@ -907,7 +907,7 @@
         
         // 🛒 APPSHEET CONFIGURATION 🛒
         const APPSHEET_APP_NAME = "LiveInventroy-257487838"; 
-        const APPSHEET_TABLE_NAME = "Products"; // <-- CHECK THIS NAME IN APPSHEET -> DATA -> TABLES
+        const APPSHEET_TABLE_NAME = "Products"; // <-- 🟢 FIXED: Your actual Table name in AppSheet!
         
         let allItems = []; 
         let allIceCreamItems = [];
@@ -931,10 +931,9 @@
                     }).join(' ');
                 }
                 
-                // 🟢 DYNAMIC APPSHEET IMAGE CONVERTER (FIXED URL ENCODING) 🟢
+                // 🟢 DYNAMIC APPSHEET IMAGE CONVERTER 🟢
                 if (isGrocery && item.img && String(item.img).includes('Products_Images/')) {
                     let fileName = String(item.img).trim();
-                    // Fully encode the path, so '/' becomes '%2F' (AppSheet strict requirement)
                     let safeFileName = encodeURIComponent(fileName); 
                     item.img = `https://www.appsheet.com/template/gettablefileurl?appName=${APPSHEET_APP_NAME}&tableName=${encodeURIComponent(APPSHEET_TABLE_NAME)}&fileName=${safeFileName}`;
                 }
