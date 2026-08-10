@@ -120,7 +120,7 @@
         .store-tab:hover { background: var(--hover-bg); }
         .store-tab.active { color: var(--glacier-blue); border-bottom-color: var(--glacier-blue); background: rgba(31,81,198,0.05); }
 
-        /* --- 2. TOP SECTION (BRANDS + TAGS) --- */
+        /* --- 2. TOP SECTION (BRANDS + CATEGORIES + TAGS) --- */
         .top-nav-bar { display: flex; width: 100%; background: var(--card-bg); border-bottom: 1px solid var(--border-color); z-index: 9; flex-shrink: 0; max-height: 150px; overflow: hidden; transition: opacity 0.5s ease; }
         
         .brands-wrapper { flex: 1; min-width: 0; display: flex; align-items: center; position: relative;}
@@ -142,7 +142,9 @@
         .brand-item.active .brand-name { color: var(--active-brand-red); }
 
         /* 🟢 DESKTOP PANELS 🟢 */
-        .desktop-tags-panel { display: none; }
+        .desktop-category-panel, .desktop-tags-panel { display: none; }
+        
+        /* 🟢 NEW: DESKTOP TOOLS BAR 🟢 */
         .desktop-tools-bar { display: none; }
 
         /* --- 3. MAIN DESKTOP LAYOUT --- */
@@ -381,32 +383,27 @@
         @media (min-width: 1000px) {
             .header-search { display: flex; flex: 1; max-width: 400px; margin: 0 20px; }
             .header-search .control-chip { padding: 6px 15px; height: 40px; margin: 0; }
-            
-            .top-nav-bar { flex-direction: row; align-items: stretch; max-height: 120px; overflow: visible; }
-            .brands-wrapper { flex: 7; border-right: 1px solid var(--border-color); border-bottom: none; }
-            
-            .desktop-tags-panel { display: flex; flex-wrap: wrap; gap: 8px; padding: 15px; flex: 3; overflow-y: auto; align-content: flex-start; scrollbar-width: none; border-bottom: none;}
+            .top-nav-bar { flex-direction: row; align-items: stretch; max-height: 160px; overflow: visible; }
+            .brands-wrapper { flex: 50%; max-width: 50%; border-right: 1px solid var(--border-color); border-bottom: none; }
+            .desktop-category-panel { display: flex; flex-wrap: wrap; gap: 8px; padding: 15px; border-right: 1px solid var(--border-color); flex: 30%; max-width: 30%; overflow-y: auto; align-content: flex-start; scrollbar-width: none; }
+            .desktop-category-panel::-webkit-scrollbar { display: none; }
+            .desktop-tags-panel { display: flex; flex-wrap: wrap; gap: 8px; padding: 15px; flex: 20%; max-width: 20%; overflow-y: auto; align-content: flex-start; scrollbar-width: none; }
             .desktop-tags-panel::-webkit-scrollbar { display: none; }
-            
-            .desktop-tools-bar { display: flex !important; justify-content: flex-start; align-items: center; padding: 10px 30px; background: var(--main-bg); border-bottom: 1px solid var(--border-color); z-index: 8; flex-shrink: 0; position: sticky; top: 0; }
+            .desktop-tools-bar { display: flex !important; justify-content: flex-start; align-items: center; padding: 10px 30px; background: var(--main-bg); border-bottom: 1px solid var(--border-color); z-index: 8; flex-shrink: 0; position: sticky; top: 65px; }
             .desktop-tools-bar .tools-left { display: flex; align-items: center; gap: 15px;}
-            
             .section-header { margin-top: 15px; border-bottom: none; padding-bottom: 0; display: flex; justify-content: space-between; align-items: center;}
             .section-header-left { justify-content: flex-start; flex: 1;}
             .section-header-right { flex: 1; justify-content: flex-end; display: flex;}
             .section-header .mobile-controls { display: none !important; }
-            
+            .sidebar { display: flex !important; height: calc(100vh - 150px); top: 150px; border-right: 1px solid var(--border-color); } /* 🟢 BUG FIX: Sidebar restored */
             #mobile-search-sort { display: none !important; }
             .controls-bar { display: none !important; }
             #fab-container { display: none !important; }
-            
-            /* Sidebar restored to visibility */
-            .sidebar { display: flex !important; height: calc(100vh - 150px); top: 150px; border-right: 1px solid var(--border-color); }
         }
 
         /* 📱 🔥 MOBILE PORTRAIT UI FIXES (FULL PAGE NATIVE SCROLL) 🔥 📱 */
         @media (max-width: 999px) {
-            .desktop-tags-panel, .header-search, .desktop-tools-bar { display: none !important; }
+            .desktop-category-panel, .desktop-tags-panel, .header-search, .desktop-tools-bar { display: none !important; }
             .section-header-left { flex-direction: column; align-items: flex-start !important; gap: 10px; }
             .desktop-sort { display: none !important; } 
             html, body { position: relative !important; overflow: visible !important; overflow-x: hidden !important; overflow-y: auto !important; height: auto !important; min-height: 100dvh !important; display: block !important; overscroll-behavior-y: auto !important; }
@@ -1657,6 +1654,82 @@
             return null; 
         };
 
+        window.refreshMenu = async () => {
+            const refreshBtns = document.querySelectorAll('.action-btn[onclick="window.refreshMenu()"], #inline-refresh-btn');
+            refreshBtns.forEach(btn => {
+                if(!btn.dataset.orig) btn.dataset.orig = btn.innerHTML;
+                btn.innerHTML = '⏳';
+                btn.style.pointerEvents = 'none';
+                btn.style.opacity = '0.5';
+            });
+            
+            try {
+                // 🟢 SAFE CACHE BUSTER 🟢
+                const noCacheParam = "?_t=" + Date.now() + Math.random().toString(36).substring(2);
+                
+                const [iceCreamRes, groceryRes] = await Promise.all([
+                    fetch(iceCreamSheetUrl + noCacheParam),
+                    fetch(grocerySheetUrl + noCacheParam).catch(e => { console.warn("Grocery fetch issue:", e); return null; })
+                ]);
+
+                if (!iceCreamRes.ok) throw new Error("Ice Cream Network response failed");
+                const iceCreamText = await iceCreamRes.text();
+                allIceCreamItems = window.normalizeData(JSON.parse(iceCreamText), false); 
+
+                if (groceryRes && groceryRes.ok) {
+                    const groceryText = await groceryRes.text();
+                    try {
+                        allGroceryItems = window.normalizeData(JSON.parse(groceryText), true);
+                    } catch(e) {}
+                }
+
+                allItems = currentStoreMode === 'icecream' ? allIceCreamItems : allGroceryItems;
+                
+                window.setupAppUI(); 
+                window.updateCategoryVisibility();
+                
+                document.querySelectorAll('.cat-item').forEach(btn => {
+                    const name = btn.querySelector('.cat-name').innerText.trim();
+                    if (name.toLowerCase() === currentCategory.toLowerCase() || (currentCategory.includes('New') && name.includes('New'))) { btn.classList.add('active'); } else btn.classList.remove('active');
+                });
+                document.querySelectorAll('.brand-item').forEach(btn => {
+                    const name = btn.querySelector('.brand-name').innerText.trim();
+                    let matchName = currentBrand === 'All Brands' ? 'ALL' : currentBrand.toUpperCase();
+                    if (name === matchName) btn.classList.add('active'); else btn.classList.remove('active');
+                });
+                document.querySelectorAll('.filter-tag-chip').forEach(btn => {
+                    if(btn.getAttribute('data-tag') === currentTagFilter) btn.classList.add('active'); else btn.classList.remove('active');
+                });
+
+                window.applyFilters();
+                
+                // 🛒 AUTO PRUNE CART ON REFRESH
+                for (let name in cart) {
+                    let found = allGroceryItems.find(i => i.name === name) || allIceCreamItems.find(i => i.name === name);
+                    if (found) {
+                        let s = window.getItemStock(found);
+                        let isGrocery = allGroceryItems.some(i => i.name === name);
+                        if (isGrocery && s !== null) {
+                            cart[name].maxStock = s;
+                            if (s === 0) delete cart[name];
+                            else if (cart[name].qty > s) cart[name].qty = s;
+                        }
+                    }
+                }
+                window.updateCartUI();
+
+                if (window.globalUser && typeof window.fetchUserData === 'function') {
+                    await window.fetchUserData(window.userDocId);
+                }
+            } catch(e) { console.error("Refresh Error:", e); }
+            
+            refreshBtns.forEach(btn => {
+                btn.innerHTML = btn.dataset.orig;
+                btn.style.pointerEvents = 'auto';
+                btn.style.opacity = '1';
+            });
+        }
+
         async function loadData() {
             const statusMsg = document.getElementById('status-msg'); 
             const loadingBar = document.getElementById('loading-bar');
@@ -1677,7 +1750,8 @@
             }, 8000);
 
             try {
-                const noCacheParam = "?_t=" + Date.now();
+                // 🟢 SAFE CACHE BUSTER 🟢
+                const noCacheParam = "?_t=" + Date.now() + Math.random().toString(36).substring(2);
                 
                 const [iceCreamRes, groceryRes] = await Promise.all([
                     fetch(iceCreamSheetUrl + noCacheParam),
@@ -1763,9 +1837,10 @@
         window.setupAppUI = () => {
             const sidebar = document.getElementById('category-sidebar');
             const fabCategoryGrid = document.getElementById('fab-category-grid');
-            
+            const desktopCategoryGrid = document.getElementById('desktop-category-grid');
             sidebar.innerHTML = ''; 
             if(fabCategoryGrid) fabCategoryGrid.innerHTML = '';
+            if(desktopCategoryGrid) desktopCategoryGrid.innerHTML = '';
             
             const uniqueCats = [...new Set(allItems.map(item => item.category || 'More Favorites').filter(c => c))];
             const categories = ['New Arrivals', 'All Items', ...uniqueCats];
@@ -1802,6 +1877,16 @@
                 div.setAttribute('data-category', cat);
                 div.onclick = () => window.setCategory(cat); div.innerHTML = `<div class="cat-icon">${iconHTML}</div><div class="cat-name">${name}</div>`;
                 sidebar.appendChild(div);
+
+                if (desktopCategoryGrid) {
+                    let dtCatDiv = document.createElement('div');
+                    dtCatDiv.className = `filter-tag-chip ${cat === currentCategory ? 'active' : ''}`;
+                    dtCatDiv.setAttribute('data-category', cat);
+                    dtCatDiv.onclick = () => window.setCategory(cat);
+                    let cleanIcon = iconHTML === '✨' || iconHTML === '🍨' || iconHTML === '📦' || iconHTML === '🍦' || iconHTML === '🍰' || iconHTML === '🍧' || iconHTML === '🛒' || iconHTML === '🥦' || iconHTML === '🥛' || iconHTML === '🍿' || iconHTML === '🧃' || iconHTML === '🌶️' || iconHTML === '🛍️' ? iconHTML : '';
+                    dtCatDiv.innerHTML = `${cleanIcon} ${name}`;
+                    desktopCategoryGrid.appendChild(dtCatDiv);
+                }
 
                 if(fabCategoryGrid) {
                     let fabCatDiv = document.createElement('div');
@@ -1850,18 +1935,18 @@
                     tagsHTML += `<div class="filter-tag-chip ${isActive}" data-tag="${safeTag}" onclick="window.setTagFilter('${safeTag}')">${tag}</div>`;
                 });
                 const ptContainer = document.getElementById('tags-container-portrait');
+                const lsContainer = document.getElementById('tags-container-landscape');
                 const dtContainer = document.getElementById('desktop-tags-grid'); 
                 
                 if(ptContainer) ptContainer.innerHTML = tagsHTML;
-                if(dtContainer) {
-                    dtContainer.innerHTML = tagsHTML;
-                    dtContainer.style.display = 'flex';
-                }
+                if(lsContainer) lsContainer.innerHTML = tagsHTML;
+                if(dtContainer) dtContainer.innerHTML = tagsHTML;
+                
+                if(document.getElementById('desktop-tags-grid').parentElement) document.getElementById('desktop-tags-grid').parentElement.style.display = '';
             } else {
-                const ptContainer = document.getElementById('tags-container-portrait');
-                const dtContainer = document.getElementById('desktop-tags-grid');
-                if(ptContainer) ptContainer.innerHTML = '';
-                if(dtContainer) dtContainer.style.display = 'none';
+                document.getElementById('tags-container-portrait').style.display = 'none';
+                if(document.getElementById('tags-container-landscape')) document.getElementById('tags-container-landscape').style.display = 'none';
+                if(document.getElementById('desktop-tags-grid') && document.getElementById('desktop-tags-grid').parentElement) document.getElementById('desktop-tags-grid').parentElement.style.display = 'none';
             }
 
             window.addEventListener('resize', () => { window.updateBrandArrows(); });
@@ -2308,6 +2393,80 @@
 
         // 🟢 SAFELY INITIALIZE APP 🟢
         document.addEventListener('DOMContentLoaded', loadData);
+        
+        // 🟢 SILENT AUTO-POLLING EVERY 15 SECONDS 🟢
+        setInterval(async () => {
+            try {
+                const noCacheParam = "?_t=" + Date.now();
+                let activeUrl = currentStoreMode === 'icecream' ? iceCreamSheetUrl : grocerySheetUrl;
+                let res = await fetch(activeUrl + noCacheParam, { cache: "no-store", headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } }); // safe for background
+                if (!res.ok) return;
+                let text = await res.text();
+                let newData = window.normalizeData(JSON.parse(text), currentStoreMode === 'grocery');
+                
+                if (currentStoreMode === 'icecream') {
+                    allIceCreamItems = newData;
+                } else {
+                    allGroceryItems = newData;
+                }
+                allItems = newData;
+                
+                let shouldReRender = false;
+
+                // Auto-Prune Cart
+                for (let name in cart) {
+                    let found = allItems.find(i => i.name === name);
+                    if (found) {
+                        let s = window.getItemStock(found);
+                        if (currentStoreMode === 'grocery' && s !== null) {
+                            cart[name].maxStock = s;
+                            if (s === 0) {
+                                delete cart[name];
+                                window.showToast(name + " went out of stock!");
+                            } else if (cart[name].qty > s) {
+                                cart[name].qty = s;
+                            }
+                        }
+                    }
+                }
+                
+                // Update specific DOM Elements without breaking scroll
+                allItems.forEach(item => {
+                    if(!item.name) return;
+                    const safeName = item.name.replace(/[^a-zA-Z0-9]/g, '_');
+                    const cardEl = document.getElementById(`card-${safeName}`);
+                    const stockBadgeEl = document.getElementById(`stock-badge-${safeName}`);
+                    
+                    if(cardEl) {
+                        let stock = window.getItemStock(item);
+                        let isOutOfStock = (currentStoreMode === 'grocery' && stock === 0);
+                        
+                        if(isOutOfStock && !cardEl.classList.contains('oos-card')) {
+                            cardEl.classList.add('oos-card');
+                            if (hideOutOfStock) shouldReRender = true;
+                        } else if (!isOutOfStock && cardEl.classList.contains('oos-card')) {
+                            cardEl.classList.remove('oos-card');
+                            if (hideOutOfStock) shouldReRender = true;
+                        }
+
+                        if(stockBadgeEl) {
+                            if (currentStoreMode === 'grocery' && stock !== null && stock > 0) {
+                                stockBadgeEl.style.display = 'block';
+                                stockBadgeEl.className = stock <= 5 ? 'stock-badge low-stock' : 'stock-badge';
+                                stockBadgeEl.innerText = `${stock} in stock`;
+                            } else {
+                                stockBadgeEl.style.display = 'none';
+                            }
+                        }
+                    }
+                });
+
+                window.updateCartUI(); 
+                if (shouldReRender) window.applyFilters();
+                
+            } catch(e) {}
+        }, 15000); 
+
     </script>
 </body>
 </html>
