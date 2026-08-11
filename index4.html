@@ -383,27 +383,32 @@
         @media (min-width: 1000px) {
             .header-search { display: flex; flex: 1; max-width: 400px; margin: 0 20px; }
             .header-search .control-chip { padding: 6px 15px; height: 40px; margin: 0; }
-            .top-nav-bar { flex-direction: row; align-items: stretch; max-height: 160px; overflow: visible; }
-            .brands-wrapper { flex: 50%; max-width: 50%; border-right: 1px solid var(--border-color); border-bottom: none; }
-            .desktop-category-panel { display: flex; flex-wrap: wrap; gap: 8px; padding: 15px; border-right: 1px solid var(--border-color); flex: 30%; max-width: 30%; overflow-y: auto; align-content: flex-start; scrollbar-width: none; }
-            .desktop-category-panel::-webkit-scrollbar { display: none; }
-            .desktop-tags-panel { display: flex; flex-wrap: wrap; gap: 8px; padding: 15px; flex: 20%; max-width: 20%; overflow-y: auto; align-content: flex-start; scrollbar-width: none; }
+            
+            .top-nav-bar { flex-direction: row; align-items: stretch; max-height: 120px; overflow: visible; }
+            .brands-wrapper { flex: 7; border-right: 1px solid var(--border-color); border-bottom: none; }
+            
+            .desktop-tags-panel { display: flex; flex-wrap: wrap; gap: 8px; padding: 15px; flex: 3; overflow-y: auto; align-content: flex-start; scrollbar-width: none; border-bottom: none;}
             .desktop-tags-panel::-webkit-scrollbar { display: none; }
-            .desktop-tools-bar { display: flex !important; justify-content: flex-start; align-items: center; padding: 10px 30px; background: var(--main-bg); border-bottom: 1px solid var(--border-color); z-index: 8; flex-shrink: 0; position: sticky; top: 65px; }
+            
+            .desktop-tools-bar { display: flex !important; justify-content: flex-start; align-items: center; padding: 10px 30px; background: var(--main-bg); border-bottom: 1px solid var(--border-color); z-index: 8; flex-shrink: 0; position: sticky; top: 0; }
             .desktop-tools-bar .tools-left { display: flex; align-items: center; gap: 15px;}
+            
             .section-header { margin-top: 15px; border-bottom: none; padding-bottom: 0; display: flex; justify-content: space-between; align-items: center;}
             .section-header-left { justify-content: flex-start; flex: 1;}
             .section-header-right { flex: 1; justify-content: flex-end; display: flex;}
             .section-header .mobile-controls { display: none !important; }
-            .sidebar { display: flex !important; height: calc(100vh - 150px); top: 150px; border-right: 1px solid var(--border-color); } /* 🟢 BUG FIX: Sidebar restored */
+            
             #mobile-search-sort { display: none !important; }
             .controls-bar { display: none !important; }
             #fab-container { display: none !important; }
+            
+            /* Sidebar restored to visibility */
+            .sidebar { display: flex !important; height: calc(100vh - 150px); top: 150px; border-right: 1px solid var(--border-color); }
         }
 
         /* 📱 🔥 MOBILE PORTRAIT UI FIXES (FULL PAGE NATIVE SCROLL) 🔥 📱 */
         @media (max-width: 999px) {
-            .desktop-category-panel, .desktop-tags-panel, .header-search, .desktop-tools-bar { display: none !important; }
+            .desktop-tags-panel, .header-search, .desktop-tools-bar { display: none !important; }
             .section-header-left { flex-direction: column; align-items: flex-start !important; gap: 10px; }
             .desktop-sort { display: none !important; } 
             html, body { position: relative !important; overflow: visible !important; overflow-x: hidden !important; overflow-y: auto !important; height: auto !important; min-height: 100dvh !important; display: block !important; overscroll-behavior-y: auto !important; }
@@ -1167,6 +1172,7 @@
             }
         });
 
+        // 🎨 PREMIUM POSTER EXPORT
         function groupByCategory(data){
             let grouped = {};
             data.forEach(item=>{
@@ -1263,7 +1269,6 @@
                 html += createCategoryBlock(cat, grouped[cat], color);
             });
 
-            // 🟢 BUG FIX: FORMATTER-PROOF SCRIPT TAG GENERATION 🟢
             html += `
                     <div class="footer">
                         <div style="text-align: left;">
@@ -1276,9 +1281,9 @@
                         </div>
                     </div>
                 </div>
-                <` + `script>
+                <script>
                     window.onload = () => { setTimeout(() => { window.print(); }, 500); }
-                <` + `/script>
+                <\/script>
             </body>
             </html>
             `;
@@ -1654,6 +1659,7 @@
             return null; 
         };
 
+        // 🟢 FAST SINGLE-STORE REFRESH 🟢
         window.refreshMenu = async () => {
             const refreshBtns = document.querySelectorAll('.action-btn[onclick="window.refreshMenu()"], #inline-refresh-btn');
             refreshBtns.forEach(btn => {
@@ -1664,26 +1670,22 @@
             });
             
             try {
-                // 🟢 SAFE CACHE BUSTER 🟢
-                const noCacheParam = "?_t=" + Date.now() + Math.random().toString(36).substring(2);
+                const noCacheParam = "?_t=" + Date.now();
+                let activeUrl = currentStoreMode === 'icecream' ? iceCreamSheetUrl : grocerySheetUrl;
                 
-                const [iceCreamRes, groceryRes] = await Promise.all([
-                    fetch(iceCreamSheetUrl + noCacheParam),
-                    fetch(grocerySheetUrl + noCacheParam).catch(e => { console.warn("Grocery fetch issue:", e); return null; })
-                ]);
-
-                if (!iceCreamRes.ok) throw new Error("Ice Cream Network response failed");
-                const iceCreamText = await iceCreamRes.text();
-                allIceCreamItems = window.normalizeData(JSON.parse(iceCreamText), false); 
-
-                if (groceryRes && groceryRes.ok) {
-                    const groceryText = await groceryRes.text();
-                    try {
-                        allGroceryItems = window.normalizeData(JSON.parse(groceryText), true);
-                    } catch(e) {}
+                let res = await fetch(activeUrl + noCacheParam);
+                if (!res.ok) throw new Error("Network response failed");
+                const text = await res.text();
+                
+                let newData = window.normalizeData(JSON.parse(text), currentStoreMode === 'grocery');
+                
+                if (currentStoreMode === 'icecream') {
+                    allIceCreamItems = newData;
+                } else {
+                    allGroceryItems = newData;
                 }
 
-                allItems = currentStoreMode === 'icecream' ? allIceCreamItems : allGroceryItems;
+                allItems = newData;
                 
                 window.setupAppUI(); 
                 window.updateCategoryVisibility();
@@ -1705,11 +1707,10 @@
                 
                 // 🛒 AUTO PRUNE CART ON REFRESH
                 for (let name in cart) {
-                    let found = allGroceryItems.find(i => i.name === name) || allIceCreamItems.find(i => i.name === name);
+                    let found = allItems.find(i => i.name === name);
                     if (found) {
                         let s = window.getItemStock(found);
-                        let isGrocery = allGroceryItems.some(i => i.name === name);
-                        if (isGrocery && s !== null) {
+                        if (currentStoreMode === 'grocery' && s !== null) {
                             cart[name].maxStock = s;
                             if (s === 0) delete cart[name];
                             else if (cart[name].qty > s) cart[name].qty = s;
@@ -1750,8 +1751,7 @@
             }, 8000);
 
             try {
-                // 🟢 SAFE CACHE BUSTER 🟢
-                const noCacheParam = "?_t=" + Date.now() + Math.random().toString(36).substring(2);
+                const noCacheParam = "?_t=" + Date.now();
                 
                 const [iceCreamRes, groceryRes] = await Promise.all([
                     fetch(iceCreamSheetUrl + noCacheParam),
@@ -2190,19 +2190,21 @@
                 let stockHTML = '';
                 let isOutOfStock = false;
                 
-                // 🛒 Stock visual logic
+                // 🟢 FIXED: Added IDs to DOM elements so background updates work instantly
                 if (currentStoreMode === 'grocery' && stock !== null) {
                     if (stock === 0) {
                         isOutOfStock = true;
+                        stockHTML = `<div class="stock-badge" id="stock-badge-${safeName}" style="display:none;"></div>`;
                     } else {
                         let stockClass = stock <= 5 ? 'stock-badge low-stock' : 'stock-badge';
-                        stockHTML = `<div class="${stockClass}">${stock} in stock</div>`;
+                        stockHTML = `<div class="${stockClass}" id="stock-badge-${safeName}">${stock} in stock</div>`;
                     }
+                } else {
+                    stockHTML = `<div class="stock-badge" id="stock-badge-${safeName}" style="display:none;"></div>`;
                 }
 
-                // Append the oos-card CSS class if it's out of stock
                 newHTML += `
-                    <div class="menu-card ${isOutOfStock ? 'oos-card' : ''}" onclick="window.openProductDetail('${item.name.replace(/'/g, "\\'")}')">
+                    <div class="menu-card ${isOutOfStock ? 'oos-card' : ''}" id="card-${safeName}" onclick="window.openProductDetail('${item.name.replace(/'/g, "\\'")}')">
                         <div class="card-img-wrapper skeleton-bg">
                             ${window.isNewArrival(item) ? `<div class="new-badge">✨ NEW</div>` : ''}
                             ${discountNum > 0 ? `<div class="red-discount-icon">⬇</div>` : ''}
@@ -2394,12 +2396,12 @@
         // 🟢 SAFELY INITIALIZE APP 🟢
         document.addEventListener('DOMContentLoaded', loadData);
         
-        // 🟢 SILENT AUTO-POLLING EVERY 15 SECONDS 🟢
+        // 🟢 SILENT AUTO-POLLING EVERY 5 SECONDS 🟢
         setInterval(async () => {
             try {
                 const noCacheParam = "?_t=" + Date.now();
                 let activeUrl = currentStoreMode === 'icecream' ? iceCreamSheetUrl : grocerySheetUrl;
-                let res = await fetch(activeUrl + noCacheParam, { cache: "no-store", headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } }); // safe for background
+                let res = await fetch(activeUrl + noCacheParam);
                 if (!res.ok) return;
                 let text = await res.text();
                 let newData = window.normalizeData(JSON.parse(text), currentStoreMode === 'grocery');
@@ -2430,12 +2432,13 @@
                     }
                 }
                 
-                // Update specific DOM Elements without breaking scroll
+                // Update specific DOM Elements dynamically
                 allItems.forEach(item => {
                     if(!item.name) return;
                     const safeName = item.name.replace(/[^a-zA-Z0-9]/g, '_');
                     const cardEl = document.getElementById(`card-${safeName}`);
                     const stockBadgeEl = document.getElementById(`stock-badge-${safeName}`);
+                    const addWrapEl = document.getElementById(`add-wrap-${safeName}`);
                     
                     if(cardEl) {
                         let stock = window.getItemStock(item);
@@ -2443,6 +2446,7 @@
                         
                         if(isOutOfStock && !cardEl.classList.contains('oos-card')) {
                             cardEl.classList.add('oos-card');
+                            if (addWrapEl) addWrapEl.innerHTML = `<div class="out-of-stock-text">OUT OF STOCK</div>`;
                             if (hideOutOfStock) shouldReRender = true;
                         } else if (!isOutOfStock && cardEl.classList.contains('oos-card')) {
                             cardEl.classList.remove('oos-card');
@@ -2465,7 +2469,7 @@
                 if (shouldReRender) window.applyFilters();
                 
             } catch(e) {}
-        }, 15000); 
+        }, 5000); 
 
     </script>
 </body>
