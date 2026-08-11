@@ -202,15 +202,15 @@
         .oos-card:hover { opacity: 0.9; filter: grayscale(50%); transform: none; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .oos-card .red-discount-icon { background: #94a3b8; box-shadow: none; }
 
-        .card-img-wrapper { position: relative; background: #fff; border-radius: 12px; height: 160px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; flex-shrink: 0; cursor: pointer; }
+        .card-img-wrapper { position: relative; background: #fff; border-radius: 12px; height: 160px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; flex-shrink: 0; cursor: pointer; }
         .card-img-wrapper img { width: 90%; height: 90%; object-fit: contain; mix-blend-mode: multiply; border-radius: 12px;}
         [data-theme="dark"] .card-img-wrapper { background: #e2e8f0; } 
         
         .new-badge { position: absolute; top: -8px; left: -8px; background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; font-size: 0.6em; font-weight: 800; padding: 4px 10px; border-radius: 8px; z-index: 5; box-shadow: 0 4px 10px rgba(142,68,173,0.3); text-transform: uppercase; letter-spacing: 0.5px; }
         .red-discount-icon { position: absolute; top: -8px; right: -8px; background: var(--active-brand-red); color: white; font-size: 0.7em; font-weight: 800; padding: 4px 8px; border-radius: 8px; z-index: 5; box-shadow: 0 4px 10px rgba(231,76,60,0.3); }
         
-        /* 📦 STOCK BADGE CSS */
-        .stock-badge { position: absolute; bottom: 8px; left: 8px; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 3px 8px; border-radius: 8px; font-size: 0.65em; font-weight: 800; z-index: 5; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);}
+        /* 📦 FIX: INLINE STOCK BADGE CSS */
+        .stock-badge { display: inline-block; width: fit-content; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 3px 8px; border-radius: 6px; font-size: 0.65em; font-weight: 800; margin-bottom: 6px; }
         .stock-badge.low-stock { background: rgba(245, 158, 11, 0.15); color: #d97706; border-color: rgba(245, 158, 11, 0.3); }
         .out-of-stock-text { color: var(--text-main); font-size: 0.75em; font-weight: 800; text-align: right; margin-top: 5px; background: var(--chip-bg); padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border-color);}
 
@@ -383,32 +383,27 @@
         @media (min-width: 1000px) {
             .header-search { display: flex; flex: 1; max-width: 400px; margin: 0 20px; }
             .header-search .control-chip { padding: 6px 15px; height: 40px; margin: 0; }
-            
-            .top-nav-bar { flex-direction: row; align-items: stretch; max-height: 120px; overflow: visible; }
-            .brands-wrapper { flex: 7; border-right: 1px solid var(--border-color); border-bottom: none; }
-            
-            .desktop-tags-panel { display: flex; flex-wrap: wrap; gap: 8px; padding: 15px; flex: 3; overflow-y: auto; align-content: flex-start; scrollbar-width: none; border-bottom: none;}
+            .top-nav-bar { flex-direction: row; align-items: stretch; max-height: 160px; overflow: visible; }
+            .brands-wrapper { flex: 50%; max-width: 50%; border-right: 1px solid var(--border-color); border-bottom: none; }
+            .desktop-category-panel { display: flex; flex-wrap: wrap; gap: 8px; padding: 15px; border-right: 1px solid var(--border-color); flex: 30%; max-width: 30%; overflow-y: auto; align-content: flex-start; scrollbar-width: none; }
+            .desktop-category-panel::-webkit-scrollbar { display: none; }
+            .desktop-tags-panel { display: flex; flex-wrap: wrap; gap: 8px; padding: 15px; flex: 20%; max-width: 20%; overflow-y: auto; align-content: flex-start; scrollbar-width: none; }
             .desktop-tags-panel::-webkit-scrollbar { display: none; }
-            
-            .desktop-tools-bar { display: flex !important; justify-content: flex-start; align-items: center; padding: 10px 30px; background: var(--main-bg); border-bottom: 1px solid var(--border-color); z-index: 8; flex-shrink: 0; position: sticky; top: 0; }
+            .desktop-tools-bar { display: flex !important; justify-content: flex-start; align-items: center; padding: 10px 30px; background: var(--main-bg); border-bottom: 1px solid var(--border-color); z-index: 8; flex-shrink: 0; position: sticky; top: 65px; }
             .desktop-tools-bar .tools-left { display: flex; align-items: center; gap: 15px;}
-            
             .section-header { margin-top: 15px; border-bottom: none; padding-bottom: 0; display: flex; justify-content: space-between; align-items: center;}
             .section-header-left { justify-content: flex-start; flex: 1;}
             .section-header-right { flex: 1; justify-content: flex-end; display: flex;}
             .section-header .mobile-controls { display: none !important; }
-            
+            .sidebar { display: flex !important; height: calc(100vh - 150px); top: 150px; border-right: 1px solid var(--border-color); }
             #mobile-search-sort { display: none !important; }
             .controls-bar { display: none !important; }
             #fab-container { display: none !important; }
-            
-            /* Sidebar restored to visibility */
-            .sidebar { display: flex !important; height: calc(100vh - 150px); top: 150px; border-right: 1px solid var(--border-color); }
         }
 
         /* 📱 🔥 MOBILE PORTRAIT UI FIXES (FULL PAGE NATIVE SCROLL) 🔥 📱 */
         @media (max-width: 999px) {
-            .desktop-tags-panel, .header-search, .desktop-tools-bar { display: none !important; }
+            .desktop-category-panel, .desktop-tags-panel, .header-search, .desktop-tools-bar { display: none !important; }
             .section-header-left { flex-direction: column; align-items: flex-start !important; gap: 10px; }
             .desktop-sort { display: none !important; } 
             html, body { position: relative !important; overflow: visible !important; overflow-x: hidden !important; overflow-y: auto !important; height: auto !important; min-height: 100dvh !important; display: block !important; overscroll-behavior-y: auto !important; }
@@ -442,7 +437,7 @@
             .section-header h2 { font-size: 1.1em; }
             .menu-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; margin: 0; padding-bottom: 10px;}
             .menu-card { padding: 8px; border-radius: 12px; }
-            .card-img-wrapper { height: 100px; margin-bottom: 20px; border-radius: 10px; } 
+            .card-img-wrapper { height: 100px; margin-bottom: 12px; border-radius: 10px; } /* Reduced margin */
             .new-badge { top: -6px; left: -6px; font-size: 0.5em; padding: 3px 6px; }
             .red-discount-icon { top: -6px; right: -6px; font-size: 0.55em; padding: 3px 6px; }
             .btn-container { right: 8px; bottom: -14px; }
@@ -943,7 +938,6 @@
         let allIceCreamItems = [];
         let allGroceryItems = [];
         
-        // 🛒 NEW: STATE VARIABLE FOR HIDING OOS ITEMS
         let hideOutOfStock = false;
 
         let currentStoreMode = 'icecream'; 
@@ -968,6 +962,13 @@
                 }
                 if (item.name && typeof item.name === 'string') {
                     item.name = item.name.trim().split(/\s+/).map(word => {
+                        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                    }).join(' ');
+                }
+                
+                // 🟢 NEW: Normalize Category Case (Prevents Duplicates) 🟢
+                if (item.category && typeof item.category === 'string') {
+                    item.category = item.category.trim().split(/\s+/).map(word => {
                         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
                     }).join(' ');
                 }
@@ -1012,7 +1013,6 @@
             currentBrand = 'All Brands';
             currentTagFilter = 'All';
             
-            // 🛒 Reset Hide OOS
             hideOutOfStock = false;
             let dDesk = document.getElementById('hide-oos-desk');
             let dMob = document.getElementById('hide-oos-mob');
@@ -1172,7 +1172,6 @@
             }
         });
 
-        // 🎨 PREMIUM POSTER EXPORT
         function groupByCategory(data){
             let grouped = {};
             data.forEach(item=>{
@@ -1312,7 +1311,6 @@
             }
         }
 
-        // 🛒 STORE SWITCHER TABS 🛒
         window.switchStore = (mode) => {
             if (currentStoreMode === mode) return;
             currentStoreMode = mode;
@@ -1321,7 +1319,6 @@
             document.getElementById('tab-grocery').classList.remove('active');
             document.getElementById(`tab-${mode}`).classList.add('active');
 
-            // 🛒 Toggle "Hide OOS" button visibility based on store
             let oosDesk = document.getElementById('hide-oos-wrap-desk');
             let oosMob = document.getElementById('hide-oos-wrap-mob');
             if (mode === 'grocery') {
@@ -1330,7 +1327,7 @@
             } else {
                 if(oosDesk) oosDesk.style.display = 'none';
                 if(oosMob) oosMob.style.display = 'none';
-                window.syncOOS(false); // Reset OOS filter when switching to ice cream
+                window.syncOOS(false);
             }
 
             allItems = mode === 'icecream' ? allIceCreamItems : allGroceryItems;
@@ -1444,7 +1441,6 @@
             window.applyFilters();
         }
 
-        // 🛒 NEW: SYNC OOS TOGGLE 🛒
         window.syncOOS = (checked) => {
             hideOutOfStock = checked;
             let dDesk = document.getElementById('hide-oos-desk');
@@ -1454,9 +1450,7 @@
             window.applyFilters();
         }
 
-        // 🟢 NEW: ADDED ALL GROCERY BRAND LOGOS 🟢
         const brandImageLinks = {
-            // Ice Cream
             "baskin robbins": "https://i.postimg.cc/j5FTdyfz/brlogo.png",
             "london dairy": "https://i.postimg.cc/jdtSC4nV/LD-logo.png",
             "mother dairy": "https://i.postimg.cc/4dSGNpcB/md_logo.png",
@@ -1616,7 +1610,11 @@
         };
 
         window.updateCategoryVisibility = () => {
-            const uniqueCats = [...new Set(allItems.map(item => item.category || 'More Favorites').filter(c => c))];
+            // 🟢 NEW: ALPHABETICAL SORTING 🟢
+            const rawCats = allItems.map(item => item.category || 'More Favorites').filter(c => c);
+            let uniqueCats = [...new Set(rawCats)];
+            uniqueCats.sort((a, b) => a.localeCompare(b)); 
+            
             const categories = ['New Arrivals', 'All Items', ...uniqueCats];
 
             let catVisibility = {};
@@ -1659,7 +1657,6 @@
             return null; 
         };
 
-        // 🟢 FAST SINGLE-STORE REFRESH 🟢
         window.refreshMenu = async () => {
             const refreshBtns = document.querySelectorAll('.action-btn[onclick="window.refreshMenu()"], #inline-refresh-btn');
             refreshBtns.forEach(btn => {
@@ -1670,7 +1667,7 @@
             });
             
             try {
-                const noCacheParam = "?_t=" + Date.now();
+                const noCacheParam = "?_t=" + Date.now() + Math.random().toString(36).substring(2);
                 let activeUrl = currentStoreMode === 'icecream' ? iceCreamSheetUrl : grocerySheetUrl;
                 
                 let res = await fetch(activeUrl + noCacheParam);
@@ -1705,7 +1702,6 @@
 
                 window.applyFilters();
                 
-                // 🛒 AUTO PRUNE CART ON REFRESH
                 for (let name in cart) {
                     let found = allItems.find(i => i.name === name);
                     if (found) {
@@ -1842,7 +1838,11 @@
             if(fabCategoryGrid) fabCategoryGrid.innerHTML = '';
             if(desktopCategoryGrid) desktopCategoryGrid.innerHTML = '';
             
-            const uniqueCats = [...new Set(allItems.map(item => item.category || 'More Favorites').filter(c => c))];
+            // 🟢 NEW: ALPHABETICAL SORTING 🟢
+            const rawCats = allItems.map(item => item.category || 'More Favorites').filter(c => c);
+            let uniqueCats = [...new Set(rawCats)];
+            uniqueCats.sort((a, b) => a.localeCompare(b)); 
+            
             const categories = ['New Arrivals', 'All Items', ...uniqueCats];
             
             categories.forEach(cat => {
@@ -2074,7 +2074,6 @@
                 const itemTags = window.getItemTags(item);
                 const matchesTagFilter = currentTagFilter === 'All' ? true : itemTags.includes(currentTagFilter);
 
-                // 🛒 APPLY HIDE OOS LOGIC
                 let stock = window.getItemStock(item);
                 let isOOS = currentStoreMode === 'grocery' && stock === 0;
                 let passesOosFilter = !(hideOutOfStock && isOOS);
@@ -2082,7 +2081,6 @@
                 return { item, isValid: isAvailable && matchesBrand && matchesCategory && matchesSearch && matchesTagFilter && passesOosFilter, relevanceScore };
             }).filter(obj => obj.isValid);
 
-            // 🛒 SORTING LOGIC TO PUSH OOS ITEMS TO BOTTOM
             filteredData.sort((a, b) => {
                 let stockA = window.getItemStock(a.item);
                 let stockB = window.getItemStock(b.item);
@@ -2190,7 +2188,7 @@
                 let stockHTML = '';
                 let isOutOfStock = false;
                 
-                // 🟢 FIXED: Added IDs to DOM elements so background updates work instantly
+                // 🟢 FIXED: Stock Badge Layout 🟢
                 if (currentStoreMode === 'grocery' && stock !== null) {
                     if (stock === 0) {
                         isOutOfStock = true;
@@ -2208,7 +2206,7 @@
                         <div class="card-img-wrapper skeleton-bg">
                             ${window.isNewArrival(item) ? `<div class="new-badge">✨ NEW</div>` : ''}
                             ${discountNum > 0 ? `<div class="red-discount-icon">⬇</div>` : ''}
-                            ${stockHTML}
+                            
                             <img src="${item.img}" crossorigin="anonymous" loading="lazy" decoding="async" style="opacity: 0; transition: opacity 0.3s ease-in-out;" onload="this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';" onerror="this.onerror=null; this.src='https://placehold.co/300x220/f4f6f9/a0a0a0?text=No+Image'; this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';">
                             
                             <div class="btn-container" id="add-wrap-${safeName}" onclick="event.stopPropagation()">
@@ -2216,6 +2214,7 @@
                             </div>
                         </div>
                         
+                        ${stockHTML}
                         <div class="brand-tag">${item.brand}</div>
                         ${tagsHTML}
                         <div class="item-name">${displayName}</div>
@@ -2396,12 +2395,12 @@
         // 🟢 SAFELY INITIALIZE APP 🟢
         document.addEventListener('DOMContentLoaded', loadData);
         
-        // 🟢 SILENT AUTO-POLLING EVERY 5 SECONDS 🟢
+        // 🟢 SILENT AUTO-POLLING EVERY 15 SECONDS 🟢
         setInterval(async () => {
             try {
                 const noCacheParam = "?_t=" + Date.now();
                 let activeUrl = currentStoreMode === 'icecream' ? iceCreamSheetUrl : grocerySheetUrl;
-                let res = await fetch(activeUrl + noCacheParam);
+                let res = await fetch(activeUrl + noCacheParam); 
                 if (!res.ok) return;
                 let text = await res.text();
                 let newData = window.normalizeData(JSON.parse(text), currentStoreMode === 'grocery');
@@ -2415,7 +2414,6 @@
                 
                 let shouldReRender = false;
 
-                // Auto-Prune Cart
                 for (let name in cart) {
                     let found = allItems.find(i => i.name === name);
                     if (found) {
@@ -2432,7 +2430,6 @@
                     }
                 }
                 
-                // Update specific DOM Elements dynamically
                 allItems.forEach(item => {
                     if(!item.name) return;
                     const safeName = item.name.replace(/[^a-zA-Z0-9]/g, '_');
@@ -2455,7 +2452,7 @@
 
                         if(stockBadgeEl) {
                             if (currentStoreMode === 'grocery' && stock !== null && stock > 0) {
-                                stockBadgeEl.style.display = 'block';
+                                stockBadgeEl.style.display = 'inline-block'; // 🟢 FIXED: Inline-block 🟢
                                 stockBadgeEl.className = stock <= 5 ? 'stock-badge low-stock' : 'stock-badge';
                                 stockBadgeEl.innerText = `${stock} in stock`;
                             } else {
@@ -2469,7 +2466,7 @@
                 if (shouldReRender) window.applyFilters();
                 
             } catch(e) {}
-        }, 5000); 
+        }, 15000); 
 
     </script>
 </body>
