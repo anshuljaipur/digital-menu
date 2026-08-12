@@ -1956,9 +1956,9 @@
             }, 10);
         }
 
-        window.getVolume = (name) => { let total = 0; let match; const regex = /(\d+)\s*(ml|l|ltr|gm|g|kg)/gi; while ((match = regex.exec(name)) !== null) { let val = parseFloat(match[1]); let unit = match[2].toLowerCase(); if (unit === 'l' || unit === 'ltr' || unit === 'kg') val *= 1000; total += val; } return total; }
+        window.getVolume = (name) => { let total = 0; let match; const regex = /(\d+(?:\.\d+)?)\s*(ml|l|ltr|gm|g|kg)/gi; while ((match = regex.exec(name)) !== null) { let val = parseFloat(match[1]); let unit = match[2].toLowerCase(); if (unit === 'l' || unit === 'ltr' || unit === 'kg') val *= 1000; total += val; } return total; }
         window.getDiscount = (item) => { let m = parseFloat(item.mrp); let p = parseFloat(item.price); if (m && !isNaN(m) && m > p) return ((m - p) / m) * 100; return 0; }
-        window.extractVolumeText = (name) => { const match = name.match(/(\d+\s*(ml|l|ltr|gm|g|kg))/i); return match ? match[0] : ''; }
+        window.extractVolumeText = (name) => { const match = name.match(/(\d+(?:\.\d+)?\s*(ml|l|ltr|gm|g|kg))/i); return match ? match[0] : ''; }
 
         window.applyFilters = () => {
             const gridWrapper = document.getElementById('main-menu-grid'); 
