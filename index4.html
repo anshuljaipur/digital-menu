@@ -80,7 +80,7 @@
         body.modal-open, html.modal-open { overflow: hidden !important; touch-action: none; }
 
         /* 🌟 SPLASH SCREEN 🌟 */
-        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: linear-gradient(135deg, var(--glacier-blue), #1a42a4); z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.3s ease, visibility 0.3s ease; }
+        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: linear-gradient(135deg, var(--glacier-blue), #1a42a4); z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease; }
         .splash-content { text-align: center; color: white; }
         .splash-icon { font-size: 5em; animation: bounce-scoop 0.8s infinite alternate cubic-bezier(0.4, 0, 0.2, 1); margin-bottom: 15px; }
         .splash-title { font-family: 'Montserrat', sans-serif; font-size: 2.2em; font-weight: 800; letter-spacing: 1px; margin: 0; text-shadow: 0 4px 10px rgba(0,0,0,0.2); }
@@ -88,7 +88,7 @@
         @keyframes bounce-scoop { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(-25px) scale(1.05); } }
         @keyframes pulse-text { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
-        #loading-bar { position: fixed; top: 0; left: 0; height: 4px; background-color: var(--glacier-blue); width: 0%; z-index: 9999; transition: width 0.2s ease, opacity 0.3s ease; box-shadow: 0 2px 5px rgba(31,81,198, 0.5); }
+        #loading-bar { position: fixed; top: 0; left: 0; height: 4px; background-color: var(--glacier-blue); width: 0%; z-index: 9999; transition: width 0.3s ease, opacity 0.5s ease; box-shadow: 0 2px 5px rgba(31,81,198, 0.5); }
 
         /* --- 1. HEADER --- */
         header { background: var(--card-bg); padding: 12px 25px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; z-index: 1000; flex-shrink: 0; height: 65px; box-sizing: border-box; transition: 0.3s; width: 100%; gap: 15px;}
@@ -191,6 +191,7 @@
         .oos-card:hover { opacity: 0.9; filter: grayscale(50%); transform: none; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .oos-card .red-discount-icon { background: #94a3b8; box-shadow: none; }
 
+        /* 🟢 PERFECTED IMAGE WRAPPER AND OVERFLOW 🟢 */
         .card-img-wrapper { position: relative; background: #fff; border-radius: 12px; height: 160px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; flex-shrink: 0; cursor: pointer; overflow: visible; }
         .card-img-wrapper img { width: 90%; height: 90%; object-fit: contain; mix-blend-mode: multiply; border-radius: 12px;}
         [data-theme="dark"] .card-img-wrapper { background: #e2e8f0; } 
@@ -198,8 +199,19 @@
         .new-badge { position: absolute; top: -8px; left: -8px; background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; font-size: 0.6em; font-weight: 800; padding: 4px 10px; border-radius: 8px; z-index: 5; box-shadow: 0 4px 10px rgba(142,68,173,0.3); text-transform: uppercase; letter-spacing: 0.5px; }
         .red-discount-icon { position: absolute; top: -8px; right: -8px; background: var(--active-brand-red); color: white; font-size: 0.7em; font-weight: 800; padding: 4px 8px; border-radius: 8px; z-index: 5; box-shadow: 0 4px 10px rgba(231,76,60,0.3); }
         
-        @keyframes stock-flash-down { 0% { transform: scale(1); } 15% { transform: scale(1.15); color: #e74c3c !important; border-color: #e74c3c !important; background: rgba(231,76,60,0.15) !important; } 85% { transform: scale(1.15); color: #e74c3c !important; border-color: #e74c3c !important; background: rgba(231,76,60,0.15) !important; } 100% { transform: scale(1); } }
-        @keyframes stock-flash-up { 0% { transform: scale(1); } 15% { transform: scale(1.15); color: #10b981 !important; border-color: #10b981 !important; background: rgba(16,185,129,0.15) !important; } 85% { transform: scale(1.15); color: #10b981 !important; border-color: #10b981 !important; background: rgba(16,185,129,0.15) !important; } 100% { transform: scale(1); } }
+        /* 🟢 LIVE STOCK FLASH ANIMATIONS 🟢 */
+        @keyframes stock-flash-down {
+            0% { transform: scale(1); }
+            15% { transform: scale(1.15); color: #e74c3c !important; border-color: #e74c3c !important; background: rgba(231,76,60,0.15) !important; }
+            85% { transform: scale(1.15); color: #e74c3c !important; border-color: #e74c3c !important; background: rgba(231,76,60,0.15) !important; }
+            100% { transform: scale(1); }
+        }
+        @keyframes stock-flash-up {
+            0% { transform: scale(1); }
+            15% { transform: scale(1.15); color: #10b981 !important; border-color: #10b981 !important; background: rgba(16,185,129,0.15) !important; }
+            85% { transform: scale(1.15); color: #10b981 !important; border-color: #10b981 !important; background: rgba(16,185,129,0.15) !important; }
+            100% { transform: scale(1); }
+        }
         .stock-flash-down { animation: stock-flash-down 2.5s ease-in-out forwards !important; z-index: 10; position: relative;}
         .stock-flash-up { animation: stock-flash-up 2.5s ease-in-out forwards !important; z-index: 10; position: relative;}
 
@@ -207,7 +219,9 @@
         .stock-badge.low-stock { background: rgba(245, 158, 11, 0.15); color: #d97706; border-color: rgba(245, 158, 11, 0.3); }
         .out-of-stock-badge { background: var(--card-bg); color: var(--active-brand-red); font-weight: 800; font-size: 0.7em; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--active-brand-red); box-shadow: 0 4px 10px rgba(0,0,0,0.1); white-space: nowrap;}
 
+        /* 🟢 ADD BUTTON RESTORED TO IMAGE CORNER 🟢 */
         .btn-container { position: absolute; right: 8px; bottom: -16px; z-index: 10; display: flex; justify-content: center; align-items: center; }
+        
         .app-add-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); color: var(--glacier-blue); border: 1px solid var(--border-color); font-size: 1.6em; font-weight: 500; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: 0.2s; line-height: 1; padding-bottom: 2px; position: relative; z-index: 15;}
         .app-add-btn:hover { border-color: var(--glacier-blue); background: var(--hover-bg); transform: scale(1.05); color: var(--glacier-blue);}
         .app-qty-control { height: 36px; width: 90px; background: var(--card-bg); color: var(--glacier-blue); border-radius: 50px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-weight: 700; font-size: 1em; box-sizing: border-box; position: relative; z-index: 15;}
@@ -1240,9 +1254,6 @@
                         </div>
                     </div>
                 </div>
-                <script>
-                    window.onload = () => { setTimeout(() => { window.print(); }, 500); }
-                <\/script>
             </body>
             </html>
             `;
@@ -1421,18 +1432,18 @@
             "havmor": "https://i.postimg.cc/KvD45HhZ/logo_havmor.png",
             "hocco": "https://i.postimg.cc/CLsd4Qph/hocco_logo.png",
             "frubon": "https://i.postimg.cc/0y5Q0rM3/logo_fb.png",
-            "veeba": "https://logo.clearbit.com/veeba.in",
-            "hersheys": "https://logo.clearbit.com/hersheyland.com",
-            "cadbury": "https://logo.clearbit.com/cadbury.co.uk",
-            "karachi bakery": "https://logo.clearbit.com/karachibakery.com",
-            "orion": "https://logo.clearbit.com/orionindia.com",
-            "fererro": "https://logo.clearbit.com/ferrero.com",
-            "pringles": "https://logo.clearbit.com/pringles.com",
-            "nissin": "https://logo.clearbit.com/nissin.com",
-            "aakash": "https://logo.clearbit.com/aakashnamkeen.com",
-            "bagrrys": "https://logo.clearbit.com/bagrrys.com",
+            "veeba": "https://i.postimg.cc/DwBtSHQz/veeba.png",
+            "hersheys": "https://i.postimg.cc/x1tWXhG0/hersheyland.jpg",
+            "cadbury": "https://i.postimg.cc/Njg3fBXB/cadbury.jpg",
+            "karachi bakery": "https://i.postimg.cc/htSkPcmh/karachibakery.png",
+            "orion": "https://i.postimg.cc/P52BC9bH/orion.png",
+            "fererro": "https://i.postimg.cc/HkpqsdMW/fererro.png",
+            "pringles": "https://i.postimg.cc/13JL8203/pringle.png",
+            "nissin": "https://i.postimg.cc/Qd0RFwg3/nissin.png",
+            "aakash": "https://i.postimg.cc/Jz1f4MX4/aakash.jpg",
+            "bagrrys": "https://i.postimg.cc/W12BbTZs/bagrrys.png",
             "puregrab": "https://ui-avatars.com/api/?name=Pure+Grab&background=8e44ad&color=fff&bold=true",
-            "shahi agarwal": "https://ui-avatars.com/api/?name=Shahi+Agarwal&background=c0392b&color=fff&bold=true"
+            "shahi agarwal": "https://i.postimg.cc/JzP9sv3n/shahi-agarwal.jpg"
         };
 
         window.getBrandLogo = (brandName) => {
@@ -1635,10 +1646,8 @@
                 
                 if (currentStoreMode === 'icecream') {
                     allIceCreamItems = newData;
-                    localStorage.setItem('glacier_icecream_cache', JSON.stringify(allIceCreamItems));
                 } else {
                     allGroceryItems = newData;
-                    localStorage.setItem('glacier_grocery_cache', JSON.stringify(allGroceryItems));
                 }
 
                 allItems = newData;
@@ -1686,116 +1695,74 @@
             });
         }
 
-        // 🚀 FAIL-SAFE ZERO-LAG LOAD DATA 🚀
+        // 🟢 FAIL-SAFE LOAD DATA (PREVENTS INFINITE SPLASH / NETWORK CRASH) 🟢
         async function loadData() {
             const statusMsg = document.getElementById('status-msg'); 
             const loadingBar = document.getElementById('loading-bar');
+            if(loadingBar) { loadingBar.style.opacity = '1'; loadingBar.style.width = '30%'; }
             
-            // 1. FAST RENDER FROM CACHE (INSTANT LOAD)
-            const cachedIceCream = localStorage.getItem('glacier_icecream_cache');
-            const cachedGrocery = localStorage.getItem('glacier_grocery_cache');
-            let hasCache = false;
-
-            if (cachedIceCream) {
-                try {
-                    allIceCreamItems = JSON.parse(cachedIceCream);
-                    if(cachedGrocery) allGroceryItems = JSON.parse(cachedGrocery);
-                    
-                    allItems = currentStoreMode === 'icecream' ? allIceCreamItems : allGroceryItems;
-                    if(allItems.length > 0) {
-                        hasCache = true;
-                        window.setupAppUI(); 
-                        window.updateCategoryVisibility();
-                        window.applyFilters();
-                        
-                        // Hide Splash instantly!
-                        const splash = document.getElementById('splash-screen');
-                        if(splash) {
-                            splash.style.opacity = '0';
-                            splash.style.visibility = 'hidden';
-                            setTimeout(() => splash.remove(), 400); 
-                        }
-                    }
-                } catch(e) { console.warn("Cache read error"); }
-            }
-
-            // 2. FETCH FRESH DATA IN BACKGROUND
-            if(!hasCache && loadingBar) { loadingBar.style.opacity = '1'; loadingBar.style.width = '30%'; }
-
-            let failsafeTimer = setTimeout(() => {
-                if(!hasCache) {
-                    const splash = document.getElementById('splash-screen');
-                    if(splash) {
-                        splash.style.opacity = '0';
-                        splash.style.visibility = 'hidden';
-                        setTimeout(() => splash.remove(), 400); 
-                    }
-                    if(loadingBar) loadingBar.style.opacity = '0';
+            const hideSplash = () => {
+                const splash = document.getElementById('splash-screen');
+                if(splash) {
+                    splash.style.opacity = '0';
+                    splash.style.visibility = 'hidden';
+                    setTimeout(() => { if(splash.parentNode) splash.remove(); }, 600);
                 }
-            }, 5000); 
+                if(loadingBar) loadingBar.style.opacity = '0';
+            };
+
+            let failsafeTimer = setTimeout(hideSplash, 5000);
 
             try {
                 const noCacheParam = "?_t=" + Date.now();
                 
-                let p1 = fetch(iceCreamSheetUrl + noCacheParam).then(r => r.ok ? r.text() : null).catch(()=>null);
-                let p2 = fetch(grocerySheetUrl + noCacheParam).then(r => r.ok ? r.text() : null).catch(()=>null);
+                let iceCreamData = [];
+                let groceryData = [];
 
-                const [iceCreamText, groceryText] = await Promise.all([p1, p2]);
-                let needsReRender = false;
-
-                if (iceCreamText) {
-                    try { 
-                        const rawData = JSON.parse(iceCreamText);
-                        allIceCreamItems = window.normalizeData(rawData, false); 
-                        localStorage.setItem('glacier_icecream_cache', JSON.stringify(allIceCreamItems));
-                        needsReRender = true;
-                    } catch(e) {}
-                }
-
-                if (groceryText) {
-                    try {
-                        const rawData = JSON.parse(groceryText);
-                        allGroceryItems = window.normalizeData(rawData, true);
-                        localStorage.setItem('glacier_grocery_cache', JSON.stringify(allGroceryItems));
-                        needsReRender = true;
-                    } catch(e) {}
-                }
-
-                if(needsReRender) {
-                    allItems = currentStoreMode === 'icecream' ? allIceCreamItems : allGroceryItems;
-                    if (!hasCache) {
-                        window.setupAppUI(); 
-                        window.updateCategoryVisibility();
+                try {
+                    const res = await fetch(iceCreamSheetUrl + noCacheParam);
+                    if (res.ok) {
+                        const txt = await res.text();
+                        iceCreamData = JSON.parse(txt);
                     }
-                    window.applyFilters(); // Sync new stock silently
-                }
+                } catch(e) { console.warn("Ice Cream Fetch Exception:", e); }
 
-                if(!hasCache) {
-                    if(loadingBar) loadingBar.style.width = '100%'; 
-                    setTimeout(() => {
-                        const splash = document.getElementById('splash-screen');
-                        if(splash) {
-                            splash.style.opacity = '0';
-                            splash.style.visibility = 'hidden';
-                            setTimeout(() => splash.remove(), 400); 
-                        }
-                        if(loadingBar) loadingBar.style.opacity = '0'; 
-                        window.updateBrandArrows(); 
-                    }, 500);
+                try {
+                    const res = await fetch(grocerySheetUrl + noCacheParam);
+                    if (res.ok) {
+                        const txt = await res.text();
+                        groceryData = JSON.parse(txt);
+                    }
+                } catch(e) { console.warn("Grocery Fetch Exception:", e); }
+
+                allIceCreamItems = window.normalizeData(iceCreamData, false); 
+                allGroceryItems = window.normalizeData(groceryData, true); 
+
+                allItems = currentStoreMode === 'icecream' ? allIceCreamItems : allGroceryItems;
+
+                clearTimeout(failsafeTimer);
+
+                if(!allItems || allItems.length === 0) { 
+                    statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="window.clearAllFilters()" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
+                    statusMsg.style.display = 'block'; 
+                    hideSplash();
+                    return; 
                 }
+                
+                const urlParams = new URLSearchParams(window.location.search);
+                if(urlParams.has('brand')) currentBrand = urlParams.get('brand');
+                if(urlParams.has('category')) currentCategory = urlParams.get('category');
+                
+                window.setupAppUI(); 
+                window.updateCategoryVisibility();
+                window.applyFilters();
+                statusMsg.style.display = 'none';
 
             } catch (error) { 
-                console.error("Silent Sync Error:", error);
+                console.error("Load Error:", error);
             } finally {
                 clearTimeout(failsafeTimer);
-                if(!hasCache) {
-                    const splash = document.getElementById('splash-screen');
-                    if(splash && splash.style.opacity !== '0') {
-                        splash.style.opacity = '0';
-                        setTimeout(() => splash.remove(), 400); 
-                    }
-                    if(loadingBar) loadingBar.style.opacity = '0';
-                }
+                hideSplash();
             }
         }
 
@@ -2363,12 +2330,12 @@
         // 🟢 SAFELY INITIALIZE APP 🟢
         document.addEventListener('DOMContentLoaded', loadData);
         
-        // 🟢 SILENT AUTO-POLLING EVERY 10 SECONDS (WITH ANIMATIONS) 🟢
+        // 🟢 SILENT AUTO-POLLING EVERY 10 SECONDS (ANIMATIONS RESTORED) 🟢
         setInterval(async () => {
             try {
                 const noCacheParam = "?_t=" + Date.now();
                 let activeUrl = currentStoreMode === 'icecream' ? iceCreamSheetUrl : grocerySheetUrl;
-                let res = await fetch(activeUrl + noCacheParam, { cache: "no-store", headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } }); 
+                let res = await fetch(activeUrl + noCacheParam); 
                 if (!res.ok) return;
                 let text = await res.text();
                 let newData = window.normalizeData(JSON.parse(text), currentStoreMode === 'grocery');
@@ -2382,7 +2349,6 @@
                 
                 let shouldReRender = false;
 
-                // Auto-Prune Cart
                 for (let name in cart) {
                     let found = allItems.find(i => i.name === name);
                     if (found) {
@@ -2399,7 +2365,6 @@
                     }
                 }
                 
-                // 🟢 UPDATE DOM & TRIGGER ANIMATIONS 🟢
                 allItems.forEach(item => {
                     if(!item.name) return;
                     const safeName = item.name.replace(/[^a-zA-Z0-9]/g, '_');
@@ -2432,7 +2397,7 @@
                                 // 🟢 TRIGGER RED/GREEN ANIMATION ON STOCK CHANGE 🟢
                                 if (!isNaN(oldStock) && oldStock !== -1 && oldStock !== stock) {
                                     stockBadgeEl.classList.remove('stock-flash-down', 'stock-flash-up');
-                                    void stockBadgeEl.offsetWidth; // Trigger reflow to restart animation
+                                    void stockBadgeEl.offsetWidth; 
                                     
                                     if (stock < oldStock) {
                                         stockBadgeEl.classList.add('stock-flash-down');
@@ -2452,7 +2417,7 @@
                 if (shouldReRender) window.applyFilters();
                 
             } catch(e) {}
-        }, 10000); // Polling every 10 seconds
+        }, 10000); 
 
     </script>
 </body>
