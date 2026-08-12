@@ -14,7 +14,7 @@
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     
-    <!-- 🟢 Libraries: Confetti & PDF Export 🟢 -->
+    <!-- 🟢 Libraries: Confetti, PDF Export & Canvas 🟢 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>    
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -100,6 +100,7 @@
         .btn-profile { background: rgba(228, 77, 38, 0.1); color: var(--primary-color); border-color: rgba(228, 77, 38, 0.2); }
         .btn-profile:hover { background: var(--primary-color); color: white; }
 
+        /* 🟢 HEADER SEARCH BAR 🟢 */
         .header-search { display: none; }
         .control-chip { display: flex; align-items: center; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 50px; padding: 10px 20px; transition: 0.2s; width: 100%; box-sizing: border-box;}
         .control-chip:focus-within { border-color: var(--glacier-blue); box-shadow: 0 4px 12px rgba(31,81,198,0.1);}
@@ -195,6 +196,7 @@
         .new-badge { position: absolute; top: -8px; left: -8px; background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; font-size: 0.6em; font-weight: 800; padding: 4px 10px; border-radius: 8px; z-index: 5; box-shadow: 0 4px 10px rgba(142,68,173,0.3); text-transform: uppercase; letter-spacing: 0.5px; }
         .red-discount-icon { position: absolute; top: -8px; right: -8px; background: var(--active-brand-red); color: white; font-size: 0.7em; font-weight: 800; padding: 4px 8px; border-radius: 8px; z-index: 5; box-shadow: 0 4px 10px rgba(231,76,60,0.3); }
         
+        /* 🟢 LIVE STOCK FLASH ANIMATIONS 🟢 */
         @keyframes stock-flash-down {
             0% { transform: scale(1); }
             15% { transform: scale(1.15); color: #e74c3c !important; border-color: #e74c3c !important; background: rgba(231,76,60,0.15) !important; }
@@ -215,6 +217,7 @@
         .out-of-stock-badge { background: var(--card-bg); color: var(--active-brand-red); font-weight: 800; font-size: 0.7em; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--active-brand-red); box-shadow: 0 4px 10px rgba(0,0,0,0.1); white-space: nowrap;}
 
         .btn-container { position: absolute; right: 8px; bottom: -16px; z-index: 10; display: flex; justify-content: center; align-items: center; }
+        
         .app-add-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); color: var(--glacier-blue); border: 1px solid var(--border-color); font-size: 1.6em; font-weight: 500; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: 0.2s; line-height: 1; padding-bottom: 2px; position: relative; z-index: 15;}
         .app-add-btn:hover { border-color: var(--glacier-blue); background: var(--hover-bg); transform: scale(1.05); color: var(--glacier-blue);}
         .app-qty-control { height: 36px; width: 90px; background: var(--card-bg); color: var(--glacier-blue); border-radius: 50px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-weight: 700; font-size: 1em; box-sizing: border-box; position: relative; z-index: 15;}
@@ -1064,6 +1067,7 @@
 
         // 🟢 NORMALIZATION & APPSHEET IMAGE GENERATOR 🟢
         window.normalizeData = (items, isGrocery = false) => {
+            if (!Array.isArray(items)) return []; // Prevents Crash if Google Sheet returns non-array
             const timeStamp = Date.now();
             return items.map(item => {
                 
@@ -1740,9 +1744,10 @@
                 
                 let res = await fetch(activeUrl + noCacheParam);
                 if (!res.ok) throw new Error("Network response failed");
-                const text = await res.text();
+                let rawData = await res.json();
+                if (!Array.isArray(rawData)) throw new Error("Invalid format");
                 
-                let newData = window.normalizeData(JSON.parse(text), currentStoreMode === 'grocery');
+                let newData = window.normalizeData(rawData, currentStoreMode === 'grocery');
                 
                 if (currentStoreMode === 'icecream') {
                     allIceCreamItems = newData;
@@ -1797,75 +1802,77 @@
             });
         }
 
+        // 🚀 FAIL-SAFE ZERO-LAG LOAD DATA 🚀
         async function loadData() {
             const statusMsg = document.getElementById('status-msg'); 
             const loadingBar = document.getElementById('loading-bar');
+            const splash = document.getElementById('splash-screen');
             
-            const cachedIceCream = localStorage.getItem('glacier_icecream_cache');
-            const cachedGrocery = localStorage.getItem('glacier_grocery_cache');
-            let hasCache = false;
-
-            if (cachedIceCream) {
-                try {
-                    allIceCreamItems = JSON.parse(cachedIceCream);
-                    if(cachedGrocery) allGroceryItems = JSON.parse(cachedGrocery);
-                    
-                    allItems = currentStoreMode === 'icecream' ? allIceCreamItems : allGroceryItems;
-                    if(allItems.length > 0) {
-                        hasCache = true;
-                        window.setupAppUI(); 
-                        window.updateCategoryVisibility();
-                        window.applyFilters();
-                        
-                        const splash = document.getElementById('splash-screen');
-                        if(splash) {
-                            splash.style.opacity = '0';
-                            splash.style.visibility = 'hidden';
-                            setTimeout(() => splash.remove(), 400); 
-                        }
-                    }
-                } catch(e) { console.warn("Cache read error"); }
-            }
-
-            if(!hasCache && loadingBar) { loadingBar.style.opacity = '1'; loadingBar.style.width = '30%'; }
-
-            let failsafeTimer = setTimeout(() => {
-                if(!hasCache) {
-                    const splash = document.getElementById('splash-screen');
-                    if(splash) {
-                        splash.style.opacity = '0';
-                        splash.style.visibility = 'hidden';
-                        setTimeout(() => splash.remove(), 400); 
-                    }
-                    if(loadingBar) loadingBar.style.opacity = '0';
+            const hideSplash = () => {
+                if(splash) {
+                    splash.style.opacity = '0';
+                    splash.style.visibility = 'hidden';
+                    setTimeout(() => { if(splash && splash.parentNode) splash.remove(); }, 600);
                 }
-            }, 5000); 
+                if(loadingBar) loadingBar.style.opacity = '0';
+            };
+
+            let failsafeTimer = setTimeout(hideSplash, 6000);
 
             try {
-                const noCacheParam = "?_t=" + Date.now();
-                
-                let p1 = fetch(iceCreamSheetUrl + noCacheParam).then(r => r.ok ? r.text() : null).catch(()=>null);
-                let p2 = fetch(grocerySheetUrl + noCacheParam).then(r => r.ok ? r.text() : null).catch(()=>null);
+                // 1. FAST RENDER FROM CACHE (INSTANT LOAD)
+                const cachedIceCream = localStorage.getItem('glacier_icecream_cache');
+                const cachedGrocery = localStorage.getItem('glacier_grocery_cache');
+                let hasCache = false;
 
-                const [iceCreamText, groceryText] = await Promise.all([p1, p2]);
-                let needsReRender = false;
-
-                if (iceCreamText) {
-                    try { 
-                        const rawData = JSON.parse(iceCreamText);
-                        allIceCreamItems = window.normalizeData(rawData, false); 
-                        localStorage.setItem('glacier_icecream_cache', JSON.stringify(allIceCreamItems));
-                        needsReRender = true;
-                    } catch(e) {}
+                if (cachedIceCream && cachedIceCream !== "undefined") {
+                    try {
+                        let parsedIC = JSON.parse(cachedIceCream);
+                        let parsedGr = cachedGrocery && cachedGrocery !== "undefined" ? JSON.parse(cachedGrocery) : [];
+                        
+                        if (Array.isArray(parsedIC)) {
+                            allIceCreamItems = parsedIC;
+                            if (Array.isArray(parsedGr)) allGroceryItems = parsedGr;
+                            
+                            allItems = currentStoreMode === 'icecream' ? allIceCreamItems : allGroceryItems;
+                            
+                            if (allItems && allItems.length > 0) {
+                                hasCache = true;
+                                window.setupAppUI(); 
+                                window.updateCategoryVisibility();
+                                window.applyFilters();
+                                hideSplash();
+                            }
+                        } else {
+                            localStorage.removeItem('glacier_icecream_cache');
+                        }
+                    } catch(e) { 
+                        localStorage.removeItem('glacier_icecream_cache'); 
+                        console.warn("Cache read error"); 
+                    }
                 }
 
-                if (groceryText) {
-                    try {
-                        const rawData = JSON.parse(groceryText);
-                        allGroceryItems = window.normalizeData(rawData, true);
-                        localStorage.setItem('glacier_grocery_cache', JSON.stringify(allGroceryItems));
-                        needsReRender = true;
-                    } catch(e) {}
+                // 2. FETCH FRESH DATA IN BACKGROUND
+                if(!hasCache && loadingBar) { loadingBar.style.opacity = '1'; loadingBar.style.width = '30%'; }
+
+                const noCacheParam = "?_t=" + Date.now();
+                
+                let p1 = fetch(iceCreamSheetUrl + noCacheParam).then(r => r.ok ? r.json() : null).catch(()=>null);
+                let p2 = fetch(grocerySheetUrl + noCacheParam).then(r => r.ok ? r.json() : null).catch(()=>null);
+
+                const [iceCreamData, groceryData] = await Promise.all([p1, p2]);
+                let needsReRender = false;
+
+                if (iceCreamData && Array.isArray(iceCreamData)) {
+                    allIceCreamItems = window.normalizeData(iceCreamData, false); 
+                    localStorage.setItem('glacier_icecream_cache', JSON.stringify(allIceCreamItems));
+                    needsReRender = true;
+                }
+
+                if (groceryData && Array.isArray(groceryData)) {
+                    allGroceryItems = window.normalizeData(groceryData, true);
+                    localStorage.setItem('glacier_grocery_cache', JSON.stringify(allGroceryItems));
+                    needsReRender = true;
                 }
 
                 if(needsReRender) {
@@ -1877,32 +1884,22 @@
                     window.applyFilters(); 
                 }
 
-                if(!hasCache) {
-                    if(loadingBar) loadingBar.style.width = '100%'; 
-                    setTimeout(() => {
-                        const splash = document.getElementById('splash-screen');
-                        if(splash) {
-                            splash.style.opacity = '0';
-                            splash.style.visibility = 'hidden';
-                            setTimeout(() => splash.remove(), 400); 
-                        }
-                        if(loadingBar) loadingBar.style.opacity = '0'; 
-                        window.updateBrandArrows(); 
-                    }, 500);
+                if (!allItems || allItems.length === 0) {
+                    statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Please check your Google Sheet connection.</p><button onclick="window.clearAllFilters()" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
+                    statusMsg.style.display = 'block'; 
                 }
 
             } catch (error) { 
-                console.error("Silent Sync Error:", error);
+                console.error("Data Load Error:", error);
+                if (!allItems || allItems.length === 0) {
+                    statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">⚠️</span><h3 style="color: #e74c3c; margin: 10px 0 5px 0;">Connection Issue</h3><p style="font-size:0.85em; color:var(--text-muted);">Could not fetch latest stock. Please try again.</p></div>`;
+                    statusMsg.style.display = 'block';
+                }
             } finally {
                 clearTimeout(failsafeTimer);
-                if(!hasCache) {
-                    const splash = document.getElementById('splash-screen');
-                    if(splash && splash.style.opacity !== '0') {
-                        splash.style.opacity = '0';
-                        setTimeout(() => splash.remove(), 400); 
-                    }
-                    if(loadingBar) loadingBar.style.opacity = '0';
-                }
+                if(loadingBar) loadingBar.style.width = '100%'; 
+                setTimeout(hideSplash, 500);
+                setTimeout(window.updateBrandArrows, 800);
             }
         }
 
@@ -2262,7 +2259,7 @@
                     let fullDeliveryAddress = `${addr.house}, ${addr.area}`;
                     message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
                     if (addr.lat && addr.lng) { message += `📍 *Location Link:* https://maps.google.com/maps?q=${addr.lat},${addr.lng}\n`; }
-                    // addDoc(collection(db, "orders"), { userId: window.userDocId, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() });
+                    // Placeholder for Firebase addDoc
                 } else if (window.globalUser) { 
                     alert("Please add a delivery address in 'Addresses' before checking out!"); return;
                 } else { window.handleProfileClick(); return; }
@@ -2272,16 +2269,22 @@
             }
         };
 
+        // 🟢 SAFELY INITIALIZE APP 🟢
         document.addEventListener('DOMContentLoaded', loadData);
         
+        // 🟢 SILENT AUTO-POLLING EVERY 10 SECONDS (ERROR FREE) 🟢
         setInterval(async () => {
             try {
                 const noCacheParam = "?_t=" + Date.now();
                 let activeUrl = currentStoreMode === 'icecream' ? iceCreamSheetUrl : grocerySheetUrl;
-                let res = await fetch(activeUrl + noCacheParam, { cache: "no-store", headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } }); 
+                
+                let res = await fetch(activeUrl + noCacheParam); 
                 if (!res.ok) return;
-                let text = await res.text();
-                let newData = window.normalizeData(JSON.parse(text), currentStoreMode === 'grocery');
+                
+                let rawData = await res.json();
+                if (!Array.isArray(rawData)) return;
+
+                let newData = window.normalizeData(rawData, currentStoreMode === 'grocery');
                 
                 if (currentStoreMode === 'icecream') {
                     allIceCreamItems = newData;
@@ -2292,6 +2295,7 @@
                 
                 let shouldReRender = false;
 
+                // Auto-Prune Cart
                 for (let name in cart) {
                     let found = allItems.find(i => i.name === name);
                     if (found) {
@@ -2308,6 +2312,7 @@
                     }
                 }
                 
+                // 🟢 UPDATE DOM & TRIGGER ANIMATIONS 🟢
                 allItems.forEach(item => {
                     if(!item.name) return;
                     const safeName = item.name.replace(/[^a-zA-Z0-9]/g, '_');
@@ -2337,9 +2342,10 @@
                                 stockBadgeEl.innerText = `${stock} in stock`;
                                 stockBadgeEl.setAttribute('data-stock', stock);
                                 
+                                // 🟢 TRIGGER RED/GREEN ANIMATION ON STOCK CHANGE 🟢
                                 if (!isNaN(oldStock) && oldStock !== -1 && oldStock !== stock) {
                                     stockBadgeEl.classList.remove('stock-flash-down', 'stock-flash-up');
-                                    void stockBadgeEl.offsetWidth; 
+                                    void stockBadgeEl.offsetWidth; // Trigger reflow to restart animation
                                     
                                     if (stock < oldStock) {
                                         stockBadgeEl.classList.add('stock-flash-down');
@@ -2358,7 +2364,7 @@
                 window.updateCartUI(); 
                 if (shouldReRender) window.applyFilters();
                 
-            } catch(e) {}
+            } catch(e) { /* Silent fail for background sync */ }
         }, 10000); 
 
     </script>
