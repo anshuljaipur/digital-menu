@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glacier Ice Cream Parlor | Premium Handcrafted Desserts</title>
+  <style>
+    :root {
+      --primary-color: #3a86ff;
+      --accent-color: #ff006e;
+      --bg-light: #fafafa;
+      --card-bg: #ffffff;
+      --text-dark: #2b2d42;
+      --text-muted: #6c757d;
+      --border-color: #e9ecef;
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      line-height: 1.5;
+    }
+
+    /* Announcement Bar */
+    .announcement-bar {
+      background-color: var(--text-dark);
+      color: #fff;
+      text-align: center;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+    }
+
+    /* Header & Navigation */
+    header {
+      background: #ffffff;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+    }
+
+    .brand-logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text-dark);
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary-color);
+    }
+
+    .cart-trigger {
+      background: none;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-dark);
+    }
+
+    .cart-count {
+      background: var(--accent-color);
+      color: white;
+      border-radius: 50%;
+      padding: 2px 7px;
+      font-size: 0.75rem;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .hero h1 {
+      font-size: 2.5rem;
+      color: var(--text-dark);
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Container & Grid Layout */
+    .main-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 24px;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      margin-bottom: 24px;
+      font-weight: 600;
+      border-bottom: 2px solid var(--primary-color);
+      display: inline-block;
+      padding-bottom: 4px;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 24px;
+    }
+
+    /* Product Card */
+    .product-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+
+    .badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: var(--accent-color);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 4px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .product-image {
+      width: 100%;
+      height: 200px;
+      background-color: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 3rem;
+    }
+
+    .product-details {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .product-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .product-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      flex-grow: 1;
+    }
+
+    .price-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .current-price {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .original-price {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+
+    .add-to-cart-btn {
+      width: 100%;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .add-to-cart-btn:hover {
+      background: #2563eb;
+    }
+
+    /* Off-Canvas Cart Drawer */
+    .cart-drawer {
+      position: fixed;
+      top: 0;
+      right: -400px;
+      width: 350px;
+      height: 100%;
+      background: white;
+      box-shadow: -4px 0 16px rgba(0,0,0,0.1);
+      z-index: 1001;
+      transition: right 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cart-drawer.open {
+      right: 0;
+    }
+
+    .cart-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .close-cart {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .cart-items {
+      padding: 20px;
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .cart-footer {
+      padding: 20px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .checkout-btn {
+      width: 100%;
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.4);
+      z-index: 1000;
+      display: none;
+    }
+
+    .overlay.active {
+      display: block;
+    }
+
+    /* Footer */
+    footer {
+      background: #ffffff;
+      border-top: 1px solid var(--border-color);
+      padding: 40px 24px;
+      margin-top: 60px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <div class="announcement-bar">
+    🍦 Freshly churned delights! Visit Glacier Ice Cream Parlor or order directly online.
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="nav-container">
+      <a href="#" class="brand-logo">Glacier Ice Cream</a>
+      <ul class="nav-links">
+        <li><a href="#flavors">Flavors</a></li>
+        <li><a href="#tubs">Family Tubs</a></li>
+        <li><a href="#sundaes">Sundaes</a></li>
+      </ul>
+      <button class="cart-trigger" onclick="toggleCart()">
+        🛒 Cart <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1>Handcrafted Coolness, Everyday.</h1>
+    <p>Discover our rich, creamy, and authentic ice cream recipes crafted with the finest ingredients.</p>
+  </section>
+
+  <!-- Main Content -->
+  <main class="main-container">
+    <h2 class="section-title" id="flavors">Featured Flavors</h2>
+    
+    <div class="product-grid">
+      <!-- Product 1 -->
+      <div class="product-card">
+        <span class="badge">Bestseller</span>
+        <div class="product-image">🍨</div>
+        <div class="product-details">
+          <div class="product-title">Classic Belgian Chocolate</div>
+          <div class="product-desc">Rich dark Belgian cocoa blend with crunchy chocolate bits.</div>
+          <div class="price-row">
+            <span class="current-price">₹120</span>
+            <span class="original-price">₹150</span>
+          </div>
+          <button class="add-to-cart-btn" onclick="addToCart('Belgian Chocolate', 120)">Add to Cart</button>
+        </div>
+      </div>
+
+      <!-- Product 2 -->
+      <div class="product-card">
+        <span class="badge">Fresh</span>
+        <div class="product-image">🍓</div>
+        <div class="product-details">
+          <div class="product-title">Alfonso Strawberry Delight</div>
+          <div class="product-desc">Made with real strawberry fruit bits and fresh cream.</div>
+          <div class="price-row">
+            <span class="current-price">₹100</span>
+          </div>
+          <button class="add-to-cart-btn" onclick="addToCart('Strawberry Delight', 100)">Add to Cart</button>
+        </div>
+      </div>
+
+      <!-- Product 3 -->
+      <div class="product-card">
+        <div class="product-image">🥭</div>
+        <div class="product-details">
+          <div class="product-title">Royal Mango Special</div>
+          <div class="product-desc">Authentic Alphonso mango pulp infused in velvety cream.</div>
+          <div class="price-row">
+            <span class="current-price">₹110</span>
+            <span class="original-price">₹130</span>
+          </div>
+          <button class="add-to-cart-btn" onclick="addToCart('Royal Mango Special', 110)">Add to Cart</button>
+        </div>
+      </div>
+
+      <!-- Product 4 -->
+      <div class="product-card">
+        <span class="badge">New</span>
+        <div class="product-image">🥜</div>
+        <div class="product-details">
+          <div class="product-title">Pistachio & Roasted Almond</div>
+          <div class="product-desc">Crunchy roasted nuts mixed with subtle saffron cardamom cream.</div>
+          <div class="price-row">
+            <span class="current-price">₹140</span>
+          </div>
+          <button class="add-to-cart-btn" onclick="addToCart('Pistachio & Almond', 140)">Add to Cart</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Slide-out Cart Drawer -->
+  <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+  <div class="cart-drawer" id="cartDrawer">
+    <div class="cart-header">
+      <h3>Your Cart</h3>
+      <button class="close-cart" onclick="toggleCart()">&times;</button>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <p style="text-align: center; color: var(--text-muted); margin-top: 40px;">Your cart is empty.</p>
+    </div>
+    <div class="cart-footer">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 16px; font-weight: bold;">
+        <span>Total:</span>
+        <span id="cartTotal">₹0</span>
+      </div>
+      <button class="checkout-btn" onclick="alert('Proceeding to checkout!')">Checkout</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2026 Glacier Ice Cream Parlor. All rights reserved.</p>
+  </footer>
+
+  <!-- Simple JavaScript -->
+  <script>
+    let cart = [];
+
+    function toggleCart() {
+      document.getElementById('cartDrawer').classList.toggle('open');
+      document.getElementById('overlay').classList.toggle('active');
+    }
+
+    function addToCart(name, price) {
+      const existing = cart.find(item => item.name === name);
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        cart.push({ name, price, qty: 1 });
+      }
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      const cartItemsContainer = document.getElementById('cartItems');
+      const cartCount = document.getElementById('cartCount');
+      const cartTotal = document.getElementById('cartTotal');
+
+      const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+      const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+      cartCount.innerText = totalCount;
+      cartTotal.innerText = `₹${totalPrice}`;
+
+      if (cart.length === 0) {
+        cartItemsContainer.innerHTML = `<p style="text-align: center; color: var(--text-muted); margin-top: 40px;">Your cart is empty.</p>`;
+        return;
+      }
+
+      cartItemsContainer.innerHTML = cart.map(item => `
+        <div class="cart-item">
+          <div>
+            <div style="font-weight: 600;">${item.name}</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">₹${item.price} × ${item.qty}</div>
+          </div>
+          <div style="font-weight: bold;">₹${item.price * item.qty}</div>
+        </div>
+      `).join('');
+    }
+  </script>
+</body>
+</html>
