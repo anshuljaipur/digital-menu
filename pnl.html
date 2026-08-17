@@ -49,6 +49,10 @@
     padding-bottom: calc(92px + var(--safe-bottom));
   }
 
+  @media (min-width: 900px){
+    body{ max-width: 1160px; padding-bottom: 40px; }
+  }
+
   ::selection{ background: var(--focus); color: #0B0F14; }
 
   a, button{ font-family: inherit; }
@@ -158,6 +162,37 @@
     text-transform: uppercase;
     color: var(--text-muted);
   }
+  .topbar-actions{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .icon-btn{
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+  }
+  .new-entry-btn{
+    display: none;
+    align-items: center;
+    gap: 6px;
+    background: var(--text);
+    color: #10151C;
+    border: none;
+    border-radius: 999px;
+    padding: 9px 16px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .new-entry-btn:active{ transform: scale(0.97); }
   .avatar-btn{
     width: 34px; height: 34px;
     border-radius: 50%;
@@ -259,6 +294,89 @@
     color: #10151C;
     border-color: var(--text);
     font-weight: 600;
+  }
+
+  /* ---------- Search ---------- */
+  .search-field{
+    padding: 4px 20px 14px;
+  }
+  .search-field input{
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 11px 13px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+  .search-field input::placeholder{ color: #5C6779; }
+
+  /* ---------- Trend chart (desktop extra) ---------- */
+  .chart-card{
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px 16px 10px;
+    margin: 0 20px 16px;
+  }
+  .chart-head{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .chart-title{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .chart-legend{
+    display: flex;
+    gap: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+  }
+  .chart-legend span{ display: inline-flex; align-items: center; gap: 5px; color: var(--text-muted); }
+  .chart-legend .dot{ width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .chart-legend .dot.income{ background: var(--income); }
+  .chart-legend .dot.expense{ background: var(--expense); }
+  #trend-chart{ width: 100%; display: block; }
+
+  /* ---------- Desktop layout ---------- */
+  @media (min-width: 900px){
+    header.hero{ padding: 28px 32px 12px; }
+    .topbar .brand{ font-size: 16px; }
+    .icon-btn, .new-entry-btn{ display: flex; }
+    #fab{ display: none !important; }
+
+    .layout{
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 24px;
+      align-items: start;
+      padding: 0 32px;
+    }
+    .sidebar{
+      position: sticky;
+      top: 24px;
+    }
+    .balance-tape, .chart-card, .search-field, .filters{
+      margin: 0 0 16px;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+    .balance-tape{ padding: 22px 20px 18px; }
+    .chart-card{ display: block; margin-left: 0; margin-right: 0; }
+    .search-field, .filters{ padding-left: 0; padding-right: 0; }
+    .filters{ flex-wrap: wrap; overflow: visible; }
+    main{ padding: 0; }
+    .day-label{ padding-top: 20px; }
+    .entry{ padding: 14px 8px; border-radius: 8px; }
+    .entry:hover{ background: var(--surface-2); }
   }
 
   /* ---------- Ledger list ---------- */
@@ -542,38 +660,62 @@
     <header class="hero">
       <div class="topbar">
         <div class="brand">Ledger</div>
-        <button class="avatar-btn" id="avatar-btn" title="Sign out"><img id="avatar-img" src="" alt=""></button>
-      </div>
-      <div class="balance-tape">
-        <div class="balance-label">Current balance</div>
-        <div class="balance-amount" id="balance-amount">₹0.00</div>
-        <div class="stat-row">
-          <div class="stat income">
-            <div class="k">In</div>
-            <div class="v" id="total-income">₹0.00</div>
-          </div>
-          <div class="stat expense">
-            <div class="k">Out</div>
-            <div class="v" id="total-expense">₹0.00</div>
-          </div>
+        <div class="topbar-actions">
+          <button class="icon-btn" id="export-btn" title="Export CSV">⬇</button>
+          <button class="new-entry-btn" id="new-entry-desktop">+ New entry</button>
+          <button class="avatar-btn" id="avatar-btn" title="Sign out"><img id="avatar-img" src="" alt=""></button>
         </div>
       </div>
     </header>
 
-    <div class="filters">
-      <button class="chip active" data-filter="all">All</button>
-      <button class="chip" data-filter="income">Income</button>
-      <button class="chip" data-filter="expense">Expense</button>
-    </div>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="balance-tape">
+          <div class="balance-label">Current balance</div>
+          <div class="balance-amount" id="balance-amount">₹0.00</div>
+          <div class="stat-row">
+            <div class="stat income">
+              <div class="k">In</div>
+              <div class="v" id="total-income">₹0.00</div>
+            </div>
+            <div class="stat expense">
+              <div class="k">Out</div>
+              <div class="v" id="total-expense">₹0.00</div>
+            </div>
+          </div>
+        </div>
 
-    <main>
-      <div id="list"></div>
-      <div id="empty-state">
-        <div class="glyph">◈</div>
-        <div class="h">Nothing logged yet</div>
-        <div class="p">Tap the + button to record your first income or expense entry.</div>
-      </div>
-    </main>
+        <div class="chart-card">
+          <div class="chart-head">
+            <span class="chart-title">Last 6 months</span>
+            <div class="chart-legend">
+              <span><i class="dot income"></i>In</span>
+              <span><i class="dot expense"></i>Out</span>
+            </div>
+          </div>
+          <canvas id="trend-chart" height="140"></canvas>
+        </div>
+
+        <div class="search-field">
+          <input type="search" id="search-input" placeholder="Search notes or category…">
+        </div>
+
+        <div class="filters">
+          <button class="chip active" data-filter="all">All</button>
+          <button class="chip" data-filter="income">Income</button>
+          <button class="chip" data-filter="expense">Expense</button>
+        </div>
+      </aside>
+
+      <main>
+        <div id="list"></div>
+        <div id="empty-state">
+          <div class="glyph">◈</div>
+          <div class="h">Nothing logged yet</div>
+          <div class="p">Tap the + button to record your first income or expense entry.</div>
+        </div>
+      </main>
+    </div>
   </div>
 
   <button id="fab" title="Add entry">+</button>
@@ -631,15 +773,15 @@
    1) FIREBASE CONFIG — replace with YOUR project's values.
       Firebase Console → Project settings → General → Your apps → Web app
    ========================================================================= */
-  const firebaseConfig = {
-    apiKey: "AIzaSyCa0SohXiBx9BNGUks0eHIN0UJ1ERLJlns",
-    authDomain: "pnltracker-b8476.firebaseapp.com",
-    projectId: "pnltracker-b8476",
-    storageBucket: "pnltracker-b8476.firebasestorage.app",
-    messagingSenderId: "505169924407",
-    appId: "1:505169924407:web:230982fe3c1e20222dcab2",
-    measurementId: "G-LRLZ18L9P0"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyCa0SohXiBx9BNGUks0eHIN0UJ1ERLJlns",
+  authDomain: "pnltracker-b8476.firebaseapp.com",
+  projectId: "pnltracker-b8476",
+  storageBucket: "pnltracker-b8476.firebasestorage.app",
+  messagingSenderId: "505169924407",
+  appId: "1:505169924407:web:230982fe3c1e20222dcab2",
+  measurementId: "G-LRLZ18L9P0"
+};
 
 const isConfigured = !Object.values(firebaseConfig).some(v => String(v).startsWith("YOUR_"));
 if (!isConfigured) {
@@ -677,6 +819,7 @@ let entries = [];
 let activeFilter = "all";
 let editingId = null;
 let sheetType = "expense";
+let searchTerm = "";
 
 const $ = (id) => document.getElementById(id);
 const fmt = (n) => "₹" + Math.abs(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -698,15 +841,13 @@ $('signin-btn').addEventListener('click', () => {
     return;
   }
   if (!firebaseReady) {
-    showToast("Firebase init failed.");
+    showToast("Firebase init failed: " + (firebaseInitError ? firebaseInitError.message : "unknown error"));
+    console.error("Check firebaseConfig values against Firebase Console → Project settings.", firebaseInitError);
     return;
   }
-  
   signinInFlight = true;
   $('signin-btn').disabled = true;
-  
-  // Changed to signInWithPopup
-  auth.signInWithPopup(provider).catch(err => {
+  auth.signInWithRedirect(provider).catch(err => {
     signinInFlight = false;
     $('signin-btn').disabled = false;
     showToast(authErrorMessage(err));
@@ -786,7 +927,14 @@ function deleteEntry(id) {
    5) RENDER
    ========================================================================= */
 function render() {
-  const filtered = entries.filter(e => activeFilter === 'all' ? true : e.type === activeFilter);
+  const filtered = entries.filter(e => {
+    if (activeFilter !== 'all' && e.type !== activeFilter) return false;
+    if (searchTerm) {
+      const hay = ((e.category || "") + " " + (e.note || "")).toLowerCase();
+      if (!hay.includes(searchTerm)) return false;
+    }
+    return true;
+  });
 
   const totalIncome = entries.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
   const totalExpense = entries.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
@@ -796,6 +944,8 @@ function render() {
   $('balance-amount').classList.toggle('neg', balance < 0);
   $('total-income').textContent = fmt(totalIncome);
   $('total-expense').textContent = fmt(totalExpense);
+
+  drawTrendChart();
 
   const list = $('list');
   list.innerHTML = '';
@@ -854,6 +1004,70 @@ function escapeHtml(str) {
 }
 
 /* =========================================================================
+   5b) TREND CHART (desktop extra) — last 6 months, income vs expense bars.
+   Plain canvas 2D, no chart library, so it stays a single self-contained file.
+   ========================================================================= */
+function drawTrendChart() {
+  const canvas = $('trend-chart');
+  if (!canvas || canvas.offsetParent === null) return; // hidden on mobile, skip work
+
+  const months = [];
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({ key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`, label: d.toLocaleDateString('en-IN', { month: 'short' }), income: 0, expense: 0 });
+  }
+  const byKey = Object.fromEntries(months.map(m => [m.key, m]));
+  entries.forEach(e => {
+    if (!e.date) return;
+    const key = e.date.slice(0, 7);
+    if (byKey[key]) byKey[key][e.type] += e.amount;
+  });
+
+  const dpr = window.devicePixelRatio || 1;
+  const cssWidth = canvas.clientWidth || 300;
+  const cssHeight = 140;
+  canvas.width = cssWidth * dpr;
+  canvas.height = cssHeight * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, cssWidth, cssHeight);
+
+  const max = Math.max(1, ...months.map(m => Math.max(m.income, m.expense)));
+  const groupW = cssWidth / months.length;
+  const barW = Math.min(16, groupW * 0.22);
+  const baseline = cssHeight - 20;
+  const chartTop = 10;
+  const usableH = baseline - chartTop;
+
+  const incomeColor = getComputedStyle(document.documentElement).getPropertyValue('--income').trim();
+  const expenseColor = getComputedStyle(document.documentElement).getPropertyValue('--expense').trim();
+  const mutedColor = getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim();
+
+  ctx.font = '10.5px "IBM Plex Mono", monospace';
+  ctx.fillStyle = mutedColor;
+  ctx.textAlign = 'center';
+
+  months.forEach((m, i) => {
+    const cx = groupW * i + groupW / 2;
+    const incH = (m.income / max) * usableH;
+    const expH = (m.expense / max) * usableH;
+
+    ctx.fillStyle = incomeColor;
+    ctx.fillRect(cx - barW - 2, baseline - incH, barW, incH);
+
+    ctx.fillStyle = expenseColor;
+    ctx.fillRect(cx + 2, baseline - expH, barW, expH);
+
+    ctx.fillStyle = mutedColor;
+    ctx.fillText(m.label, cx, cssHeight - 4);
+  });
+}
+
+window.addEventListener('resize', () => { if (typeof entries !== 'undefined') drawTrendChart(); });
+
+
+/* =========================================================================
    6) FILTERS
    ========================================================================= */
 document.querySelectorAll('.chip').forEach(chip => {
@@ -863,6 +1077,41 @@ document.querySelectorAll('.chip').forEach(chip => {
     activeFilter = chip.dataset.filter;
     render();
   });
+});
+
+$('search-input').addEventListener('input', (e) => {
+  searchTerm = e.target.value.trim().toLowerCase();
+  render();
+});
+
+$('new-entry-desktop').addEventListener('click', () => openSheet(null));
+
+$('export-btn').addEventListener('click', () => {
+  if (!entries.length) { showToast("Nothing to export yet"); return; }
+  const header = ["Date", "Type", "Category", "Note", "Amount"];
+  const rows = entries
+    .slice()
+    .sort((a, b) => (a.date || "").localeCompare(b.date || ""))
+    .map(e => [
+      e.date || "",
+      e.type,
+      e.category,
+      (e.note || "").replace(/"/g, '""'),
+      e.amount
+    ]);
+  const csv = [header, ...rows]
+    .map(r => r.map(cell => `"${String(cell)}"`).join(","))
+    .join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ledger-export-${todayStr()}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast("CSV exported");
 });
 
 /* =========================================================================
