@@ -345,7 +345,8 @@
     border: none;
     font-size: 26px;
     line-height: 1;
-    display: flex; align-items: center; justify-content: center;
+    display: none;
+    align-items: center; justify-content: center;
     cursor: pointer;
     box-shadow: 0 8px 24px rgba(0,0,0,0.45);
     z-index: 20;
@@ -671,18 +672,50 @@ const todayStr = () => new Date().toISOString().slice(0, 10);
 
 /* =========================================================================
    3) AUTH
+   Mobile browsers (Safari, in-app webviews, etc.) routinely kill popup
+   windows before the OAuth flow finishes, which surfaces as
+   auth/popup-closed-by-user. signInWithRedirect avoids the popup entirely:
+   it navigates away to Google and back, which is far more reliable on
+   phones. Desktop works fine with it too, so it's used everywhere.
    ========================================================================= */
+let signinInFlight = false;
+
 $('signin-btn').addEventListener('click', () => {
   if (!isConfigured) {
     showToast("Add your Firebase config first");
     return;
   }
-  auth.signInWithPopup(provider).catch(err => showToast(err.message));
+  signinInFlight = true;
+  $('signin-btn').disabled = true;
+  auth.signInWithRedirect(provider).catch(err => {
+    signinInFlight = false;
+    $('signin-btn').disabled = false;
+    showToast(authErrorMessage(err));
+  });
 });
 
 $('avatar-btn').addEventListener('click', () => {
   if (confirm("Sign out of Ledger?")) auth.signOut();
 });
+
+// Catch errors from the redirect round-trip (e.g. blocked third-party
+// storage, unauthorized domain) so they don't fail silently.
+auth.getRedirectResult().catch(err => {
+  if (err && err.code !== 'auth/no-current-user') {
+    showToast(authErrorMessage(err));
+  }
+});
+
+function authErrorMessage(err) {
+  if (!err || !err.code) return "Sign-in failed";
+  if (err.code === 'auth/unauthorized-domain') {
+    return "This domain isn't authorized in Firebase Auth settings";
+  }
+  if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
+    return "Sign-in was cancelled — try again";
+  }
+  return err.message || "Sign-in failed";
+}
 
 auth.onAuthStateChanged(user => {
   currentUser = user;
@@ -696,6 +729,8 @@ auth.onAuthStateChanged(user => {
     $('signin').style.display = 'flex';
     $('app').style.display = 'none';
     $('fab').style.display = 'none';
+    $('signin-btn').disabled = false;
+    signinInFlight = false;
     if (unsubscribe) unsubscribe();
     entries = [];
   }
