@@ -698,13 +698,15 @@ $('signin-btn').addEventListener('click', () => {
     return;
   }
   if (!firebaseReady) {
-    showToast("Firebase init failed: " + (firebaseInitError ? firebaseInitError.message : "unknown error"));
-    console.error("Check firebaseConfig values against Firebase Console → Project settings.", firebaseInitError);
+    showToast("Firebase init failed.");
     return;
   }
+  
   signinInFlight = true;
   $('signin-btn').disabled = true;
-  auth.signInWithRedirect(provider).catch(err => {
+  
+  // Changed to signInWithPopup
+  auth.signInWithPopup(provider).catch(err => {
     signinInFlight = false;
     $('signin-btn').disabled = false;
     showToast(authErrorMessage(err));
