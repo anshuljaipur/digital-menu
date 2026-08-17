@@ -631,7 +631,7 @@
    1) FIREBASE CONFIG — replace with YOUR project's values.
       Firebase Console → Project settings → General → Your apps → Web app
    ========================================================================= */
-const firebaseConfig = {
+  const firebaseConfig = {
     apiKey: "AIzaSyCa0SohXiBx9BNGUks0eHIN0UJ1ERLJlns",
     authDomain: "pnltracker-b8476.firebaseapp.com",
     projectId: "pnltracker-b8476",
@@ -646,10 +646,22 @@ if (!isConfigured) {
   document.getElementById('config-warning').style.display = 'block';
 }
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-const provider = new firebase.auth.GoogleAuthProvider();
+// Firebase init is wrapped in try/catch on purpose: a bad config value
+// (wrong projectId, typo'd apiKey, etc.) makes initializeApp() throw,
+// which would otherwise stop this whole script silently — every button
+// below would look "dead" with no error shown anywhere. Instead we
+// capture the failure and surface it the moment the user taps the button.
+let auth, db, provider, firebaseReady = false, firebaseInitError = null;
+try {
+  firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+  db = firebase.firestore();
+  provider = new firebase.auth.GoogleAuthProvider();
+  firebaseReady = true;
+} catch (e) {
+  firebaseInitError = e;
+  console.error("Firebase failed to initialize:", e);
+}
 
 /* =========================================================================
    2) STATE
@@ -685,6 +697,11 @@ $('signin-btn').addEventListener('click', () => {
     showToast("Add your Firebase config first");
     return;
   }
+  if (!firebaseReady) {
+    showToast("Firebase init failed: " + (firebaseInitError ? firebaseInitError.message : "unknown error"));
+    console.error("Check firebaseConfig values against Firebase Console → Project settings.", firebaseInitError);
+    return;
+  }
   signinInFlight = true;
   $('signin-btn').disabled = true;
   auth.signInWithRedirect(provider).catch(err => {
@@ -700,11 +717,13 @@ $('avatar-btn').addEventListener('click', () => {
 
 // Catch errors from the redirect round-trip (e.g. blocked third-party
 // storage, unauthorized domain) so they don't fail silently.
-auth.getRedirectResult().catch(err => {
-  if (err && err.code !== 'auth/no-current-user') {
-    showToast(authErrorMessage(err));
-  }
-});
+if (firebaseReady) {
+  auth.getRedirectResult().catch(err => {
+    if (err && err.code !== 'auth/no-current-user') {
+      showToast(authErrorMessage(err));
+    }
+  });
+}
 
 function authErrorMessage(err) {
   if (!err || !err.code) return "Sign-in failed";
@@ -717,7 +736,7 @@ function authErrorMessage(err) {
   return err.message || "Sign-in failed";
 }
 
-auth.onAuthStateChanged(user => {
+if (firebaseReady) auth.onAuthStateChanged(user => {
   currentUser = user;
   if (user) {
     $('signin').style.display = 'none';
