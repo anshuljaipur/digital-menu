@@ -1166,7 +1166,7 @@
             items.forEach(item=>{
                 html += `
                 <div style="width:25%;text-align:center;padding:8px;position:relative;box-sizing:border-box;">
-                    <img src="${item.img}" crossorigin="anonymous" style="height:80px;object-fit:contain;">
+                    <img src="https://www.appsheet.com/template/gettablefileurl?appName=IceCreamInventory-257487838&tableName=menu&fileName=${item.img}" crossorigin="anonymous" style="height:80px;object-fit:contain;">
                     <div style="font-size:12px;font-weight:bold;margin-top:5px;line-height:1.2;font-family: Poppins, Arial, sans-serif;">${item.name}</div>
                     <div style="position:absolute; top:5px; right:10px; background:#ffcc00; padding:4px 10px; border-radius:20px; font-weight:bold; font-size:12px; font-family: Poppins, Arial, sans-serif;">₹${item.price}</div>
                 </div>
@@ -1193,7 +1193,7 @@
                     let img = new Image();
                     img.onload = () => resolve();
                     img.onerror = () => resolve(); 
-                    img.src = item.img;
+                    img.src = "https://www.appsheet.com/template/gettablefileurl?appName=IceCreamInventory-257487838&tableName=menu&fileName=" + item.img;
                     setTimeout(resolve, 2000); 
                 });
             });
@@ -2141,7 +2141,7 @@
                             ${window.isNewArrival(item) ? `<div class="new-badge">✨ NEW</div>` : ''}
                             ${discountNum > 0 ? `<div class="red-discount-icon">${Math.round(discountNum)}% OFF</div>` : ''}
                             
-                            <img src="${item.img}" crossorigin="anonymous" loading="lazy" decoding="async" style="opacity: 0; transition: opacity 0.3s ease-in-out;" onload="this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';" onerror="this.onerror=null; this.src='https://placehold.co/300x220/f4f6f9/a0a0a0?text=No+Image'; this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';">
+                            <img src="https://www.appsheet.com/template/gettablefileurl?appName=IceCreamInventory-257487838&tableName=menu&fileName=${item.img}" crossorigin="anonymous" loading="lazy" decoding="async" style="opacity: 0; transition: opacity 0.3s ease-in-out;" onload="this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';" onerror="this.onerror=null; this.src='https://placehold.co/300x220/f4f6f9/a0a0a0?text=No+Image'; this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';">
                             
                             <!-- 🟢 ADD BUTTON RESTORED ON IMAGE CORNER 🟢 -->
                             <div class="btn-container" id="add-wrap-${safeName}" onclick="event.stopPropagation()">
@@ -2176,7 +2176,7 @@
             const displayName = item.name.replace(volText, '').trim() || item.name;
             const discountNum = window.getDiscount(item);
 
-            document.getElementById('pd-modal-img').src = item.img;
+            document.getElementById('pd-modal-img').src = "https://www.appsheet.com/template/gettablefileurl?appName=IceCreamInventory-257487838&tableName=menu&fileName=" + item.img;
             document.getElementById('pd-modal-brand-logo').innerHTML = window.getBrandLogo(item.brand);
             document.getElementById('pd-modal-brand-name').innerText = item.brand;
             document.getElementById('pd-modal-name').innerText = item.name;
