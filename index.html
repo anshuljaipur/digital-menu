@@ -658,7 +658,7 @@
 
             <div class="legal-footer">
                 <p class="legal-notice-vol">ℹ️ Volume & MRP subject to change. Please refer to actual packaging for final details.</p>
-                <p>© 2026 Glacier Ice Cream. All brand logos, names, and trademarks displayed on this menu are the property of their respective owners.</p>
+                <p>© Samvat 2083 Glacier Ice Cream. All brand logos, names, and trademarks displayed on this menu are the property of their respective owners.</p>
             </div>
         </main>
     </div>
@@ -1106,7 +1106,7 @@
             items.forEach(item=>{
                 html += `
                 <div style="width:25%;text-align:center;padding:8px;position:relative;">
-                    <img src="${item.img}" crossorigin="anonymous" style="height:80px;object-fit:contain;">
+                    <img src="${window.formatImageUrl(item.img)}" crossorigin="anonymous" style="height:80px;object-fit:contain;">
                     <div style="font-size:12px;font-weight:bold;margin-top:5px;line-height:1.2;">${item.name}</div>
                     <div style="position:absolute; top:5px; right:10px; background:#ffcc00; padding:4px 10px; border-radius:20px; font-weight:bold; font-size:12px;">₹${item.price}</div>
                 </div>
@@ -1783,6 +1783,20 @@
         window.getDiscount = (item) => { let m = parseFloat(item.mrp); let p = parseFloat(item.price); if (m && !isNaN(m) && m > p) return ((m - p) / m) * 100; return 0; }
         window.extractVolumeText = (name) => { const match = name.match(/(\d+\s*(ml|l|ltr|gm|g|kg))/i); return match ? match[0] : ''; }
 
+    window.formatImageUrl = (imgPath) => {
+    if (!imgPath) return 'https://placehold.co/300x220/f4f6f9/a0a0a0?text=No+Image';
+    
+    // If it is already a full web URL (like your older postimg.cc links), let it pass through
+    if (imgPath.startsWith('http')) {
+        return imgPath;
+    }
+    
+    // If it is an AppSheet internal path (e.g., 'menu_Images/123.jpg')
+    // Replace 'YOUR_BASE_URL_HERE' with the actual domain/folder where these images are hosted
+    const baseUrl = "https://anshuljaipur.github.io/digital-menu/"; 
+    return baseUrl + imgPath;
+}
+        
         // 🟢 SMART SEARCH & FILTER FUNCTION 🟢
         window.applyFilters = () => {
             const gridWrapper = document.getElementById('main-menu-grid'); 
@@ -1941,7 +1955,7 @@
                         <div class="card-img-wrapper skeleton-bg">
                             ${window.isNewArrival(item) ? `<div class="new-badge">✨ NEW</div>` : ''}
                             ${discountNum > 0 ? `<div class="red-discount-icon">⬇</div>` : ''}
-                            <img src="${item.img}" crossorigin="anonymous" loading="lazy" decoding="async" style="opacity: 0; transition: opacity 0.3s ease-in-out;" onload="this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';" onerror="this.onerror=null; this.src='https://placehold.co/300x220/f4f6f9/a0a0a0?text=No+Image'; this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';">
+                            <img src="${window.formatImageUrl(item.img)}" crossorigin="anonymous" loading="lazy" decoding="async" style="opacity: 0; transition: opacity 0.3s ease-in-out;" onload="this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';" onerror="this.onerror=null; this.src='https://placehold.co/300x220/f4f6f9/a0a0a0?text=No+Image'; this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';">
                             
                             <div class="btn-container" id="add-wrap-${safeName}" onclick="event.stopPropagation()"></div>
                         </div>
@@ -1972,7 +1986,7 @@
             const displayName = item.name.replace(volText, '').trim() || item.name;
             const discountNum = window.getDiscount(item);
 
-            document.getElementById('pd-modal-img').src = item.img;
+            document.getElementById('pd-modal-img').src = window.formatImageUrl(item.img);
             document.getElementById('pd-modal-brand-logo').innerHTML = window.getBrandLogo(item.brand);
             document.getElementById('pd-modal-brand-name').innerText = item.brand;
             document.getElementById('pd-modal-name').innerText = item.name;
@@ -2137,7 +2151,7 @@
                             img.crossOrigin = "Anonymous";
                             img.onload = () => resolve();
                             img.onerror = () => resolve(); 
-                            img.src = item.img;
+                            window.formatImageUrl(item.img)
                             setTimeout(resolve, 2500); 
                         });
                         imagePromises.push(imgP);
@@ -2145,7 +2159,7 @@
                         html += `
                             <div style="width: calc(33.333% - 10px); border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; box-sizing: border-box; display: flex; flex-direction: column; height: 215px;">
                                 <div style="text-align: center; margin-bottom: 10px;">
-                                    <img src="${item.img}" crossorigin="anonymous" style="width: 100px; height: 100px; object-fit: contain;">
+                                    window.formatImageUrl(item.img) crossorigin="anonymous" style="width: 100px; height: 100px; object-fit: contain;">
                                 </div>
                                 <div style="font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; text-align: center;">${item.brand || 'Glacier'}</div>
                                 <div style="font-size: 14px; color: #1e293b; font-weight: bold; line-height: 1.2; flex-grow: 1; max-height: 34px; overflow: hidden; text-align: center;">${displayName}</div>
@@ -2233,7 +2247,7 @@
                 window.addressMarker = L.marker([26.9124, 75.7873], {draggable: true}).addTo(window.addressMap);
                 
                 window.addressMarker.on('dragend', function(event) {
-                    var position = window.addressMarker.getLatLng();
+                    const position = window.addressMarker.getLatLng();
                     document.getElementById('new-addr-lat').value = position.lat;
                     document.getElementById('new-addr-lng').value = position.lng;
                     window.getAddressFromCoords(position.lat, position.lng);
@@ -2700,7 +2714,7 @@
                     if(!addr) addr = window.globalUserData.addresses[0]; 
                     let fullDeliveryAddress = `${addr.house}, ${addr.area}`;
                     message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
-                    if (addr.lat && addr.lng) { message += `📍 *Location Link:* https://maps.google.com/maps?q=26.8901148,75.8097553&t=&z=16&ie=UTF8&iwloc=&output=embed{addr.lat},${addr.lng}\n`; }
+                    if (addr.lat && addr.lng) { message += `📍 *Location Link:* https://maps.google.com/maps?q=${addr.lat},${addr.lng}\n`; }
                     addDoc(collection(db, "orders"), { userId: window.userDocId, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() });
                 } else if (window.globalUser) { 
                     alert("Please add a delivery address in 'Addresses' before checking out!"); return;
