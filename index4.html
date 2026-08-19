@@ -1166,7 +1166,7 @@
             items.forEach(item=>{
                 html += `
                 <div style="width:25%;text-align:center;padding:8px;position:relative;box-sizing:border-box;">
-                    <img src="https://www.appsheet.com/template/gettablefileurl?appName=IceCreamInventory-257487838&tableName=menu&fileName=${item.img}" crossorigin="anonymous" style="height:80px;object-fit:contain;">
+                    <img src="${window.formatImageUrl(item.img)}" crossorigin="anonymous" style="height:80px;object-fit:contain;">
                     <div style="font-size:12px;font-weight:bold;margin-top:5px;line-height:1.2;font-family: Poppins, Arial, sans-serif;">${item.name}</div>
                     <div style="position:absolute; top:5px; right:10px; background:#ffcc00; padding:4px 10px; border-radius:20px; font-weight:bold; font-size:12px; font-family: Poppins, Arial, sans-serif;">₹${item.price}</div>
                 </div>
@@ -1959,6 +1959,19 @@
         window.getVolume = (name) => { let total = 0; let match; const regex = /(\d+(?:\.\d+)?)\s*(ml|l|ltr|gm|g|kg)/gi; while ((match = regex.exec(name)) !== null) { let val = parseFloat(match[1]); let unit = match[2].toLowerCase(); if (unit === 'l' || unit === 'ltr' || unit === 'kg') val *= 1000; total += val; } return total; }
         window.getDiscount = (item) => { let m = parseFloat(item.mrp); let p = parseFloat(item.price); if (m && !isNaN(m) && m > p) return ((m - p) / m) * 100; return 0; }
         window.extractVolumeText = (name) => { const match = name.match(/(\d+(?:\.\d+)?\s*(ml|l|ltr|gm|g|kg))/i); return match ? match[0] : ''; }
+        
+        window.formatImageUrl = (imgPath) => {
+    if (!imgPath) return 'https://placehold.co/300x220/f4f6f9/a0a0a0?text=No+Image';
+    
+    // If it is already a full web URL (like your postimg.cc links), leave it alone!
+    if (imgPath.startsWith('http')) {
+        return imgPath;
+    }
+    
+    // If it is an AppSheet internal path, add the AppSheet URL format
+    return "https://www.appsheet.com/template/gettablefileurl?appName=IceCreamInventory-257487838&tableName=menu&fileName=" + imgPath;
+}
+        
 
         window.applyFilters = () => {
             const gridWrapper = document.getElementById('main-menu-grid'); 
@@ -2176,7 +2189,7 @@
             const displayName = item.name.replace(volText, '').trim() || item.name;
             const discountNum = window.getDiscount(item);
 
-            document.getElementById('pd-modal-img').src = "https://www.appsheet.com/template/gettablefileurl?appName=IceCreamInventory-257487838&tableName=menu&fileName=" + item.img;
+            document.getElementById('pd-modal-img').src = window.formatImageUrl(item.img);
             document.getElementById('pd-modal-brand-logo').innerHTML = window.getBrandLogo(item.brand);
             document.getElementById('pd-modal-brand-name').innerText = item.brand;
             document.getElementById('pd-modal-name').innerText = item.name;
