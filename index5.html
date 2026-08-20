@@ -358,8 +358,9 @@
         .order-item-line { display: flex; gap: 8px; margin-bottom: 4px; align-items: flex-start; }
 
         /* PRODUCT DETAIL CSS */
-        #pd-modal-img { width: 100%; height: 220px; object-fit: contain; mix-blend-mode: multiply; margin-bottom: 20px; background: #fff; border-radius: 12px; padding: 10px; box-sizing: border-box; flex-shrink: 0;}
+        #pd-modal-img { width: 100%; height: 220px; object-fit: contain; mix-blend-mode: multiply; margin-bottom: 20px; background: #fff; border-radius: 12px; padding: 10px; box-sizing: border-box; flex-shrink: 0;transition: transform 0.3s ease; /* Added for the smooth zoom animation */}
         [data-theme="dark"] #pd-modal-img { background: #e2e8f0; mix-blend-mode: normal; }
+        #pd-modal-img:hover {transform: scale(1.2); /* Increases the image size by 20% */cursor: zoom-in; /* Changes the mouse pointer to a magnifying glass */}
         .pd-modal-brand-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
         .pd-brand-icon { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fff;}
         .pd-brand-icon img, .pd-brand-icon svg { width: 100%; height: 100%; object-fit: cover; }
@@ -720,7 +721,7 @@
             <div style="display: flex; justify-content: flex-end; margin-bottom: -10px;">
                 <div class="close-modal-icon" onclick="window.closeSpecificModal('product-detail-modal')">×</div>
             </div>
-            <img id="pd-modal-img" src="" alt="Product" crossorigin="anonymous">
+            <img id="pd-modal-img" src="" alt="Product" crossorigin="anonymous" onclick="window.viewFullscreen(this.src)">
             
             <div class="pd-modal-brand-row">
                 <div class="pd-brand-icon" id="pd-modal-brand-logo"></div>
@@ -2349,7 +2350,54 @@
                 window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
             }
         };
-
+    // 🟢 FULLSCREEN IMAGE VIEWER 🟢
+        window.viewFullscreen = (src) => {
+            if (!src) return;
+            
+            // Create the dark overlay
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100dvh';
+            overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+            overlay.style.zIndex = '9999999';
+            overlay.style.display = 'flex';
+            overlay.style.justifyContent = 'center';
+            overlay.style.alignItems = 'center';
+            overlay.style.cursor = 'zoom-out';
+            overlay.style.opacity = '0';
+            overlay.style.transition = 'opacity 0.3s ease';
+            
+            // Create the image
+            const img = document.createElement('img');
+            img.src = src;
+            img.style.maxWidth = '95%';
+            img.style.maxHeight = '95%';
+            img.style.objectFit = 'contain';
+            img.style.borderRadius = '12px';
+            img.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
+            img.style.transform = 'scale(0.9)';
+            img.style.transition = 'transform 0.3s ease';
+            
+            overlay.appendChild(img);
+            
+            // Close the overlay when tapped
+            overlay.onclick = () => {
+                overlay.style.opacity = '0';
+                img.style.transform = 'scale(0.9)';
+                setTimeout(() => { document.body.removeChild(overlay); }, 300);
+            };
+            
+            document.body.appendChild(overlay);
+            
+            // Trigger animation
+            setTimeout(() => {
+                overlay.style.opacity = '1';
+                img.style.transform = 'scale(1)';
+            }, 10);
+        };
         // 🟢 SAFELY INITIALIZE APP 🟢
         document.addEventListener('DOMContentLoaded', loadData);
         
