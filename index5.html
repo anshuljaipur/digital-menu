@@ -17,7 +17,7 @@
     <!-- 🟢 Libraries: Confetti & PDF Export 🟢 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>    
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Poppins:wght@400;500;600;700;800&display=swap');
@@ -80,15 +80,16 @@
         body.modal-open, html.modal-open { overflow: hidden !important; touch-action: none; }
 
         /* 🌟 SPLASH SCREEN 🌟 */
-        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: linear-gradient(135deg, var(--glacier-blue), #1a42a4); z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease; }
-        .splash-content { text-align: center; color: white; }
+        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: linear-gradient(135deg, var(--glacier-blue), #1a42a4); z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.4s ease, visibility 0.4s ease; }
+        .splash-content { text-align: center; color: white; display: flex; flex-direction: column; align-items: center; }
         .splash-icon { font-size: 5em; animation: bounce-scoop 0.8s infinite alternate cubic-bezier(0.4, 0, 0.2, 1); margin-bottom: 15px; }
         .splash-title { font-family: 'Montserrat', sans-serif; font-size: 2.2em; font-weight: 800; letter-spacing: 1px; margin: 0; text-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .splash-subtext { font-size: 0.9em; opacity: 0.8; font-weight: 500; margin-top: 10px; animation: pulse-text 1.5s infinite; }
-        @keyframes bounce-scoop { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(-25px) scale(1.05); } }
-        @keyframes pulse-text { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+        .splash-subtext { font-size: 0.9em; opacity: 0.9; font-weight: 600; margin-top: 15px; padding: 0 20px; display: flex; flex-direction: column; gap: 5px; }
+        #loading-percent { font-size: 1.5em; font-weight: 800; color: #ffcc00; text-shadow: 0 2px 5px rgba(0,0,0,0.3); }
 
-        #loading-bar { position: fixed; top: 0; left: 0; height: 4px; background-color: var(--glacier-blue); width: 0%; z-index: 9999; transition: width 0.3s ease, opacity 0.5s ease; box-shadow: 0 2px 5px rgba(31,81,198, 0.5); }
+        @keyframes bounce-scoop { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(-25px) scale(1.05); } }
+
+        #loading-bar { position: fixed; top: 0; left: 0; height: 4px; background-color: #ffcc00; width: 0%; z-index: 9999; transition: width 0.3s ease, opacity 0.3s ease; box-shadow: 0 2px 5px rgba(255,204,0, 0.5); }
 
         /* --- 1. HEADER --- */
         header { background: var(--card-bg); padding: 12px 25px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; z-index: 1000; flex-shrink: 0; height: 65px; box-sizing: border-box; transition: 0.3s; width: 100%; gap: 15px;}
@@ -100,7 +101,6 @@
         .btn-profile { background: rgba(228, 77, 38, 0.1); color: var(--primary-color); border-color: rgba(228, 77, 38, 0.2); }
         .btn-profile:hover { background: var(--primary-color); color: white; }
 
-        /* 🟢 HEADER SEARCH BAR 🟢 */
         .header-search { display: none; }
         .control-chip { display: flex; align-items: center; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 50px; padding: 10px 20px; transition: 0.2s; width: 100%; box-sizing: border-box;}
         .control-chip:focus-within { border-color: var(--glacier-blue); box-shadow: 0 4px 12px rgba(31,81,198,0.1);}
@@ -141,7 +141,6 @@
         .brand-item.active .brand-icon { border-color: var(--active-brand-red); border-width: 2px; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.15); }
         .brand-item.active .brand-name { color: var(--active-brand-red); }
 
-        /* 🟢 DESKTOP PANELS 🟢 */
         .desktop-category-panel, .desktop-tags-panel { display: none; }
         .desktop-tools-bar { display: none; }
 
@@ -500,7 +499,10 @@
         <div class="splash-content">
             <div class="splash-icon">🍦</div>
             <h1 class="splash-title">Glacier</h1>
-            <div class="splash-subtext">Stocking the freezer...</div>
+            <div class="splash-subtext">
+                Stocking the freezer...
+                <span id="loading-percent">0%</span>
+            </div>
         </div>
     </div>
 
@@ -1070,26 +1072,35 @@
 
         window.fetchUserData = async (uid) => {};
 
+        // 🟢 SUPER FIX: SAFE STRING COERCION TO PREVENT FATAL CRASHES 🟢
         window.normalizeData = (items, isGrocery = false) => {
             if (!Array.isArray(items)) return []; 
             const timeStamp = Date.now();
             return items.map(item => {
+                if(!item) return {}; // Failsafe for null items
                 
-                if (item.brand && typeof item.brand === 'string') {
-                    item.brand = item.brand.trim().split(/\s+/).map(word => {
+                if (item.brand) {
+                    item.brand = String(item.brand).trim().split(/\s+/).map(word => {
                         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
                     }).join(' ');
-                }
-                if (item.name && typeof item.name === 'string') {
-                    item.name = item.name.trim().split(/\s+/).map(word => {
-                        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-                    }).join(' ');
+                } else {
+                    item.brand = 'Unknown Brand';
                 }
                 
-                if (item.category && typeof item.category === 'string') {
-                    item.category = item.category.trim().split(/\s+/).map(word => {
+                if (item.name) {
+                    item.name = String(item.name).trim().split(/\s+/).map(word => {
                         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
                     }).join(' ');
+                } else {
+                    item.name = 'Unnamed Item';
+                }
+                
+                if (item.category) {
+                    item.category = String(item.category).trim().split(/\s+/).map(word => {
+                        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                    }).join(' ');
+                } else {
+                    item.category = 'More Favorites';
                 }
                 
                 if (isGrocery && item.img && String(item.img).includes('Products_Images/')) {
@@ -1556,10 +1567,10 @@
 
         window.getBrandLogo = (brandName) => {
             if(!brandName) return '';
-            const b = brandName.toLowerCase(); let matchedImg = '';
+            const b = String(brandName).toLowerCase(); let matchedImg = '';
             for (let key in brandImageLinks) { if (b.includes(key)) { matchedImg = brandImageLinks[key]; break; } }
             if (matchedImg) return `<img src="${matchedImg}" alt="${brandName}">`;
-            let text = brandName.substring(0, 2).toUpperCase();
+            let text = String(brandName).substring(0, 2).toUpperCase();
             return `<svg viewBox="0 0 100 100" style="width:100%; height:100%; background:var(--chip-bg);"><text x="50" y="55" font-size="38" fill="var(--text-muted)" font-weight="bold" font-family="Montserrat, sans-serif" text-anchor="middle" dominant-baseline="middle">${text}</text></svg>`;
         }
 
@@ -1610,7 +1621,7 @@
         }
 
         window.getTagStyle = (tag) => {
-            let t = tag.toLowerCase();
+            let t = String(tag).toLowerCase();
             if(t.includes('vegan')) return 'tag-style-vegan';
             if(t.includes('sugar')) return 'tag-style-sugarfree';
             if(t.includes('fast') || t.includes('vrat') || t.includes('guilt')) return 'tag-style-fastfriendly';
@@ -1618,7 +1629,7 @@
         }
 
         window.getTagIcon = (tag) => {
-            let t = tag.toLowerCase();
+            let t = String(tag).toLowerCase();
             let imgUrl = '';
             if (t.includes('vegan')) imgUrl = 'https://i.postimg.cc/mD5dDdW4/vegan.png';
             else if (t.includes('diet') || t.includes('fast') || t.includes('vrat') || t.includes('guilt')) imgUrl = 'https://i.postimg.cc/wvGWvWYY/diet_icon.png';
@@ -1687,7 +1698,7 @@
         };
 
         window.updateCategoryVisibility = () => {
-            const rawCats = allItems.map(item => item.category || 'More Favorites').filter(c => c);
+            const rawCats = allItems.map(item => String(item.category || 'More Favorites')).filter(c => c);
             let uniqueCats = [...new Set(rawCats)];
             uniqueCats.sort((a, b) => a.localeCompare(b)); 
             
@@ -1702,7 +1713,7 @@
                 } else if (cat === 'New Arrivals') {
                     hasItems = allItems.some(i => window.isNewArrival(i) && (currentBrand === 'All Brands' || i.brand === currentBrand));
                 } else {
-                    hasItems = allItems.some(i => (i.category || 'More Favorites') === cat && (currentBrand === 'All Brands' || i.brand === currentBrand));
+                    hasItems = allItems.some(i => String(i.category || 'More Favorites') === cat && (currentBrand === 'All Brands' || i.brand === currentBrand));
                 }
                 catVisibility[cat] = hasItems;
             });
@@ -1746,16 +1757,21 @@
                 const noCacheParam = "?_t=" + Date.now() + Math.random().toString(36).substring(2);
                 let activeUrl = currentStoreMode === 'icecream' ? iceCreamSheetUrl : grocerySheetUrl;
                 
-                let res = await fetch(activeUrl + noCacheParam);
-                if (!res.ok) throw new Error("Network response failed");
-                const text = await res.text();
+                // Safe fetch
+                const r = await fetch(activeUrl + noCacheParam);
+                if (!r.ok) throw new Error("Network error");
+                const txt = await r.text();
+                let rawData = JSON.parse(txt);
+                if (!Array.isArray(rawData)) throw new Error("Format error");
                 
-                let newData = window.normalizeData(JSON.parse(text), currentStoreMode === 'grocery');
+                let newData = window.normalizeData(rawData, currentStoreMode === 'grocery');
                 
                 if (currentStoreMode === 'icecream') {
                     allIceCreamItems = newData;
+                    try { localStorage.setItem('glacier_icecream_cache', JSON.stringify(allIceCreamItems)); } catch(e){}
                 } else {
                     allGroceryItems = newData;
+                    try { localStorage.setItem('glacier_grocery_cache', JSON.stringify(allGroceryItems)); } catch(e){}
                 }
 
                 allItems = newData;
@@ -1803,107 +1819,142 @@
             });
         }
 
+        // 🟢 SUPER FAST & 100% SAFE LOAD DATA 🟢
         async function loadData() {
-            const statusMsg = document.getElementById('status-msg');
+            const statusMsg = document.getElementById('status-msg'); 
             const loadingBar = document.getElementById('loading-bar');
-            if(loadingBar) { loadingBar.style.opacity = '1'; loadingBar.style.width = '30%'; }
+            const splash = document.getElementById('splash-screen');
+            const loadingPercent = document.getElementById('loading-percent');
+            
+            const updateProgress = (pct) => {
+                if(loadingBar) { loadingBar.style.opacity = '1'; loadingBar.style.width = pct + '%'; }
+                if(loadingPercent) { loadingPercent.innerText = pct + '%'; }
+            };
+
+            const hideSplash = () => {
+                if(splash) {
+                    splash.style.opacity = '0';
+                    splash.style.visibility = 'hidden';
+                    setTimeout(() => { if(splash && splash.parentNode) splash.remove(); }, 600);
+                }
+                if(loadingBar) loadingBar.style.opacity = '0';
+            };
 
             let failsafeTimer = setTimeout(() => {
-                const splash = document.getElementById('splash-screen');
-                if(splash && splash.style.opacity !== '0') {
-                    const sub = document.querySelector('.splash-subtext');
-                    if(sub) sub.innerText = "Network taking too long... Please refresh.";
-                    setTimeout(() => {
-                        if(splash && splash.style.opacity !== '0') {
-                            splash.style.opacity = '0';
-                            setTimeout(() => splash.remove(), 600);
-                        }
-                    }, 4000);
-                }
-            }, 8000);
+                if(loadingPercent) loadingPercent.innerText = "Network is slow... ⏳";
+                setTimeout(hideSplash, 4000);
+            }, 6000);
 
             try {
-                const noCacheParam = "?_t=" + Date.now();
+                updateProgress(10);
+                let hasCache = false;
 
-                const [iceCreamRes, groceryRes] = await Promise.all([
-                    fetch(iceCreamSheetUrl + noCacheParam),
-                    fetch(grocerySheetUrl + noCacheParam).catch(e => { console.warn("Grocery fetch issue:", e); return null; })
-                ]);
-
-                if(loadingBar) loadingBar.style.width = '70%';
-
-                if (!iceCreamRes.ok) throw new Error("Ice Cream Network response failed");
-                const iceCreamText = await iceCreamRes.text();
+                // 1. SAFE CACHE LOAD
                 try {
-                    const rawData = JSON.parse(iceCreamText);
-                    allIceCreamItems = window.normalizeData(rawData, false);
-                } catch(e) { throw new Error("Sheet returned Error Page instead of JSON data."); }
-
-                if (groceryRes && groceryRes.ok) {
-                    const groceryText = await groceryRes.text();
-                    try {
-                        allGroceryItems = window.normalizeData(JSON.parse(groceryText), true);
-                    } catch(e) { console.warn("Grocery JSON parse error or empty."); }
-                }
-
-                clearTimeout(failsafeTimer);
-
-                allItems = currentStoreMode === 'icecream' ? allIceCreamItems : allGroceryItems;
-
-                if(!allItems || allItems.length === 0) {
-                    statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="window.clearAllFilters()" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`;
-                    if(loadingBar) loadingBar.style.width = '100%';
-                    setTimeout(() => {
-                        const splash = document.getElementById('splash-screen');
-                        if(splash) {
-                            splash.style.opacity = '0';
-                            splash.style.visibility = 'hidden';
-                            setTimeout(() => splash.remove(), 600);
+                    const cachedIceCream = localStorage.getItem('glacier_icecream_cache');
+                    const cachedGrocery = localStorage.getItem('glacier_grocery_cache');
+                    
+                    if (cachedIceCream && cachedIceCream !== "undefined") {
+                        let parsedIC = JSON.parse(cachedIceCream);
+                        let parsedGr = cachedGrocery && cachedGrocery !== "undefined" ? JSON.parse(cachedGrocery) : [];
+                        
+                        if (Array.isArray(parsedIC)) {
+                            allIceCreamItems = parsedIC;
+                            if (Array.isArray(parsedGr)) allGroceryItems = parsedGr;
+                            
+                            allItems = currentStoreMode === 'icecream' ? allIceCreamItems : allGroceryItems;
+                            
+                            if (allItems && allItems.length > 0) {
+                                hasCache = true;
+                                window.setupAppUI(); 
+                                window.updateCategoryVisibility();
+                                window.applyFilters();
+                                updateProgress(100);
+                                setTimeout(hideSplash, 400);
+                            }
                         }
-                    }, 500);
-                    return;
+                    }
+                } catch(e) { 
+                    console.warn("Cache Warning:", e); 
                 }
 
-                const urlParams = new URLSearchParams(window.location.search);
-                if(urlParams.has('brand')) currentBrand = urlParams.get('brand');
-                if(urlParams.has('category')) currentCategory = urlParams.get('category');
+                if(!hasCache) updateProgress(30);
 
-                window.setupAppUI();
-                window.updateCategoryVisibility();
-                window.applyFilters();
-
-                if(loadingBar) loadingBar.style.width = '100%';
-
-                setTimeout(() => {
-                    const splash = document.getElementById('splash-screen');
-                    if(splash) {
-                        splash.style.opacity = '0';
-                        splash.style.visibility = 'hidden';
-                        setTimeout(() => splash.remove(), 600);
-                    }
-                    if(loadingBar) loadingBar.style.opacity = '0';
-                    statusMsg.style.display='none';
-                    window.updateBrandArrows();
-                }, 800);
-
-            } catch (error) {
-                console.error(error);
-                const splashSub = document.querySelector('.splash-subtext');
-                if(splashSub) splashSub.innerText = "⚠️ Network Issue!";
+                const noCacheParam = "?_t=" + Date.now();
                 
-                setTimeout(() => {
-                    const splash = document.getElementById('splash-screen');
-                    if(splash) {
-                        splash.style.opacity = '0';
-                        splash.style.visibility = 'hidden';
-                        setTimeout(() => splash.remove(), 600);
+                // 🟢 BULLETPROOF FETCH LOGIC 🟢
+                const safeFetch = async (url) => {
+                    try {
+                        const r = await fetch(url);
+                        if (!r.ok) return null;
+                        const txt = await r.text();
+                        return JSON.parse(txt);
+                    } catch (e) {
+                        return null;
                     }
-                }, 1500);
+                };
 
-                if(loadingBar) { loadingBar.style.width = '100%'; loadingBar.style.backgroundColor = '#e74c3c'; }
-                statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">⚠️</span><h3 style="color: #e74c3c; margin: 10px 0 5px 0;">Connection Failed</h3><p style="font-size:0.85em; color:var(--text-muted);">Please check your Google Sheet API links.</p></div>`;
-                statusMsg.style.display = 'block';
+                const [iceCreamData, groceryData] = await Promise.all([
+                    safeFetch(iceCreamSheetUrl + noCacheParam).then(d => { updateProgress(50); return d; }),
+                    safeFetch(grocerySheetUrl + noCacheParam).then(d => { updateProgress(70); return d; })
+                ]);
+                
+                updateProgress(85);
+                let needsReRender = false;
+
+                if (iceCreamData && Array.isArray(iceCreamData)) {
+                    allIceCreamItems = window.normalizeData(iceCreamData, false); 
+                    try { localStorage.setItem('glacier_icecream_cache', JSON.stringify(allIceCreamItems)); } catch(e){}
+                    needsReRender = true;
+                }
+
+                if (groceryData && Array.isArray(groceryData)) {
+                    allGroceryItems = window.normalizeData(groceryData, true);
+                    try { localStorage.setItem('glacier_grocery_cache', JSON.stringify(allGroceryItems)); } catch(e){}
+                    needsReRender = true;
+                }
+
+                if(needsReRender) {
+                    allItems = currentStoreMode === 'icecream' ? allIceCreamItems : allGroceryItems;
+                    if (!hasCache) {
+                        window.setupAppUI(); 
+                        window.updateCategoryVisibility();
+                    }
+                    window.applyFilters(); 
+                }
+                
+                updateProgress(100);
+
+                if (!allItems || allItems.length === 0) {
+                    statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">⚠️</span><h3 style="color: #e74c3c; margin: 10px 0 5px 0;">Connection Failed</h3><p style="font-size:0.85em; color:var(--text-muted);">Please check your Google Sheet API links.</p></div>`; 
+                    statusMsg.style.display = 'block'; 
+                }
+
+            } catch (error) { 
+                console.error("Data Load Error:", error);
+                if (!allItems || allItems.length === 0) {
+                    statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">⚠️</span><h3 style="color: #e74c3c; margin: 10px 0 5px 0;">Critical Error</h3><p style="font-size:0.85em; color:var(--text-muted);">Something went wrong. Please reload.</p></div>`;
+                    statusMsg.style.display = 'block';
+                }
+            } finally {
+                clearTimeout(failsafeTimer);
+                if(!hasCache) {
+                    updateProgress(100);
+                    setTimeout(hideSplash, 500);
+                    setTimeout(window.updateBrandArrows, 800);
+                }
             }
+        }
+
+        // 🟢 SAFE IMAGE URL FORMATTING 🟢
+        window.formatImageUrl = (imgPath) => {
+            if (!imgPath) return 'https://placehold.co/300x220/f4f6f9/a0a0a0?text=No+Image';
+            
+            let path = String(imgPath).trim();
+            if (path.startsWith('http')) return path;
+            
+            let encodedPath = path.split('/').map(encodeURIComponent).join('/');
+            return "https://www.appsheet.com/template/gettablefileurl?appName=LiveInventroy-257487838&tableName=Products&fileName=" + encodedPath;
         }
 
         window.applyFilters = () => {
@@ -2039,6 +2090,10 @@
             return Math.max(1, itemsPerRow) * 8; 
         }
 
+        // 🟢 FIXED: Regex updated to capture decimals correctly 🟢
+        window.getVolume = (name) => { let total = 0; let match; const regex = /(\d+(?:\.\d+)?)\s*(ml|l|ltr|gm|g|kg)/gi; while ((match = regex.exec(name)) !== null) { let val = parseFloat(match[1]); let unit = match[2].toLowerCase(); if (unit === 'l' || unit === 'ltr' || unit === 'kg') val *= 1000; total += val; } return total; }
+        window.extractVolumeText = (name) => { const match = name.match(/(\d+(?:\.\d+)?\s*(ml|l|ltr|gm|g|kg))/i); return match ? match[0] : ''; }
+
         window.renderMoreItems = () => {
             const gridWrapper = document.getElementById('main-menu-grid');
             let newHTML = '';
@@ -2048,8 +2103,10 @@
 
             itemsToRender.forEach((item, index) => {
                 if(!item.name) return;
-                const safeName = item.name.replace(/[^a-zA-Z0-9]/g, '_'); const volText = window.extractVolumeText(item.name);
-                let displayName = item.name.replace(volText, '').trim() || item.name;
+                
+                const safeName = String(item.name).replace(/[^a-zA-Z0-9]/g, '_'); 
+                const volText = window.extractVolumeText(String(item.name));
+                let displayName = String(item.name).replace(volText, '').trim() || String(item.name);
                 let discountNum = window.getDiscount(item);
                 
                 let priceHTML = discountNum > 0 ? `<div class="price-row"><span class="item-price">₹${item.price}</span><span class="item-mrp">₹${item.mrp}</span></div>` : `<div class="price-row"><span class="item-price">₹${item.price}</span></div>`;
@@ -2082,12 +2139,12 @@
                 }
 
                 newHTML += `
-                    <div class="menu-card ${isOutOfStock ? 'oos-card' : ''}" id="card-${safeName}" onclick="window.openProductDetail('${item.name.replace(/'/g, "\\'")}')">
+                    <div class="menu-card ${isOutOfStock ? 'oos-card' : ''}" id="card-${safeName}" onclick="window.openProductDetail('${String(item.name).replace(/'/g, "\\'")}')">
                         <div class="card-img-wrapper skeleton-bg">
                             ${window.isNewArrival(item) ? `<div class="new-badge">✨ NEW</div>` : ''}
                             ${discountNum > 0 ? `<div class="red-discount-icon">${Math.round(discountNum)}% OFF</div>` : ''}
                             
-                            <img src="${item.img}" crossorigin="anonymous" loading="lazy" decoding="async" style="opacity: 0; transition: opacity 0.3s ease-in-out;" onload="this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';" onerror="this.onerror=null; this.src='https://placehold.co/300x220/f4f6f9/a0a0a0?text=No+Image'; this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';">
+                            <img src="${window.formatImageUrl(item.img)}" crossorigin="anonymous" loading="lazy" decoding="async" style="opacity: 0; transition: opacity 0.3s ease-in-out;" onload="this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';" onerror="this.onerror=null; this.src='https://placehold.co/300x220/f4f6f9/a0a0a0?text=No+Image'; this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';">
                             
                             <div class="btn-container" id="add-wrap-${safeName}" onclick="event.stopPropagation()">
                                 ${isOutOfStock ? `<div class="out-of-stock-badge">OUT OF STOCK</div>` : ''}
@@ -2117,11 +2174,11 @@
             const item = allItems.find(i => i.name === itemName);
             if(!item) return;
 
-            const volText = window.extractVolumeText(item.name);
-            const displayName = item.name.replace(volText, '').trim() || item.name;
+            const volText = window.extractVolumeText(String(item.name));
+            const displayName = String(item.name).replace(volText, '').trim() || String(item.name);
             const discountNum = window.getDiscount(item);
 
-            document.getElementById('pd-modal-img').src = item.img;
+            document.getElementById('pd-modal-img').src = window.formatImageUrl(item.img);
             document.getElementById('pd-modal-brand-logo').innerHTML = window.getBrandLogo(item.brand);
             document.getElementById('pd-modal-brand-name').innerText = item.brand;
             document.getElementById('pd-modal-name').innerText = item.name;
@@ -2150,9 +2207,9 @@
             if (currentStoreMode === 'grocery' && stock === 0) {
                 btnWrap.innerHTML = `<div class="out-of-stock-badge" style="margin:0; padding:10px 15px; font-size:1em;">OUT OF STOCK</div>`;
             } else if (cart[item.name]) {
-                btnWrap.innerHTML = `<div class="app-qty-control" style="height:40px; width:100px; font-size:1.1em;"><button onclick="event.stopPropagation(); window.changeQty('${item.name.replace(/'/g, "\\'")}', -1)">−</button><span>${cart[item.name].qty}</span><button onclick="event.stopPropagation(); window.changeQty('${item.name.replace(/'/g, "\\'")}', 1)">+</button></div>`;
+                btnWrap.innerHTML = `<div class="app-qty-control" style="height:40px; width:100px; font-size:1.1em;"><button onclick="event.stopPropagation(); window.changeQty('${String(item.name).replace(/'/g, "\\'")}', -1)">−</button><span>${cart[item.name].qty}</span><button onclick="event.stopPropagation(); window.changeQty('${String(item.name).replace(/'/g, "\\'")}', 1)">+</button></div>`;
             } else {
-                btnWrap.innerHTML = `<div class="app-add-btn" style="height:40px; border-radius:10px; width:auto; padding:0 20px; font-size:1em; font-weight:bold;" onclick="event.stopPropagation(); window.addToCart('${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.brand ? item.brand.replace(/'/g, "\\'") : ''}', ${stock})">+ ADD</div>`;
+                btnWrap.innerHTML = `<div class="app-add-btn" style="height:40px; border-radius:10px; width:auto; padding:0 20px; font-size:1em; font-weight:bold;" onclick="event.stopPropagation(); window.addToCart('${String(item.name).replace(/'/g, "\\'")}', ${item.price}, '${item.brand ? String(item.brand).replace(/'/g, "\\'") : ''}', ${stock})">+ ADD</div>`;
             }
 
             window.openSpecificModal('product-detail-modal');
@@ -2161,7 +2218,7 @@
         window.updateAddButtons = () => {
             allItems.forEach(item => {
                 if(!item.name) return;
-                const safeName = item.name.replace(/[^a-zA-Z0-9]/g, '_'); 
+                const safeName = String(item.name).replace(/[^a-zA-Z0-9]/g, '_'); 
                 const wrap = document.getElementById(`add-wrap-${safeName}`);
                 
                 if (wrap) {
@@ -2169,9 +2226,9 @@
                     if (currentStoreMode === 'grocery' && stock === 0) {
                         wrap.innerHTML = `<div class="out-of-stock-badge">OUT OF STOCK</div>`;
                     } else if (cart[item.name]) {
-                        wrap.innerHTML = `<div class="app-qty-control"><button onclick="event.stopPropagation(); window.changeQty('${item.name.replace(/'/g, "\\'")}', -1)">−</button><span>${cart[item.name].qty}</span><button onclick="event.stopPropagation(); window.changeQty('${item.name.replace(/'/g, "\\'")}', 1)">+</button></div>`;
+                        wrap.innerHTML = `<div class="app-qty-control"><button onclick="event.stopPropagation(); window.changeQty('${String(item.name).replace(/'/g, "\\'")}', -1)">−</button><span>${cart[item.name].qty}</span><button onclick="event.stopPropagation(); window.changeQty('${String(item.name).replace(/'/g, "\\'")}', 1)">+</button></div>`;
                     } else {
-                        wrap.innerHTML = `<div class="app-add-btn" onclick="event.stopPropagation(); window.addToCart('${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.brand ? item.brand.replace(/'/g, "\\'") : ''}', ${stock})">+</div>`;
+                        wrap.innerHTML = `<div class="app-add-btn" onclick="event.stopPropagation(); window.addToCart('${String(item.name).replace(/'/g, "\\'")}', ${item.price}, '${item.brand ? String(item.brand).replace(/'/g, "\\'") : ''}', ${stock})">+</div>`;
                     }
                 }
             });
@@ -2217,7 +2274,7 @@
             for (const [name, data] of Object.entries(cart)) {
                 totalQty += data.qty; const itemTotal = data.price * data.qty; totalPrice += itemTotal;
                 let itemPriceHTML = `₹${itemTotal}`;
-                cartList.innerHTML += `<div class="cart-item"><div class="cart-item-details"><div style="font-size: 0.75em; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">${data.brand}</div><div style="font-weight: 600; color: var(--text-main);">${name}</div></div><div class="cart-item-controls"><button class="qty-btn" onclick="window.changeQty('${name.replace(/'/g, "\\'")}', -1)">-</button><span style="font-weight: 700;">${data.qty}</span><button class="qty-btn" onclick="window.changeQty('${name.replace(/'/g, "\\'")}', 1)">+</button></div><div class="cart-item-price">${itemPriceHTML}</div></div>`;
+                cartList.innerHTML += `<div class="cart-item"><div class="cart-item-details"><div style="font-size: 0.75em; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">${data.brand}</div><div style="font-weight: 600; color: var(--text-main);">${name}</div></div><div class="cart-item-controls"><button class="qty-btn" onclick="window.changeQty('${String(name).replace(/'/g, "\\'")}', -1)">-</button><span style="font-weight: 700;">${data.qty}</span><button class="qty-btn" onclick="window.changeQty('${String(name).replace(/'/g, "\\'")}', 1)">+</button></div><div class="cart-item-price">${itemPriceHTML}</div></div>`;
             }
             window.updateAddButtons();
             
@@ -2262,7 +2319,6 @@
                     let fullDeliveryAddress = `${addr.house}, ${addr.area}`;
                     message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
                     if (addr.lat && addr.lng) { message += `📍 *Location Link:* https://maps.google.com/maps?q=${addr.lat},${addr.lng}\n`; }
-                    // Placeholder for Firebase addDoc
                 } else if (window.globalUser) { 
                     alert("Please add a delivery address in 'Addresses' before checking out!"); return;
                 } else { window.handleProfileClick(); return; }
@@ -2295,7 +2351,6 @@
                 let x = clientX - rect.left;
                 let y = clientY - rect.top;
 
-                // Keeps the coordinate inside the image frame
                 x = Math.max(0, Math.min(x, rect.width));
                 y = Math.max(0, Math.min(y, rect.height));
 
@@ -2311,31 +2366,33 @@
                 img.style.transform = 'scale(1)';
             };
 
-            // Desktop events
             container.addEventListener('mousemove', handleZoom);
             container.addEventListener('mouseleave', resetZoom);
 
-            // Mobile events
             container.addEventListener('touchstart', handleZoom, {passive: false});
             container.addEventListener('touchmove', handleZoom, {passive: false});
             container.addEventListener('touchend', resetZoom);
         };
 
-        // 🟢 SAFELY INITIALIZE APP 🟢
         document.addEventListener('DOMContentLoaded', () => {
             loadData();
             window.initImageZoom();
         });
         
-        // 🟢 SILENT AUTO-POLLING EVERY 10 SECONDS 🟢
+        // 🟢 SAFE SILENT AUTO-POLLING 🟢
         setInterval(async () => {
             try {
                 const noCacheParam = "?_t=" + Date.now();
                 let activeUrl = currentStoreMode === 'icecream' ? iceCreamSheetUrl : grocerySheetUrl;
-                let res = await fetch(activeUrl + noCacheParam, { cache: "no-store", headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } }); 
+                
+                let res = await fetch(activeUrl + noCacheParam); 
                 if (!res.ok) return;
-                let text = await res.text();
-                let newData = window.normalizeData(JSON.parse(text), currentStoreMode === 'grocery');
+                
+                let txt = await res.text();
+                let rawData = JSON.parse(txt);
+                if (!Array.isArray(rawData)) return;
+
+                let newData = window.normalizeData(rawData, currentStoreMode === 'grocery');
                 
                 if (currentStoreMode === 'icecream') {
                     allIceCreamItems = newData;
@@ -2346,7 +2403,6 @@
                 
                 let shouldReRender = false;
 
-                // Auto-Prune Cart
                 for (let name in cart) {
                     let found = allItems.find(i => i.name === name);
                     if (found) {
@@ -2363,10 +2419,9 @@
                     }
                 }
                 
-                // 🟢 UPDATE DOM & TRIGGER ANIMATIONS 🟢
                 allItems.forEach(item => {
                     if(!item.name) return;
-                    const safeName = item.name.replace(/[^a-zA-Z0-9]/g, '_');
+                    const safeName = String(item.name).replace(/[^a-zA-Z0-9]/g, '_');
                     const cardEl = document.getElementById(`card-${safeName}`);
                     const stockBadgeEl = document.getElementById(`stock-badge-${safeName}`);
                     const addWrapEl = document.getElementById(`add-wrap-${safeName}`);
@@ -2393,10 +2448,9 @@
                                 stockBadgeEl.innerText = `${stock} in stock`;
                                 stockBadgeEl.setAttribute('data-stock', stock);
                                 
-                                // 🟢 TRIGGER RED/GREEN ANIMATION ON STOCK CHANGE 🟢
                                 if (!isNaN(oldStock) && oldStock !== -1 && oldStock !== stock) {
                                     stockBadgeEl.classList.remove('stock-flash-down', 'stock-flash-up');
-                                    void stockBadgeEl.offsetWidth; // Trigger reflow to restart animation
+                                    void stockBadgeEl.offsetWidth; 
                                     
                                     if (stock < oldStock) {
                                         stockBadgeEl.classList.add('stock-flash-down');
@@ -2415,8 +2469,8 @@
                 window.updateCartUI(); 
                 if (shouldReRender) window.applyFilters();
                 
-            } catch(e) { /* Silent fail for background sync */ }
-        }, 10000); // Polling every 10 seconds
+            } catch(e) { }
+        }, 10000); 
 
     </script>
 </body>
