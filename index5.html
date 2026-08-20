@@ -14,7 +14,7 @@
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     
-    <!-- 🟢 Libraries: Confetti, PDF Export & Canvas 🟢 -->
+    <!-- 🟢 Libraries: Confetti & PDF Export 🟢 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>    
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -100,7 +100,6 @@
         .btn-profile { background: rgba(228, 77, 38, 0.1); color: var(--primary-color); border-color: rgba(228, 77, 38, 0.2); }
         .btn-profile:hover { background: var(--primary-color); color: white; }
 
-        /* 🟢 HEADER SEARCH BAR 🟢 */
         .header-search { display: none; }
         .control-chip { display: flex; align-items: center; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 50px; padding: 10px 20px; transition: 0.2s; width: 100%; box-sizing: border-box;}
         .control-chip:focus-within { border-color: var(--glacier-blue); box-shadow: 0 4px 12px rgba(31,81,198,0.1);}
@@ -141,7 +140,6 @@
         .brand-item.active .brand-icon { border-color: var(--active-brand-red); border-width: 2px; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.15); }
         .brand-item.active .brand-name { color: var(--active-brand-red); }
 
-        /* 🟢 DESKTOP PANELS 🟢 */
         .desktop-category-panel, .desktop-tags-panel { display: none; }
         .desktop-tools-bar { display: none; }
 
@@ -190,7 +188,6 @@
         .oos-card { opacity: 0.6; filter: grayscale(100%); transition: all 0.3s ease; cursor: default; }
         .oos-card:hover { opacity: 0.9; filter: grayscale(50%); transform: none; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
 
-        /* 🟢 PERFECTED IMAGE WRAPPER AND OVERFLOW 🟢 */
         .card-img-wrapper { position: relative; background: #fff; border-radius: 12px; height: 160px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; flex-shrink: 0; cursor: pointer; overflow: visible; }
         .card-img-wrapper img { width: 90%; height: 90%; object-fit: contain; mix-blend-mode: multiply; border-radius: 12px;}
         [data-theme="dark"] .card-img-wrapper { background: #e2e8f0; } 
@@ -218,7 +215,6 @@
         .stock-badge.low-stock { background: rgba(245, 158, 11, 0.15); color: #d97706; border-color: rgba(245, 158, 11, 0.3); }
         .out-of-stock-badge { background: var(--card-bg); color: var(--active-brand-red); font-weight: 800; font-size: 0.7em; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--active-brand-red); box-shadow: 0 4px 10px rgba(0,0,0,0.1); white-space: nowrap;}
 
-        /* 🟢 ADD BUTTON RESTORED TO IMAGE CORNER 🟢 */
         .btn-container { position: absolute; right: 8px; bottom: -16px; z-index: 10; display: flex; justify-content: center; align-items: center; }
         
         .app-add-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); color: var(--glacier-blue); border: 1px solid var(--border-color); font-size: 1.6em; font-weight: 500; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: 0.2s; line-height: 1; padding-bottom: 2px; position: relative; z-index: 15;}
@@ -1070,26 +1066,34 @@
 
         window.fetchUserData = async (uid) => {};
 
+        // 🟢 SUPER FIX: STRING COERCION TO PREVENT FATAL CRASHES 🟢
         window.normalizeData = (items, isGrocery = false) => {
             if (!Array.isArray(items)) return []; 
             const timeStamp = Date.now();
             return items.map(item => {
                 
-                if (item.brand && typeof item.brand === 'string') {
-                    item.brand = item.brand.trim().split(/\s+/).map(word => {
+                if (item.brand) {
+                    item.brand = String(item.brand).trim().split(/\s+/).map(word => {
                         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
                     }).join(' ');
-                }
-                if (item.name && typeof item.name === 'string') {
-                    item.name = item.name.trim().split(/\s+/).map(word => {
-                        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-                    }).join(' ');
+                } else {
+                    item.brand = 'Unknown Brand';
                 }
                 
-                if (item.category && typeof item.category === 'string') {
-                    item.category = item.category.trim().split(/\s+/).map(word => {
+                if (item.name) {
+                    item.name = String(item.name).trim().split(/\s+/).map(word => {
                         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
                     }).join(' ');
+                } else {
+                    item.name = 'Unnamed Item';
+                }
+                
+                if (item.category) {
+                    item.category = String(item.category).trim().split(/\s+/).map(word => {
+                        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                    }).join(' ');
+                } else {
+                    item.category = 'More Favorites';
                 }
                 
                 if (isGrocery && item.img && String(item.img).includes('Products_Images/')) {
@@ -1554,12 +1558,13 @@
             "shahi agarwal": "https://i.postimg.cc/JzP9sv3n/shahi-agarwal.jpg"
         };
 
+        // 🟢 SUPER FIX: ENFORCE STRING CONVERSION IN LOGO 🟢
         window.getBrandLogo = (brandName) => {
             if(!brandName) return '';
-            const b = brandName.toLowerCase(); let matchedImg = '';
+            const b = String(brandName).toLowerCase(); let matchedImg = '';
             for (let key in brandImageLinks) { if (b.includes(key)) { matchedImg = brandImageLinks[key]; break; } }
             if (matchedImg) return `<img src="${matchedImg}" alt="${brandName}">`;
-            let text = brandName.substring(0, 2).toUpperCase();
+            let text = String(brandName).substring(0, 2).toUpperCase();
             return `<svg viewBox="0 0 100 100" style="width:100%; height:100%; background:var(--chip-bg);"><text x="50" y="55" font-size="38" fill="var(--text-muted)" font-weight="bold" font-family="Montserrat, sans-serif" text-anchor="middle" dominant-baseline="middle">${text}</text></svg>`;
         }
 
@@ -1610,7 +1615,7 @@
         }
 
         window.getTagStyle = (tag) => {
-            let t = tag.toLowerCase();
+            let t = String(tag).toLowerCase();
             if(t.includes('vegan')) return 'tag-style-vegan';
             if(t.includes('sugar')) return 'tag-style-sugarfree';
             if(t.includes('fast') || t.includes('vrat') || t.includes('guilt')) return 'tag-style-fastfriendly';
@@ -1618,7 +1623,7 @@
         }
 
         window.getTagIcon = (tag) => {
-            let t = tag.toLowerCase();
+            let t = String(tag).toLowerCase();
             let imgUrl = '';
             if (t.includes('vegan')) imgUrl = 'https://i.postimg.cc/mD5dDdW4/vegan.png';
             else if (t.includes('diet') || t.includes('fast') || t.includes('vrat') || t.includes('guilt')) imgUrl = 'https://i.postimg.cc/wvGWvWYY/diet_icon.png';
@@ -1687,7 +1692,7 @@
         };
 
         window.updateCategoryVisibility = () => {
-            const rawCats = allItems.map(item => item.category || 'More Favorites').filter(c => c);
+            const rawCats = allItems.map(item => String(item.category || 'More Favorites')).filter(c => c);
             let uniqueCats = [...new Set(rawCats)];
             uniqueCats.sort((a, b) => a.localeCompare(b)); 
             
@@ -1702,7 +1707,7 @@
                 } else if (cat === 'New Arrivals') {
                     hasItems = allItems.some(i => window.isNewArrival(i) && (currentBrand === 'All Brands' || i.brand === currentBrand));
                 } else {
-                    hasItems = allItems.some(i => (i.category || 'More Favorites') === cat && (currentBrand === 'All Brands' || i.brand === currentBrand));
+                    hasItems = allItems.some(i => String(i.category || 'More Favorites') === cat && (currentBrand === 'All Brands' || i.brand === currentBrand));
                 }
                 catVisibility[cat] = hasItems;
             });
@@ -1906,6 +1911,17 @@
             }
         }
 
+        // 🟢 SUPER FIX: STRING COERCION IN FORMAT IMAGE URL 🟢
+        window.formatImageUrl = (imgPath) => {
+            if (!imgPath) return 'https://placehold.co/300x220/f4f6f9/a0a0a0?text=No+Image';
+            
+            let path = String(imgPath).trim();
+            if (path.startsWith('http')) return path;
+            
+            let encodedPath = path.split('/').map(encodeURIComponent).join('/');
+            return "https://www.appsheet.com/template/gettablefileurl?appName=IceCreamInventory-257487838&tableName=menu&fileName=" + encodedPath;
+        }
+
         window.applyFilters = () => {
             const gridWrapper = document.getElementById('main-menu-grid'); 
             const statusMsg = document.getElementById('status-msg');
@@ -2039,6 +2055,7 @@
             return Math.max(1, itemsPerRow) * 8; 
         }
 
+        // 🟢 SUPER FIX: STRING COERCION IN RENDER TO PREVENT FATAL CRASHES 🟢
         window.renderMoreItems = () => {
             const gridWrapper = document.getElementById('main-menu-grid');
             let newHTML = '';
@@ -2048,8 +2065,10 @@
 
             itemsToRender.forEach((item, index) => {
                 if(!item.name) return;
-                const safeName = item.name.replace(/[^a-zA-Z0-9]/g, '_'); const volText = window.extractVolumeText(item.name);
-                let displayName = item.name.replace(volText, '').trim() || item.name;
+                
+                const safeName = String(item.name).replace(/[^a-zA-Z0-9]/g, '_'); 
+                const volText = window.extractVolumeText(String(item.name));
+                let displayName = String(item.name).replace(volText, '').trim() || String(item.name);
                 let discountNum = window.getDiscount(item);
                 
                 let priceHTML = discountNum > 0 ? `<div class="price-row"><span class="item-price">₹${item.price}</span><span class="item-mrp">₹${item.mrp}</span></div>` : `<div class="price-row"><span class="item-price">₹${item.price}</span></div>`;
@@ -2074,353 +2093,4 @@
                         isOutOfStock = true;
                         stockHTML = `<div class="stock-badge" id="stock-badge-${safeName}" data-stock="0" style="display:none;"></div>`;
                     } else {
-                        let stockClass = stock <= 5 ? 'stock-badge low-stock' : 'stock-badge';
-                        stockHTML = `<div class="${stockClass}" id="stock-badge-${safeName}" data-stock="${stock}">${stock} in stock</div>`;
-                    }
-                } else {
-                    stockHTML = `<div class="stock-badge" id="stock-badge-${safeName}" data-stock="-1" style="display:none;"></div>`;
-                }
-
-                newHTML += `
-                    <div class="menu-card ${isOutOfStock ? 'oos-card' : ''}" id="card-${safeName}" onclick="window.openProductDetail('${item.name.replace(/'/g, "\\'")}')">
-                        <div class="card-img-wrapper skeleton-bg">
-                            ${window.isNewArrival(item) ? `<div class="new-badge">✨ NEW</div>` : ''}
-                            ${discountNum > 0 ? `<div class="red-discount-icon">${Math.round(discountNum)}% OFF</div>` : ''}
-                            
-                            <img src="${window.formatImageUrl(item.img)}" crossorigin="anonymous" loading="lazy" decoding="async" style="opacity: 0; transition: opacity 0.3s ease-in-out;" onload="this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';" onerror="this.onerror=null; this.src='https://placehold.co/300x220/f4f6f9/a0a0a0?text=No+Image'; this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';">
-                            
-                            <!-- 🟢 ADD BUTTON RESTORED ON IMAGE CORNER 🟢 -->
-                            <div class="btn-container" id="add-wrap-${safeName}" onclick="event.stopPropagation()">
-                                ${isOutOfStock ? `<div class="out-of-stock-badge">OUT OF STOCK</div>` : ''}
-                            </div>
-                        </div>
-                        
-                        ${stockHTML}
-                        <div class="brand-tag">${item.brand}</div>
-                        ${tagsHTML}
-                        <div class="item-name">${displayName}</div>
-                        
-                        <div class="vol-price-row">
-                            <div class="item-volume">${volText || ' '}</div>
-                            ${priceHTML}
-                        </div>
-                    </div>
-                `;
-            });
-            
-            gridWrapper.insertAdjacentHTML('beforeend', newHTML);
-            currentlyDisplayed += itemsToRender.length;
-            
-            window.updateAddButtons();
-        }
-
-        window.openProductDetail = (itemName) => {
-            const item = allItems.find(i => i.name === itemName);
-            if(!item) return;
-
-            const volText = window.extractVolumeText(item.name);
-            const displayName = item.name.replace(volText, '').trim() || item.name;
-            const discountNum = window.getDiscount(item);
-
-            document.getElementById('pd-modal-img').src = window.formatImageUrl(item.img);
-            document.getElementById('pd-modal-brand-logo').innerHTML = window.getBrandLogo(item.brand);
-            document.getElementById('pd-modal-brand-name').innerText = item.brand;
-            document.getElementById('pd-modal-name').innerText = item.name;
-            document.getElementById('pd-modal-volume').innerText = volText || '';
-
-            let desc = ''; let ing = '';
-            for(let key in item) {
-                let cleanKey = String(key).toLowerCase().replace(/[^a-z0-9]/g, '');
-                if(['description', 'desc', 'detail', 'details'].includes(cleanKey)) { if(item[key]) desc = String(item[key]).trim(); }
-                if(['ingredient', 'ingredients', 'composition'].includes(cleanKey)) { if(item[key]) ing = String(item[key]).trim(); }
-            }
-            
-            const descEl = document.getElementById('pd-modal-desc');
-            const ingEl = document.getElementById('pd-modal-ingredients');
-            
-            if(desc !== '') { descEl.innerText = desc; descEl.style.display = 'block'; } else { descEl.style.display = 'none'; }
-            if(ing !== '') { ingEl.innerText = "*Note: " + ing; ingEl.style.display = 'block'; } else { ingEl.style.display = 'none'; }
-
-            const priceWrap = document.getElementById('pd-modal-price-wrap');
-            let priceHTML = discountNum > 0 ? `<span class="item-price">₹${item.price}</span> <span class="item-mrp" style="text-decoration:line-through; color:var(--text-muted); font-size:0.8em; margin-left:5px;">₹${item.mrp}</span>` : `<span class="item-price">₹${item.price}</span>`;
-            priceWrap.innerHTML = priceHTML;
-
-            const btnWrap = document.getElementById('pd-modal-btn-wrap');
-            let stock = window.getItemStock(item);
-            
-            if (currentStoreMode === 'grocery' && stock === 0) {
-                btnWrap.innerHTML = `<div class="out-of-stock-badge" style="margin:0; padding:10px 15px; font-size:1em;">OUT OF STOCK</div>`;
-            } else if (cart[item.name]) {
-                btnWrap.innerHTML = `<div class="app-qty-control" style="height:40px; width:100px; font-size:1.1em;"><button onclick="event.stopPropagation(); window.changeQty('${item.name.replace(/'/g, "\\'")}', -1)">−</button><span>${cart[item.name].qty}</span><button onclick="event.stopPropagation(); window.changeQty('${item.name.replace(/'/g, "\\'")}', 1)">+</button></div>`;
-            } else {
-                btnWrap.innerHTML = `<div class="app-add-btn" style="height:40px; border-radius:10px; width:auto; padding:0 20px; font-size:1em; font-weight:bold;" onclick="event.stopPropagation(); window.addToCart('${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.brand ? item.brand.replace(/'/g, "\\'") : ''}', ${stock})">+ ADD</div>`;
-            }
-
-            window.openSpecificModal('product-detail-modal');
-        }
-
-        window.updateAddButtons = () => {
-            allItems.forEach(item => {
-                if(!item.name) return;
-                const safeName = item.name.replace(/[^a-zA-Z0-9]/g, '_'); 
-                const wrap = document.getElementById(`add-wrap-${safeName}`);
-                
-                if (wrap) {
-                    let stock = window.getItemStock(item);
-                    if (currentStoreMode === 'grocery' && stock === 0) {
-                        wrap.innerHTML = `<div class="out-of-stock-badge">OUT OF STOCK</div>`;
-                    } else if (cart[item.name]) {
-                        wrap.innerHTML = `<div class="app-qty-control"><button onclick="event.stopPropagation(); window.changeQty('${item.name.replace(/'/g, "\\'")}', -1)">−</button><span>${cart[item.name].qty}</span><button onclick="event.stopPropagation(); window.changeQty('${item.name.replace(/'/g, "\\'")}', 1)">+</button></div>`;
-                    } else {
-                        wrap.innerHTML = `<div class="app-add-btn" onclick="event.stopPropagation(); window.addToCart('${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.brand ? item.brand.replace(/'/g, "\\'") : ''}', ${stock})">+</div>`;
-                    }
-                }
-            });
-        }
-
-        window.addToCart = (name, price, brand, maxStock) => { 
-            let currentQty = cart[name] ? cart[name].qty : 0;
-            if (currentStoreMode === 'grocery' && maxStock !== null && currentQty >= maxStock) {
-                window.showToast("Maximum stock limit reached! 🚫");
-                return;
-            }
-
-            if(cart[name]) cart[name].qty += 1; 
-            else cart[name] = { price: price, qty: 1, brand: brand, maxStock: maxStock }; 
-            
-            window.updateCartUI(); 
-            window.showToast(name); 
-            
-            if(document.getElementById('product-detail-modal').style.display === 'flex') window.openProductDetail(name);
-        }
-
-        window.changeQty = (name, delta) => { 
-            if(cart[name]) { 
-                let newQty = cart[name].qty + delta;
-                if (delta > 0 && currentStoreMode === 'grocery' && cart[name].maxStock !== null && newQty > cart[name].maxStock) {
-                    window.showToast("Maximum stock limit reached! 🚫");
-                    return;
-                }
-
-                cart[name].qty = newQty; 
-                if(cart[name].qty <= 0) delete cart[name]; 
-                window.updateCartUI(); 
-                if(document.getElementById('product-detail-modal').style.display === 'flex') window.openProductDetail(name);
-            } 
-        }
-
-        window.updateCartUI = () => {
-            const cartList = document.getElementById('cart-items-list'); 
-            const floatingCartBtn = document.getElementById('floating-cart');
-            const badgeCount = document.getElementById('cart-badge-count');
-            
-            let totalQty = 0; let totalPrice = 0; cartList.innerHTML = '';
-            for (const [name, data] of Object.entries(cart)) {
-                totalQty += data.qty; const itemTotal = data.price * data.qty; totalPrice += itemTotal;
-                let itemPriceHTML = `₹${itemTotal}`;
-                cartList.innerHTML += `<div class="cart-item"><div class="cart-item-details"><div style="font-size: 0.75em; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 2px;">${data.brand}</div><div style="font-weight: 600; color: var(--text-main);">${name}</div></div><div class="cart-item-controls"><button class="qty-btn" onclick="window.changeQty('${name.replace(/'/g, "\\'")}', -1)">-</button><span style="font-weight: 700;">${data.qty}</span><button class="qty-btn" onclick="window.changeQty('${name.replace(/'/g, "\\'")}', 1)">+</button></div><div class="cart-item-price">${itemPriceHTML}</div></div>`;
-            }
-            window.updateAddButtons();
-            
-            if(totalQty > 0) { 
-                badgeCount.innerText = totalQty; 
-                floatingCartBtn.classList.add('visible'); 
-            } else { 
-                cartList.innerHTML = '<p style="color:var(--text-muted); text-align: center; font-weight: 500;">Your cart is empty. 🛒</p>'; 
-                floatingCartBtn.classList.remove('visible'); 
-                document.getElementById('cart-modal').style.display = 'none'; 
-                window.unlockBodyScroll();
-            }
-            document.getElementById('cart-total-price').innerText = totalPrice;
-        }
-
-        window.toggleCart = () => { 
-            if(Object.keys(cart).length === 0) return; 
-            const modal = document.getElementById('cart-modal'); 
-            if(modal.style.display === 'flex') {
-                modal.style.display = 'none';
-                window.unlockBodyScroll();
-            } else {
-                modal.style.display = 'flex';
-                window.lockBodyScroll();
-            }
-        }
-        
-        window.clearCart = () => { if(Object.keys(cart).length === 0) return; if(confirm("Are you sure you want to clear your cart?")) { cart = {}; window.updateCartUI(); } }
-        
-        window.checkout = async (method) => {
-            if(Object.keys(cart).length === 0) return;
-            if (method === 'whatsapp') {
-                let message = "Hello Glacier!🍦\n\n*New Order:*\n"; let total = 0; let itemsSummary = [];
-                for (const [name, data] of Object.entries(cart)) {
-                    message += `- ${data.qty}x [${data.brand}] ${name} (₹${data.price * data.qty})\n`;
-                    total += (data.price * data.qty); itemsSummary.push(`${data.qty}x ${name}`);
-                }
-                
-                if (window.userDocId && window.globalUserData && window.globalUserData.addresses && window.globalUserData.addresses.length > 0) {
-                    let addr = window.globalUserData.addresses[window.selectedAddressIndex];
-                    if(!addr) addr = window.globalUserData.addresses[0]; 
-                    let fullDeliveryAddress = `${addr.house}, ${addr.area}`;
-                    message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
-                    if (addr.lat && addr.lng) { message += `📍 *Location Link:* https://maps.google.com/maps?q=${addr.lat},${addr.lng}\n`; }
-                    // Placeholder for Firebase addDoc
-                } else if (window.globalUser) { 
-                    alert("Please add a delivery address in 'Addresses' before checking out!"); return;
-                } else { window.handleProfileClick(); return; }
-
-                message += `\n*Total Amount: ₹${total}*\n\n_Please confirm my order._`;
-                window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-            }
-        };
-
-        // 🟢 IMAGE MAGNIFIER LOGIC 🟢
-        window.initImageZoom = () => {
-            const container = document.getElementById('pd-img-container');
-            const img = document.getElementById('pd-modal-img');
-            
-            if(!container || !img) return;
-
-            const handleZoom = (e) => {
-                if(e.type === 'touchmove' || e.type === 'touchstart') e.preventDefault(); 
-                
-                let clientX, clientY;
-                if (e.touches && e.touches.length > 0) {
-                    clientX = e.touches[0].clientX;
-                    clientY = e.touches[0].clientY;
-                } else {
-                    clientX = e.clientX;
-                    clientY = e.clientY;
-                }
-
-                const rect = container.getBoundingClientRect();
-                let x = clientX - rect.left;
-                let y = clientY - rect.top;
-
-                // Keeps the coordinate inside the image frame
-                x = Math.max(0, Math.min(x, rect.width));
-                y = Math.max(0, Math.min(y, rect.height));
-
-                const xPercent = (x / rect.width) * 100;
-                const yPercent = (y / rect.height) * 100;
-
-                img.style.transformOrigin = `${xPercent}% ${yPercent}%`;
-                img.style.transform = 'scale(2.2)';
-            };
-
-            const resetZoom = () => {
-                img.style.transformOrigin = 'center center';
-                img.style.transform = 'scale(1)';
-            };
-
-            // Desktop events
-            container.addEventListener('mousemove', handleZoom);
-            container.addEventListener('mouseleave', resetZoom);
-
-            // Mobile events
-            container.addEventListener('touchstart', handleZoom, {passive: false});
-            container.addEventListener('touchmove', handleZoom, {passive: false});
-            container.addEventListener('touchend', resetZoom);
-        };
-
-        // 🟢 SAFELY INITIALIZE APP 🟢
-        document.addEventListener('DOMContentLoaded', () => {
-            loadData();
-            window.initImageZoom();
-        });
-        
-        // 🟢 SILENT AUTO-POLLING EVERY 10 SECONDS 🟢
-        setInterval(async () => {
-            try {
-                const noCacheParam = "?_t=" + Date.now();
-                let activeUrl = currentStoreMode === 'icecream' ? iceCreamSheetUrl : grocerySheetUrl;
-                let res = await fetch(activeUrl + noCacheParam, { cache: "no-store", headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } }); 
-                if (!res.ok) return;
-                let rawData = await res.json();
-                if (!Array.isArray(rawData)) return;
-
-                let newData = window.normalizeData(rawData, currentStoreMode === 'grocery');
-                
-                if (currentStoreMode === 'icecream') {
-                    allIceCreamItems = newData;
-                } else {
-                    allGroceryItems = newData;
-                }
-                allItems = newData;
-                
-                let shouldReRender = false;
-
-                // Auto-Prune Cart
-                for (let name in cart) {
-                    let found = allItems.find(i => i.name === name);
-                    if (found) {
-                        let s = window.getItemStock(found);
-                        if (currentStoreMode === 'grocery' && s !== null) {
-                            cart[name].maxStock = s;
-                            if (s === 0) {
-                                delete cart[name];
-                                window.showToast(name + " went out of stock!");
-                            } else if (cart[name].qty > s) {
-                                cart[name].qty = s;
-                            }
-                        }
-                    }
-                }
-                
-                // 🟢 UPDATE DOM & TRIGGER ANIMATIONS 🟢
-                allItems.forEach(item => {
-                    if(!item.name) return;
-                    const safeName = item.name.replace(/[^a-zA-Z0-9]/g, '_');
-                    const cardEl = document.getElementById(`card-${safeName}`);
-                    const stockBadgeEl = document.getElementById(`stock-badge-${safeName}`);
-                    const addWrapEl = document.getElementById(`add-wrap-${safeName}`);
-                    
-                    if(cardEl) {
-                        let stock = window.getItemStock(item);
-                        let isOutOfStock = (currentStoreMode === 'grocery' && stock === 0);
-                        
-                        if(isOutOfStock && !cardEl.classList.contains('oos-card')) {
-                            cardEl.classList.add('oos-card');
-                            if (addWrapEl) addWrapEl.innerHTML = `<div class="out-of-stock-badge">OUT OF STOCK</div>`;
-                            if (hideOutOfStock) shouldReRender = true;
-                        } else if (!isOutOfStock && cardEl.classList.contains('oos-card')) {
-                            cardEl.classList.remove('oos-card');
-                            if (hideOutOfStock) shouldReRender = true;
-                        }
-
-                        if(stockBadgeEl) {
-                            let oldStock = parseInt(stockBadgeEl.getAttribute('data-stock'));
-                            
-                            if (currentStoreMode === 'grocery' && stock !== null && stock > 0) {
-                                stockBadgeEl.style.display = 'inline-block';
-                                stockBadgeEl.className = stock <= 5 ? 'stock-badge low-stock' : 'stock-badge';
-                                stockBadgeEl.innerText = `${stock} in stock`;
-                                stockBadgeEl.setAttribute('data-stock', stock);
-                                
-                                // 🟢 TRIGGER RED/GREEN ANIMATION ON STOCK CHANGE 🟢
-                                if (!isNaN(oldStock) && oldStock !== -1 && oldStock !== stock) {
-                                    stockBadgeEl.classList.remove('stock-flash-down', 'stock-flash-up');
-                                    void stockBadgeEl.offsetWidth; // Trigger reflow to restart animation
-                                    
-                                    if (stock < oldStock) {
-                                        stockBadgeEl.classList.add('stock-flash-down');
-                                    } else {
-                                        stockBadgeEl.classList.add('stock-flash-up');
-                                    }
-                                }
-                            } else {
-                                stockBadgeEl.style.display = 'none';
-                                stockBadgeEl.setAttribute('data-stock', stock !== null ? stock : -1);
-                            }
-                        }
-                    }
-                });
-
-                window.updateCartUI(); 
-                if (shouldReRender) window.applyFilters();
-                
-            } catch(e) { /* Silent fail for background sync */ }
-        }, 10000); 
-
-    </script>
-</body>
-</html>
+                        let stockClass = stock <= 5 ? 'stock-badge low-stock' : 'stock-badgeI encountered an error doing what you asked. Could you try again?
