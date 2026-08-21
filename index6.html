@@ -79,16 +79,26 @@
 
         body.modal-open, html.modal-open { overflow: hidden !important; touch-action: none; }
 
-        /* 🌟 SPLASH SCREEN 🌟 */
+        /* 🌟 SPLASH SCREEN & ROUND LOADER 🌟 */
         #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: linear-gradient(135deg, var(--glacier-blue), #1a42a4); z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease; }
         .splash-content { text-align: center; color: white; }
-        .splash-icon { font-size: 5em; animation: bounce-scoop 0.8s infinite alternate cubic-bezier(0.4, 0, 0.2, 1); margin-bottom: 15px; }
+        .splash-icon { font-size: 5em; animation: bounce-scoop 0.8s infinite alternate cubic-bezier(0.4, 0, 0.2, 1); margin-bottom: 10px; }
         .splash-title { font-family: 'Montserrat', sans-serif; font-size: 2.2em; font-weight: 800; letter-spacing: 1px; margin: 0; text-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .splash-subtext { font-size: 0.9em; opacity: 0.8; font-weight: 500; margin-top: 10px; animation: pulse-text 1.5s infinite; }
+        .splash-subtext { font-size: 0.9em; opacity: 0.8; font-weight: 500; margin-top: 5px; animation: pulse-text 1.5s infinite; }
+        
+        .circular-loader-container { position: relative; width: 64px; height: 64px; margin: 15px auto; }
+        .circular-loader { animation: rotate 2s linear infinite; height: 100%; width: 100%; transform-origin: center center; }
+        .loader-path { stroke-dasharray: 1, 200; stroke-dashoffset: 0; animation: dash 1.5s ease-in-out infinite; stroke: #ffffff; stroke-linecap: round; }
+        #loading-percentage { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 0.9em; font-weight: 800; color: white; }
+        
         @keyframes bounce-scoop { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(-25px) scale(1.05); } }
         @keyframes pulse-text { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
-
-        #loading-bar { position: fixed; top: 0; left: 0; height: 4px; background-color: var(--glacier-blue); width: 0%; z-index: 9999; transition: width 0.3s ease, opacity 0.5s ease; box-shadow: 0 2px 5px rgba(31,81,198, 0.5); }
+        @keyframes rotate { 100% { transform: rotate(360deg); } }
+        @keyframes dash {
+            0% { stroke-dasharray: 1, 200; stroke-dashoffset: 0; }
+            50% { stroke-dasharray: 89, 200; stroke-dashoffset: -35px; }
+            100% { stroke-dasharray: 89, 200; stroke-dashoffset: -124px; }
+        }
 
         /* --- 1. HEADER --- */
         header { background: var(--card-bg); padding: 12px 25px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; z-index: 1000; flex-shrink: 0; height: 65px; box-sizing: border-box; transition: 0.3s; width: 100%; gap: 15px;}
@@ -191,7 +201,6 @@
         .oos-card:hover { opacity: 0.9; filter: grayscale(50%); transform: none; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .oos-card .red-discount-icon { background: #94a3b8; box-shadow: none; }
 
-        /* 🟢 PERFECTED IMAGE WRAPPER AND OVERFLOW 🟢 */
         .card-img-wrapper { position: relative; background: #fff; border-radius: 12px; height: 160px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; flex-shrink: 0; cursor: pointer; overflow: visible; }
         .card-img-wrapper img { 
             width: 90%; 
@@ -207,7 +216,6 @@
         .new-badge { position: absolute; top: -8px; left: -8px; background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; font-size: 0.6em; font-weight: 800; padding: 4px 10px; border-radius: 8px; z-index: 5; box-shadow: 0 4px 10px rgba(142,68,173,0.3); text-transform: uppercase; letter-spacing: 0.5px; }
         .red-discount-icon { position: absolute; top: -8px; right: -8px; background: var(--active-brand-red); color: white; font-size: 0.7em; font-weight: 800; padding: 4px 8px; border-radius: 8px; z-index: 5; box-shadow: 0 4px 10px rgba(231,76,60,0.3); }
         
-        /* 🟢 LIVE STOCK FLASH ANIMATIONS 🟢 */
         @keyframes stock-flash-down {
             0% { transform: scale(1); }
             15% { transform: scale(1.15); color: #e74c3c !important; border-color: #e74c3c !important; background: rgba(231,76,60,0.15) !important; }
@@ -227,7 +235,6 @@
         .stock-badge.low-stock { background: rgba(245, 158, 11, 0.15); color: #d97706; border-color: rgba(245, 158, 11, 0.3); }
         .out-of-stock-badge { background: var(--card-bg); color: var(--active-brand-red); font-weight: 800; font-size: 0.7em; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--active-brand-red); box-shadow: 0 4px 10px rgba(0,0,0,0.1); white-space: nowrap;}
 
-        /* 🟢 ADD BUTTON RESTORED TO IMAGE CORNER 🟢 */
         .btn-container { position: absolute; right: 8px; bottom: -16px; z-index: 10; display: flex; justify-content: center; align-items: center; }
         
         .app-add-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--card-bg); color: var(--glacier-blue); border: 1px solid var(--border-color); font-size: 1.6em; font-weight: 500; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: 0.2s; line-height: 1; padding-bottom: 2px; position: relative; z-index: 15;}
@@ -355,8 +362,6 @@
         .order-history-items { color: var(--text-muted); font-size: 0.85em; line-height: 1.6; margin: 0; }
         .order-item-line { display: flex; gap: 8px; margin-bottom: 4px; align-items: flex-start; }
 
-        /* PRODUCT DETAIL CSS */
-        /* 🟢 REFINED HOVER-ZOOM EFFECT 🟢 */
         #pd-modal-img { 
             width: 100%; 
             height: 220px; 
@@ -372,11 +377,7 @@
             transform-origin: center;
         }
         [data-theme="dark"] #pd-modal-img { background: #e2e8f0; mix-blend-mode: normal; }
-        #pd-modal-img:hover {
-            transform: scale(1.1); 
-            cursor: zoom-in; 
-            z-index: 10;
-        }
+        #pd-modal-img:hover { transform: scale(1.1); cursor: zoom-in; z-index: 10; }
         
         .pd-modal-brand-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
         .pd-brand-icon { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fff;}
@@ -524,7 +525,13 @@
         <div class="splash-content">
             <div class="splash-icon">🍦</div>
             <h1 class="splash-title">Glacier</h1>
-            <div class="splash-subtext">Stocking the freezer...</div>
+            <div class="circular-loader-container">
+                <svg class="circular-loader" viewBox="25 25 50 50">
+                    <circle class="loader-path" cx="50" cy="50" r="20" fill="none" stroke-width="4" stroke-miterlimit="10"/>
+                </svg>
+                <div id="loading-percentage">0%</div>
+            </div>
+            <div class="splash-subtext" id="splash-subtext">Stocking the freezer...</div>
         </div>
     </div>
 
@@ -533,8 +540,6 @@
         <h1 id="bday-name" class="bday-title">Happy Birthday!</h1>
         <div class="bday-sub">Have a sweet day! 🍦</div>
     </div>
-
-    <div id="loading-bar"></div>
 
     <header>
         <img src="https://i.postimg.cc/c4MX4XyQ/logo-glacier.png" alt="Glacier Ice Cream Logo" class="header-logo" fetchpriority="high" onclick="window.clearAllFilters()">
@@ -1723,74 +1728,99 @@
             });
         }
 
-        // 🟢 FAIL-SAFE LOAD DATA (PREVENTS INFINITE SPLASH / NETWORK CRASH) 🟢
+        // 🟢 LOAD DATA - STRICT AWAIT & CONNECTION ALERTS 🟢
         async function loadData() {
             const statusMsg = document.getElementById('status-msg'); 
-            const loadingBar = document.getElementById('loading-bar');
-            if(loadingBar) { loadingBar.style.opacity = '1'; loadingBar.style.width = '30%'; }
+            const splash = document.getElementById('splash-screen');
+            const splashSub = document.getElementById('splash-subtext');
+            const percentText = document.getElementById('loading-percentage');
             
-            const hideSplash = () => {
-                const splash = document.getElementById('splash-screen');
-                if(splash) {
-                    splash.style.opacity = '0';
-                    splash.style.visibility = 'hidden';
-                    setTimeout(() => { if(splash.parentNode) splash.remove(); }, 600);
-                }
-                if(loadingBar) loadingBar.style.opacity = '0';
-            };
+            // 1. Alert for immediately broken connection
+            if (!navigator.onLine) {
+                alert("⚠️ Broken Connection: No internet detected. Please connect to a network and refresh.");
+                if(splashSub) { splashSub.innerText = "No Internet Connection."; splashSub.style.color = "#ffcccc"; }
+                return; // Stop here, don't remove splash
+            }
 
-            let failsafeTimer = setTimeout(hideSplash, 5000);
+            let progress = 0;
+            // Simulate percentage filling up to 95% while waiting
+            let simInterval = setInterval(() => {
+                progress += Math.floor(Math.random() * 5) + 1;
+                if (progress > 95) progress = 95;
+                if (percentText) percentText.innerText = progress + '%';
+            }, 300);
+
+            // 2. Alert for slow connection (if takes > 10 seconds)
+            let slowTimer = setTimeout(() => {
+                if(splashSub) { splashSub.innerText = "Connection is slow. Still trying..."; splashSub.style.color = "#ffcc00"; }
+                alert("⚠️ Slow Connection: Your network is running slow, but we are still trying to fetch the store menu. Please wait a moment.");
+            }, 10000);
+
+            const hideSplash = () => {
+                clearInterval(simInterval);
+                if (percentText) percentText.innerText = '100%';
+                setTimeout(() => {
+                    if(splash) {
+                        splash.style.opacity = '0';
+                        splash.style.visibility = 'hidden';
+                        setTimeout(() => { if(splash.parentNode) splash.remove(); }, 600);
+                    }
+                }, 500);
+            };
 
             try {
                 const noCacheParam = "?_t=" + Date.now();
                 
-                let iceCreamData = [];
-                let groceryData = [];
+                // STRICT WAIT: We won't proceed until both are fully fetched
+                const [resIceCream, resGrocery] = await Promise.all([
+                    fetch(iceCreamSheetUrl + noCacheParam),
+                    fetch(grocerySheetUrl + noCacheParam)
+                ]);
 
-                try {
-                    const res = await fetch(iceCreamSheetUrl + noCacheParam);
-                    if (res.ok) {
-                        const txt = await res.text();
-                        iceCreamData = JSON.parse(txt);
-                    }
-                } catch(e) { console.warn("Ice Cream Fetch Exception:", e); }
+                if (!resIceCream.ok || !resGrocery.ok) {
+                    throw new Error("Server responded with an error");
+                }
 
-                try {
-                    const res = await fetch(grocerySheetUrl + noCacheParam);
-                    if (res.ok) {
-                        const txt = await res.text();
-                        groceryData = JSON.parse(txt);
-                    }
-                } catch(e) { console.warn("Grocery Fetch Exception:", e); }
+                const iceCreamData = await resIceCream.json();
+                const groceryData = await resGrocery.json();
 
                 allIceCreamItems = window.normalizeData(iceCreamData, false); 
                 allGroceryItems = window.normalizeData(groceryData, true); 
 
                 allItems = currentStoreMode === 'icecream' ? allIceCreamItems : allGroceryItems;
 
-                clearTimeout(failsafeTimer);
+                clearTimeout(slowTimer); // Success! cancel slow timer
 
                 if(!allItems || allItems.length === 0) { 
-                    statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="window.clearAllFilters()" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
-                    statusMsg.style.display = 'block'; 
-                    hideSplash();
-                    return; 
+                    if(statusMsg) {
+                        statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">${currentStoreMode === 'icecream' ? '🍦' : '🛒'}</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="window.clearAllFilters()" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
+                        statusMsg.style.display = 'block'; 
+                    }
+                } else {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if(urlParams.has('brand')) currentBrand = urlParams.get('brand');
+                    if(urlParams.has('category')) currentCategory = urlParams.get('category');
+                    
+                    window.setupAppUI(); 
+                    window.updateCategoryVisibility();
+                    window.applyFilters();
+                    if(statusMsg) statusMsg.style.display = 'none';
                 }
-                
-                const urlParams = new URLSearchParams(window.location.search);
-                if(urlParams.has('brand')) currentBrand = urlParams.get('brand');
-                if(urlParams.has('category')) currentCategory = urlParams.get('category');
-                
-                window.setupAppUI(); 
-                window.updateCategoryVisibility();
-                window.applyFilters();
-                statusMsg.style.display = 'none';
+
+                // Everything is ready and loaded - NOW we hide the splash
+                hideSplash();
 
             } catch (error) { 
                 console.error("Load Error:", error);
-            } finally {
-                clearTimeout(failsafeTimer);
-                hideSplash();
+                clearTimeout(slowTimer);
+                clearInterval(simInterval);
+                if(splashSub) {
+                    splashSub.innerText = "⚠️ Loading failed. Broken connection.";
+                    splashSub.style.color = "#ffcccc";
+                }
+                // 3. Alert for broken connection / fetch failure
+                alert("⚠️ Broken Connection: Failed to fetch the menu data. Please check your network connection and reload the page.");
+                // Notice we do NOT call hideSplash() here, locking the user out of an empty page
             }
         }
 
@@ -1990,13 +2020,7 @@
         
         window.formatImageUrl = (imgPath) => {
             if (!imgPath) return 'https://placehold.co/300x220/f4f6f9/a0a0a0?text=No+Image';
-            
-            // If it is already a full web URL, leave it alone!
-            if (imgPath.startsWith('http')) {
-                return imgPath;
-            }
-            
-            // If it is an AppSheet internal path, add the AppSheet URL format
+            if (imgPath.startsWith('http')) return imgPath;
             return "https://www.appsheet.com/template/gettablefileurl?appName=IceCreamInventory-257487838&tableName=menu&fileName=" + imgPath;
         }
         
@@ -2357,7 +2381,6 @@
                     message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
                     if (addr.lat && addr.lng) { message += `📍 *Location Link:* https://maps.google.com/maps?q=${addr.lat},${addr.lng}\n`; }
                     
-                    // Bug Fix: Check if Firebase functions are actually available before calling
                     try {
                         if (typeof db !== 'undefined' && typeof addDoc !== 'undefined' && typeof collection !== 'undefined') {
                             addDoc(collection(db, "orders"), { userId: window.userDocId, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() });
@@ -2374,11 +2397,9 @@
             }
         };
         
-        // 🟢 FULLSCREEN IMAGE VIEWER 🟢
         window.viewFullscreen = (src) => {
             if (!src) return;
             
-            // Create the dark overlay
             const overlay = document.createElement('div');
             overlay.style.position = 'fixed';
             overlay.style.top = '0';
@@ -2394,7 +2415,6 @@
             overlay.style.opacity = '0';
             overlay.style.transition = 'opacity 0.3s ease';
             
-            // Create the image
             const img = document.createElement('img');
             img.src = src;
             img.style.maxWidth = '95%';
@@ -2407,7 +2427,6 @@
             
             overlay.appendChild(img);
             
-            // Close the overlay when tapped
             overlay.onclick = () => {
                 overlay.style.opacity = '0';
                 img.style.transform = 'scale(0.9)';
@@ -2416,7 +2435,6 @@
             
             document.body.appendChild(overlay);
             
-            // Trigger animation
             setTimeout(() => {
                 overlay.style.opacity = '1';
                 img.style.transform = 'scale(1)';
@@ -2426,7 +2444,7 @@
         // 🟢 SAFELY INITIALIZE APP 🟢
         document.addEventListener('DOMContentLoaded', loadData);
         
-        // 🟢 SILENT AUTO-POLLING EVERY 10 SECONDS (ANIMATIONS RESTORED) 🟢
+        // 🟢 SILENT AUTO-POLLING EVERY 10 SECONDS 🟢
         setInterval(async () => {
             try {
                 const noCacheParam = "?_t=" + Date.now();
@@ -2490,7 +2508,6 @@
                                 stockBadgeEl.innerText = `${stock} in stock`;
                                 stockBadgeEl.setAttribute('data-stock', stock);
                                 
-                                // 🟢 TRIGGER RED/GREEN ANIMATION ON STOCK CHANGE 🟢
                                 if (!isNaN(oldStock) && oldStock !== -1 && oldStock !== stock) {
                                     stockBadgeEl.classList.remove('stock-flash-down', 'stock-flash-up');
                                     void stockBadgeEl.offsetWidth; 
