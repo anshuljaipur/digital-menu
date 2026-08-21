@@ -186,15 +186,13 @@
         
         .menu-card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color); display: flex; flex-direction: column; position: relative; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s; height: 100%; box-sizing: border-box;}
         .menu-card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.1); transform: translateY(-3px); }
-        .menu-card:hover .card-img-wrapper img {
-    transform: scale(1.15); /* Increases image size by 15% on hover */
-}
+        
         .oos-card { opacity: 0.6; filter: grayscale(100%); transition: all 0.3s ease; cursor: default; }
         .oos-card:hover { opacity: 0.9; filter: grayscale(50%); transform: none; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .oos-card .red-discount-icon { background: #94a3b8; box-shadow: none; }
 
         /* 🟢 PERFECTED IMAGE WRAPPER AND OVERFLOW 🟢 */
-        .card-img-wrapper { position: relative; background: #fff; border-radius: 12px; height: 160px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; flex-shrink: 0; cursor: pointer; overflow: hidden; }
+        .card-img-wrapper { position: relative; background: #fff; border-radius: 12px; height: 160px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; flex-shrink: 0; cursor: pointer; overflow: visible; }
         .card-img-wrapper img { 
     width: 90%; 
     height: 90%; 
