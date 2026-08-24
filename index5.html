@@ -495,19 +495,48 @@
             #fab-container { display: none !important; }
             .desktop-tools-bar { display: none !important; }
         }
+/* 🟢 ROUND LOADER ANIMATIONS 🟢 */
+.circular-loader-container { position: relative; width: 64px; height: 64px; margin: 15px auto; }
+.circular-loader { animation: rotate 2s linear infinite; height: 100%; width: 100%; transform-origin: center center; }
+.loader-path { stroke-dasharray: 1, 200; stroke-dashoffset: 0; animation: dash 1.5s ease-in-out infinite; stroke: #ffffff; stroke-linecap: round; stroke-width: 4; }
+#loading-percentage { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 0.9em; font-weight: 800; color: white; }
 
+@keyframes rotate { 100% { transform: rotate(360deg); } }
+@keyframes dash {
+    0% { stroke-dasharray: 1, 200; stroke-dashoffset: 0; }
+    50% { stroke-dasharray: 89, 200; stroke-dashoffset: -35px; }
+    100% { stroke-dasharray: 89, 200; stroke-dashoffset: -124px; }
+}
+
+/* 🟢 PRODUCT MODAL HOVER ZOOM 🟢 */
+#pd-modal-img { 
+    width: 100%; height: 220px; object-fit: contain; mix-blend-mode: multiply; 
+    margin-bottom: 20px; background: #fff; border-radius: 12px; padding: 10px; 
+    box-sizing: border-box; flex-shrink: 0;
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+[data-theme="dark"] #pd-modal-img { background: #e2e8f0; mix-blend-mode: normal; }
+#pd-modal-img:hover { transform: scale(1.1); cursor: zoom-in; z-index: 10; }
+
+        
         @media print { body { display: none !important; } }
     </style>
 </head>
 <body oncontextmenu="return window.protectImages(event)">
 
-    <div id="splash-screen">
-        <div class="splash-content">
-            <div class="splash-icon">🍦</div>
-            <h1 class="splash-title">Glacier</h1>
-            <div class="splash-subtext">Stocking the freezer...</div>
+<div id="splash-screen">
+    <div class="splash-content">
+        <div class="splash-icon">🍦</div>
+        <h1 class="splash-title">Glacier</h1>
+        <div class="circular-loader-container">
+            <svg class="circular-loader" viewBox="25 25 50 50">
+                <circle class="loader-path" cx="50" cy="50" r="20" fill="none"></circle>
+            </svg>
+            <div id="loading-percentage">0%</div>
         </div>
+        <div class="splash-subtext" id="splash-subtext">Stocking the freezer...</div>
     </div>
+</div>
 
     <div id="birthday-overlay" class="bday-overlay">
         <div class="bday-icon">🎂</div>
