@@ -2560,7 +2560,14 @@
         }
 
         window.getCurrentLocation = () => {
-            document.getElementById('new-addr-area').value = "Locating you... 📍";
+            const areaField = document.getElementById('new-addr-area');
+            // Geolocation is blocked by the browser on insecure pages (http:// or a local file),
+            // and in that case it fails instantly WITHOUT ever showing a permission prompt.
+            if (!window.isSecureContext) {
+                areaField.value = "⚠️ Location needs this site to be opened over https:// (a secure connection). That's why no permission prompt appeared. Please host the file on HTTPS, or search / tap on the map instead.";
+                return;
+            }
+            areaField.value = "Locating you... 📍";
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
@@ -2568,10 +2575,16 @@
                         document.getElementById('new-addr-lat').value = lat; document.getElementById('new-addr-lng').value = lng;
                         window.addressMap.setView([lat, lng], 16); window.addressMarker.setLatLng([lat, lng]); window.getAddressFromCoords(lat, lng);
                     },
-                    (error) => { document.getElementById('new-addr-area').value = "Location access denied. Please search or tap on map."; },
+                    (error) => {
+                        console.warn("Geolocation error:", error.code, error.message);
+                        let msg = "Location access denied. Please search or tap on map.";
+                        if (error.code === error.TIMEOUT) msg = "Location request timed out. Please try again, or search / tap on map.";
+                        else if (error.code === error.POSITION_UNAVAILABLE) msg = "Couldn't determine your location right now. Please search or tap on map.";
+                        areaField.value = msg;
+                    },
                     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                 );
-            } else { document.getElementById('new-addr-area').value = "GPS not supported. Please search or tap on map."; }
+            } else { areaField.value = "GPS not supported on this browser. Please search or tap on map."; }
         }
 
         window.handleSearchInput = (event) => {
