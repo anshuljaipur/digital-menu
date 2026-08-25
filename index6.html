@@ -12,6 +12,16 @@
 
     <link rel="icon" type="image/jpeg" href="https://i.postimg.cc/DfWgmYTD/favicon.jpg"> 
 
+    <!-- 📱 PWA / "Add to Home Screen" support (manifest is generated inline below — no separate file needed) -->
+    <link rel="manifest" id="pwa-manifest-link">
+    <meta name="theme-color" content="#1f51c6">
+    <meta name="mobile-web-app-capable" content="yes">
+    <!-- iOS Safari "Add to Home Screen" -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Glacier">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/DfWgmYTD/favicon.jpg">
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     
     <!-- 🟢 Libraries: Confetti & PDF Export 🟢 -->
@@ -732,6 +742,17 @@
         </svg>
         <span class="cart-badge" id="cart-badge-count">0</span>
     </button>
+
+    <!-- 📲 "Install App" banner — appears only when the browser confirms the site is installable (Chrome/Edge/Android). Safari has no equivalent API, so iOS users install manually via Share -> Add to Home Screen (the meta tags above make that open full-screen like an app). -->
+    <div id="install-app-banner" style="display:none; position:fixed; left:16px; right:16px; bottom:16px; z-index:99998; background:var(--card-bg); color:var(--text-primary); border:1px solid var(--border-color); border-radius:16px; box-shadow:0 8px 30px rgba(0,0,0,0.18); padding:12px 14px; align-items:center; gap:12px;">
+        <img src="https://i.postimg.cc/DfWgmYTD/favicon.jpg" style="width:42px;height:42px;border-radius:10px;flex-shrink:0;" alt="App icon">
+        <div style="flex:1; min-width:0;">
+            <div style="font-weight:700; font-size:0.9em;">Install Glacier App</div>
+            <div style="font-size:0.78em; color:var(--text-muted);">Add to your home screen for a faster, full-screen experience</div>
+        </div>
+        <button onclick="window.installPwa()" style="background:var(--glacier-blue); color:#fff; border:none; border-radius:10px; padding:9px 14px; font-weight:700; font-size:0.85em; cursor:pointer; flex-shrink:0;">Install</button>
+        <button onclick="window.dismissInstallBanner()" aria-label="Dismiss" style="background:none; border:none; color:var(--text-muted); font-size:1.3em; line-height:1; cursor:pointer; padding:0 2px; flex-shrink:0;">×</button>
+    </div>
 
     <div id="toast-container"></div>
 
@@ -1773,7 +1794,14 @@
                 }, 350);
             };
 
-            let failsafeTimer = setTimeout(hideSplash, 5000);
+            // Real safety net only — if the menu genuinely never loads (dead network, broken sheet
+            // URL), don't leave people staring at a splash forever. 15s gives real headroom for a
+            // slow connection or an Apps Script cold start; it should essentially never fire in
+            // normal use, unlike the previous 5s which was routinely cutting real loads short.
+            let failsafeTimer = setTimeout(() => {
+                console.warn("Menu load is taking unusually long — showing site anyway after failsafe timeout.");
+                hideSplash();
+            }, 15000);
 
             try {
                 const noCacheParam = "?_t=" + Date.now();
@@ -1781,21 +1809,23 @@
                 let iceCreamData = [];
                 let groceryData = [];
 
-                try {
-                    const res = await fetch(iceCreamSheetUrl + noCacheParam);
-                    if (res.ok) {
-                        const txt = await res.text();
-                        iceCreamData = JSON.parse(txt);
-                    }
-                } catch(e) { console.warn("Ice Cream Fetch Exception:", e); }
+                // Fetch both sheets in parallel instead of one after another — this alone
+                // roughly halves real load time, since each Google Apps Script call can take
+                // several seconds on its own (especially on a cold start).
+                const [iceCreamResult, groceryResult] = await Promise.allSettled([
+                    fetch(iceCreamSheetUrl + noCacheParam).then(res => res.ok ? res.text() : null),
+                    fetch(grocerySheetUrl + noCacheParam).then(res => res.ok ? res.text() : null)
+                ]);
 
-                try {
-                    const res = await fetch(grocerySheetUrl + noCacheParam);
-                    if (res.ok) {
-                        const txt = await res.text();
-                        groceryData = JSON.parse(txt);
-                    }
-                } catch(e) { console.warn("Grocery Fetch Exception:", e); }
+                if (iceCreamResult.status === 'fulfilled' && iceCreamResult.value) {
+                    try { iceCreamData = JSON.parse(iceCreamResult.value); }
+                    catch(e) { console.warn("Ice Cream Parse Exception:", e); }
+                } else { console.warn("Ice Cream Fetch Exception:", iceCreamResult.reason); }
+
+                if (groceryResult.status === 'fulfilled' && groceryResult.value) {
+                    try { groceryData = JSON.parse(groceryResult.value); }
+                    catch(e) { console.warn("Grocery Parse Exception:", e); }
+                } else { console.warn("Grocery Fetch Exception:", groceryResult.reason); }
 
                 allIceCreamItems = window.normalizeData(iceCreamData, false); 
                 allGroceryItems = window.normalizeData(groceryData, true); 
@@ -2444,6 +2474,82 @@
             zoomWrap.addEventListener('mouseleave', () => {
                 zoomImg.style.transform = 'scale(1)';
                 zoomImg.style.transformOrigin = 'center center';
+            });
+        })();
+
+        // ============================================================
+        // 📲 PWA: "Add to Home Screen" support
+        // Builds the manifest + a minimal service worker in-memory (as Blob URLs), so this
+        // still works as a single HTML file with no separate manifest.json / sw.js to host.
+        // ============================================================
+        (function setupPwa() {
+            // --- 1. Web App Manifest (drives the Android/Chrome "Install" banner + icon/name) ---
+            const manifest = {
+                name: "Glacier Ice Cream & Grocery",
+                short_name: "Glacier",
+                description: "Order ice cream & groceries from Glacier — fast delivery via WhatsApp.",
+                start_url: window.location.pathname + window.location.search,
+                scope: window.location.pathname,
+                display: "standalone",
+                background_color: "#1f51c6",
+                theme_color: "#1f51c6",
+                orientation: "portrait-primary",
+                icons: [
+                    { src: "https://i.postimg.cc/DfWgmYTD/favicon.jpg", sizes: "192x192", type: "image/jpeg", purpose: "any maskable" },
+                    { src: "https://i.postimg.cc/DfWgmYTD/favicon.jpg", sizes: "512x512", type: "image/jpeg", purpose: "any maskable" }
+                ]
+            };
+            const manifestBlob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
+            const manifestLink = document.getElementById('pwa-manifest-link');
+            if (manifestLink) manifestLink.href = URL.createObjectURL(manifestBlob);
+
+            // --- 2. Minimal service worker (Chrome requires one to consider a site "installable") ---
+            // Deliberately does NOT cache anything — this site's menu data changes live from
+            // Google Sheets, so caching fetches here would risk showing stale stock/prices.
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    self.addEventListener('install', () => self.skipWaiting());
+                    self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+                    self.addEventListener('fetch', () => {}); // pass-through, no caching
+                `;
+                const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(swBlob);
+                navigator.serviceWorker.register(swUrl).catch((err) => console.warn("Service worker registration failed:", err));
+            }
+
+            // --- 3. Custom "Install" banner (Chrome/Edge/Android only — Safari has no install-prompt API) ---
+            let deferredInstallPrompt = null;
+            const dismissedKey = 'glacier_install_dismissed';
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredInstallPrompt = e;
+                const alreadyStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+                if (!alreadyStandalone && !localStorage.getItem(dismissedKey)) {
+                    const banner = document.getElementById('install-app-banner');
+                    if (banner) banner.style.display = 'flex';
+                }
+            });
+
+            window.installPwa = async () => {
+                const banner = document.getElementById('install-app-banner');
+                if (banner) banner.style.display = 'none';
+                if (!deferredInstallPrompt) return;
+                deferredInstallPrompt.prompt();
+                await deferredInstallPrompt.userChoice;
+                deferredInstallPrompt = null;
+            };
+
+            window.dismissInstallBanner = () => {
+                const banner = document.getElementById('install-app-banner');
+                if (banner) banner.style.display = 'none';
+                localStorage.setItem(dismissedKey, '1');
+            };
+
+            window.addEventListener('appinstalled', () => {
+                const banner = document.getElementById('install-app-banner');
+                if (banner) banner.style.display = 'none';
+                window.showToast && window.showToast("App installed! 🎉");
             });
         })();
 
