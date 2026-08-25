@@ -14,6 +14,9 @@
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     
+    <!-- 🔐 Google Identity Services (for Google Sign-In) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
     <!-- 🟢 Libraries: Confetti & PDF Export 🟢 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>    
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -495,10 +498,7 @@
             #fab-container { display: none !important; }
             .desktop-tools-bar { display: none !important; }
         }
-
-        @media print { body { display: none !important; } }
-
-        /* 🟢 ROUND LOADER ANIMATIONS 🟢 */
+/* 🟢 ROUND LOADER ANIMATIONS 🟢 */
 .circular-loader-container { position: relative; width: 64px; height: 64px; margin: 15px auto; }
 .circular-loader { animation: rotate 2s linear infinite; height: 100%; width: 100%; transform-origin: center center; }
 .loader-path { stroke-dasharray: 1, 200; stroke-dashoffset: 0; animation: dash 1.5s ease-in-out infinite; stroke: #ffffff; stroke-linecap: round; stroke-width: 4; }
@@ -522,11 +522,12 @@
 #pd-modal-img:hover { transform: scale(1.1); cursor: zoom-in; z-index: 10; }
 
         
+        @media print { body { display: none !important; } }
     </style>
 </head>
 <body oncontextmenu="return window.protectImages(event)">
 
-   <div id="splash-screen">
+<div id="splash-screen">
     <div class="splash-content">
         <div class="splash-icon">🍦</div>
         <h1 class="splash-title">Glacier</h1>
@@ -1158,6 +1159,12 @@
         window.openSpecificModal = (modalId) => {
             const dropdown = document.getElementById('profile-dropdown');
             if(dropdown) dropdown.classList.remove('active');
+
+            // These require a logged-in session (guest counts) — send to login instead if not signed in.
+            const gatedModals = ['my-profile-modal', 'addresses-modal', 'orders-modal'];
+            if(gatedModals.includes(modalId) && !window.globalUser) {
+                modalId = 'auth-modal';
+            }
             
             document.getElementById(modalId).style.display = 'flex';
             window.lockBodyScroll();
@@ -1165,10 +1172,15 @@
             if(modalId === 'my-profile-modal') {
                 const msg = document.getElementById('profile-save-msg');
                 if(msg) msg.innerText = '';
+                if(typeof applySessionToUI === 'function') applySessionToUI();
             }
             if(modalId === 'addresses-modal') {
                 const msg = document.getElementById('addr-msg');
                 if(msg) msg.innerText = '';
+                if(typeof window.renderAddresses === 'function') window.renderAddresses();
+            }
+            if(modalId === 'orders-modal') {
+                if(typeof window.renderOrderHistory === 'function') window.renderOrderHistory();
             }
         };
 
@@ -1736,19 +1748,42 @@
         }
 
         // 🟢 FAIL-SAFE LOAD DATA (PREVENTS INFINITE SPLASH / NETWORK CRASH) 🟢
+        let splashPercent = 0;
+        let splashHidden = false;
+        function setSplashPercent(p) {
+            splashPercent = Math.max(splashPercent, Math.min(p, 100));
+            const loadingBar = document.getElementById('loading-bar');
+            const pctText = document.getElementById('loading-percentage');
+            if(loadingBar) loadingBar.style.width = splashPercent + '%';
+            if(pctText) pctText.innerText = Math.round(splashPercent) + '%';
+        }
+
         async function loadData() {
             const statusMsg = document.getElementById('status-msg'); 
             const loadingBar = document.getElementById('loading-bar');
-            if(loadingBar) { loadingBar.style.opacity = '1'; loadingBar.style.width = '30%'; }
-            
+            if(loadingBar) loadingBar.style.opacity = '1';
+            setSplashPercent(6);
+
+            // Creep the percentage up smoothly while the real fetch is in flight,
+            // so the number always reflects visible progress instead of jumping straight from 0% to hidden.
+            const progressTicker = setInterval(() => {
+                setSplashPercent(splashPercent + Math.random() * 6 + 2 > 88 ? 88 : splashPercent + (Math.random() * 6 + 2));
+            }, 220);
+
             const hideSplash = () => {
-                const splash = document.getElementById('splash-screen');
-                if(splash) {
-                    splash.style.opacity = '0';
-                    splash.style.visibility = 'hidden';
-                    setTimeout(() => { if(splash.parentNode) splash.remove(); }, 600);
-                }
-                if(loadingBar) loadingBar.style.opacity = '0';
+                if(splashHidden) return;
+                splashHidden = true;
+                clearInterval(progressTicker);
+                setSplashPercent(100);
+                setTimeout(() => {
+                    const splash = document.getElementById('splash-screen');
+                    if(splash) {
+                        splash.style.opacity = '0';
+                        splash.style.visibility = 'hidden';
+                        setTimeout(() => { if(splash.parentNode) splash.remove(); }, 600);
+                    }
+                    if(loadingBar) loadingBar.style.opacity = '0';
+                }, 350);
             };
 
             let failsafeTimer = setTimeout(hideSplash, 5000);
@@ -2355,6 +2390,455 @@
         
         window.clearCart = () => { if(Object.keys(cart).length === 0) return; if(confirm("Are you sure you want to clear your cart?")) { cart = {}; window.updateCartUI(); } }
         
+        // ============================================================
+        // 🔐 LOGIN, PROFILE, ADDRESSES & PAST ORDERS (saved on this device)
+        // ============================================================
+        // To turn on real "Continue with Google", create a Web OAuth Client ID at
+        // https://console.cloud.google.com/apis/credentials (add this site under
+        // "Authorized JavaScript origins"), then paste the Client ID below.
+        const GOOGLE_CLIENT_ID = "PASTE_YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com";
+
+        window.globalUser = null;      // {type:'google'|'guest', id, name, email, picture}
+        window.globalUserData = null;  // {profile:{name,dob,gender}, addresses:[], orders:[]}
+        window.userDocId = null;
+        window.selectedAddressIndex = 0;
+        let tempGender = '';
+        let tempAddrType = 'Home';
+        let mapInstance = null, mapMarker = null, searchDebounceTimer = null;
+
+        function makeAvatar(name) {
+            const initial = (name || 'G').trim().charAt(0).toUpperCase() || 'G';
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" rx="50" fill="#1f51c6"/><text x="50" y="50" font-family="Poppins, Arial, sans-serif" font-size="42" fill="#fff" text-anchor="middle" dominant-baseline="central" font-weight="700">${initial}</text></svg>`;
+            return "data:image/svg+xml," + encodeURIComponent(svg);
+        }
+
+        function loadUserData(id) {
+            let raw = localStorage.getItem('glacier_userdata_' + id);
+            if (raw) { try { return JSON.parse(raw); } catch(e) {} }
+            return { profile: { name: '', dob: '', gender: '' }, addresses: [], orders: [] };
+        }
+
+        function saveUserData() {
+            if (!window.userDocId || !window.globalUserData) return;
+            localStorage.setItem('glacier_userdata_' + window.userDocId, JSON.stringify(window.globalUserData));
+        }
+
+        function applySessionToUI() {
+            const nameEl = document.getElementById('nav-profile-text');
+            const iconEl = document.getElementById('nav-profile-icon');
+            const avatarEl = document.getElementById('profile-user-avatar');
+            const nameHeaderEl = document.getElementById('profile-user-name');
+            const emailHeaderEl = document.getElementById('profile-user-email');
+            const nameInput = document.getElementById('profile-name-main');
+            const dobInput = document.getElementById('profile-dob');
+
+            if (window.globalUser && window.globalUserData) {
+                const savedName = window.globalUserData.profile.name || window.globalUser.name || 'Account';
+                const displayFirst = savedName.split(' ')[0];
+                const avatarSrc = window.globalUser.picture || makeAvatar(savedName);
+
+                if (nameEl) nameEl.innerText = displayFirst;
+                if (iconEl) iconEl.innerHTML = `<img src="${avatarSrc}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;">`;
+                if (avatarEl) avatarEl.src = avatarSrc;
+                if (nameHeaderEl) nameHeaderEl.innerText = savedName;
+                if (emailHeaderEl) emailHeaderEl.innerText = window.globalUser.email || 'Guest account (saved on this device)';
+                if (nameInput) nameInput.value = window.globalUserData.profile.name || window.globalUser.name || '';
+                if (dobInput) dobInput.value = window.globalUserData.profile.dob || '';
+                window.setGender(window.globalUserData.profile.gender || '', true);
+            } else {
+                if (nameEl) nameEl.innerText = 'Login';
+                if (iconEl) iconEl.innerHTML = '👤';
+            }
+        }
+
+        function restoreSession() {
+            let raw = localStorage.getItem('glacier_session');
+            if (!raw) { applySessionToUI(); return; }
+            try {
+                let session = JSON.parse(raw);
+                window.globalUser = session;
+                window.userDocId = session.id;
+                window.globalUserData = loadUserData(session.id);
+                applySessionToUI();
+            } catch(e) { applySessionToUI(); }
+        }
+
+        function finishLogin(session) {
+            window.globalUser = session;
+            window.userDocId = session.id;
+            localStorage.setItem('glacier_session', JSON.stringify(session));
+            window.globalUserData = loadUserData(session.id);
+            applySessionToUI();
+            window.closeSpecificModal('auth-modal');
+            window.showToast(`Welcome ${session.name.split(' ')[0]}! 🎉`);
+        }
+
+        window.handleProfileClick = (event) => {
+            if (event) event.stopPropagation();
+            if (window.globalUser) {
+                const dropdown = document.getElementById('profile-dropdown');
+                if(dropdown) dropdown.classList.toggle('active');
+            } else {
+                window.openSpecificModal('auth-modal');
+            }
+        };
+
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('profile-dropdown');
+            const container = document.getElementById('profile-dropdown-container');
+            if (dropdown && dropdown.classList.contains('active') && container && !container.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        // ---- GOOGLE LOGIN (Google Identity Services, OAuth2 token flow) ----
+        let gisTokenClient = null;
+        function ensureGisReady() {
+            if (gisTokenClient) return gisTokenClient;
+            if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) return null;
+            gisTokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: GOOGLE_CLIENT_ID,
+                scope: 'openid email profile',
+                callback: async (tokenResponse) => {
+                    const errEl = document.getElementById('auth-error');
+                    if (tokenResponse.error) {
+                        if(errEl) errEl.innerText = "Google sign-in was cancelled or failed. Please try again.";
+                        return;
+                    }
+                    try {
+                        const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                            headers: { Authorization: 'Bearer ' + tokenResponse.access_token }
+                        });
+                        const profile = await res.json();
+                        finishLogin({ type: 'google', id: 'g_' + profile.sub, name: profile.name, email: profile.email, picture: profile.picture });
+                    } catch (err) {
+                        if(errEl) errEl.innerText = "Couldn't fetch your Google profile. Please try again.";
+                    }
+                }
+            });
+            return gisTokenClient;
+        }
+
+        window.googleLogin = () => {
+            const errEl = document.getElementById('auth-error');
+            if (errEl) errEl.innerText = '';
+            if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID.includes('PASTE_YOUR')) {
+                if (errEl) errEl.innerText = "⚠️ Google Sign-In isn't set up yet on this site. Please continue as guest below.";
+                return;
+            }
+            const client = ensureGisReady();
+            if (!client) {
+                if (errEl) errEl.innerText = "Google services are still loading — please try again in a second.";
+                return;
+            }
+            client.requestAccessToken();
+        };
+
+        window.guestLogin = () => {
+            let existing = localStorage.getItem('glacier_guest_id');
+            let guestId = existing || ('guest_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8));
+            if (!existing) localStorage.setItem('glacier_guest_id', guestId);
+            finishLogin({ type: 'guest', id: guestId, name: 'Guest User', email: '', picture: '' });
+        };
+
+        window.logout = () => {
+            localStorage.removeItem('glacier_session');
+            window.globalUser = null;
+            window.globalUserData = null;
+            window.userDocId = null;
+            window.selectedAddressIndex = 0;
+            applySessionToUI();
+            const dropdown = document.getElementById('profile-dropdown');
+            if(dropdown) dropdown.classList.remove('active');
+            window.showToast("Logged out");
+        };
+
+        // ---- PROFILE ----
+        window.setGender = (g, silent) => {
+            tempGender = g;
+            ['Male', 'Female', 'Other'].forEach(x => {
+                const el = document.getElementById('gender-' + x);
+                if (el) el.classList.toggle('active', x === g);
+            });
+            if (!silent && window.globalUserData) window.globalUserData.profile.gender = g;
+        };
+
+        window.saveProfileData = () => {
+            if (!window.globalUser) { window.openSpecificModal('auth-modal'); return; }
+            const msg = document.getElementById('profile-save-msg');
+            const name = document.getElementById('profile-name-main').value.trim();
+            const dob = document.getElementById('profile-dob').value;
+            if (!name) {
+                if(msg) { msg.style.color = 'var(--active-brand-red)'; msg.innerText = "Please enter your name."; }
+                return;
+            }
+            window.globalUserData.profile = { name, dob, gender: tempGender };
+            window.globalUser.name = name;
+            saveUserData();
+            localStorage.setItem('glacier_session', JSON.stringify(window.globalUser));
+            applySessionToUI();
+            if (msg) {
+                msg.style.color = '#10b981';
+                msg.innerText = "✅ Profile saved!";
+                setTimeout(() => { if(msg) msg.innerText = ''; }, 2500);
+            }
+        };
+
+        // ---- ADDRESSES ----
+        window.showAddAddressForm = () => {
+            if (!window.globalUser) { window.openSpecificModal('auth-modal'); return; }
+            document.getElementById('edit-addr-index').value = '-1';
+            document.getElementById('addr-form-title').innerText = 'Add New Address';
+            document.getElementById('new-addr-name').value = '';
+            document.getElementById('new-addr-phone').value = '';
+            document.getElementById('new-addr-house').value = '';
+            document.getElementById('new-addr-area').value = '';
+            document.getElementById('new-addr-lat').value = '';
+            document.getElementById('new-addr-lng').value = '';
+            document.getElementById('map-wrapper-parent').style.display = 'none';
+            document.getElementById('addr-msg').innerText = '';
+            window.setAddrType('Home');
+            document.getElementById('address-list-view').style.display = 'none';
+            document.getElementById('add-address-form').style.display = 'block';
+        };
+
+        window.hideAddAddressForm = () => {
+            document.getElementById('add-address-form').style.display = 'none';
+            document.getElementById('address-list-view').style.display = 'block';
+            if (mapInstance) { mapInstance.remove(); mapInstance = null; mapMarker = null; }
+        };
+
+        window.setAddrType = (type) => {
+            tempAddrType = type;
+            ['Home', 'Work', 'Other'].forEach(x => {
+                const el = document.getElementById('badge-' + x);
+                if (el) el.classList.toggle('active', x === type);
+            });
+        };
+
+        window.renderAddresses = () => {
+            const container = document.getElementById('addresses-container');
+            if (!container) return;
+            if (!window.globalUserData || window.globalUserData.addresses.length === 0) {
+                container.innerHTML = `<p style="text-align:center; color:var(--text-muted); font-size:0.85em; padding:20px 0;">No saved addresses yet. Add one to order faster!</p>`;
+                return;
+            }
+            container.innerHTML = window.globalUserData.addresses.map((addr, i) => {
+                const icon = addr.type === 'Home' ? '🏠' : addr.type === 'Work' ? '💼' : '📍';
+                const isSel = i === window.selectedAddressIndex;
+                return `<div class="address-card ${isSel ? 'selected' : ''}" onclick="window.selectAddress(${i})">
+                    <div class="addr-label">${icon} ${addr.type}</div>
+                    <div class="addr-details">${addr.house}, ${addr.area}</div>
+                    <div class="addr-contact">${addr.name} • ${addr.phone}</div>
+                    <div class="addr-actions">
+                        <button class="addr-btn" style="color:var(--glacier-blue);" onclick="event.stopPropagation(); window.editAddress(${i})">✏️ Edit</button>
+                        <button class="addr-btn" onclick="event.stopPropagation(); window.deleteAddress(${i})">🗑️ Delete</button>
+                    </div>
+                </div>`;
+            }).join('');
+        };
+
+        window.selectAddress = (i) => {
+            window.selectedAddressIndex = i;
+            window.renderAddresses();
+        };
+
+        window.editAddress = (i) => {
+            const addr = window.globalUserData.addresses[i];
+            if (!addr) return;
+            document.getElementById('edit-addr-index').value = i;
+            document.getElementById('addr-form-title').innerText = 'Edit Address';
+            document.getElementById('new-addr-name').value = addr.name;
+            document.getElementById('new-addr-phone').value = addr.phone;
+            document.getElementById('new-addr-house').value = addr.house;
+            document.getElementById('new-addr-area').value = addr.area;
+            document.getElementById('new-addr-lat').value = addr.lat || '';
+            document.getElementById('new-addr-lng').value = addr.lng || '';
+            document.getElementById('map-wrapper-parent').style.display = 'none';
+            window.setAddrType(addr.type);
+            document.getElementById('address-list-view').style.display = 'none';
+            document.getElementById('add-address-form').style.display = 'block';
+        };
+
+        window.deleteAddress = (i) => {
+            if (!confirm("Delete this address?")) return;
+            window.globalUserData.addresses.splice(i, 1);
+            if (window.selectedAddressIndex >= window.globalUserData.addresses.length) window.selectedAddressIndex = 0;
+            saveUserData();
+            window.renderAddresses();
+        };
+
+        window.saveNewAddress = () => {
+            const name = document.getElementById('new-addr-name').value.trim();
+            const phone = document.getElementById('new-addr-phone').value.trim();
+            const house = document.getElementById('new-addr-house').value.trim();
+            const area = document.getElementById('new-addr-area').value.trim();
+            const lat = document.getElementById('new-addr-lat').value;
+            const lng = document.getElementById('new-addr-lng').value;
+            const msg = document.getElementById('addr-msg');
+
+            if (!name || !phone || !house || !area) {
+                msg.style.color = 'var(--active-brand-red)';
+                msg.innerText = "Please fill all required fields (*).";
+                return;
+            }
+            if (!/^\d{10}$/.test(phone)) {
+                msg.style.color = 'var(--active-brand-red)';
+                msg.innerText = "Please enter a valid 10-digit contact number.";
+                return;
+            }
+
+            const addr = { type: tempAddrType, name, phone, house, area, lat: lat ? parseFloat(lat) : null, lng: lng ? parseFloat(lng) : null };
+            const editIndex = parseInt(document.getElementById('edit-addr-index').value, 10);
+
+            if (editIndex >= 0) {
+                window.globalUserData.addresses[editIndex] = addr;
+            } else {
+                window.globalUserData.addresses.push(addr);
+                window.selectedAddressIndex = window.globalUserData.addresses.length - 1;
+            }
+            saveUserData();
+            window.hideAddAddressForm();
+            window.renderAddresses();
+            window.showToast("Address saved!");
+        };
+
+        // ---- MAP PICKER (Leaflet + OpenStreetMap Nominatim, both free/keyless) ----
+        window.initLocationPicker = () => {
+            document.getElementById('map-wrapper-parent').style.display = 'block';
+            setTimeout(() => {
+                if (mapInstance) { mapInstance.invalidateSize(); return; }
+                const defaultLat = 26.8901148, defaultLng = 75.8097553; // fallback store location
+                mapInstance = L.map('map-container', { zoomControl: false }).setView([defaultLat, defaultLng], 14);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors', maxZoom: 19
+                }).addTo(mapInstance);
+                mapMarker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(mapInstance);
+                mapMarker.on('dragend', () => {
+                    const pos = mapMarker.getLatLng();
+                    window.reverseGeocode(pos.lat, pos.lng);
+                });
+                mapInstance.on('click', (e) => {
+                    mapMarker.setLatLng(e.latlng);
+                    window.reverseGeocode(e.latlng.lat, e.latlng.lng);
+                });
+                window.getCurrentLocation();
+            }, 50);
+        };
+
+        window.getCurrentLocation = () => {
+            if (!navigator.geolocation) { window.showToast("Location isn't supported on this device"); return; }
+            const btn = document.getElementById('locate-me-btn');
+            if (btn) btn.innerText = '⏳';
+            navigator.geolocation.getCurrentPosition((pos) => {
+                const { latitude, longitude } = pos.coords;
+                if (mapInstance && mapMarker) {
+                    mapInstance.setView([latitude, longitude], 16);
+                    mapMarker.setLatLng([latitude, longitude]);
+                }
+                window.reverseGeocode(latitude, longitude);
+                if (btn) btn.innerText = '🎯';
+            }, () => {
+                window.showToast("Couldn't fetch your location — please allow location access.");
+                if (btn) btn.innerText = '🎯';
+            }, { enableHighAccuracy: true, timeout: 8000 });
+        };
+
+        window.reverseGeocode = async (lat, lng) => {
+            document.getElementById('new-addr-lat').value = lat;
+            document.getElementById('new-addr-lng').value = lng;
+            const areaEl = document.getElementById('new-addr-area');
+            areaEl.value = "Fetching address...";
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
+                const data = await res.json();
+                areaEl.value = data.display_name || '';
+            } catch (e) {
+                areaEl.value = '';
+                window.showToast("Couldn't fetch address details — please type it manually.");
+            }
+        };
+
+        window.handleSearchInput = (e) => {
+            clearTimeout(searchDebounceTimer);
+            const q = e.target.value.trim();
+            const box = document.getElementById('search-suggestions');
+            if (q.length < 3) { box.style.display = 'none'; return; }
+            searchDebounceTimer = setTimeout(async () => {
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&q=${encodeURIComponent(q)}`);
+                    const results = await res.json();
+                    if (!results.length) { box.style.display = 'none'; return; }
+                    box.innerHTML = results.map(r => `<div class="suggestion-item" onclick='window.selectSuggestion(${r.lat}, ${r.lon}, ${JSON.stringify(r.display_name)})'>${r.display_name}</div>`).join('');
+                    box.style.display = 'block';
+                } catch (e) { box.style.display = 'none'; }
+            }, 400);
+        };
+
+        window.selectSuggestion = (lat, lng, displayName) => {
+            document.getElementById('search-suggestions').style.display = 'none';
+            document.getElementById('map-search-input').value = displayName;
+            if (mapInstance && mapMarker) {
+                mapInstance.setView([lat, lng], 16);
+                mapMarker.setLatLng([lat, lng]);
+            }
+            document.getElementById('new-addr-lat').value = lat;
+            document.getElementById('new-addr-lng').value = lng;
+            document.getElementById('new-addr-area').value = displayName;
+        };
+
+        window.searchLocation = async () => {
+            const q = document.getElementById('map-search-input').value.trim();
+            if (!q) return;
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(q)}`);
+                const results = await res.json();
+                if (results.length) window.selectSuggestion(results[0].lat, results[0].lon, results[0].display_name);
+                else window.showToast("Location not found — try a different search.");
+            } catch (e) { window.showToast("Search failed, please try again."); }
+        };
+
+        document.addEventListener('click', (e) => {
+            const box = document.getElementById('search-suggestions');
+            const input = document.getElementById('map-search-input');
+            if (box && box.style.display !== 'none' && e.target !== input && !box.contains(e.target)) box.style.display = 'none';
+        });
+
+        // ---- PAST ORDERS (last 10, saved locally) ----
+        window.renderOrderHistory = () => {
+            const list = document.getElementById('order-history-list');
+            if (!list) return;
+            if (!window.globalUser) {
+                list.innerHTML = `<p style="font-size:0.85em; color:var(--text-muted); text-align:center;">Please login to see your orders.</p>`;
+                return;
+            }
+            const orders = (window.globalUserData.orders || []).slice().reverse();
+            if (!orders.length) {
+                list.innerHTML = `<p style="font-size:0.85em; color:var(--text-muted); text-align:center;">No past orders yet.</p>`;
+                return;
+            }
+            list.innerHTML = orders.map(o => {
+                const d = new Date(o.timestamp);
+                return `<div class="order-history-card">
+                    <div class="order-header-row">
+                        <div class="order-history-date">📅 ${d.toLocaleDateString()} <span class="order-history-time">${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span></div>
+                        <div class="order-history-total">₹${o.total}</div>
+                    </div>
+                    <p class="order-history-items">${o.itemsSummary}</p>
+                </div>`;
+            }).join('');
+        };
+
+        function addOrderLocal(order) {
+            if (!window.globalUserData) return;
+            if (!window.globalUserData.orders) window.globalUserData.orders = [];
+            window.globalUserData.orders.push(order);
+            if (window.globalUserData.orders.length > 10) window.globalUserData.orders = window.globalUserData.orders.slice(-10);
+            saveUserData();
+        }
+
+        restoreSession();
+
         window.checkout = async (method) => {
             if(Object.keys(cart).length === 0) return;
             if (method === 'whatsapp') {
@@ -2368,12 +2852,23 @@
                     let addr = window.globalUserData.addresses[window.selectedAddressIndex];
                     if(!addr) addr = window.globalUserData.addresses[0]; 
                     let fullDeliveryAddress = `${addr.house}, ${addr.area}`;
-                    message += `\n*Delivery Details:*\nLabel: ${addr.label}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
+                    message += `\n*Delivery Details:*\nLabel: ${addr.type}\nReceiver: ${addr.name}\nContact: ${addr.phone}\nAddress: ${fullDeliveryAddress}\n`;
                     if (addr.lat && addr.lng) { message += `📍 *Location Link:* https://maps.google.com/maps?q=${addr.lat},${addr.lng}\n`; }
-                    addDoc(collection(db, "orders"), { userId: window.userDocId, items: cart, itemsSummary: itemsSummary.join(', '), totalAmount: total, timestamp: new Date() });
+                    if(typeof addOrderLocal === 'function') {
+                        addOrderLocal({ timestamp: Date.now(), items: cart, itemsSummary: itemsSummary.join(', '), total: total });
+                    }
                 } else if (window.globalUser) { 
-                    alert("Please add a delivery address in 'Addresses' before checking out!"); return;
-                } else { window.handleProfileClick(); return; }
+                    document.getElementById('cart-modal').style.display = 'none';
+                    window.unlockBodyScroll();
+                    alert("Please add a delivery address in 'Addresses' before checking out!");
+                    window.openSpecificModal('addresses-modal');
+                    return;
+                } else {
+                    document.getElementById('cart-modal').style.display = 'none';
+                    window.unlockBodyScroll();
+                    window.handleProfileClick();
+                    return;
+                }
 
                 message += `\n*Total Amount: ₹${total}*\n\n_Please confirm my order._`;
                 window.location.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
