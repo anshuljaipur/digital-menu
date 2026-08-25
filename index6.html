@@ -356,9 +356,10 @@
         .order-item-line { display: flex; gap: 8px; margin-bottom: 4px; align-items: flex-start; }
 
         /* PRODUCT DETAIL CSS */
-        #pd-modal-img { width: 100%; height: 220px; object-fit: contain; mix-blend-mode: multiply; margin-bottom: 20px; background: #fff; border-radius: 12px; padding: 10px; box-sizing: border-box; flex-shrink: 0;transition: transform 0.3s ease; /* Added for the smooth zoom animation */}
-        [data-theme="dark"] #pd-modal-img { background: #e2e8f0; mix-blend-mode: normal; }
-        #pd-modal-img:hover {transform: scale(1.2); /* Increases the image size by 20% */cursor: zoom-in; /* Changes the mouse pointer to a magnifying glass */}
+        .pd-img-zoom-wrap { position: relative; width: 100%; height: 220px; overflow: hidden; border-radius: 12px; background: #fff; margin-bottom: 20px; box-sizing: border-box; flex-shrink: 0; cursor: zoom-in; }
+        [data-theme="dark"] .pd-img-zoom-wrap { background: #e2e8f0; }
+        #pd-modal-img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; padding: 10px; box-sizing: border-box; display: block; transition: transform 0.15s ease-out; transform-origin: center center; }
+        [data-theme="dark"] #pd-modal-img { mix-blend-mode: normal; }
         .pd-modal-brand-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
         .pd-brand-icon { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fff;}
         .pd-brand-icon img, .pd-brand-icon svg { width: 100%; height: 100%; object-fit: cover; }
@@ -463,7 +464,7 @@
             .auth-input { padding: 12px; margin-bottom: 12px; }
             .auth-btn, .checkout-btn { margin-bottom: 10px; }
             @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-            #pd-modal-img { height: 180px; }
+            .pd-img-zoom-wrap { height: 180px; }
             #pd-modal-name { font-size: 1.2em; }
             .floating-cart-btn { bottom: calc(25px + env(safe-area-inset-bottom)); right: 15px; width: 55px; height: 55px; font-size: 1.2em;}
             .back-to-top-btn { bottom: calc(95px + env(safe-area-inset-bottom)); right: 20px; width: 45px; height: 45px; font-size: 1.1em;}
@@ -508,17 +509,8 @@
     100% { stroke-dasharray: 89, 200; stroke-dashoffset: -124px; }
 }
 
-/* 🟢 PRODUCT MODAL HOVER ZOOM 🟢 */
-#pd-modal-img { 
-    width: 100%; height: 220px; object-fit: contain; mix-blend-mode: multiply; 
-    margin-bottom: 20px; background: #fff; border-radius: 12px; padding: 10px; 
-    box-sizing: border-box; flex-shrink: 0;
-    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-}
-[data-theme="dark"] #pd-modal-img { background: #e2e8f0; mix-blend-mode: normal; }
-#pd-modal-img:hover { transform: scale(1.1); cursor: zoom-in; z-index: 10; }
+/* 🟢 PRODUCT MODAL HOVER ZOOM 🟢 (see .pd-img-zoom-wrap rules near the top of this stylesheet — this duplicate block was removed) */
 
-        
         @media print { body { display: none !important; } }
     </style>
 </head>
@@ -748,7 +740,9 @@
             <div style="display: flex; justify-content: flex-end; margin-bottom: -10px;">
                 <div class="close-modal-icon" onclick="window.closeSpecificModal('product-detail-modal')">×</div>
             </div>
-            <img id="pd-modal-img" src="" alt="Product" crossorigin="anonymous" onclick="window.viewFullscreen(this.src)">
+            <div id="pd-img-zoom-container" class="pd-img-zoom-wrap">
+                <img id="pd-modal-img" src="" alt="Product" crossorigin="anonymous" onclick="window.viewFullscreen(this.src)">
+            </div>
             
             <div class="pd-modal-brand-row">
                 <div class="pd-brand-icon" id="pd-modal-brand-logo"></div>
@@ -2432,6 +2426,27 @@
             }, 10);
         };
         // 🟢 SAFELY INITIALIZE APP 🟢
+        // 🟢 PRODUCT IMAGE HOVER ZOOM (cursor-follow, like Amazon/Flipkart) 🟢
+        // Only enabled for real mouse/trackpad hover — touch devices keep the existing tap-to-fullscreen behavior.
+        (function() {
+            const zoomWrap = document.getElementById('pd-img-zoom-container');
+            const zoomImg = document.getElementById('pd-modal-img');
+            if (!zoomWrap || !zoomImg) return;
+            if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+            zoomWrap.addEventListener('mousemove', (e) => {
+                const rect = zoomWrap.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                zoomImg.style.transformOrigin = `${x}% ${y}%`;
+                zoomImg.style.transform = 'scale(2.2)';
+            });
+            zoomWrap.addEventListener('mouseleave', () => {
+                zoomImg.style.transform = 'scale(1)';
+                zoomImg.style.transformOrigin = 'center center';
+            });
+        })();
+
         document.addEventListener('DOMContentLoaded', loadData);
         
         // 🟢 SILENT AUTO-POLLING EVERY 10 SECONDS (ANIMATIONS RESTORED) 🟢
@@ -2553,9 +2568,13 @@
                 });
             }
             
+            // iOS Safari/Chrome (both run on WebKit) only allow a location request that fires
+            // synchronously inside the user's tap — any delay (even a setTimeout) makes it get
+            // silently blocked with no permission prompt at all. So this call must NOT be delayed.
+            window.getCurrentLocation();
+
             setTimeout(() => { 
                 window.addressMap.invalidateSize(true); 
-                window.getCurrentLocation();
             }, 400);
         }
 
@@ -2663,6 +2682,15 @@
                 else { document.getElementById('new-addr-area').value = "Area not found. Please type manually."; }
             } catch (e) { document.getElementById('new-addr-area').value = "Error fetching location. Please type manually."; }
         }
+
+        // Close the suggestions dropdown when tapping/clicking anywhere outside it (like Google Maps does)
+        document.addEventListener('click', (e) => {
+            const box = document.getElementById('search-suggestions');
+            const input = document.getElementById('map-search-input');
+            if (box && box.style.display !== 'none' && e.target !== input && !box.contains(e.target)) {
+                box.style.display = 'none';
+            }
+        });
     </script>
 
     <!-- 🟢 FIREBASE LOGIC (GOOGLE SIGN-IN + GUEST + PROFILE DB) 🟢 -->
