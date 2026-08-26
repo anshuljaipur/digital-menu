@@ -1098,6 +1098,10 @@
             }, 100);
         });
 
+        // Registered once here (not inside setupAppUI, which runs on every store switch/refresh —
+        // registering it there stacked up duplicate listeners that ran updateBrandArrows repeatedly).
+        window.addEventListener('resize', () => { window.updateBrandArrows(); });
+
         window.toggleFab = () => {
             const fab = document.getElementById('fab-container');
             const mainBtn = document.getElementById('fab-main-btn');
@@ -1694,20 +1698,38 @@
                 btn.style.opacity = '0.5';
             });
             
+            // Capture which store this refresh is FOR, right now — and use only this captured
+            // value from here on. currentStoreMode can change while we're mid-fetch (if the user
+            // switches tabs), and re-reading it after the await would misfile this response into
+            // whichever store the user has since switched to, corrupting that store's data.
+            const fetchedMode = currentStoreMode;
+
             try {
                 const noCacheParam = "?_t=" + Date.now();
-                let activeUrl = currentStoreMode === 'icecream' ? iceCreamSheetUrl : grocerySheetUrl;
+                let activeUrl = fetchedMode === 'icecream' ? iceCreamSheetUrl : grocerySheetUrl;
                 
                 let res = await fetch(activeUrl + noCacheParam);
                 if (!res.ok) throw new Error("Network response failed");
                 const text = await res.text();
                 
-                let newData = window.normalizeData(JSON.parse(text), currentStoreMode === 'grocery');
+                let newData = window.normalizeData(JSON.parse(text), fetchedMode === 'grocery');
                 
-                if (currentStoreMode === 'icecream') {
+                if (fetchedMode === 'icecream') {
                     allIceCreamItems = newData;
                 } else {
                     allGroceryItems = newData;
+                }
+
+                // If the user has switched stores while this was in flight, the correct backing
+                // array above is still updated for next time — but don't touch what's on screen
+                // right now, since that belongs to a different store than this response is for.
+                if (currentStoreMode !== fetchedMode) {
+                    refreshBtns.forEach(btn => {
+                        btn.innerHTML = btn.dataset.orig;
+                        btn.style.pointerEvents = 'auto';
+                        btn.style.opacity = '1';
+                    });
+                    return;
                 }
 
                 allItems = newData;
@@ -1951,6 +1973,12 @@
                 }
             });
 
+            // Arrows need to be evaluated now that the brand row has actual content — previously
+            // this only ran on resize/scroll/arrow-click, so on a fresh load or store switch the
+            // right arrow never appeared even when brands were clearly cut off with more to see.
+            window.updateBrandArrows();
+            setTimeout(window.updateBrandArrows, 150); // safety re-check once logos finish loading/laying out
+
             let allTags = new Set();
             allItems.forEach(item => { window.getItemTags(item).forEach(t => allTags.add(t)); });
             
@@ -1976,7 +2004,6 @@
                 if(document.getElementById('desktop-tags-grid') && document.getElementById('desktop-tags-grid').parentElement) document.getElementById('desktop-tags-grid').parentElement.style.display = 'none';
             }
 
-            window.addEventListener('resize', () => { window.updateBrandArrows(); });
         }
 
         window.setCategory = (categoryName) => {
@@ -2557,19 +2584,29 @@
         
         // 🟢 SILENT AUTO-POLLING EVERY 10 SECONDS (ANIMATIONS RESTORED) 🟢
         setInterval(async () => {
+            // Same fix as refreshMenu(): capture the store this poll is FOR right now, and use
+            // only that captured value throughout — never the live currentStoreMode after the
+            // await, since the user can switch tabs while this fetch is in flight.
+            const fetchedMode = currentStoreMode;
             try {
                 const noCacheParam = "?_t=" + Date.now();
-                let activeUrl = currentStoreMode === 'icecream' ? iceCreamSheetUrl : grocerySheetUrl;
+                let activeUrl = fetchedMode === 'icecream' ? iceCreamSheetUrl : grocerySheetUrl;
                 let res = await fetch(activeUrl + noCacheParam); 
                 if (!res.ok) return;
                 let text = await res.text();
-                let newData = window.normalizeData(JSON.parse(text), currentStoreMode === 'grocery');
+                let newData = window.normalizeData(JSON.parse(text), fetchedMode === 'grocery');
                 
-                if (currentStoreMode === 'icecream') {
+                if (fetchedMode === 'icecream') {
                     allIceCreamItems = newData;
                 } else {
                     allGroceryItems = newData;
                 }
+
+                // The correct backing array is updated either way (so it's fresh next time the
+                // user switches to it) — but if they've already switched away from the store this
+                // poll was for, stop here rather than overwriting what's currently on screen.
+                if (currentStoreMode !== fetchedMode) return;
+
                 allItems = newData;
                 
                 let shouldReRender = false;
