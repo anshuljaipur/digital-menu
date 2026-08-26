@@ -549,7 +549,13 @@
     <div id="loading-bar"></div>
 
     <header>
-        <img src="https://i.postimg.cc/c4MX4XyQ/logo-glacier.png" alt="Glacier Ice Cream Logo" class="header-logo" fetchpriority="high" onclick="window.clearAllFilters()">
+        <div style="display:flex; align-items:center; gap:10px; flex-shrink:0;">
+            <img src="https://i.postimg.cc/c4MX4XyQ/logo-glacier.png" alt="Glacier Ice Cream Logo" class="header-logo" fetchpriority="high" onclick="window.clearAllFilters()">
+            <div id="header-location-chip" onclick="window.openManualLocationPicker()" style="display:flex; align-items:center; gap:4px; cursor:pointer; font-size:0.78em; font-weight:600; color:var(--text-muted); max-width:110px; line-height:1.2;">
+                <span style="font-size:1.2em; flex-shrink:0;">📍</span>
+                <span id="header-location-text" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Set location</span>
+            </div>
+        </div>
         
         <div class="header-search">
             <div class="control-chip">
@@ -826,6 +832,45 @@
                 </button>
             </div>
             <div id="auth-error" style="color: var(--active-brand-red); font-size: 0.85em; font-weight: 600; margin-top: 15px; text-align: center;"></div>
+        </div>
+    </div>
+
+    <!-- 📍 LOCATION PERMISSION PROMPT (shown at launch, matches the reference "Location permission not enabled" style) -->
+    <div id="location-permission-modal" class="custom-modal" onclick="window.closeSpecificModal('location-permission-modal')">
+        <div class="modal-content-box" style="max-width: 380px; text-align: center; padding: 32px 0 0 0;" onclick="event.stopPropagation()">
+            <div style="padding: 0 26px;">
+                <svg width="86" height="86" viewBox="0 0 100 100" style="margin: 0 auto 20px auto; display: block;">
+                    <path d="M50 12 C33 12 20 25 20 42 C20 62 50 88 50 88 C50 88 80 62 80 42 C80 25 67 12 50 12 Z" fill="none" stroke="var(--text-main)" stroke-width="5" stroke-linejoin="round"/>
+                    <circle cx="50" cy="42" r="12" fill="none" stroke="var(--text-main)" stroke-width="5"/>
+                    <line x1="19" y1="83" x2="81" y2="17" stroke="var(--active-brand-red)" stroke-width="6" stroke-linecap="round"/>
+                </svg>
+                <h3 style="margin: 0 0 10px 0; font-size: 1.3em; font-weight: 800;">Location permission not enabled</h3>
+                <p style="margin: 0 0 26px 0; color: var(--text-muted); font-size: 0.9em; line-height: 1.5;">Please enable location permission for a better delivery experience</p>
+            </div>
+            <div style="border-top: 1px solid var(--border-color);">
+                <button onclick="window.enableSiteLocation()" style="width: 100%; background: none; border: none; border-bottom: 1px solid var(--border-color); padding: 17px; font-weight: 700; color: var(--glacier-blue); font-size: 1em; cursor: pointer; font-family: inherit;">Enable location</button>
+                <button onclick="window.openManualLocationPicker()" style="width: 100%; background: none; border: none; padding: 17px; font-weight: 700; color: var(--glacier-blue); font-size: 1em; cursor: pointer; font-family: inherit;">Select location manually</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📍 MANUAL LOCATION PICKER (independent of login — sets a general "delivering near" area for the site) -->
+    <div id="site-location-modal" class="custom-modal" onclick="window.closeSpecificModal('site-location-modal')">
+        <div class="modal-content-box" style="max-width: 480px;" onclick="event.stopPropagation()">
+            <div class="modal-header-row">
+                <h2>📍 Select Your Location</h2>
+                <div class="close-modal-icon" onclick="window.closeSpecificModal('site-location-modal')">×</div>
+            </div>
+            <div style="position: relative; margin-bottom: 12px;">
+                <input type="text" id="site-loc-search-input" class="auth-input" placeholder="Search area or city..." style="margin-bottom:0;" oninput="window.handleSiteLocSearchInput(event)" onkeypress="if(event.key==='Enter'){event.preventDefault(); window.searchSiteLocation();}">
+                <div id="site-loc-suggestions" style="display:none; position:absolute; top:calc(100% + 4px); left:0; right:0; background:var(--card-bg); border:1px solid var(--border-color); border-radius:10px; max-height:200px; overflow-y:auto; z-index:50; box-shadow:0 8px 24px rgba(0,0,0,0.18);"></div>
+            </div>
+            <div style="position: relative; height: 260px; border-radius: 14px; overflow: hidden; margin-bottom: 14px; border: 1px solid var(--border-color);">
+                <div id="site-loc-map-container" style="width:100%; height:100%;"></div>
+                <button id="site-loc-locate-btn" onclick="event.preventDefault(); window.getCurrentSiteLocation();" style="position:absolute; bottom:12px; right:12px; z-index:20; width:42px; height:42px; border-radius:50%; background:var(--card-bg); border:1px solid var(--border-color); box-shadow:0 3px 10px rgba(0,0,0,0.25); font-size:1.2em; cursor:pointer;">🎯</button>
+            </div>
+            <p id="site-loc-address-preview" style="font-size: 0.85em; color: var(--text-muted); margin: 0 0 16px 0; min-height: 1.3em;">Drag the pin, search, or tap 🎯 to set your area.</p>
+            <button onclick="window.confirmSiteLocation()" class="action-btn" style="width: 100%; background: var(--glacier-blue); color: #fff; border: none; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 1em; cursor:pointer;">Confirm Location</button>
         </div>
     </div>
 
@@ -2834,6 +2879,219 @@
                 box.style.display = 'none';
             }
         });
+
+        // ============================================================
+        // 📍 SITE-WIDE LOCATION (independent of login — just a "delivering near you" indicator,
+        // separate from the full delivery address saved under a logged-in account's Addresses)
+        // ============================================================
+        let siteLocMap = null, siteLocMarker = null, siteLocSearchTimer = null;
+        let pendingSiteLocation = null; // {lat, lng, area} — set once a pin/search/GPS result lands, saved on "Confirm"
+
+        function siteLocSetPreview(text) {
+            const el = document.getElementById('site-loc-address-preview');
+            if (el) el.innerText = text;
+        }
+
+        function siteLocMoveTo(lat, lng, zoom) {
+            if (!siteLocMap) return;
+            siteLocMap.setView([lat, lng], zoom || 16);
+            if (siteLocMarker) siteLocMarker.setLatLng([lat, lng]);
+        }
+
+        window.siteLocReverseGeocode = async (lat, lng) => {
+            siteLocSetPreview("Fetching exact area... ⏳");
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+                const data = await res.json();
+                let area = '';
+                if (data && data.address) {
+                    const addr = data.address;
+                    const road = addr.road || ''; const neighborhood = addr.neighbourhood || ''; const suburb = addr.suburb || '';
+                    const city = addr.city || addr.town || addr.county || '';
+                    const parts = [road, [neighborhood, suburb].filter(Boolean).join(', '), city].filter(p => p.trim() !== '');
+                    const uniqueParts = [];
+                    parts.forEach(p => {
+                        const isDup = uniqueParts.some(x => x.toLowerCase().includes(p.toLowerCase()) || p.toLowerCase().includes(x.toLowerCase()));
+                        if (!isDup) uniqueParts.push(p);
+                    });
+                    area = uniqueParts.join(', ') || data.display_name || '';
+                } else if (data && data.display_name) {
+                    area = data.display_name;
+                }
+                pendingSiteLocation = { lat, lng, area: area || `${lat.toFixed(4)}, ${lng.toFixed(4)}` };
+                siteLocSetPreview(pendingSiteLocation.area);
+            } catch (e) {
+                pendingSiteLocation = { lat, lng, area: `${lat.toFixed(4)}, ${lng.toFixed(4)}` };
+                siteLocSetPreview("Couldn't fetch area name — location pin still set.");
+            }
+        };
+
+        window.initSiteLocationMap = () => {
+            setTimeout(() => {
+                if (!siteLocMap) {
+                    const start = pendingSiteLocation || { lat: 26.9124, lng: 75.7873 };
+                    siteLocMap = L.map('site-loc-map-container').setView([start.lat, start.lng], pendingSiteLocation ? 16 : 13);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(siteLocMap);
+                    siteLocMarker = L.marker([start.lat, start.lng], { draggable: true }).addTo(siteLocMap);
+
+                    siteLocMarker.on('dragend', () => {
+                        const pos = siteLocMarker.getLatLng();
+                        window.siteLocReverseGeocode(pos.lat, pos.lng);
+                    });
+                    siteLocMap.on('click', (e) => {
+                        siteLocMarker.setLatLng(e.latlng);
+                        window.siteLocReverseGeocode(e.latlng.lat, e.latlng.lng);
+                    });
+                } else {
+                    siteLocMap.invalidateSize(true);
+                }
+            }, 50);
+        };
+
+        window.getCurrentSiteLocation = () => {
+            // Called directly from the onclick (not deferred) — iOS Safari/Chrome only allow a
+            // location request that fires synchronously inside the tap, same issue fixed earlier
+            // for the address map picker.
+            if (!window.isSecureContext) {
+                siteLocSetPreview("⚠️ Location needs this site to be opened over https://. Please search or drag the pin instead.");
+                return;
+            }
+            siteLocSetPreview("Locating you... 📍");
+            const btn = document.getElementById('site-loc-locate-btn');
+            if (btn) btn.innerText = '⏳';
+            if (!navigator.geolocation) { siteLocSetPreview("GPS not supported on this browser."); if(btn) btn.innerText = '🎯'; return; }
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const { latitude, longitude } = pos.coords;
+                    siteLocMoveTo(latitude, longitude, 16);
+                    window.siteLocReverseGeocode(latitude, longitude);
+                    if (btn) btn.innerText = '🎯';
+                },
+                () => { siteLocSetPreview("Location access denied. Please search or drag the pin."); if (btn) btn.innerText = '🎯'; },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        };
+
+        window.handleSiteLocSearchInput = (event) => {
+            clearTimeout(siteLocSearchTimer);
+            const query = event.target.value.trim();
+            const box = document.getElementById('site-loc-suggestions');
+            if (query.length < 3) { box.style.display = 'none'; return; }
+            siteLocSearchTimer = setTimeout(async () => {
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=in`);
+                    const data = await res.json();
+                    if (data && data.length > 0) {
+                        box.innerHTML = '';
+                        data.forEach(place => {
+                            const div = document.createElement('div');
+                            div.className = 'suggestion-item';
+                            div.innerText = place.display_name;
+                            div.onclick = () => {
+                                document.getElementById('site-loc-search-input').value = place.display_name;
+                                box.style.display = 'none';
+                                const lat = parseFloat(place.lat), lng = parseFloat(place.lon);
+                                siteLocMoveTo(lat, lng, 16);
+                                pendingSiteLocation = { lat, lng, area: place.display_name };
+                                siteLocSetPreview(place.display_name);
+                            };
+                            box.appendChild(div);
+                        });
+                        box.style.display = 'block';
+                    } else { box.style.display = 'none'; }
+                } catch (e) {}
+            }, 500);
+        };
+
+        window.searchSiteLocation = async () => {
+            const query = document.getElementById('site-loc-search-input').value.trim();
+            if (!query) return;
+            document.getElementById('site-loc-suggestions').style.display = 'none';
+            siteLocSetPreview("Searching... 🔍");
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&countrycodes=in`);
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    const lat = parseFloat(data[0].lat), lng = parseFloat(data[0].lon);
+                    siteLocMoveTo(lat, lng, 16);
+                    pendingSiteLocation = { lat, lng, area: data[0].display_name };
+                    siteLocSetPreview(data[0].display_name);
+                } else { siteLocSetPreview("Location not found. Try a different search."); }
+            } catch (e) { siteLocSetPreview("Search error. Please try again."); }
+        };
+
+        window.openManualLocationPicker = () => {
+            window.closeSpecificModal('location-permission-modal');
+            document.getElementById('site-location-modal').style.display = 'flex';
+            window.lockBodyScroll();
+            window.initSiteLocationMap();
+        };
+
+        window.confirmSiteLocation = () => {
+            if (!pendingSiteLocation) { siteLocSetPreview("Please set a location first — drag the pin, search, or tap 🎯."); return; }
+            localStorage.setItem('glacier_site_location', JSON.stringify(pendingSiteLocation));
+            window.updateHeaderLocationChip();
+            window.closeSpecificModal('site-location-modal');
+            window.showToast("📍 Location set: " + pendingSiteLocation.area.split(',')[0]);
+        };
+
+        window.enableSiteLocation = () => {
+            // Fires directly from the button tap — must stay synchronous up to this call for iOS.
+            if (!window.isSecureContext) {
+                window.showToast("⚠️ Location needs https:// to work — please select manually instead.");
+                window.openManualLocationPicker();
+                return;
+            }
+            if (!navigator.geolocation) { window.openManualLocationPicker(); return; }
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => {
+                    const { latitude, longitude } = pos.coords;
+                    pendingSiteLocation = { lat: latitude, lng: longitude, area: `${latitude.toFixed(4)}, ${longitude.toFixed(4)}` };
+                    await window.siteLocReverseGeocode(latitude, longitude);
+                    localStorage.setItem('glacier_site_location', JSON.stringify(pendingSiteLocation));
+                    window.updateHeaderLocationChip();
+                    window.closeSpecificModal('location-permission-modal');
+                    window.showToast("📍 Location set: " + pendingSiteLocation.area.split(',')[0]);
+                },
+                () => {
+                    window.showToast("Location access denied — you can select it manually instead.");
+                    window.openManualLocationPicker();
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        };
+
+        window.updateHeaderLocationChip = () => {
+            const textEl = document.getElementById('header-location-text');
+            if (!textEl) return;
+            try {
+                const saved = JSON.parse(localStorage.getItem('glacier_site_location'));
+                textEl.innerText = saved && saved.area ? saved.area.split(',')[0] : 'Set location';
+            } catch (e) { textEl.innerText = 'Set location'; }
+        };
+
+        // Show the launch prompt once per session if we don't already have a saved location —
+        // mirrors the reference app's behavior of asking again each time location isn't enabled,
+        // without nagging repeatedly within the same visit if the person dismisses it.
+        window.updateHeaderLocationChip();
+        if (!localStorage.getItem('glacier_site_location') && !sessionStorage.getItem('glacier_location_prompted')) {
+            sessionStorage.setItem('glacier_location_prompted', '1');
+            setTimeout(() => {
+                const splash = document.getElementById('splash-screen');
+                const showPrompt = () => {
+                    const modal = document.getElementById('location-permission-modal');
+                    if (modal) { modal.style.display = 'flex'; window.lockBodyScroll(); }
+                };
+                if (splash && splash.parentNode) {
+                    // wait for the splash to actually finish instead of layering on top of it
+                    const check = setInterval(() => {
+                        if (!document.getElementById('splash-screen')) { clearInterval(check); showPrompt(); }
+                    }, 300);
+                } else {
+                    showPrompt();
+                }
+            }, 1200);
+        }
     </script>
 
     <!-- 🟢 FIREBASE LOGIC (GOOGLE SIGN-IN + GUEST + PROFILE DB) 🟢 -->
