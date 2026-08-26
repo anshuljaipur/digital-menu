@@ -195,6 +195,8 @@
         .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; align-items: start; padding-bottom: 20px; box-sizing: border-box; width: 100%;}
         
         .menu-card { background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color); display: flex; flex-direction: column; position: relative; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s; height: 100%; box-sizing: border-box;}
+        .promo-banner-card { grid-column: 1 / -1; border-radius: 16px; padding: 18px 22px; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; font-weight: 800; font-size: 1.05em; box-shadow: 0 6px 20px rgba(0,0,0,0.12); line-height: 1.4; }
+        .promo-banner-card[onclick]:not([onclick=""]) { cursor: pointer; }
         .menu-card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.1); transform: translateY(-3px); }
         
         .oos-card { opacity: 0.6; filter: grayscale(100%); transition: all 0.3s ease; cursor: default; }
@@ -202,10 +204,10 @@
         .oos-card .red-discount-icon { background: #94a3b8; box-shadow: none; }
 
         /* 🟢 PERFECTED IMAGE WRAPPER AND OVERFLOW 🟢 */
-        .card-img-wrapper { position: relative; background: #fff; border-radius: 12px; height: 160px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; flex-shrink: 0; cursor: pointer; overflow: visible; }
+        .card-img-wrapper { position: relative; background: #fff; border-radius: 12px; height: 190px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; flex-shrink: 0; cursor: pointer; overflow: visible; }
         .card-img-wrapper img { 
-    width: 90%; 
-    height: 90%; 
+    width: 100%; 
+    height: 100%; 
     object-fit: contain; 
     mix-blend-mode: multiply; 
     border-radius: 12px;
@@ -437,7 +439,7 @@
             .section-header h2 { font-size: 1.1em; }
             .menu-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; margin: 0; padding-bottom: 10px;}
             .menu-card { padding: 8px; border-radius: 12px; }
-            .card-img-wrapper { height: 100px; margin-bottom: 20px; border-radius: 10px; overflow: visible; } 
+            .card-img-wrapper { height: 120px; margin-bottom: 20px; border-radius: 10px; overflow: visible; } 
             .new-badge { top: -6px; left: -6px; font-size: 0.5em; padding: 3px 6px; }
             .red-discount-icon { top: -6px; right: -6px; font-size: 0.55em; padding: 3px 6px; }
             .btn-container { right: 8px; bottom: -14px; }
@@ -954,8 +956,26 @@
     <script>
         // 🔗 URL CONFIGURATION 🔗
         const iceCreamSheetUrl = "https://script.google.com/macros/s/AKfycbwq17hSzF9mgPqqKw8FDVWFktoxpugpZNKYRjc6hmTSOKxQm4fY2jC1talNoEpMdDQ/exec"; 
+        // Belt-and-suspenders safety net: guarantees a fetch always settles (resolves or rejects)
+        // within `ms`, even if something (a rogue service worker, a dropped connection, etc.)
+        // makes the underlying request hang forever with no response. Without this, the splash/
+        // refresh button would have nothing to recover on — an unsettled promise can't be caught.
+        function fetchWithTimeout(url, ms = 12000) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), ms);
+            return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timeoutId));
+        }
         const grocerySheetUrl = "https://script.google.com/macros/s/AKfycbxNEtZH-ugGQgTwcfDFNdJ8Thd46FxeZJ8emO4v3mqeCkhcQKqW0UQNDj63XitbNwE/exec"; 
         const WHATSAPP_NUMBER = "919829610570"; 
+        const SHOW_STOCK_BADGE = true; // set to false to hide the "X in stock" badge on product cards site-wide
+
+        // 🟢 PROMOTIONAL BANNERS — shown once at the very top of the grid, then repeated after
+        // every 4 rows of products. Edit text/bg/link freely; add or remove entries as needed —
+        // they'll cycle through in order as more banner slots are reached.
+        const PROMO_BANNERS = [
+            { text: "🎉 Free delivery on orders above ₹299!", bg: "linear-gradient(135deg, #1f51c6, #4c7bef)", link: "" },
+            { text: "🍦 Ask us about today's special offers on WhatsApp!", bg: "linear-gradient(135deg, #e74c3c, #ff8a65)", link: "" }
+        ];
         
         // 🛒 APPSHEET CONFIGURATION 🛒
         const APPSHEET_APP_NAME = "LiveInventroy-257487838"; 
@@ -1635,7 +1655,7 @@
                 const noCacheParam = "?_t=" + Date.now();
                 let activeUrl = fetchedMode === 'icecream' ? iceCreamSheetUrl : grocerySheetUrl;
                 
-                let res = await fetch(activeUrl + noCacheParam);
+                let res = await fetchWithTimeout(activeUrl + noCacheParam);
                 if (!res.ok) throw new Error("Network response failed");
                 const text = await res.text();
                 
@@ -1762,8 +1782,8 @@
                 // roughly halves real load time, since each Google Apps Script call can take
                 // several seconds on its own (especially on a cold start).
                 const [iceCreamResult, groceryResult] = await Promise.allSettled([
-                    fetch(iceCreamSheetUrl + noCacheParam).then(res => res.ok ? res.text() : null),
-                    fetch(grocerySheetUrl + noCacheParam).then(res => res.ok ? res.text() : null)
+                    fetchWithTimeout(iceCreamSheetUrl + noCacheParam).then(res => res.ok ? res.text() : null),
+                    fetchWithTimeout(grocerySheetUrl + noCacheParam).then(res => res.ok ? res.text() : null)
                 ]);
 
                 if (iceCreamResult.status === 'fulfilled' && iceCreamResult.value) {
@@ -2126,8 +2146,30 @@
             let itemsPerPage = window.getItemsPerPage();
             let itemsToRender = currentFilteredItems.slice(currentlyDisplayed, currentlyDisplayed + itemsPerPage);
 
+            // Figure out how many columns the grid is actually showing right now, so "every 4
+            // rows" adapts to the real responsive layout (2 cols on phones, 3 on tablets, however
+            // many auto-fill resolves to on desktop) instead of assuming a fixed count.
+            let columnsPerRow = 2;
+            try {
+                const resolvedCols = getComputedStyle(gridWrapper).gridTemplateColumns.split(' ').filter(Boolean);
+                if (resolvedCols.length > 0) columnsPerRow = resolvedCols.length;
+            } catch(e) {}
+            const itemsPerBannerBlock = columnsPerRow * 4;
+
+            const promoBannerHTML = (promoIndex) => {
+                const promo = PROMO_BANNERS[promoIndex % PROMO_BANNERS.length];
+                const clickAttr = promo.link ? ` onclick="window.open('${promo.link}', '_blank')"` : '';
+                return `<div class="promo-banner-card" style="background:${promo.bg};"${clickAttr}><span>${promo.text}</span></div>`;
+            };
+
+            // One banner right at the very start of the whole grid (only on the first render batch).
+            if (currentlyDisplayed === 0 && itemsToRender.length > 0 && PROMO_BANNERS.length > 0) {
+                newHTML += promoBannerHTML(0);
+            }
+
             itemsToRender.forEach((item, index) => {
                 if(!item.name) return;
+                const globalIndex = currentlyDisplayed + index; // 0-based position across the whole filtered list
                 const safeName = item.name.replace(/[^a-zA-Z0-9]/g, '_'); const volText = window.extractVolumeText(item.name);
                 let displayName = item.name.replace(volText, '').trim() || item.name;
                 let discountNum = window.getDiscount(item);
@@ -2155,7 +2197,9 @@
                         stockHTML = `<div class="stock-badge" id="stock-badge-${safeName}" data-stock="0" style="display:none;"></div>`;
                     } else {
                         let stockClass = stock <= 5 ? 'stock-badge low-stock' : 'stock-badge';
-                        stockHTML = `<div class="${stockClass}" id="stock-badge-${safeName}" data-stock="${stock}">${stock} in stock</div>`;
+                        stockHTML = SHOW_STOCK_BADGE
+                            ? `<div class="${stockClass}" id="stock-badge-${safeName}" data-stock="${stock}">${stock} in stock</div>`
+                            : `<div class="stock-badge" id="stock-badge-${safeName}" data-stock="${stock}" style="display:none;"></div>`;
                     }
                 } else {
                     stockHTML = `<div class="stock-badge" id="stock-badge-${safeName}" data-stock="-1" style="display:none;"></div>`;
@@ -2186,6 +2230,13 @@
                         </div>
                     </div>
                 `;
+
+                // Drop in a banner after every 4 rows' worth of items (based on the grid's actual
+                // current column count), wherever that lands in the overall filtered list.
+                const posInSequence = globalIndex + 1;
+                if (PROMO_BANNERS.length > 0 && posInSequence % itemsPerBannerBlock === 0) {
+                    newHTML += promoBannerHTML(Math.floor(posInSequence / itemsPerBannerBlock));
+                }
             });
             
             gridWrapper.insertAdjacentHTML('beforeend', newHTML);
@@ -2222,7 +2273,9 @@
             if(ing !== '') { ingEl.innerText = "*Note: " + ing; ingEl.style.display = 'block'; } else { ingEl.style.display = 'none'; }
 
             const priceWrap = document.getElementById('pd-modal-price-wrap');
-            let priceHTML = discountNum > 0 ? `<span class="item-price">₹${item.price}</span> <span class="item-mrp" style="text-decoration:line-through; color:var(--text-muted); font-size:0.8em; margin-left:5px;">₹${item.mrp}</span>` : `<span class="item-price">₹${item.price}</span>`;
+            let priceHTML = discountNum > 0 
+                ? `<span class="item-price">₹${item.price}</span> <span class="item-mrp" style="text-decoration:line-through; color:var(--text-muted); font-size:0.8em; margin-left:5px;">₹${item.mrp}</span> <span style="background:#e8f8ee; color:#10b981; font-weight:800; font-size:0.75em; padding:3px 8px; border-radius:6px; margin-left:6px; vertical-align:middle;">${Math.round(discountNum)}% OFF</span>` 
+                : `<span class="item-price">₹${item.price}</span>`;
             priceWrap.innerHTML = priceHTML;
 
             const btnWrap = document.getElementById('pd-modal-btn-wrap');
@@ -2425,17 +2478,29 @@
             if (manifestLink) manifestLink.href = URL.createObjectURL(manifestBlob);
 
             // --- 2. Minimal service worker (Chrome requires one to consider a site "installable") ---
-            // Deliberately does NOT cache anything — this site's menu data changes live from
-            // Google Sheets, so caching fetches here would risk showing stale stock/prices.
+            // No fetch handler here on purpose — an empty/no-op fetch listener (`() => {}` with no
+            // `event.respondWith()`) still makes the service worker intercept every request on the
+            // page, and that exact pattern has known bugs on iOS Safari/WebKit where the request can
+            // hang indefinitely instead of falling through to the network like Chrome does. That was
+            // silently breaking this site's menu data fetch on iPhone only (stuck at a partial load
+            // percentage, then the failsafe timer hid the splash with nothing loaded). install/activate
+            // alone are enough to satisfy Android/Chrome's installability check.
             if ('serviceWorker' in navigator) {
                 const swCode = `
                     self.addEventListener('install', () => self.skipWaiting());
                     self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
-                    self.addEventListener('fetch', () => {}); // pass-through, no caching
                 `;
                 const swBlob = new Blob([swCode], { type: 'application/javascript' });
                 const swUrl = URL.createObjectURL(swBlob);
-                navigator.serviceWorker.register(swUrl).catch((err) => console.warn("Service worker registration failed:", err));
+                // Clear out any service worker registered by an earlier version of this page first —
+                // anyone who already visited before this fix has the buggy fetch-intercepting one
+                // installed and running, and it won't remove itself just because the code changed.
+                navigator.serviceWorker.getRegistrations().then((regs) => {
+                    regs.forEach((reg) => reg.unregister());
+                    navigator.serviceWorker.register(swUrl).catch((err) => console.warn("Service worker registration failed:", err));
+                }).catch(() => {
+                    navigator.serviceWorker.register(swUrl).catch((err) => console.warn("Service worker registration failed:", err));
+                });
             }
 
             // --- 3. Custom "Install" banner (Chrome/Edge/Android only — Safari has no install-prompt API) ---
@@ -2485,7 +2550,7 @@
             try {
                 const noCacheParam = "?_t=" + Date.now();
                 let activeUrl = fetchedMode === 'icecream' ? iceCreamSheetUrl : grocerySheetUrl;
-                let res = await fetch(activeUrl + noCacheParam); 
+                let res = await fetchWithTimeout(activeUrl + noCacheParam); 
                 if (!res.ok) return;
                 let text = await res.text();
                 let newData = window.normalizeData(JSON.parse(text), fetchedMode === 'grocery');
@@ -2544,7 +2609,7 @@
                         if(stockBadgeEl) {
                             let oldStock = parseInt(stockBadgeEl.getAttribute('data-stock'));
                             
-                            if (currentStoreMode === 'grocery' && stock !== null && stock > 0) {
+                            if (SHOW_STOCK_BADGE && currentStoreMode === 'grocery' && stock !== null && stock > 0) {
                                 stockBadgeEl.style.display = 'inline-block';
                                 stockBadgeEl.className = stock <= 5 ? 'stock-badge low-stock' : 'stock-badge';
                                 stockBadgeEl.innerText = `${stock} in stock`;
