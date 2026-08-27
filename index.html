@@ -493,6 +493,9 @@
 .circular-loader-container { position: relative; width: 64px; height: 64px; margin: 15px auto; }
 .circular-loader { animation: rotate 2s linear infinite; height: 100%; width: 100%; transform-origin: center center; }
 .loader-path { stroke-dasharray: 1, 200; stroke-dashoffset: 0; animation: dash 1.5s ease-in-out infinite; stroke: #ffffff; stroke-linecap: round; stroke-width: 4; }
+/* Themed copy of the splash spinner, colored for use on the light card background inside the items grid (instead of white-on-blue) */
+.inline-loader-svg { animation: rotate 2s linear infinite; width: 56px; height: 56px; }
+.inline-loader-path { stroke-dasharray: 1, 200; stroke-dashoffset: 0; animation: dash 1.5s ease-in-out infinite; stroke: var(--glacier-blue); stroke-linecap: round; stroke-width: 4; }
 #loading-percentage { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 0.9em; font-weight: 800; color: white; }
 
 @keyframes rotate { 100% { transform: rotate(360deg); } }
@@ -984,6 +987,7 @@
         let allItems = []; 
         let allIceCreamItems = [];
         let allGroceryItems = [];
+        let dataLoadState = 'loading'; // 'loading' | 'loaded' | 'error' — drives the items-section loader/error state
         
         let hideOutOfStock = false;
 
@@ -1733,6 +1737,42 @@
             const pctText = document.getElementById('loading-percentage');
             if(loadingBar) loadingBar.style.width = splashPercent + '%';
             if(pctText) pctText.innerText = Math.round(splashPercent) + '%';
+
+            // Keep the items-section loader (shown separately below the splash) in sync with the
+            // same real progress, so it never contradicts what the splash was showing.
+            const inlinePctText = document.getElementById('inline-loader-percent');
+            const inlineBar = document.getElementById('inline-loader-bar');
+            if(inlinePctText) inlinePctText.innerText = Math.round(splashPercent) + '%';
+            if(inlineBar) inlineBar.style.width = splashPercent + '%';
+        }
+
+        function renderInlineLoadingState() {
+            const statusMsg = document.getElementById('status-msg');
+            if (!statusMsg) return;
+            statusMsg.innerHTML = `<div style="padding: 50px 10px; text-align: center;">
+                <div style="position: relative; width: 56px; height: 56px; margin: 0 auto 16px auto;">
+                    <svg class="inline-loader-svg" viewBox="25 25 50 50"><circle class="inline-loader-path" cx="50" cy="50" r="20" fill="none"></circle></svg>
+                    <div id="inline-loader-percent" style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:0.8em; font-weight:800; color:var(--glacier-blue);">${Math.round(splashPercent)}%</div>
+                </div>
+                <h3 style="color: var(--text-muted); margin: 0 0 5px 0;">Loading menu…</h3>
+                <p style="margin: 0; font-size: 0.85em; color:var(--text-muted);">Fetching the latest items — hang tight.</p>
+                <div style="width: 160px; height: 4px; background: var(--border-color); border-radius: 4px; margin: 16px auto 0 auto; overflow: hidden;">
+                    <div id="inline-loader-bar" style="height: 100%; width: ${Math.round(splashPercent)}%; background: var(--glacier-blue); border-radius: 4px; transition: width 0.3s ease;"></div>
+                </div>
+            </div>`;
+            statusMsg.style.display = 'block';
+        }
+
+        function renderInlineErrorState() {
+            const statusMsg = document.getElementById('status-msg');
+            if (!statusMsg) return;
+            statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;">
+                <span style="font-size: 3em;">📡</span>
+                <h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">Couldn't load the menu</h3>
+                <p style="margin: 0 0 15px 0; font-size: 0.9em; color:var(--text-muted);">Check your connection and try again.</p>
+                <button onclick="window.location.reload()" class="action-btn" style="margin: 0 auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">🔄 Retry</button>
+            </div>`;
+            statusMsg.style.display = 'block';
         }
 
         async function loadData() {
@@ -1740,6 +1780,8 @@
             const loadingBar = document.getElementById('loading-bar');
             if(loadingBar) loadingBar.style.opacity = '1';
             setSplashPercent(6);
+            dataLoadState = 'loading';
+            renderInlineLoadingState();
 
             // Creep the percentage up smoothly while the real fetch is in flight,
             // so the number always reflects visible progress instead of jumping straight from 0% to hidden.
@@ -1804,12 +1846,13 @@
                 clearTimeout(failsafeTimer);
 
                 if(!allItems || allItems.length === 0) { 
-                    statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">🍦</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="window.clearAllFilters()" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
-                    statusMsg.style.display = 'block'; 
+                    dataLoadState = 'error';
+                    renderInlineErrorState();
                     hideSplash();
                     return; 
                 }
                 
+                dataLoadState = 'loaded';
                 const urlParams = new URLSearchParams(window.location.search);
                 if(urlParams.has('brand')) currentBrand = urlParams.get('brand');
                 if(urlParams.has('category')) currentCategory = urlParams.get('category');
@@ -1821,6 +1864,8 @@
 
             } catch (error) { 
                 console.error("Load Error:", error);
+                dataLoadState = 'error';
+                renderInlineErrorState();
             } finally {
                 clearTimeout(failsafeTimer);
                 hideSplash();
@@ -2118,6 +2163,11 @@
             
             if (filteredItems.length === 0) { 
                 if(loadMore) loadMore.style.display = 'none';
+                // If there's genuinely no source data yet (still loading, or failed), show that
+                // honestly instead of the filter-empty message below, which would wrongly imply
+                // the person's filters are the reason nothing's showing.
+                if (allItems.length === 0 && dataLoadState === 'loading') { renderInlineLoadingState(); return; }
+                if (allItems.length === 0 && dataLoadState === 'error') { renderInlineErrorState(); return; }
                 statusMsg.innerHTML = `<div style="padding: 40px 10px; text-align: center;"><span style="font-size: 3em;">${currentStoreMode === 'icecream' ? '🍦' : '🛒'}</span><h3 style="color: var(--text-muted); margin: 10px 0 5px 0;">No items found</h3><p style="margin: 0; font-size: 0.9em; color:var(--text-muted);">Try changing your filters.</p><button onclick="window.clearAllFilters()" class="action-btn" style="margin: 15px auto; border-color: var(--glacier-blue); color: var(--glacier-blue);">Clear Filters</button></div>`; 
                 statusMsg.style.display = 'block'; 
                 return; 
