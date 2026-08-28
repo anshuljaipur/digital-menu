@@ -1135,6 +1135,7 @@
             
             document.getElementById(modalId).style.display = 'flex';
             window.lockBodyScroll();
+            window.pushModalHistory(modalId);
             
             if(modalId === 'my-profile-modal') {
                 const msg = document.getElementById('profile-save-msg');
@@ -1148,15 +1149,67 @@
         };
 
         window.closeSpecificModal = (modalId) => {
-            document.getElementById(modalId).style.display = 'none';
-            window.unlockBodyScroll();
+            // If this is the topmost modal we pushed history for, going back lets the popstate
+            // handler below do the actual hiding — keeping browser/Android back-button behavior
+            // in sync however the modal gets closed (X button, backdrop tap, or hardware back).
+            if (window.openModalStack.length > 0 && window.openModalStack[window.openModalStack.length - 1] === modalId) {
+                history.back();
+            } else {
+                window.hideTrackedModal(modalId);
+            }
         };
+
+        // ============================================================
+        // 🔙 ANDROID/BROWSER BACK BUTTON — closes the open modal instead of exiting the app.
+        // Every modal-opening call pushes a history entry; back then just pops it (handled here)
+        // rather than leaving the page, which is what was making Android's back button feel like
+        // it exits the app whenever a modal (cart, product detail, login, etc.) was open.
+        // Exposed on window since modal-opening code lives across several separate <script>
+        // blocks (including a type="module" one), which don't share plain let/function scope.
+        // ============================================================
+        window.openModalStack = [];
+
+        window.pushModalHistory = (modalId) => {
+            window.openModalStack.push(modalId);
+            history.pushState({ glacierModalId: modalId }, '', location.href);
+        };
+
+        window.hideTrackedModal = (modalId) => {
+            if (modalId === 'cart-modal') {
+                const modal = document.getElementById('cart-modal');
+                if (modal) modal.style.display = 'none';
+                window.unlockBodyScroll();
+            } else if (modalId === 'fullscreen-viewer') {
+                const overlay = document.getElementById('fullscreen-image-overlay');
+                if (overlay) {
+                    overlay.style.opacity = '0';
+                    setTimeout(() => { if (overlay.parentNode) overlay.remove(); }, 300);
+                }
+            } else {
+                const modal = document.getElementById(modalId);
+                if (modal) modal.style.display = 'none';
+                window.unlockBodyScroll();
+            }
+            const idx = window.openModalStack.lastIndexOf(modalId);
+            if (idx !== -1) window.openModalStack.splice(idx, 1);
+        };
+
+        window.addEventListener('popstate', () => {
+            if (window.openModalStack.length > 0) {
+                window.hideTrackedModal(window.openModalStack[window.openModalStack.length - 1]);
+            }
+        });
 
         document.addEventListener('keydown', function(event) {
             if (event.key === "Escape") {
+                // Go back once per open modal so the pushed history entries get cleaned up in
+                // step with what's visibly closing (Escape can close more than one at a time here).
+                const openCount = window.openModalStack.length;
+                for (let i = 0; i < openCount; i++) { history.back(); }
                 document.querySelectorAll('.custom-modal').forEach(modal => {
                     modal.style.display = 'none';
                 });
+                window.openModalStack = [];
                 window.unlockBodyScroll();
             }
         });
@@ -2411,8 +2464,13 @@
             } else { 
                 cartList.innerHTML = '<p style="color:var(--text-muted); text-align: center; font-weight: 500;">Your cart is empty. 🛒</p>'; 
                 floatingCartBtn.classList.remove('visible'); 
-                document.getElementById('cart-modal').style.display = 'none'; 
-                window.unlockBodyScroll();
+                if (document.getElementById('cart-modal').style.display === 'flex') {
+                    if (window.openModalStack.length > 0 && window.openModalStack[window.openModalStack.length - 1] === 'cart-modal') {
+                        history.back();
+                    } else {
+                        window.hideTrackedModal('cart-modal');
+                    }
+                }
             }
             document.getElementById('cart-total-price').innerText = totalPrice;
         }
@@ -2421,11 +2479,11 @@
             if(Object.keys(cart).length === 0) return; 
             const modal = document.getElementById('cart-modal'); 
             if(modal.style.display === 'flex') {
-                modal.style.display = 'none';
-                window.unlockBodyScroll();
+                window.closeSpecificModal('cart-modal');
             } else {
                 modal.style.display = 'flex';
                 window.lockBodyScroll();
+                window.pushModalHistory('cart-modal');
             }
         }
         
@@ -2437,6 +2495,7 @@
             
             // Create the dark overlay
             const overlay = document.createElement('div');
+            overlay.id = 'fullscreen-image-overlay';
             overlay.style.position = 'fixed';
             overlay.style.top = '0';
             overlay.style.left = '0';
@@ -2464,14 +2523,12 @@
             
             overlay.appendChild(img);
             
-            // Close the overlay when tapped
-            overlay.onclick = () => {
-                overlay.style.opacity = '0';
-                img.style.transform = 'scale(0.9)';
-                setTimeout(() => { document.body.removeChild(overlay); }, 300);
-            };
+            // Close the overlay when tapped — routed through the tracked-close path so the
+            // Android back button and this tap-to-close stay in sync (whichever happens first).
+            overlay.onclick = () => { window.closeSpecificModal('fullscreen-viewer'); };
             
             document.body.appendChild(overlay);
+            window.pushModalHistory('fullscreen-viewer');
             
             // Trigger animation
             setTimeout(() => {
@@ -2519,8 +2576,8 @@
                 theme_color: "#1f51c6",
                 orientation: "portrait-primary",
                 icons: [
-                    { src: "https://i.postimg.cc/DfWgmYTD/favicon.jpg", sizes: "192x192", type: "image/jpeg", purpose: "any maskable" },
-                    { src: "https://i.postimg.cc/DfWgmYTD/favicon.jpg", sizes: "512x512", type: "image/jpeg", purpose: "any maskable" }
+                    { src: "https://i.postimg.cc/DfWgmYTD/favicon.jpg", sizes: "192x192", type: "image/jpeg", purpose: "any" },
+                    { src: "https://i.postimg.cc/DfWgmYTD/favicon.jpg", sizes: "512x512", type: "image/jpeg", purpose: "any" }
                 ]
             };
             const manifestBlob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
@@ -2985,9 +3042,15 @@
         };
 
         window.openManualLocationPicker = () => {
-            window.closeSpecificModal('location-permission-modal');
+            // Swap modals directly (pop the permission modal, push the picker) rather than
+            // routing the close through history.back() — doing both at once would race against
+            // each other, since history.back()'s popstate fires asynchronously.
+            if (document.getElementById('location-permission-modal').style.display === 'flex') {
+                window.hideTrackedModal('location-permission-modal');
+            }
             document.getElementById('site-location-modal').style.display = 'flex';
             window.lockBodyScroll();
+            window.pushModalHistory('site-location-modal');
             window.initSiteLocationMap();
         };
 
@@ -3044,7 +3107,7 @@
                 const splash = document.getElementById('splash-screen');
                 const showPrompt = () => {
                     const modal = document.getElementById('location-permission-modal');
-                    if (modal) { modal.style.display = 'flex'; window.lockBodyScroll(); }
+                    if (modal) { modal.style.display = 'flex'; window.lockBodyScroll(); window.pushModalHistory('location-permission-modal'); }
                 };
                 if (splash && splash.parentNode) {
                     // wait for the splash to actually finish instead of layering on top of it
@@ -3189,6 +3252,7 @@
             } else { 
                 document.getElementById('auth-modal').style.display = 'flex'; 
                 window.lockBodyScroll();
+                window.pushModalHistory('auth-modal');
                 document.getElementById('auth-error').innerText = ''; 
             }
         };
