@@ -2006,7 +2006,23 @@
             const brandSidebar = document.getElementById('brands-sidebar');
             brandSidebar.innerHTML = ''; 
             
-            const brands = ['All Brands', ...new Set(allItems.map(item => item.brand).filter(b => b))];
+            // Only offer brands that actually have something in stock right now — a brand whose
+            // every item is out of stock (grocery only; ice cream has no stock tracking) would
+            // otherwise show in the picker and lead to an empty "no items" screen when tapped.
+            const brandableItems = allItems.filter(item => {
+                if (currentStoreMode !== 'grocery') return true;
+                const stock = window.getItemStock(item);
+                return stock === null || stock > 0;
+            });
+            const brands = ['All Brands', ...new Set(brandableItems.map(item => item.brand).filter(b => b))];
+
+            // If the currently-selected brand just dropped out of the list (its last item went
+            // out of stock), fall back to "All Brands" before rendering, so the active highlight
+            // below lands correctly instead of leaving no chip marked active.
+            if (!brands.includes(currentBrand)) {
+                currentBrand = 'All Brands';
+            }
+
             brands.forEach(brand => {
                 let iconHTML = brand === 'All Brands' ? `<svg viewBox="0 0 100 100" style="width:100%; height:100%; background:var(--chip-bg);"><text x="50" y="55" font-size="28" fill="var(--glacier-blue)" font-weight="bold" font-family="Montserrat, sans-serif" text-anchor="middle" dominant-baseline="middle">ALL</text></svg>` : window.getBrandLogo(brand);
                 
