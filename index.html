@@ -1683,11 +1683,30 @@
 
         window.getItemStock = (item) => {
             if(!item) return null;
+            const parseVal = (v) => {
+                if (typeof v === 'number') return v;
+                if (typeof v === 'string' && v.trim() !== '' && !isNaN(parseInt(v))) return parseInt(v);
+                return null;
+            };
+            // Pass 1: any column whose header contains stock/qty/quantity anywhere in it — covers
+            // compound real-world header names like "In Stock", "Stock Qty", "Available Stock",
+            // "Quantity Available", etc. The old version required an exact full-string match, which
+            // silently failed on any header that wasn't precisely "Stock"/"Qty"/"Quantity"/"Available".
             for (let key in item) {
                 let cleanKey = String(key).toLowerCase().replace(/[^a-z]/g, '');
-                if (['stock', 'qty', 'quantity', 'available'].includes(cleanKey)) {
-                    if (typeof item[key] === 'number') return item[key];
-                    if (typeof item[key] === 'string' && !isNaN(parseInt(item[key]))) return parseInt(item[key]);
+                if (cleanKey.includes('stock') || cleanKey.includes('qty') || cleanKey.includes('quantity')) {
+                    let val = parseVal(item[key]);
+                    if (val !== null) return val;
+                }
+            }
+            // Pass 2: fall back to an exact "available" column name only — kept narrow (not a
+            // "contains" check) so an unrelated column like "Availability" or "Available From"
+            // doesn't get misread as a stock count.
+            for (let key in item) {
+                let cleanKey = String(key).toLowerCase().replace(/[^a-z]/g, '');
+                if (cleanKey === 'available') {
+                    let val = parseVal(item[key]);
+                    if (val !== null) return val;
                 }
             }
             return null; 
