@@ -236,6 +236,8 @@
         .stock-flash-up { animation: stock-flash-up 2.5s ease-in-out forwards !important; z-index: 10; position: relative;}
 
         .stock-badge { display: inline-block; width: fit-content; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 3px 8px; border-radius: 6px; font-size: 0.65em; font-weight: 800; margin-bottom: 6px; transition: all 0.3s; }
+        .stock-count-badge { position: absolute; top: 8px; left: 8px; width: 28px; height: 28px; border-radius: 50%; background: rgba(16, 185, 129, 0.95); color: #fff; font-size: 0.7em; font-weight: 800; display: flex; align-items: center; justify-content: center; z-index: 6; box-shadow: 0 3px 8px rgba(0,0,0,0.2); border: 2px solid #fff; line-height: 1; }
+        .stock-count-badge.low-stock { background: rgba(230, 126, 34, 0.95); }
         .stock-badge.low-stock { background: rgba(245, 158, 11, 0.15); color: #d97706; border-color: rgba(245, 158, 11, 0.3); }
         .out-of-stock-badge { background: var(--card-bg); color: var(--active-brand-red); font-weight: 800; font-size: 0.7em; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--active-brand-red); box-shadow: 0 4px 10px rgba(0,0,0,0.1); white-space: nowrap;}
 
@@ -2038,11 +2040,15 @@
                 if(lsContainer) lsContainer.innerHTML = tagsHTML;
                 if(dtContainer) dtContainer.innerHTML = tagsHTML;
                 
-                if(document.getElementById('desktop-tags-grid').parentElement) document.getElementById('desktop-tags-grid').parentElement.style.display = '';
+                // Only show/hide the tags panel itself — its parent (.top-nav-bar) is shared with
+                // the brands row next to it, so hiding the parent was wrongly hiding the brand
+                // panel too whenever the current store's items had no tags (e.g. grocery items,
+                // which generally don't have flavor/dietary tags the way ice cream items do).
+                if(dtContainer) dtContainer.style.display = '';
             } else {
                 document.getElementById('tags-container-portrait').style.display = 'none';
                 if(document.getElementById('tags-container-landscape')) document.getElementById('tags-container-landscape').style.display = 'none';
-                if(document.getElementById('desktop-tags-grid') && document.getElementById('desktop-tags-grid').parentElement) document.getElementById('desktop-tags-grid').parentElement.style.display = 'none';
+                if(document.getElementById('desktop-tags-grid')) document.getElementById('desktop-tags-grid').style.display = 'none';
             }
 
         }
@@ -2310,21 +2316,21 @@
                 }
 
                 let stock = window.getItemStock(item);
-                let stockHTML = '';
+                let stockBadgeHTML = '';
                 let isOutOfStock = false;
                 
                 if (currentStoreMode === 'grocery' && stock !== null) {
                     if (stock === 0) {
                         isOutOfStock = true;
-                        stockHTML = `<div class="stock-badge" id="stock-badge-${safeName}" data-stock="0" style="display:none;"></div>`;
+                        stockBadgeHTML = `<div class="stock-count-badge" id="stock-badge-${safeName}" data-stock="0" style="display:none;"></div>`;
                     } else {
-                        let stockClass = stock <= 5 ? 'stock-badge low-stock' : 'stock-badge';
-                        stockHTML = SHOW_STOCK_BADGE
-                            ? `<div class="${stockClass}" id="stock-badge-${safeName}" data-stock="${stock}">${stock} in stock</div>`
-                            : `<div class="stock-badge" id="stock-badge-${safeName}" data-stock="${stock}" style="display:none;"></div>`;
+                        let lowStockClass = stock <= 5 ? ' low-stock' : '';
+                        stockBadgeHTML = SHOW_STOCK_BADGE
+                            ? `<div class="stock-count-badge${lowStockClass}" id="stock-badge-${safeName}" data-stock="${stock}">${stock}</div>`
+                            : `<div class="stock-count-badge" id="stock-badge-${safeName}" data-stock="${stock}" style="display:none;"></div>`;
                     }
                 } else {
-                    stockHTML = `<div class="stock-badge" id="stock-badge-${safeName}" data-stock="-1" style="display:none;"></div>`;
+                    stockBadgeHTML = `<div class="stock-count-badge" id="stock-badge-${safeName}" data-stock="-1" style="display:none;"></div>`;
                 }
 
                 newHTML += `
@@ -2332,6 +2338,7 @@
                         <div class="card-img-wrapper skeleton-bg">
                             ${window.isNewArrival(item) ? `<div class="new-badge">✨ NEW</div>` : ''}
                             ${discountNum > 0 ? `<div class="red-discount-icon">${Math.round(discountNum)}% OFF</div>` : ''}
+                            ${stockBadgeHTML}
                             
                             <img src="${window.formatImageUrl(item.img)}" crossorigin="anonymous" loading="lazy" decoding="async" style="opacity: 0; transition: opacity 0.3s ease-in-out;" onload="this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';" onerror="this.onerror=null; this.src='https://placehold.co/300x220/f4f6f9/a0a0a0?text=No+Image'; this.parentElement.classList.remove('skeleton-bg'); this.style.opacity='1';">
                             
@@ -2341,7 +2348,6 @@
                             </div>
                         </div>
                         
-                        ${stockHTML}
                         <div class="brand-tag">${item.brand}</div>
                         ${tagsHTML}
                         <div class="item-name">${displayName}</div>
@@ -2736,9 +2742,9 @@
                             let oldStock = parseInt(stockBadgeEl.getAttribute('data-stock'));
                             
                             if (SHOW_STOCK_BADGE && currentStoreMode === 'grocery' && stock !== null && stock > 0) {
-                                stockBadgeEl.style.display = 'inline-block';
-                                stockBadgeEl.className = stock <= 5 ? 'stock-badge low-stock' : 'stock-badge';
-                                stockBadgeEl.innerText = `${stock} in stock`;
+                                stockBadgeEl.style.display = 'flex';
+                                stockBadgeEl.className = stock <= 5 ? 'stock-count-badge low-stock' : 'stock-count-badge';
+                                stockBadgeEl.innerText = `${stock}`;
                                 stockBadgeEl.setAttribute('data-stock', stock);
                                 
                                 // 🟢 TRIGGER RED/GREEN ANIMATION ON STOCK CHANGE 🟢
