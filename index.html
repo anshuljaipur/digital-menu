@@ -395,7 +395,7 @@
             .desktop-category-panel::-webkit-scrollbar { display: none; }
             .desktop-tags-panel { display: flex; flex-wrap: wrap; gap: 8px; padding: 15px; flex: 20%; max-width: 20%; overflow-y: auto; align-content: flex-start; scrollbar-width: none; }
             .desktop-tags-panel::-webkit-scrollbar { display: none; }
-            .desktop-tools-bar { display: flex !important; justify-content: flex-start; align-items: center; padding: 10px 30px; background: var(--main-bg); border-bottom: 1px solid var(--border-color); z-index: 8; flex-shrink: 0; position: sticky; top: 65px; }
+            .desktop-tools-bar { display: flex !important; justify-content: flex-start; align-items: center; padding: 10px 30px; background: var(--main-bg); border-bottom: 1px solid var(--border-color); z-index: 8; flex-shrink: 0; position: sticky; top: var(--header-h, 65px); }
             .desktop-tools-bar .tools-left { display: flex; align-items: center; gap: 15px;}
             .section-header { margin-top: 15px; border-bottom: none; padding-bottom: 0; display: flex; justify-content: space-between; align-items: center;}
             .section-header-left { justify-content: flex-start; flex: 1;}
@@ -432,7 +432,7 @@
             .cat-name { font-size: 0.8em !important; font-weight: 600 !important; color: var(--text-main) !important; padding: 0 !important;}
             .cat-item.active .cat-name { color: white !important; }
             .content-area { display: block !important; width: 100%; padding: 0px 10px 120px 10px; overflow: visible !important; height: auto !important; box-sizing: border-box;}
-            .controls-bar { padding: 10px 12px 10px 12px; gap: 10px; margin: 0px -10px 15px -10px; width: calc(100% + 20px); border-bottom: 1px solid var(--border-color); background: var(--main-bg); position: sticky !important; top: 160px !important; z-index: 990 !important;}
+            .controls-bar { padding: 10px 12px 10px 12px; gap: 10px; margin: 0px -10px 15px -10px; width: calc(100% + 20px); border-bottom: 1px solid var(--border-color); background: var(--main-bg); position: sticky !important; top: var(--header-h, 55px) !important; z-index: 990 !important;}
             .search-sort-wrapper { flex-wrap: nowrap; gap: 8px; }
             .control-chip { padding: 8px 10px; min-width: 0; border-radius: 12px;}
             .control-chip:first-child { flex: 1.8; }
@@ -491,6 +491,24 @@
             .menu-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
             .desktop-tools-bar { display: none !important; }
         }
+
+/* 🟢 COMPACT-ON-SCROLL: collapses the brand/tag row (.top-nav-bar) when the existing scroll-
+   direction JS below adds this class, reclaiming vertical space so more products are visible.
+   Placed outside any media query — the plain rule below wins ties via source order (later in
+   the cascade), and the two-class .hidden-bar rule wins outright on specificity, so both
+   reliably override every responsive .top-nav-bar variant above, several of which force
+   transition:none or specific max-height values via !important. */
+.top-nav-bar {
+    transition: max-height 0.3s ease, opacity 0.25s ease, padding 0.3s ease !important;
+}
+.top-nav-bar.hidden-bar {
+    max-height: 0 !important;
+    opacity: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    border-bottom-width: 0 !important;
+    pointer-events: none;
+}
 /* 🟢 ROUND LOADER ANIMATIONS 🟢 */
 .circular-loader-container { position: relative; width: 64px; height: 64px; margin: 15px auto; }
 .circular-loader { animation: rotate 2s linear infinite; height: 100%; width: 100%; transform-origin: center center; }
@@ -1416,20 +1434,21 @@
                 else { backToTop.classList.remove('visible'); }
             }
             
-            if (isMobile) {
-                const topNavBar = document.querySelector('.top-nav-bar');
-                let scrollDiff = scrollTop - lastScrollY;
-                if (scrollTop > 50) {
-                    if (scrollDiff > showThreshold) {
-                        if (topNavBar) topNavBar.classList.add('hidden-bar');
-                    } else if (scrollDiff < -showThreshold) {
-                        if (topNavBar) topNavBar.classList.remove('hidden-bar');
-                    }
-                } else {
+            // Not gated to mobile — desktop's own scroll (inside #products-area) benefits the
+            // same way: collapsing the brand/tag row on scroll-down reclaims vertical space so
+            // more products are visible, and scrolling back up reveals it again.
+            const topNavBar = document.querySelector('.top-nav-bar');
+            let scrollDiff = scrollTop - lastScrollY;
+            if (scrollTop > 50) {
+                if (scrollDiff > showThreshold) {
+                    if (topNavBar) topNavBar.classList.add('hidden-bar');
+                } else if (scrollDiff < -showThreshold) {
                     if (topNavBar) topNavBar.classList.remove('hidden-bar');
                 }
-                lastScrollY = scrollTop;
+            } else {
+                if (topNavBar) topNavBar.classList.remove('hidden-bar');
             }
+            lastScrollY = scrollTop;
         }
         
         if (productsArea) { productsArea.addEventListener('scroll', handleScroll); }
@@ -1849,6 +1868,37 @@
             statusMsg.style.display = 'block';
         }
 
+        // Waits for the images actually visible on screen right now to finish loading (or fail —
+        // either way counts as "settled"), so the splash's 100% means what's on screen is really
+        // ready, not just that the menu data arrived. Deliberately ignores off-screen images
+        // below the fold — those are meant to lazy-load later as the person scrolls, and waiting
+        // on them here would defeat the point of lazy loading and needlessly delay the splash.
+        function waitForVisibleImages(maxWaitMs = 3500) {
+            return new Promise((resolve) => {
+                const allImgs = Array.from(document.querySelectorAll('#main-menu-grid img'));
+                const onScreen = allImgs.filter(img => {
+                    const rect = img.getBoundingClientRect();
+                    return rect.top < window.innerHeight && rect.bottom > 0;
+                });
+                const imgs = onScreen.length > 0 ? onScreen : allImgs.slice(0, 10);
+
+                if (imgs.length === 0) { resolve(); return; }
+
+                let remaining = imgs.length;
+                let settled = false;
+                const finish = () => { if (!settled) { settled = true; resolve(); } };
+                const markOneDone = () => { remaining--; if (remaining <= 0) finish(); };
+
+                imgs.forEach(img => {
+                    if (img.complete) { markOneDone(); return; }
+                    img.addEventListener('load', markOneDone, { once: true });
+                    img.addEventListener('error', markOneDone, { once: true });
+                });
+
+                setTimeout(finish, maxWaitMs); // never let one slow/broken image hold the splash forever
+            });
+        }
+
         async function loadData() {
             const statusMsg = document.getElementById('status-msg'); 
             const loadingBar = document.getElementById('loading-bar');
@@ -1935,6 +1985,11 @@
                 window.updateCategoryVisibility();
                 window.applyFilters();
                 statusMsg.style.display = 'none';
+
+                // Cards (with their <img> tags) now exist in the DOM from applyFilters() above —
+                // hold the splash open a moment longer until the ones actually visible have loaded,
+                // instead of hiding the instant the JSON data itself was ready.
+                await waitForVisibleImages();
 
             } catch (error) { 
                 console.error("Load Error:", error);
@@ -2686,6 +2741,20 @@
                 window.showToast && window.showToast("App installed! 🎉");
             });
         })();
+
+        // Keeps --header-h in sync with the header's real rendered height (which varies by
+        // breakpoint and device safe-area-inset-top), so .controls-bar / .desktop-tools-bar
+        // always stick directly below it with no gap or overlap, instead of guessing a fixed
+        // pixel value that only happened to be right for one specific breakpoint.
+        function updateHeaderHeightVar() {
+            const headerEl = document.querySelector('header');
+            if (headerEl) {
+                document.documentElement.style.setProperty('--header-h', headerEl.offsetHeight + 'px');
+            }
+        }
+        updateHeaderHeightVar();
+        window.addEventListener('resize', updateHeaderHeightVar);
+        window.addEventListener('orientationchange', () => setTimeout(updateHeaderHeightVar, 150));
 
         document.addEventListener('DOMContentLoaded', loadData);
         
