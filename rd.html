@@ -239,7 +239,6 @@
   .chev{font-size:12px;color:var(--brass);transition:transform 0.15s ease;flex-shrink:0;}
   details[open] > summary .chev{transform:rotate(90deg);}
   .details-body{margin-top:14px;}
-  .conn-mini{font-size:12px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;}
 
   /* ---------- FAB (mobile add button) ---------- */
   .fab{
@@ -350,39 +349,12 @@
     </div>
     <div class="conn-status" id="connStatus">
       <span class="dot off" id="connDot"></span>
-      <span id="connText">Not connected</span>
+      <span id="connText">Connecting...</span>
     </div>
   </div>
 </div>
 
 <div class="wrap">
-
-  <!-- CONNECTION PANEL -->
-  <div class="panel" id="connectPanel">
-   <details class="panel-details" id="connectDetails" open>
-    <summary class="panel-summary">
-      <h2><span class="idx">01</span> Connect your Google Sheet</h2>
-      <span class="chev">▶</span>
-    </summary>
-    <div class="details-body">
-    <div class="grid cols-2">
-      <div>
-        <label for="cfgUrl">Google Apps Script Web App URL</label>
-        <input type="text" id="cfgUrl" value="https://script.google.com/macros/s/AKfycbzWRoN9uB3kmsQCmeB8P4OsouTlsX-6werl3Bq6V1jkCofKE7vK7lWn5TLlo46Nb0c/exec" placeholder="https://script.google.com/macros/s/XXXXXXXX/exec">
-      </div>
-    </div>
-    <div class="btn-row">
-      <button class="btn brass" id="btnConnect">Connect &amp; load ledger</button>
-      <button class="btn secondary" id="btnDisconnect" style="display:none;">Disconnect</button>
-      <label class="btn secondary btn-sm" style="cursor:pointer;">
-        Load from local .xlsx instead
-        <input type="file" id="localFileInput" accept=".xlsx,.xls" style="display:none;">
-      </label>
-    </div>
-    <div class="status-line" id="connStatusLine"></div>
-    </div>
-   </details>
-  </div>
 
   <!-- MAIN APP (hidden until data loaded) -->
   <div id="appArea" style="display:none;">
@@ -390,7 +362,7 @@
     <div class="panel">
      <details class="panel-details" id="filterDetails" open>
       <summary class="panel-summary">
-        <h2><span class="idx">02</span> Search &amp; filter</h2>
+        <h2><span class="idx">01</span> Search &amp; filter</h2>
         <span class="chev">▶</span>
       </summary>
       <div class="details-body">
@@ -440,7 +412,7 @@
     </div>
 
     <div class="panel">
-      <h2><span class="idx">03</span> Statement summary <span style="font-weight:400;font-family:'IBM Plex Sans';font-size:12px;color:var(--ink-soft);">— reflects active filters</span></h2>
+      <h2><span class="idx">02</span> Statement summary <span style="font-weight:400;font-family:'IBM Plex Sans';font-size:12px;color:var(--ink-soft);">— reflects active filters</span></h2>
       <div class="stat-cards">
         <div class="stat-card"><div class="label">Clients shown</div><div class="value nums" id="statCount">0</div></div>
         <div class="stat-card"><div class="label">Sum of installment amount</div><div class="value nums" id="statAmount">₹0</div></div>
@@ -455,7 +427,7 @@
 
     <div class="panel">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-        <h2 style="margin:0;"><span class="idx">04</span> Client accounts</h2>
+        <h2 style="margin:0;"><span class="idx">03</span> Client accounts</h2>
         <div class="btn-row" style="margin:0;">
           <button class="btn brass" id="btnAddClient">+ Add client</button>
           <button class="btn" id="btnSaveSheet" disabled>Save changes to Sheet</button>
@@ -554,8 +526,8 @@
 /* ============================================================
    STATE
    ============================================================ */
+const sheetUrl = "https://script.google.com/macros/s/AKfycbzWRoN9uB3kmsQCmeB8P4OsouTlsX-6werl3Bq6V1jkCofKE7vK7lWn5TLlo46Nb0c/exec";
 let clients = [];          
-let sheetUrl = null;         
 let sortKey = 'accountNo';
 let sortDir = 1;
 let dirty = false;
@@ -644,69 +616,37 @@ function buildWorkbook(list){
 }
 
 /* ============================================================
-   CONNECT / LOAD FLOW (GOOGLE SHEETS)
+   AUTO CONNECT / LOAD FLOW (GOOGLE SHEETS)
    ============================================================ */
 const el = id => document.getElementById(id);
 
-el('btnConnect').addEventListener('click', async () => {
-  const url = el('cfgUrl').value.trim();
-  if(!url){
-    setStatus(el('connStatusLine'), 'Please provide the Web App URL.', 'err');
-    return;
-  }
-  
-  setStatus(el('connStatusLine'), 'Connecting to Google Sheets…');
+window.addEventListener('DOMContentLoaded', async () => {
   try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("Failed to fetch data from the provided URL.");
+    const res = await fetch(sheetUrl);
+    if (!res.ok) throw new Error("Failed to fetch data.");
     
     const result = await res.json();
     clients = sheetRowsToClients(result.rows || []);
-    sheetUrl = url;
     dirty = false;
     
-    setStatus(el('connStatusLine'), `Loaded ${clients.length} account(s) from Google Sheets.`, 'ok');
-    setConnected(true);
+    setConnected(true, `Loaded ${clients.length} accounts`);
     afterDataLoaded();
   } catch(err) {
-    setStatus(el('connStatusLine'), err.message, 'err');
+    setConnected(false, 'Connection failed');
+    alert("Error loading data from Google Sheets: " + err.message);
   }
 });
 
-el('btnDisconnect').addEventListener('click', () => {
-  sheetUrl = null;
-  clients = [];
-  setConnected(false);
-  el('appArea').style.display = 'none';
-});
-
-el('localFileInput').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if(!file) return;
-  const buf = await file.arrayBuffer();
-  const wb = XLSX.read(buf, {type:'array', cellDates:true});
-  const ws = wb.Sheets[wb.SheetNames[0]];
-  const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
-  clients = sheetRowsToClients(rows);
-  sheetUrl = null;
-  dirty = false;
-  setStatus(el('connStatusLine'), `Loaded ${clients.length} account(s) from local file "${file.name}". Connect to Google Sheets above to sync.`, 'ok');
-  setConnected(false);
-  afterDataLoaded();
-});
-
-function setConnected(isConnected){
+function setConnected(isConnected, customText){
   const dot = el('connDot'), text = el('connText');
   if(isConnected){
     dot.className = 'dot on';
     text.textContent = 'Connected to Google Sheets';
-    el('btnDisconnect').style.display = 'inline-flex';
-    el('btnSaveSheet').disabled = false;
+    if(el('btnSaveSheet')) el('btnSaveSheet').disabled = false;
   } else {
     dot.className = 'dot off';
-    text.textContent = 'Not connected';
-    el('btnDisconnect').style.display = 'none';
-    el('btnSaveSheet').disabled = true;
+    text.textContent = customText || 'Not connected';
+    if(el('btnSaveSheet')) el('btnSaveSheet').disabled = true;
   }
 }
 
@@ -714,8 +654,6 @@ function afterDataLoaded(){
   el('appArea').style.display = 'block';
   populateShortCodeFilter();
   renderTable();
-  const cd = el('connectDetails');
-  if(cd) cd.open = false;
 }
 
 /* ============================================================
@@ -959,7 +897,6 @@ el('clientForm').addEventListener('submit', (e) => {
    SAVE TO GOOGLE SHEETS / DOWNLOAD / EXPORT
    ============================================================ */
 el('btnSaveSheet').addEventListener('click', async () => {
-  if(!sheetUrl){ return; }
   const btn = el('btnSaveSheet');
   btn.disabled = true;
   setStatus(el('saveStatusLine'), 'Saving to Google Sheets…');
