@@ -28,7 +28,7 @@
   
   .grid{display:grid; gap:10px;} .cols-2{grid-template-columns:repeat(2,1fr);}
   label{display:block; font-size:11px; text-transform:uppercase; color:var(--ink-soft); margin-bottom:4px;}
-  input, select{width:100%; padding:10px; border:1px solid var(--rule); background:#FBFAF4; border-radius:2px; font-family:inherit; font-size:16px; /* 16px prevents iOS zoom */}
+  input, select{width:100%; padding:10px; border:1px solid var(--rule); background:#FBFAF4; border-radius:2px; font-family:inherit; font-size:16px;}
   input:focus, select:focus{outline:2px solid var(--brass-2); border-color:var(--brass-2);}
   
   .btn{display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:10px 14px; border-radius:2px; border:1px solid var(--ink); background:var(--ink); color:var(--paper); font-size:14px; font-weight:500; cursor:pointer; white-space:nowrap;}
@@ -51,7 +51,9 @@
 
   .overlay{position:fixed; inset:0; background:rgba(22,48,42,0.7); display:none; align-items:flex-end; justify-content:center; z-index:50;}
   .overlay.show{display:flex;}
+  .overlay.center{align-items:center;}
   .modal{background:var(--paper); border-radius:12px 12px 0 0; width:100%; max-width:800px; padding:20px; max-height:90vh; overflow-y:auto;}
+  .overlay.center .modal{border-radius:12px; max-width:400px;}
   .modal h3{font-family:'Fraunces',serif; font-size:18px; margin:0 0 16px;}
   
   .ledger-box{background:#FBFAF4; border:1px solid var(--rule); padding:12px; margin-bottom:14px; border-radius:var(--radius);}
@@ -59,7 +61,6 @@
   .ledger-form{display:flex; flex-direction:column; gap:10px; background:var(--paper-2); padding:12px; border-radius:var(--radius);}
   .sort-arrow{font-size:10px; margin-left:4px; opacity:0.6;}
 
-  /* Mobile Full-Width Optimizations */
   @media (max-width: 600px){
     .wrap { padding: 0; }
     .panel { border: none; border-radius: 0; padding: 12px; margin-bottom: 10px; border-bottom: 1px solid var(--rule); }
@@ -74,7 +75,20 @@
 <div class="band">
   <div class="band-inner">
     <div class="brand"><h1>RD Register</h1></div>
-    <div class="conn-status"><span class="dot off" id="connDot"></span><span id="connText">Syncing...</span></div>
+    <div class="conn-status"><span class="dot off" id="connDot"></span><span id="connText">Locked</span></div>
+  </div>
+</div>
+
+<!-- LOCK SCREEN MODAL -->
+<div class="overlay center show" id="overlayLock">
+  <div class="modal" style="text-align:center;">
+    <h3 style="font-size:22px; color:var(--ink);">App Locked</h3>
+    <p style="color:var(--ink-soft); font-size:13px; margin-bottom:20px;">Enter your PIN to access the ledger.</p>
+    <form id="authForm" style="display:flex; flex-direction:column; gap:14px;">
+      <input type="password" id="appPin" placeholder="Enter PIN" required style="text-align:center; letter-spacing:4px; font-size:20px; padding:14px;">
+      <button type="submit" class="btn brass" id="btnUnlock" style="padding:14px; font-size:16px;">Unlock & Sync</button>
+      <div id="authStatus" class="status-line err" style="margin-top:0;"></div>
+    </form>
   </div>
 </div>
 
@@ -87,7 +101,6 @@
     </div>
     <div class="status-line" id="saveStatusLine"></div>
 
-    <!-- Live Search & Autofill -->
     <div style="margin-top:14px;">
       <input type="search" id="fSearchMaster" list="clientNamesData" placeholder="🔍 Search name or A/C..." style="border:1px solid var(--rule-strong); font-weight:500;">
       <datalist id="clientNamesData"></datalist>
@@ -150,7 +163,6 @@
       <div><label>Next Due</label><div class="nums" id="ledgerDue" style="font-size:18px; font-weight:600;">—</div></div>
     </div>
 
-    <!-- Ledger Actions -->
     <div class="btn-row" style="margin-bottom:14px;">
       <button class="btn secondary btn-sm" onclick="forwardLedger()">📤 Share / Forward</button>
       <button class="btn secondary btn-sm" onclick="downloadLedger()">📥 Download Excel</button>
@@ -184,6 +196,7 @@
    ============================================================ */
 const sheetUrl = "https://script.google.com/macros/s/AKfycbzWRoN9uB3kmsQCmeB8P4OsouTlsX-6werl3Bq6V1jkCofKE7vK7lWn5TLlo46Nb0c/exec";
 
+let activePin = localStorage.getItem('rd_app_pin') || '';
 let clients = [];          
 let transactions = {}; 
 let dirty = false;
@@ -198,56 +211,75 @@ const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString('en-IN', {day:'2
 const escapeHtml = (s) => String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
 /* ============================================================
-   INITIALIZATION & SYNC
+   AUTHENTICATION & LOAD
    ============================================================ */
-window.addEventListener('DOMContentLoaded', async () => {
+window.addEventListener('DOMContentLoaded', () => {
+  if(activePin) {
+    el('appPin').value = activePin;
+    attemptLoad(activePin);
+  }
+});
+
+el('authForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const entered = el('appPin').value.trim();
+  attemptLoad(entered);
+});
+
+async function attemptLoad(pin) {
+  el('btnUnlock').disabled = true;
+  el('btnUnlock').textContent = 'Verifying...';
+  el('authStatus').textContent = '';
+
   try {
-    const res = await fetch(sheetUrl);
-    if (!res.ok) throw new Error("Fetch failed.");
+    const res = await fetch(sheetUrl + "?pin=" + encodeURIComponent(pin));
+    if (!res.ok) throw new Error("Network error.");
     const result = await res.json();
     
+    if (result.error) {
+      throw new Error(result.error);
+    }
+
+    // Success - save PIN and unlock app
+    activePin = pin;
+    localStorage.setItem('rd_app_pin', activePin);
+    
     clients = (result.clients || []).map(r => ({
-      id: uid(),
-      accountNo: String(r['Account No.'] || '').trim(),
-      amount: Number(r['Amount']) || 0,
-      holderName: String(r['Account Holder Name'] || '').trim(),
-      nextDueDate: toISODate(r['Next Due Date']),
-      totalDeposit: Number(r['Total Deposit']) || 0,
-      openedOn: toISODate(r['Opened On']),
+      id: uid(), accountNo: String(r['Account No.'] || '').trim(), amount: Number(r['Amount']) || 0,
+      holderName: String(r['Account Holder Name'] || '').trim(), nextDueDate: toISODate(r['Next Due Date']),
+      totalDeposit: Number(r['Total Deposit']) || 0, openedOn: toISODate(r['Opened On']),
       shortCode: String(r['Short Code'] || '').trim(),
     })).filter(c => c.accountNo !== '');
 
     transactions = {};
     Object.keys(result.transactions || {}).forEach(accNo => {
       transactions[accNo] = result.transactions[accNo].map(t => ({
-        txnId: t['Txn ID'] || uid(),
-        date: toISODate(t['Date']),
-        amount: Number(t['Amount']) || 0,
-        remarks: String(t['Remarks'] || '')
+        txnId: t['Txn ID'] || uid(), date: toISODate(t['Date']), amount: Number(t['Amount']) || 0, remarks: String(t['Remarks'] || '')
       }));
     });
 
+    el('overlayLock').classList.remove('show');
     el('connDot').className = 'dot on';
     el('connText').textContent = 'Cloud Synced';
     el('btnSaveSheet').disabled = false;
     el('appArea').style.display = 'block';
     renderMasterTable();
   } catch(err) {
-    el('connText').textContent = 'Offline/Failed';
-    alert("Connection Error. Refresh to try again.");
+    el('authStatus').textContent = 'Access Denied: ' + err.message;
+    localStorage.removeItem('rd_app_pin');
+    activePin = '';
+    el('appPin').value = '';
+    el('btnUnlock').disabled = false;
+    el('btnUnlock').textContent = 'Unlock & Sync';
   }
-});
+}
 
 /* ============================================================
    MASTER TABLE LOGIC & SORTING & SEARCH
    ============================================================ */
 function renderMasterTable(){
   const tbody = el('tableBody');
-  
-  // Update Autofill Datalist natively
   el('clientNamesData').innerHTML = clients.map(c => `<option value="${escapeHtml(c.holderName)}"></option>`).join('');
-
-  // Live Filter Logic
   const query = el('fSearchMaster').value.trim().toLowerCase();
   let filtered = clients.filter(c => {
     if(!query) return true;
@@ -259,7 +291,6 @@ function renderMasterTable(){
     return;
   }
 
-  // Sorting
   let sortedList = [...filtered];
   sortedList.sort((a,b) => {
     let av = a[sortKey], bv = b[sortKey];
@@ -279,17 +310,13 @@ function renderMasterTable(){
       <td><button class="btn secondary btn-sm" onclick="editClient('${c.id}')">Edit</button></td>
     </tr>`).join('');
 
-  // Update Sorting Arrows
   document.querySelectorAll('th[data-key]').forEach(th => {
     const arrow = th.querySelector('.sort-arrow');
     arrow.textContent = (th.dataset.key === sortKey) ? (sortDir === 1 ? ' ▲' : ' ▼') : '';
   });
 }
 
-// Attach Search Filter Listener
 el('fSearchMaster').addEventListener('input', renderMasterTable);
-
-// Attach Sort Listeners
 document.querySelectorAll('th[data-key]').forEach(th => {
   th.addEventListener('click', () => {
     const key = th.dataset.key;
@@ -303,264 +330,149 @@ document.querySelectorAll('th[data-key]').forEach(th => {
    CLIENT PROFILE ADD/EDIT/DELETE
    ============================================================ */
 el('btnAddClient').addEventListener('click', () => {
-  el('clientForm').reset();
-  el('fEditingId').value = '';
-  el('fTotalDeposit').value = 0;
-  el('fOpenedOn').value = new Date().toISOString().slice(0,10);
-  el('modalTitle').textContent = 'New Client';
-  el('btnDeleteProfile').style.display = 'none';
-  el('overlayClient').classList.add('show');
+  el('clientForm').reset(); el('fEditingId').value = ''; el('fTotalDeposit').value = 0;
+  el('fOpenedOn').value = new Date().toISOString().slice(0,10); el('modalTitle').textContent = 'New Client';
+  el('btnDeleteProfile').style.display = 'none'; el('overlayClient').classList.add('show');
 });
 
 window.editClient = (id) => {
-  const c = clients.find(x => x.id === id);
-  if(!c) return;
-  el('fEditingId').value = c.id;
-  el('fAccountNo').value = c.accountNo;
-  el('fShortCodeInput').value = c.shortCode;
-  el('fHolderName').value = c.holderName;
-  el('fAmount').value = c.amount;
-  el('fTotalDeposit').value = c.totalDeposit;
-  el('fOpenedOn').value = c.openedOn;
-  el('fNextDueDate').value = c.nextDueDate;
-  el('modalTitle').textContent = `Edit Profile`;
-  
-  el('btnDeleteProfile').style.display = 'block';
-  el('btnDeleteProfile').onclick = () => deleteClient(c.id);
+  const c = clients.find(x => x.id === id); if(!c) return;
+  el('fEditingId').value = c.id; el('fAccountNo').value = c.accountNo; el('fShortCodeInput').value = c.shortCode;
+  el('fHolderName').value = c.holderName; el('fAmount').value = c.amount; el('fTotalDeposit').value = c.totalDeposit;
+  el('fOpenedOn').value = c.openedOn; el('fNextDueDate').value = c.nextDueDate; el('modalTitle').textContent = `Edit Profile`;
+  el('btnDeleteProfile').style.display = 'block'; el('btnDeleteProfile').onclick = () => deleteClient(c.id);
   el('overlayClient').classList.add('show');
 };
 
 el('clientForm').addEventListener('submit', (e) => {
   e.preventDefault();
-  const id = el('fEditingId').value;
-  const accNo = el('fAccountNo').value.trim();
-  
-  if(clients.some(c => c.accountNo === accNo && c.id !== id)){
-    alert("Account Number already exists!"); return;
-  }
+  const id = el('fEditingId').value; const accNo = el('fAccountNo').value.trim();
+  if(clients.some(c => c.accountNo === accNo && c.id !== id)){ alert("Account Number exists!"); return; }
 
-  const data = {
-    accountNo: accNo,
-    shortCode: el('fShortCodeInput').value.trim(),
-    holderName: el('fHolderName').value.trim(),
-    amount: Number(el('fAmount').value)||0,
-    totalDeposit: Number(el('fTotalDeposit').value)||0,
-    openedOn: el('fOpenedOn').value,
-    nextDueDate: el('fNextDueDate').value,
-  };
+  const data = { accountNo: accNo, shortCode: el('fShortCodeInput').value.trim(), holderName: el('fHolderName').value.trim(),
+    amount: Number(el('fAmount').value)||0, totalDeposit: Number(el('fTotalDeposit').value)||0, openedOn: el('fOpenedOn').value, nextDueDate: el('fNextDueDate').value };
 
   if(id){
-    const idx = clients.findIndex(x => x.id === id);
-    const oldAcc = clients[idx].accountNo;
+    const idx = clients.findIndex(x => x.id === id); const oldAcc = clients[idx].accountNo;
     clients[idx] = {...clients[idx], ...data};
-    if(oldAcc !== accNo) {
-      transactions[accNo] = transactions[oldAcc] || [];
-      delete transactions[oldAcc];
-    }
-  } else {
-    clients.push({id: uid(), ...data});
-    transactions[accNo] = [];
-  }
+    if(oldAcc !== accNo) { transactions[accNo] = transactions[oldAcc] || []; delete transactions[oldAcc]; }
+  } else { clients.push({id: uid(), ...data}); transactions[accNo] = []; }
 
-  dirty = true; markUnsaved();
-  el('overlayClient').classList.remove('show');
-  renderMasterTable();
+  dirty = true; markUnsaved(); el('overlayClient').classList.remove('show'); renderMasterTable();
 });
 
 window.deleteClient = (id) => {
   const c = clients.find(x => x.id === id);
   if(!confirm(`Delete profile and entire ledger tab for ${c.accountNo}?`)) return;
-  clients = clients.filter(x => x.id !== id);
-  delete transactions[c.accountNo];
-  dirty = true; markUnsaved();
-  el('overlayClient').classList.remove('show');
-  renderMasterTable();
+  clients = clients.filter(x => x.id !== id); delete transactions[c.accountNo];
+  dirty = true; markUnsaved(); el('overlayClient').classList.remove('show'); renderMasterTable();
 };
 
 /* ============================================================
-   INDIVIDUAL LEDGER (SHARE, DOWNLOAD, TRANSACTIONS)
+   INDIVIDUAL LEDGER 
    ============================================================ */
 window.openLedger = (accNo) => {
   const c = clients.find(x => x.accountNo === accNo);
-  el('ledgerTitle').textContent = `${c.holderName} (${c.accountNo})`;
-  el('activeLedgerAccount').value = accNo;
-  resetTxnForm();
-  renderLedgerTable(accNo);
-  el('overlayLedger').classList.add('show');
+  el('ledgerTitle').textContent = `${c.holderName} (${c.accountNo})`; el('activeLedgerAccount').value = accNo;
+  resetTxnForm(); renderLedgerTable(accNo); el('overlayLedger').classList.add('show');
 };
 
 function renderLedgerTable(accNo) {
   const c = clients.find(x => x.accountNo === accNo);
-  el('ledgerTotal').textContent = fmtMoney(c.totalDeposit);
-  el('ledgerDue').textContent = fmtDate(c.nextDueDate);
+  el('ledgerTotal').textContent = fmtMoney(c.totalDeposit); el('ledgerDue').textContent = fmtDate(c.nextDueDate);
   
-  const txns = transactions[accNo] || [];
-  const tbody = el('ledgerTableBody');
-  if(txns.length === 0){
-    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No records yet.</td></tr>`;
-    return;
-  }
+  const txns = transactions[accNo] || []; const tbody = el('ledgerTableBody');
+  if(txns.length === 0){ tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No records yet.</td></tr>`; return; }
   
   const sorted = [...txns].sort((a,b) => (a.date < b.date ? 1 : -1));
-  tbody.innerHTML = sorted.map(t => `
-    <tr>
-      <td>${fmtDate(t.date)}</td>
-      <td class="nums"><b>${fmtMoney(t.amount)}</b></td>
-      <td>${escapeHtml(t.remarks)}</td>
-      <td>
-        <div class="btn-row actions">
-          <button class="btn secondary btn-sm" onclick="editTxn('${accNo}', '${t.txnId}')">✎</button>
-          <button class="btn danger btn-sm" onclick="deleteTxn('${accNo}', '${t.txnId}')">✕</button>
-        </div>
-      </td>
-    </tr>`).join('');
+  tbody.innerHTML = sorted.map(t => `<tr><td>${fmtDate(t.date)}</td><td class="nums"><b>${fmtMoney(t.amount)}</b></td>
+      <td>${escapeHtml(t.remarks)}</td><td><div class="btn-row actions">
+      <button class="btn secondary btn-sm" onclick="editTxn('${accNo}', '${t.txnId}')">✎</button>
+      <button class="btn danger btn-sm" onclick="deleteTxn('${accNo}', '${t.txnId}')">✕</button></div></td></tr>`).join('');
 }
 
 function resetTxnForm() {
-  el('tEditingId').value = '';
-  el('tDate').value = new Date().toISOString().slice(0,10);
-  el('tAmount').value = '';
-  el('tRemarks').value = '';
-  el('tSubmitBtn').textContent = '+ Add Payment';
-  el('tCancelBtn').style.display = 'none';
+  el('tEditingId').value = ''; el('tDate').value = new Date().toISOString().slice(0,10); el('tAmount').value = '';
+  el('tRemarks').value = ''; el('tSubmitBtn').textContent = '+ Add Payment'; el('tCancelBtn').style.display = 'none';
 }
 
 window.editTxn = (accNo, txnId) => {
   const txn = transactions[accNo].find(x => x.txnId === txnId);
-  el('tEditingId').value = txn.txnId;
-  el('tDate').value = txn.date;
-  el('tAmount').value = txn.amount;
-  el('tRemarks').value = txn.remarks;
-  el('tSubmitBtn').textContent = 'Update';
-  el('tCancelBtn').style.display = 'inline-flex';
+  el('tEditingId').value = txn.txnId; el('tDate').value = txn.date; el('tAmount').value = txn.amount;
+  el('tRemarks').value = txn.remarks; el('tSubmitBtn').textContent = 'Update'; el('tCancelBtn').style.display = 'inline-flex';
 };
 
 window.deleteTxn = (accNo, txnId) => {
   if(!confirm('Delete transaction?')) return;
-  transactions[accNo] = transactions[accNo].filter(x => x.txnId !== txnId);
-  recalculateClientTotals(accNo);
+  transactions[accNo] = transactions[accNo].filter(x => x.txnId !== txnId); recalculateClientTotals(accNo);
 };
 
 el('txnForm').addEventListener('submit', (e) => {
-  e.preventDefault();
-  const accNo = el('activeLedgerAccount').value;
-  const txnId = el('tEditingId').value;
+  e.preventDefault(); const accNo = el('activeLedgerAccount').value; const txnId = el('tEditingId').value;
   const data = { date: el('tDate').value, amount: Number(el('tAmount').value)||0, remarks: el('tRemarks').value.trim() };
 
   if(txnId) {
-    const idx = transactions[accNo].findIndex(x => x.txnId === txnId);
-    transactions[accNo][idx] = {...transactions[accNo][idx], ...data};
+    const idx = transactions[accNo].findIndex(x => x.txnId === txnId); transactions[accNo][idx] = {...transactions[accNo][idx], ...data};
   } else {
-    if(!transactions[accNo]) transactions[accNo] = [];
-    transactions[accNo].push({ txnId: uid(), ...data });
+    if(!transactions[accNo]) transactions[accNo] = []; transactions[accNo].push({ txnId: uid(), ...data });
   }
-  recalculateClientTotals(accNo);
-  resetTxnForm();
+  recalculateClientTotals(accNo); resetTxnForm();
 });
 
 function recalculateClientTotals(accNo) {
-  const client = clients.find(c => c.accountNo === accNo);
-  if(!client) return;
-  
-  const txns = transactions[accNo] || [];
-  client.totalDeposit = txns.reduce((sum, t) => sum + (Number(t.amount)||0), 0);
+  const client = clients.find(c => c.accountNo === accNo); if(!client) return;
+  const txns = transactions[accNo] || []; client.totalDeposit = txns.reduce((sum, t) => sum + (Number(t.amount)||0), 0);
   
   if (client.openedOn && client.amount > 0) {
     const monthsPaid = Math.floor(client.totalDeposit / client.amount);
-    const d = new Date(client.openedOn);
-    d.setMonth(d.getMonth() + monthsPaid);
-    client.nextDueDate = d.toISOString().slice(0,10);
+    const d = new Date(client.openedOn); d.setMonth(d.getMonth() + monthsPaid); client.nextDueDate = d.toISOString().slice(0,10);
   }
-
-  dirty = true; markUnsaved();
-  renderLedgerTable(accNo); 
-  renderMasterTable();      
+  dirty = true; markUnsaved(); renderLedgerTable(accNo); renderMasterTable();      
 }
 
 /* ============================================================
-   FORWARD & DOWNLOAD API
+   FORWARD & DOWNLOAD 
    ============================================================ */
 window.forwardLedger = async () => {
-  const accNo = el('activeLedgerAccount').value;
-  const c = clients.find(x => x.accountNo === accNo);
+  const accNo = el('activeLedgerAccount').value; const c = clients.find(x => x.accountNo === accNo);
   const txns = [...(transactions[accNo] || [])].sort((a,b) => (a.date < b.date ? 1 : -1));
-  
   let text = `*Ledger Summary: ${c.holderName}*\nA/C: ${c.accountNo}\n\n*Total Deposit:* ${fmtMoney(c.totalDeposit)}\n*Next Due:* ${fmtDate(c.nextDueDate)}\n\n*Recent Payments:*\n`;
-  txns.slice(0, 10).forEach(t => {
-    text += `• ${fmtDate(t.date)}: ${fmtMoney(t.amount)} ${t.remarks ? '('+t.remarks+')' : ''}\n`;
-  });
-
-  if (navigator.share) {
-    try { await navigator.share({ title: `Ledger ${c.holderName}`, text: text }); } catch(e) {}
-  } else {
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-  }
+  txns.slice(0, 10).forEach(t => { text += `• ${fmtDate(t.date)}: ${fmtMoney(t.amount)} ${t.remarks ? '('+t.remarks+')' : ''}\n`; });
+  if (navigator.share) { try { await navigator.share({ title: `Ledger ${c.holderName}`, text: text }); } catch(e) {} } else { window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank'); }
 };
 
 window.downloadLedger = () => {
-  const accNo = el('activeLedgerAccount').value;
-  const c = clients.find(x => x.accountNo === accNo);
+  const accNo = el('activeLedgerAccount').value; const c = clients.find(x => x.accountNo === accNo);
   const txns = [...(transactions[accNo] || [])].sort((a,b) => (a.date > b.date ? 1 : -1)); 
-  
-  const wb = XLSX.utils.book_new();
-  const rows = txns.map(t => ({'Date': t.date, 'Amount': t.amount, 'Remarks': t.remarks}));
-  
-  const ws = XLSX.utils.json_to_sheet([
-    {'Date': 'Account', 'Amount': c.accountNo, 'Remarks': ''},
-    {'Date': 'Total Dep', 'Amount': c.totalDeposit, 'Remarks': ''},
-    {'Date': '', 'Amount': '', 'Remarks': ''}
-  ].concat(rows), {skipHeader: true});
-
-  XLSX.utils.book_append_sheet(wb, ws, String(c.accountNo).substring(0,31));
-  XLSX.writeFile(wb, `${c.holderName.replace(/\s+/g,'_')}_Ledger.xlsx`);
+  const wb = XLSX.utils.book_new(); const rows = txns.map(t => ({'Date': t.date, 'Amount': t.amount, 'Remarks': t.remarks}));
+  const ws = XLSX.utils.json_to_sheet([ {'Date': 'Account', 'Amount': c.accountNo, 'Remarks': ''}, {'Date': 'Total Dep', 'Amount': c.totalDeposit, 'Remarks': ''}, {'Date': '', 'Amount': '', 'Remarks': ''} ].concat(rows), {skipHeader: true});
+  XLSX.utils.book_append_sheet(wb, ws, String(c.accountNo).substring(0,31)); XLSX.writeFile(wb, `${c.holderName.replace(/\s+/g,'_')}_Ledger.xlsx`);
 };
 
 /* ============================================================
    SAVE CLOUD & EXPORT MASTER
    ============================================================ */
-function markUnsaved() {
-  el('saveStatusLine').textContent = "⚠️ Unsaved changes. Click Sync Cloud.";
-  el('btnSaveSheet').style.backgroundColor = "var(--danger)";
-}
+function markUnsaved() { el('saveStatusLine').textContent = "⚠️ Unsaved changes. Click Sync Cloud."; el('btnSaveSheet').style.backgroundColor = "var(--danger)"; }
 
 el('btnSaveSheet').addEventListener('click', async () => {
-  const btn = el('btnSaveSheet');
-  btn.disabled = true;
-  el('saveStatusLine').textContent = 'Syncing...';
+  const btn = el('btnSaveSheet'); btn.disabled = true; el('saveStatusLine').textContent = 'Syncing...';
   
-  const masterPayload = clients.map(c => ({
-    'Account No.': c.accountNo, 'Amount': c.amount, 'Account Holder Name': c.holderName,
-    'Next Due Date': c.nextDueDate, 'Total Deposit': c.totalDeposit, 
-    'Opened On': c.openedOn, 'Short Code': c.shortCode
-  }));
-
-  const txnPayload = {};
-  Object.keys(transactions).forEach(acc => {
-    txnPayload[acc] = transactions[acc].map(t => ({ 'Txn ID': t.txnId, 'Date': t.date, 'Amount': t.amount, 'Remarks': t.remarks }));
-  });
+  const masterPayload = clients.map(c => ({ 'Account No.': c.accountNo, 'Amount': c.amount, 'Account Holder Name': c.holderName, 'Next Due Date': c.nextDueDate, 'Total Deposit': c.totalDeposit, 'Opened On': c.openedOn, 'Short Code': c.shortCode }));
+  const txnPayload = {}; Object.keys(transactions).forEach(acc => { txnPayload[acc] = transactions[acc].map(t => ({ 'Txn ID': t.txnId, 'Date': t.date, 'Amount': t.amount, 'Remarks': t.remarks })); });
 
   try {
-    const res = await fetch(sheetUrl, { method: 'POST', body: JSON.stringify({ clients: masterPayload, transactions: txnPayload }) });
-    if (!res.ok) throw new Error("Failed");
-    dirty = false;
-    el('saveStatusLine').textContent = `Cloud Synced!`;
-    btn.style.backgroundColor = "var(--ink)";
-  } catch(err) {
-    el('saveStatusLine').textContent = 'Error: ' + err.message;
-  } finally {
-    btn.disabled = false;
-  }
+    const res = await fetch(sheetUrl, { method: 'POST', body: JSON.stringify({ pin: activePin, clients: masterPayload, transactions: txnPayload }) });
+    if (!res.ok) throw new Error("Failed"); const responseData = await res.json();
+    if (responseData.error) throw new Error(responseData.error);
+    dirty = false; el('saveStatusLine').textContent = `Cloud Synced!`; btn.style.backgroundColor = "var(--ink)";
+  } catch(err) { el('saveStatusLine').textContent = 'Error: ' + err.message; } finally { btn.disabled = false; }
 });
 
 el('btnDownloadXlsx').addEventListener('click', () => {
   const wb = XLSX.utils.book_new();
   const masterRows = clients.map(c => ({ 'Account No.': c.accountNo, 'Amount': c.amount, 'Holder Name': c.holderName, 'Next Due': c.nextDueDate, 'Total Deposit': c.totalDeposit, 'Opened': c.openedOn }));
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(masterRows), 'Master');
-  
-  clients.forEach(c => {
-    const tRows = (transactions[c.accountNo]||[]).map(t => ({'Date': t.date, 'Amount': t.amount, 'Remarks': t.remarks}));
-    if(tRows.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(tRows), String(c.accountNo).substring(0,31));
-  });
+  clients.forEach(c => { const tRows = (transactions[c.accountNo]||[]).map(t => ({'Date': t.date, 'Amount': t.amount, 'Remarks': t.remarks})); if(tRows.length > 0) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(tRows), String(c.accountNo).substring(0,31)); });
   XLSX.writeFile(wb, `RD-Ledger-${new Date().toISOString().slice(0,10)}.xlsx`);
 });
 
