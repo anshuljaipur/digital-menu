@@ -101,9 +101,10 @@
     </div>
     <div class="status-line" id="saveStatusLine"></div>
 
-    <div style="margin-top:14px;">
-      <input type="search" id="fSearchMaster" list="clientNamesData" placeholder="🔍 Search name or A/C..." style="border:1px solid var(--rule-strong); font-weight:500;">
-      <datalist id="clientNamesData"></datalist>
+    <!-- Live Smart Search with Explicit Clear Button -->
+    <div style="display:flex; gap:8px; margin-top:14px; align-items:stretch;">
+      <input type="text" id="fSearchMaster" placeholder="🔍 Search name or A/C..." style="flex:1; border:1px solid var(--rule-strong); font-weight:500; font-size:16px; padding:12px;">
+      <button type="button" class="btn secondary" id="btnClearSearch" style="display:none; font-size:16px; padding:0 20px; border:1px solid var(--rule-strong);">✕ Clear</button>
     </div>
 
     <div class="table-wrap" style="margin-top:14px;">
@@ -279,8 +280,8 @@ async function attemptLoad(pin) {
    ============================================================ */
 function renderMasterTable(){
   const tbody = el('tableBody');
-  el('clientNamesData').innerHTML = clients.map(c => `<option value="${escapeHtml(c.holderName)}"></option>`).join('');
   const query = el('fSearchMaster').value.trim().toLowerCase();
+  
   let filtered = clients.filter(c => {
     if(!query) return true;
     return c.holderName.toLowerCase().includes(query) || c.accountNo.toLowerCase().includes(query);
@@ -316,7 +317,19 @@ function renderMasterTable(){
   });
 }
 
-el('fSearchMaster').addEventListener('input', renderMasterTable);
+// Search & Clear Button Listeners
+el('fSearchMaster').addEventListener('input', () => {
+  el('btnClearSearch').style.display = el('fSearchMaster').value ? 'inline-flex' : 'none';
+  renderMasterTable();
+});
+
+el('btnClearSearch').addEventListener('click', () => {
+  el('fSearchMaster').value = '';
+  el('btnClearSearch').style.display = 'none';
+  el('fSearchMaster').focus();
+  renderMasterTable();
+});
+
 document.querySelectorAll('th[data-key]').forEach(th => {
   th.addEventListener('click', () => {
     const key = th.dataset.key;
