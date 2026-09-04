@@ -276,8 +276,6 @@
     .wrap{padding:14px 12px 90px;}
     .panel{padding:13px 13px;margin-bottom:12px;}
     .panel h2{font-size:13.5px;}
-
-    /* bigger, thumb-friendly controls, and 16px inputs to stop iOS auto-zoom */
     input[type=text], input[type=number], input[type=date], input[type=password], select{
       padding:11px 10px;font-size:16px;min-height:44px;
     }
@@ -285,20 +283,15 @@
     .btn{min-height:44px;padding:10px 16px;font-size:14px;}
     .btn-sm{min-height:38px;padding:7px 12px;font-size:12.5px;}
     .btn-row{gap:8px;}
-
     .toolbar .field, .search-field{min-width:0;width:100%;max-width:none;}
     .toolbar .left{gap:12px;}
     .grid.cols-4, .grid.cols-3, .grid.cols-2{grid-template-columns:1fr;}
-
     .stat-cards{grid-template-columns:1fr 1fr;gap:8px;}
     .stat-card{padding:10px 11px;}
     .stat-card .value{font-size:18px;}
-
     .mobile-sort{display:flex;}
     .fab{display:flex;}
-    #btnAddClient{display:none;} /* replaced by the FAB on mobile */
-
-    /* card-style table */
+    #btnAddClient{display:none;}
     .table-wrap{border:none;background:transparent;overflow-x:visible;}
     table{min-width:0;width:100%;}
     thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
@@ -334,8 +327,6 @@
     .row-actions{width:100%;justify-content:flex-end;}
     .empty-row td::before{content:none;}
     .empty-row td{display:block;text-align:center;}
-
-    /* bottom-sheet modal */
     .overlay{align-items:flex-end;padding:0;}
     .modal{
       max-width:none;width:100%;
@@ -355,7 +346,7 @@
   <div class="band-inner">
     <div class="brand">
       <h1>RD Register</h1>
-      <p>Recurring deposit client ledger — stored as an Excel file in your GitHub repository</p>
+      <p>Recurring deposit client ledger — stored securely in your connected Google Sheet</p>
     </div>
     <div class="conn-status" id="connStatus">
       <span class="dot off" id="connDot"></span>
@@ -377,18 +368,7 @@
     <div class="grid cols-2">
       <div>
         <label for="cfgUrl">Google Apps Script Web App URL</label>
-        <input type="text" id="cfgUrl" placeholder="https://script.google.com/macros/s/XXXXXXXX/exec">
-      </div>
-      <div style="display:flex;align-items:flex-end;">
-        <details class="help">
-          <summary>Where do I get this URL?</summary>
-          <div>
-            This isn't a token — it's a one-time link you create by attaching a small script to
-            your own Google Sheet and deploying it as a "Web app". Full step-by-step instructions
-            are in the README that came with this app. Once deployed, that URL is the only thing
-            you paste here — no separate password, key, or token to manage or renew.
-          </div>
-        </details>
+        <input type="text" id="cfgUrl" value="https://script.google.com/macros/s/AKfycbzWRoN9uB3kmsQCmeB8P4OsouTlsX-6werl3Bq6V1jkCofKE7vK7lWn5TLlo46Nb0c/exec" placeholder="https://script.google.com/macros/s/XXXXXXXX/exec">
       </div>
     </div>
     <div class="btn-row">
@@ -478,7 +458,7 @@
         <h2 style="margin:0;"><span class="idx">04</span> Client accounts</h2>
         <div class="btn-row" style="margin:0;">
           <button class="btn brass" id="btnAddClient">+ Add client</button>
-          <button class="btn" id="btnSaveGithub" disabled>Save changes to GitHub</button>
+          <button class="btn" id="btnSaveSheet" disabled>Save changes to Sheet</button>
           <button class="btn secondary" id="btnDownloadXlsx">Download .xlsx</button>
         </div>
       </div>
@@ -521,8 +501,7 @@
 </div>
 
 <footer>
-  RD Register keeps no server of its own — your Excel file lives in your GitHub repository and this page
-  reads and writes it directly through the GitHub API. Nothing is stored on any third‑party server.
+  RD Register keeps no server of its own — your data is read and written directly to your connected Google Sheet. Nothing is stored on any third‑party database.
 </footer>
 
 <button class="fab" id="fabAdd" aria-label="Add client" title="Add client">+</button>
@@ -575,8 +554,8 @@
 /* ============================================================
    STATE
    ============================================================ */
-let clients = [];          // array of client row objects (in-memory only)
-let github = null;         // {owner, repo, branch, path, token, sha}
+let clients = [];          
+let sheetUrl = null;         
 let sortKey = 'accountNo';
 let sortDir = 1;
 let dirty = false;
@@ -591,7 +570,7 @@ function uid(){ return 'c_' + Math.random().toString(36).slice(2, 10); }
 function toISODate(v){
   if(!v) return '';
   if(v instanceof Date && !isNaN(v)) return v.toISOString().slice(0,10);
-  if(typeof v === 'number'){ // excel serial date
+  if(typeof v === 'number'){ 
     const d = XLSX.SSF.parse_date_code(v);
     if(d) return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;
   }
@@ -665,118 +644,37 @@ function buildWorkbook(list){
 }
 
 /* ============================================================
-   GITHUB API
-   ============================================================ */
-const GH_API = 'https://api.github.com';
-
-function ghHeaders(token){
-  return {
-    'Authorization': 'Bearer ' + token,
-    'Accept': 'application/vnd.github+json',
-    'X-GitHub-Api-Version': '2022-11-28'
-  };
-}
-
-function base64ToArrayBuffer(b64){
-  const bin = atob(b64.replace(/\n/g,''));
-  const bytes = new Uint8Array(bin.length);
-  for(let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
-  return bytes.buffer;
-}
-
-function arrayBufferToBase64(buf){
-  const bytes = new Uint8Array(buf);
-  let bin = '';
-  const chunk = 0x8000;
-  for(let i=0;i<bytes.length;i+=chunk){
-    bin += String.fromCharCode.apply(null, bytes.subarray(i, i+chunk));
-  }
-  return btoa(bin);
-}
-
-async function ghLoadFile(cfg){
-  const url = `${GH_API}/repos/${cfg.owner}/${cfg.repo}/contents/${encodeURIComponent(cfg.path).replace(/%2F/g,'/')}?ref=${encodeURIComponent(cfg.branch)}`;
-  const res = await fetch(url, {headers: ghHeaders(cfg.token)});
-  if(res.status === 404){
-    return {notFound:true};
-  }
-  if(!res.ok){
-    const body = await res.text();
-    throw new Error(`GitHub load failed (${res.status}): ${body.slice(0,200)}`);
-  }
-  const json = await res.json();
-  const buf = base64ToArrayBuffer(json.content);
-  const wb = XLSX.read(buf, {type:'array', cellDates:true});
-  const ws = wb.Sheets[wb.SheetNames[0]];
-  const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
-  return {sha: json.sha, rows};
-}
-
-async function ghSaveFile(cfg, list){
-  const wb = buildWorkbook(list);
-  const out = XLSX.write(wb, {bookType:'xlsx', type:'array'});
-  const b64 = arrayBufferToBase64(out);
-  const url = `${GH_API}/repos/${cfg.owner}/${cfg.repo}/contents/${encodeURIComponent(cfg.path).replace(/%2F/g,'/')}`;
-  const body = {
-    message: `Update RD client ledger (${list.length} accounts) — ${new Date().toISOString()}`,
-    content: b64,
-    branch: cfg.branch,
-  };
-  if(cfg.sha) body.sha = cfg.sha;
-  const res = await fetch(url, {
-    method:'PUT',
-    headers: {...ghHeaders(cfg.token), 'Content-Type':'application/json'},
-    body: JSON.stringify(body)
-  });
-  if(!res.ok){
-    const errBody = await res.text();
-    throw new Error(`GitHub save failed (${res.status}): ${errBody.slice(0,300)}`);
-  }
-  const json = await res.json();
-  cfg.sha = json.content.sha;
-  return json;
-}
-
-/* ============================================================
-   CONNECT / LOAD FLOW
+   CONNECT / LOAD FLOW (GOOGLE SHEETS)
    ============================================================ */
 const el = id => document.getElementById(id);
 
 el('btnConnect').addEventListener('click', async () => {
-  const cfg = {
-    owner: el('cfgOwner').value.trim(),
-    repo: el('cfgRepo').value.trim(),
-    branch: el('cfgBranch').value.trim() || 'main',
-    path: el('cfgPath').value.trim() || 'data/clients.xlsx',
-    token: el('cfgToken').value.trim(),
-  };
-  if(!cfg.owner || !cfg.repo || !cfg.token){
-    setStatus(el('connStatusLine'), 'Please fill in owner, repository and a personal access token.', 'err');
+  const url = el('cfgUrl').value.trim();
+  if(!url){
+    setStatus(el('connStatusLine'), 'Please provide the Web App URL.', 'err');
     return;
   }
-  setStatus(el('connStatusLine'), 'Connecting…');
-  try{
-    const result = await ghLoadFile(cfg);
-    if(result.notFound){
-      cfg.sha = null;
-      clients = [];
-      setStatus(el('connStatusLine'), `No file found yet at ${cfg.path} — starting a new, empty ledger. It will be created on your first save.`, 'ok');
-    } else {
-      cfg.sha = result.sha;
-      clients = sheetRowsToClients(result.rows);
-      setStatus(el('connStatusLine'), `Loaded ${clients.length} client account(s) from ${cfg.path}.`, 'ok');
-    }
-    github = cfg;
+  
+  setStatus(el('connStatusLine'), 'Connecting to Google Sheets…');
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Failed to fetch data from the provided URL.");
+    
+    const result = await res.json();
+    clients = sheetRowsToClients(result.rows || []);
+    sheetUrl = url;
     dirty = false;
+    
+    setStatus(el('connStatusLine'), `Loaded ${clients.length} account(s) from Google Sheets.`, 'ok');
     setConnected(true);
     afterDataLoaded();
-  }catch(err){
+  } catch(err) {
     setStatus(el('connStatusLine'), err.message, 'err');
   }
 });
 
 el('btnDisconnect').addEventListener('click', () => {
-  github = null;
+  sheetUrl = null;
   clients = [];
   setConnected(false);
   el('appArea').style.display = 'none';
@@ -790,9 +688,9 @@ el('localFileInput').addEventListener('change', async (e) => {
   const ws = wb.Sheets[wb.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
   clients = sheetRowsToClients(rows);
-  github = null;
+  sheetUrl = null;
   dirty = false;
-  setStatus(el('connStatusLine'), `Loaded ${clients.length} client account(s) from local file "${file.name}". Connect to GitHub above to save changes back to a repository, or use "Download .xlsx" to save manually.`, 'ok');
+  setStatus(el('connStatusLine'), `Loaded ${clients.length} account(s) from local file "${file.name}". Connect to Google Sheets above to sync.`, 'ok');
   setConnected(false);
   afterDataLoaded();
 });
@@ -801,14 +699,14 @@ function setConnected(isConnected){
   const dot = el('connDot'), text = el('connText');
   if(isConnected){
     dot.className = 'dot on';
-    text.textContent = `${github.owner}/${github.repo} · ${github.path}`;
+    text.textContent = 'Connected to Google Sheets';
     el('btnDisconnect').style.display = 'inline-flex';
-    el('btnSaveGithub').disabled = false;
+    el('btnSaveSheet').disabled = false;
   } else {
     dot.className = 'dot off';
     text.textContent = 'Not connected';
     el('btnDisconnect').style.display = 'none';
-    el('btnSaveGithub').disabled = true;
+    el('btnSaveSheet').disabled = true;
   }
 }
 
@@ -816,7 +714,6 @@ function afterDataLoaded(){
   el('appArea').style.display = 'block';
   populateShortCodeFilter();
   renderTable();
-  // free up screen space on mobile once the ledger is loaded
   const cd = el('connectDetails');
   if(cd) cd.open = false;
 }
@@ -995,7 +892,7 @@ function deleteClient(client){
   dirty = true;
   populateShortCodeFilter();
   renderTable();
-  setStatus(el('saveStatusLine'), 'Client deleted locally — remember to save changes to GitHub.', 'ok');
+  setStatus(el('saveStatusLine'), 'Client deleted locally — remember to save changes to the Sheet.', 'ok');
 }
 
 /* ============================================================
@@ -1055,24 +952,33 @@ el('clientForm').addEventListener('submit', (e) => {
   populateShortCodeFilter();
   renderTable();
   closeModal();
-  setStatus(el('saveStatusLine'), 'Changes saved locally — click "Save changes to GitHub" to commit them.', 'ok');
+  setStatus(el('saveStatusLine'), 'Changes saved locally — click "Save changes to Sheet" to commit them.', 'ok');
 });
 
 /* ============================================================
-   SAVE TO GITHUB / DOWNLOAD / EXPORT
+   SAVE TO GOOGLE SHEETS / DOWNLOAD / EXPORT
    ============================================================ */
-el('btnSaveGithub').addEventListener('click', async () => {
-  if(!github){ return; }
-  const btn = el('btnSaveGithub');
+el('btnSaveSheet').addEventListener('click', async () => {
+  if(!sheetUrl){ return; }
+  const btn = el('btnSaveSheet');
   btn.disabled = true;
-  setStatus(el('saveStatusLine'), 'Committing changes to GitHub…');
-  try{
-    await ghSaveFile(github, clients);
+  setStatus(el('saveStatusLine'), 'Saving to Google Sheets…');
+  
+  try {
+    const rows = clientsToSheetRows(clients);
+    const res = await fetch(sheetUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ rows })
+    });
+    
+    if (!res.ok) throw new Error("Failed to save data.");
+    
     dirty = false;
-    setStatus(el('saveStatusLine'), `Saved — ${clients.length} account(s) committed to ${github.owner}/${github.repo}/${github.path}.`, 'ok');
-  }catch(err){
-    setStatus(el('saveStatusLine'), err.message, 'err');
-  }finally{
+    setStatus(el('saveStatusLine'), `Saved — ${clients.length} account(s) synced to Google Sheets.`, 'ok');
+  } catch(err) {
+    setStatus(el('saveStatusLine'), 'Error: ' + err.message, 'err');
+  } finally {
     btn.disabled = false;
   }
 });
