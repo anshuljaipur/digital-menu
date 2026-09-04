@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#16302A">
-<title>RD Register — Master & Ledger Management V 2.0</title>
+<title>RD Register — Master & Ledger Management</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -64,7 +64,7 @@
     .wrap { padding: 0; }
     .panel { border: none; border-radius: 0; padding: 12px; margin-bottom: 10px; border-bottom: 1px solid var(--rule); }
     .table-wrap { border-left: none; border-right: none; border-radius: 0; }
-    .btn { flex: 1; justify-content: center; } /* Full width buttons on mobile */
+    .btn { flex: 1; justify-content: center; } 
     .btn-row.actions { flex-wrap: nowrap; }
   }
 </style>
@@ -86,6 +86,12 @@
       <button class="btn secondary" id="btnDownloadXlsx">↓ All</button>
     </div>
     <div class="status-line" id="saveStatusLine"></div>
+
+    <!-- Live Search & Autofill -->
+    <div style="margin-top:14px;">
+      <input type="search" id="fSearchMaster" list="clientNamesData" placeholder="🔍 Search name or A/C..." style="border:1px solid var(--rule-strong); font-weight:500;">
+      <datalist id="clientNamesData"></datalist>
+    </div>
 
     <div class="table-wrap" style="margin-top:14px;">
       <table id="clientsTable">
@@ -233,17 +239,28 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 /* ============================================================
-   MASTER TABLE LOGIC & SORTING
+   MASTER TABLE LOGIC & SORTING & SEARCH
    ============================================================ */
 function renderMasterTable(){
   const tbody = el('tableBody');
-  if(clients.length === 0){
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px;">No clients found. Add one above.</td></tr>`;
+  
+  // Update Autofill Datalist natively
+  el('clientNamesData').innerHTML = clients.map(c => `<option value="${escapeHtml(c.holderName)}"></option>`).join('');
+
+  // Live Filter Logic
+  const query = el('fSearchMaster').value.trim().toLowerCase();
+  let filtered = clients.filter(c => {
+    if(!query) return true;
+    return c.holderName.toLowerCase().includes(query) || c.accountNo.toLowerCase().includes(query);
+  });
+
+  if(filtered.length === 0){
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px;">No clients found matching "${escapeHtml(query)}".</td></tr>`;
     return;
   }
 
   // Sorting
-  let sortedList = [...clients];
+  let sortedList = [...filtered];
   sortedList.sort((a,b) => {
     let av = a[sortKey], bv = b[sortKey];
     if(typeof av === 'string') { av = av.toLowerCase(); bv = bv.toLowerCase(); }
@@ -268,6 +285,9 @@ function renderMasterTable(){
     arrow.textContent = (th.dataset.key === sortKey) ? (sortDir === 1 ? ' ▲' : ' ▼') : '';
   });
 }
+
+// Attach Search Filter Listener
+el('fSearchMaster').addEventListener('input', renderMasterTable);
 
 // Attach Sort Listeners
 document.querySelectorAll('th[data-key]').forEach(th => {
@@ -480,12 +500,11 @@ window.forwardLedger = async () => {
 window.downloadLedger = () => {
   const accNo = el('activeLedgerAccount').value;
   const c = clients.find(x => x.accountNo === accNo);
-  const txns = [...(transactions[accNo] || [])].sort((a,b) => (a.date > b.date ? 1 : -1)); // Chronological for excel
+  const txns = [...(transactions[accNo] || [])].sort((a,b) => (a.date > b.date ? 1 : -1)); 
   
   const wb = XLSX.utils.book_new();
   const rows = txns.map(t => ({'Date': t.date, 'Amount': t.amount, 'Remarks': t.remarks}));
   
-  // Add summary header to Excel
   const ws = XLSX.utils.json_to_sheet([
     {'Date': 'Account', 'Amount': c.accountNo, 'Remarks': ''},
     {'Date': 'Total Dep', 'Amount': c.totalDeposit, 'Remarks': ''},
