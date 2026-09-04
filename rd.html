@@ -4,339 +4,59 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#16302A">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>RD Register — Recurring Deposit Client Ledger</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<title>RD Register — Master & Ledger Management v1.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
-    --paper:#F1EEE2;
-    --paper-2:#E8E4D3;
-    --ink:#16302A;
-    --ink-soft:#3E5850;
-    --rule:#C9C2A6;
-    --rule-strong:#16302A;
-    --brass:#9C6B22;
-    --brass-2:#B98A3B;
-    --brass-soft:#EADFC6;
-    --danger:#8C3A2B;
-    --danger-soft:#F3DCD5;
-    --ok:#2F6B4F;
-    --shadow: 0 1px 0 rgba(22,48,42,0.12);
-    --radius: 3px;
+    --paper:#F1EEE2; --paper-2:#E8E4D3; --ink:#16302A; --ink-soft:#3E5850;
+    --rule:#C9C2A6; --rule-strong:#16302A; --brass:#9C6B22; --brass-2:#B98A3B;
+    --danger:#8C3A2B; --danger-soft:#F3DCD5; --ok:#2F6B4F; --radius:3px;
   }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:var(--paper);
-    color:var(--ink);
-    font-family:'IBM Plex Sans', system-ui, sans-serif;
-    font-size:14px;
-    line-height:1.45;
-    min-height:100vh;
-  }
-  ::selection{background:var(--brass-soft);}
-  .nums{font-family:'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums;}
-
-  /* ---------- header ---------- */
-  .band{
-    background:var(--ink);
-    color:var(--paper);
-    padding:22px 28px 18px;
-    border-bottom:4px double var(--brass-2);
-  }
-  .band-inner{max-width:1180px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;}
-  .brand h1{
-    font-family:'Fraunces', serif;
-    font-weight:600;
-    font-size:26px;
-    letter-spacing:0.2px;
-    margin:0 0 3px;
-  }
-  .brand p{margin:0;color:#C9CFC9;font-size:12.5px;}
-  .conn-status{
-    font-size:12px;
-    display:flex;
-    align-items:center;
-    gap:8px;
-    color:#C9CFC9;
-  }
-  .dot{width:7px;height:7px;border-radius:50%;background:#7A8C86;display:inline-block;}
-  .dot.on{background:#7FC79A;}
-  .dot.off{background:#D08B7B;}
-
-  /* ---------- layout ---------- */
-  .wrap{max-width:1180px;margin:0 auto;padding:22px 28px 60px;}
-
-  .panel{
-    background:var(--paper-2);
-    border:1px solid var(--rule);
-    border-radius:var(--radius);
-    padding:16px 18px;
-    margin-bottom:18px;
-  }
-  .panel h2{
-    font-family:'Fraunces', serif;
-    font-size:15px;
-    font-weight:600;
-    margin:0 0 12px;
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
-  .panel h2 .idx{color:var(--brass);font-family:'IBM Plex Mono',monospace;font-size:12px;}
-
-  .grid{display:grid;gap:10px 14px;}
-  .grid.cols-4{grid-template-columns:repeat(4,1fr);}
-  .grid.cols-3{grid-template-columns:repeat(3,1fr);}
-  .grid.cols-2{grid-template-columns:repeat(2,1fr);}
-  @media (max-width:860px){
-    .grid.cols-4,.grid.cols-3,.grid.cols-2{grid-template-columns:1fr 1fr;}
-  }
-  @media (max-width:560px){
-    .grid.cols-4,.grid.cols-3,.grid.cols-2{grid-template-columns:1fr;}
-  }
-
-  label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--ink-soft);margin-bottom:4px;}
-  input[type=text], input[type=number], input[type=date], input[type=password], select{
-    width:100%;
-    padding:8px 9px;
-    border:1px solid var(--rule);
-    background:#FBFAF4;
-    border-radius:2px;
-    color:var(--ink);
-    font-family:inherit;
-    font-size:13.5px;
-  }
-  input:focus, select:focus{outline:2px solid var(--brass-2); outline-offset:0; border-color:var(--brass-2);}
-
-  .btn{
-    display:inline-flex;align-items:center;gap:6px;
-    padding:8px 14px;
-    border-radius:2px;
-    border:1px solid var(--ink);
-    background:var(--ink);
-    color:var(--paper);
-    font-size:13px;
-    font-weight:500;
-    cursor:pointer;
-    font-family:inherit;
-  }
-  .btn:hover{background:#0F241F;}
-  .btn.secondary{background:transparent;color:var(--ink);border-color:var(--rule-strong);}
-  .btn.secondary:hover{background:#e4dfc9;}
-  .btn.brass{background:var(--brass);border-color:var(--brass);color:#fff;}
-  .btn.brass:hover{background:#845A1B;}
-  .btn.danger{background:transparent;color:var(--danger);border-color:var(--danger);}
-  .btn.danger:hover{background:var(--danger-soft);}
-  .btn:disabled{opacity:0.45;cursor:not-allowed;}
-  .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
-  .btn-sm{padding:4px 9px;font-size:12px;border-radius:2px;}
-
-  .status-line{font-size:12.5px;margin-top:10px;color:var(--ink-soft);}
-  .status-line.err{color:var(--danger);}
-  .status-line.ok{color:var(--ok);}
-
-  /* ---------- toolbar ---------- */
-  .toolbar{
-    display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;
-    justify-content:space-between;
-  }
-  .toolbar .left{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;flex:1;}
-  .toolbar .field{min-width:150px;}
-  .search-field{min-width:220px;flex:1;max-width:320px;}
-  .toolbar .right{display:flex;gap:8px;align-items:flex-end;}
-
-  /* ---------- table ---------- */
-  .table-wrap{
-    background:#FBFAF4;
-    border:1px solid var(--rule);
-    border-radius:var(--radius);
-    overflow-x:auto;
-  }
-  table{width:100%;border-collapse:collapse;min-width:920px;}
-  thead th{
-    text-align:left;
-    font-size:11px;
-    text-transform:uppercase;
-    letter-spacing:0.04em;
-    color:var(--ink-soft);
-    padding:10px 12px;
-    border-bottom:2px solid var(--rule-strong);
-    background:var(--paper-2);
-    white-space:nowrap;
-    cursor:pointer;
-    user-select:none;
-  }
-  thead th:hover{color:var(--ink);}
-  thead th .arrow{opacity:0.5;font-size:10px;margin-left:3px;}
-  tbody td{
-    padding:9px 12px;
-    border-bottom:1px solid var(--rule);
-    vertical-align:middle;
-    white-space:nowrap;
-  }
-  tbody tr:hover{background:#F3EEDD;}
-  tbody tr.due-soon td{background:#FBEFE1;}
-  tbody tr.overdue td{background:#F6E0DA;}
-  .num-cell{text-align:right;}
-  .badge{
-    display:inline-block;
-    padding:2px 8px;
-    border:1px solid var(--brass);
-    color:var(--brass);
-    border-radius:20px;
-    font-size:11.5px;
-    font-family:'IBM Plex Mono',monospace;
-  }
-  .row-actions{display:flex;gap:6px;}
-  .empty-row td{text-align:center;padding:34px;color:var(--ink-soft);font-style:italic;}
-
-  /* ---------- statement summary ---------- */
-  .stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
-  @media (max-width:760px){.stat-cards{grid-template-columns:1fr 1fr;}}
-  .stat-card{
-    background:#FBFAF4;border:1px solid var(--rule);border-radius:var(--radius);
-    padding:12px 14px;
-  }
-  .stat-card .label{font-size:11px;text-transform:uppercase;color:var(--ink-soft);letter-spacing:0.05em;}
-  .stat-card .value{font-family:'Fraunces',serif;font-size:22px;font-weight:600;margin-top:4px;}
-
-  /* ---------- modal ---------- */
-  .overlay{
-    position:fixed;inset:0;background:rgba(22,48,42,0.55);
-    display:none;align-items:center;justify-content:center;padding:20px;z-index:50;
-  }
+  *{box-sizing:border-box;} html,body{margin:0;padding:0;}
+  body{background:var(--paper); color:var(--ink); font-family:'IBM Plex Sans', sans-serif; font-size:14px; min-height:100vh; padding-bottom:60px;}
+  .nums{font-family:'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums;}
+  
+  .band{background:var(--ink); color:var(--paper); padding:22px 28px 18px; border-bottom:4px double var(--brass-2);}
+  .band-inner{max-width:1180px; margin:0 auto; display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap;}
+  .brand h1{font-family:'Fraunces', serif; font-size:26px; margin:0 0 3px;}
+  .brand p{margin:0; color:#C9CFC9; font-size:12.5px;}
+  .conn-status{font-size:12px; display:flex; align-items:center; gap:8px; color:#C9CFC9;}
+  .dot{width:7px; height:7px; border-radius:50%; background:#7A8C86; display:inline-block;} .dot.on{background:#7FC79A;}
+  
+  .wrap{max-width:1180px; margin:0 auto; padding:22px 28px;}
+  .panel{background:var(--paper-2); border:1px solid var(--rule); border-radius:var(--radius); padding:16px 18px; margin-bottom:18px;}
+  .panel h2{font-family:'Fraunces', serif; font-size:15px; margin:0 0 12px; display:flex; align-items:center; gap:8px;}
+  .panel h2 .idx{color:var(--brass); font-family:'IBM Plex Mono',monospace; font-size:12px;}
+  
+  .grid{display:grid; gap:10px 14px;} .cols-4{grid-template-columns:repeat(4,1fr);} .cols-2{grid-template-columns:repeat(2,1fr);}
+  label{display:block; font-size:11px; text-transform:uppercase; color:var(--ink-soft); margin-bottom:4px;}
+  input, select{width:100%; padding:8px 9px; border:1px solid var(--rule); background:#FBFAF4; border-radius:2px; font-family:inherit; font-size:13.5px;}
+  input:focus, select:focus{outline:2px solid var(--brass-2); border-color:var(--brass-2);}
+  
+  .btn{display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:2px; border:1px solid var(--ink); background:var(--ink); color:var(--paper); font-size:13px; font-weight:500; cursor:pointer;}
+  .btn:hover{background:#0F241F;} .btn.secondary{background:transparent; color:var(--ink); border-color:var(--rule-strong);} .btn.secondary:hover{background:#e4dfc9;}
+  .btn.brass{background:var(--brass); border-color:var(--brass); color:#fff;} .btn.brass:hover{background:#845A1B;}
+  .btn.danger{background:transparent; color:var(--danger); border-color:var(--danger);} .btn:disabled{opacity:0.45; cursor:not-allowed;}
+  .btn-row{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;} .btn-sm{padding:4px 9px; font-size:12px;}
+  .status-line{font-size:12.5px; margin-top:10px; color:var(--ink-soft);} .status-line.ok{color:var(--ok);}
+  
+  .table-wrap{background:#FBFAF4; border:1px solid var(--rule); border-radius:var(--radius); overflow-x:auto;}
+  table{width:100%; border-collapse:collapse; min-width:920px;}
+  thead th{text-align:left; font-size:11px; text-transform:uppercase; color:var(--ink-soft); padding:10px 12px; border-bottom:2px solid var(--rule-strong); background:var(--paper-2); cursor:pointer;}
+  tbody td{padding:9px 12px; border-bottom:1px solid var(--rule); white-space:nowrap;}
+  tbody tr:hover{background:#F3EEDD;} .num-cell{text-align:right;}
+  .badge{display:inline-block; padding:2px 8px; border:1px solid var(--brass); color:var(--brass); border-radius:20px; font-size:11.5px;}
+  
+  .overlay{position:fixed; inset:0; background:rgba(22,48,42,0.6); display:none; align-items:center; justify-content:center; padding:20px; z-index:50;}
   .overlay.show{display:flex;}
-  .modal{
-    background:var(--paper);
-    border:1px solid var(--rule-strong);
-    border-radius:var(--radius);
-    max-width:560px;width:100%;
-    padding:22px 24px;
-    max-height:90vh;overflow-y:auto;
-  }
-  .modal h3{font-family:'Fraunces',serif;font-size:18px;margin:0 0 16px;}
-  .modal .btn-row{justify-content:flex-end;}
-
-  details.help{margin-top:4px;}
-  details.help summary{cursor:pointer;font-size:12px;color:var(--brass);}
-  details.help div{font-size:12.5px;color:var(--ink-soft);margin-top:8px;line-height:1.6;}
-  code{background:var(--brass-soft);padding:1px 5px;border-radius:2px;font-size:12px;}
-  a{color:var(--brass);}
-
-  footer{max-width:1180px;margin:0 auto;padding:0 28px 40px;color:var(--ink-soft);font-size:11.5px;}
-
-  /* ---------- collapsible panel summary ---------- */
-  summary.panel-summary{
-    list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;
-  }
-  summary.panel-summary::-webkit-details-marker{display:none;}
-  summary.panel-summary h2{margin:0;}
-  .chev{font-size:12px;color:var(--brass);transition:transform 0.15s ease;flex-shrink:0;}
-  details[open] > summary .chev{transform:rotate(90deg);}
-  .details-body{margin-top:14px;}
-
-  /* ---------- FAB (mobile add button) ---------- */
-  .fab{
-    display:none;
-    position:fixed;
-    right:18px;
-    bottom:calc(18px + env(safe-area-inset-bottom));
-    width:56px;height:56px;
-    border-radius:50%;
-    background:var(--brass);
-    color:#fff;
-    border:none;
-    font-size:28px;
-    line-height:1;
-    box-shadow:0 4px 14px rgba(22,48,42,0.35);
-    align-items:center;justify-content:center;
-    z-index:40;
-    cursor:pointer;
-  }
-  .fab:active{background:#845A1B;}
-
-  /* ---------- mobile sort bar ---------- */
-  .mobile-sort{display:none;gap:8px;margin-top:10px;}
-  .mobile-sort select{flex:1;}
-  .mobile-sort button{white-space:nowrap;}
-
-  /* ================================================================
-     MOBILE BREAKPOINT — phones & small tablets
-     ================================================================ */
-  @media (max-width: 700px){
-    .band{padding:16px 16px 14px;}
-    .brand h1{font-size:21px;}
-    .brand p{display:none;}
-    .wrap{padding:14px 12px 90px;}
-    .panel{padding:13px 13px;margin-bottom:12px;}
-    .panel h2{font-size:13.5px;}
-    input[type=text], input[type=number], input[type=date], input[type=password], select{
-      padding:11px 10px;font-size:16px;min-height:44px;
-    }
-    label{font-size:10.5px;}
-    .btn{min-height:44px;padding:10px 16px;font-size:14px;}
-    .btn-sm{min-height:38px;padding:7px 12px;font-size:12.5px;}
-    .btn-row{gap:8px;}
-    .toolbar .field, .search-field{min-width:0;width:100%;max-width:none;}
-    .toolbar .left{gap:12px;}
-    .grid.cols-4, .grid.cols-3, .grid.cols-2{grid-template-columns:1fr;}
-    .stat-cards{grid-template-columns:1fr 1fr;gap:8px;}
-    .stat-card{padding:10px 11px;}
-    .stat-card .value{font-size:18px;}
-    .mobile-sort{display:flex;}
-    .fab{display:flex;}
-    #btnAddClient{display:none;}
-    .table-wrap{border:none;background:transparent;overflow-x:visible;}
-    table{min-width:0;width:100%;}
-    thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
-    tbody, tr, td{display:block;width:100%;}
-    tbody tr{
-      background:#FBFAF4;
-      border:1px solid var(--rule);
-      border-radius:6px;
-      margin-bottom:10px;
-      padding:4px 12px;
-    }
-    tbody tr.due-soon{background:#FBEFE1;}
-    tbody tr.overdue{background:#F6E0DA;}
-    tbody td{
-      display:flex;justify-content:space-between;align-items:center;gap:12px;
-      border-bottom:1px solid var(--rule);
-      padding:9px 0;
-      white-space:normal;
-      text-align:right;
-    }
-    tbody td:last-child{border-bottom:none;}
-    tbody td::before{
-      content:attr(data-label);
-      font-size:10.5px;
-      text-transform:uppercase;
-      letter-spacing:0.04em;
-      color:var(--ink-soft);
-      text-align:left;
-      flex-shrink:0;
-    }
-    tbody td.num-cell{text-align:right;}
-    tbody td[data-label="Account Holder Name"]{font-weight:600;}
-    .row-actions{width:100%;justify-content:flex-end;}
-    .empty-row td::before{content:none;}
-    .empty-row td{display:block;text-align:center;}
-    .overlay{align-items:flex-end;padding:0;}
-    .modal{
-      max-width:none;width:100%;
-      border-radius:14px 14px 0 0;
-      padding:18px 16px calc(18px + env(safe-area-inset-bottom));
-      max-height:88vh;
-      border-bottom:none;
-    }
-    .modal .btn-row{flex-direction:column-reverse;}
-    .modal .btn-row .btn{width:100%;justify-content:center;}
-  }
+  .modal{background:var(--paper); border:1px solid var(--rule-strong); border-radius:var(--radius); max-width:560px; width:100%; padding:22px 24px; max-height:90vh; overflow-y:auto;}
+  .modal.large{max-width:800px;}
+  .modal h3{font-family:'Fraunces',serif; font-size:18px; margin:0 0 16px;}
+  
+  .ledger-box{background:#FBFAF4; border:1px solid var(--rule); padding:12px; margin-bottom:14px; border-radius:var(--radius);}
+  .ledger-table th, .ledger-table td{font-size:12.5px; padding:6px 8px;}
+  .ledger-form{display:flex; gap:10px; align-items:flex-end; background:var(--paper-2); padding:10px; border-radius:var(--radius);}
 </style>
 </head>
 <body>
@@ -345,603 +65,429 @@
   <div class="band-inner">
     <div class="brand">
       <h1>RD Register</h1>
-      <p>Recurring deposit client ledger — stored securely in your connected Google Sheet</p>
+      <p>Automated Master & Individual Client Ledgers — Synced to Google Sheets</p>
     </div>
-    <div class="conn-status" id="connStatus">
-      <span class="dot off" id="connDot"></span>
-      <span id="connText">Connecting...</span>
+    <div class="conn-status">
+      <span class="dot off" id="connDot"></span><span id="connText">Connecting...</span>
     </div>
   </div>
 </div>
 
-<div class="wrap">
+<div class="wrap" id="appArea" style="display:none;">
 
-  <!-- MAIN APP (hidden until data loaded) -->
-  <div id="appArea" style="display:none;">
-
-    <div class="panel">
-     <details class="panel-details" id="filterDetails" open>
-      <summary class="panel-summary">
-        <h2><span class="idx">01</span> Search &amp; filter</h2>
-        <span class="chev">▶</span>
-      </summary>
-      <div class="details-body">
-      <div class="toolbar">
-        <div class="left">
-          <div class="field search-field">
-            <label for="fSearch">Search</label>
-            <input type="text" id="fSearch" placeholder="Account no., name or short code">
-          </div>
-          <div class="field">
-            <label for="fShortCode">Short code</label>
-            <select id="fShortCode"><option value="">All</option></select>
-          </div>
-          <div class="field">
-            <label for="fDueFrom">Next due from</label>
-            <input type="date" id="fDueFrom">
-          </div>
-          <div class="field">
-            <label for="fDueTo">Next due to</label>
-            <input type="date" id="fDueTo">
-          </div>
-          <div class="field">
-            <label for="fOpenFrom">Opened from</label>
-            <input type="date" id="fOpenFrom">
-          </div>
-          <div class="field">
-            <label for="fOpenTo">Opened to</label>
-            <input type="date" id="fOpenTo">
-          </div>
-          <div class="field">
-            <label for="fAmountMin">Amount min</label>
-            <input type="number" id="fAmountMin" placeholder="0">
-          </div>
-          <div class="field">
-            <label for="fAmountMax">Amount max</label>
-            <input type="number" id="fAmountMax" placeholder="">
-          </div>
-        </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn secondary btn-sm" id="btnClearFilters">Clear filters</button>
-        <button class="btn secondary btn-sm" id="btnDueSoon">Due in next 7 days</button>
-        <button class="btn secondary btn-sm" id="btnOverdue">Overdue only</button>
-      </div>
-      </div>
-     </details>
-    </div>
-
-    <div class="panel">
-      <h2><span class="idx">02</span> Statement summary <span style="font-weight:400;font-family:'IBM Plex Sans';font-size:12px;color:var(--ink-soft);">— reflects active filters</span></h2>
-      <div class="stat-cards">
-        <div class="stat-card"><div class="label">Clients shown</div><div class="value nums" id="statCount">0</div></div>
-        <div class="stat-card"><div class="label">Sum of installment amount</div><div class="value nums" id="statAmount">₹0</div></div>
-        <div class="stat-card"><div class="label">Sum of total deposit</div><div class="value nums" id="statDeposit">₹0</div></div>
-        <div class="stat-card"><div class="label">Due within 7 days</div><div class="value nums" id="statDueSoon">0</div></div>
-      </div>
-      <div class="btn-row">
-        <button class="btn secondary btn-sm" id="btnExportCsv">Export statement as CSV</button>
-        <button class="btn secondary btn-sm" id="btnPrint">Print statement</button>
+  <div class="panel">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+      <h2 style="margin:0;"><span class="idx">01</span> Master Client List</h2>
+      <div class="btn-row" style="margin:0;">
+        <button class="btn brass" id="btnAddClient">+ Add client</button>
+        <button class="btn" id="btnSaveSheet" disabled>Save Master & Ledgers to Sheet</button>
+        <button class="btn secondary" id="btnDownloadXlsx">Download Offline .xlsx</button>
       </div>
     </div>
+    <div class="status-line" id="saveStatusLine" style="margin-top:8px;"></div>
 
-    <div class="panel">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-        <h2 style="margin:0;"><span class="idx">03</span> Client accounts</h2>
-        <div class="btn-row" style="margin:0;">
-          <button class="btn brass" id="btnAddClient">+ Add client</button>
-          <button class="btn" id="btnSaveSheet" disabled>Save changes to Sheet</button>
-          <button class="btn secondary" id="btnDownloadXlsx">Download .xlsx</button>
-        </div>
-      </div>
-      <div class="status-line" id="saveStatusLine" style="margin-top:8px;"></div>
-
-      <div class="mobile-sort">
-        <select id="mobileSortField">
-          <option value="accountNo">Sort: Account No.</option>
-          <option value="holderName">Sort: Holder Name</option>
-          <option value="amount">Sort: Amount</option>
-          <option value="totalDeposit">Sort: Total Deposit</option>
-          <option value="nextDueDate">Sort: Next Due Date</option>
-          <option value="openedOn">Sort: Opened On</option>
-          <option value="shortCode">Sort: Short Code</option>
-        </select>
-        <button type="button" class="btn secondary btn-sm" id="mobileSortDir">▲ Asc</button>
-      </div>
-
-      <div class="table-wrap" style="margin-top:14px;">
-        <table id="clientsTable">
-          <thead>
-            <tr>
-              <th data-key="accountNo">Account No.<span class="arrow"></span></th>
-              <th data-key="amount">Amount<span class="arrow"></span></th>
-              <th data-key="holderName">Account Holder Name<span class="arrow"></span></th>
-              <th data-key="nextDueDate">Next Due Date<span class="arrow"></span></th>
-              <th data-key="totalDeposit">Total Deposit<span class="arrow"></span></th>
-              <th data-key="openedOn">Opened On<span class="arrow"></span></th>
-              <th data-key="shortCode">Short Code<span class="arrow"></span></th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody">
-          </tbody>
-        </table>
-      </div>
+    <div class="table-wrap" style="margin-top:14px;">
+      <table id="clientsTable">
+        <thead>
+          <tr>
+            <th>Account No.</th> <th>Amount</th> <th>Holder Name</th> <th>Next Due Date</th>
+            <th>Total Deposit</th> <th>Opened On</th> <th>Short Code</th> <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
     </div>
-
   </div>
 </div>
 
-<footer>
-  RD Register keeps no server of its own — your data is read and written directly to your connected Google Sheet. Nothing is stored on any third‑party database.
-</footer>
-
-<button class="fab" id="fabAdd" aria-label="Add client" title="Add client">+</button>
-
-<!-- ADD/EDIT MODAL -->
-<div class="overlay" id="overlay">
+<!-- CLIENT DETAILS MODAL -->
+<div class="overlay" id="overlayClient">
   <div class="modal">
-    <h3 id="modalTitle">Add client</h3>
+    <h3 id="modalTitle">Add Client</h3>
     <form id="clientForm">
       <input type="hidden" id="fEditingId">
       <div class="grid cols-2">
-        <div>
-          <label for="fAccountNo">Account No. *</label>
-          <input type="text" id="fAccountNo" required>
-        </div>
-        <div>
-          <label for="fShortCodeInput">Short Code</label>
-          <input type="text" id="fShortCodeInput" placeholder="e.g. RJ-01">
-        </div>
-        <div>
-          <label for="fHolderName">Account Holder Name *</label>
-          <input type="text" id="fHolderName" required>
-        </div>
-        <div>
-          <label for="fAmount">Amount (installment) *</label>
-          <input type="number" step="0.01" id="fAmount" required>
-        </div>
-        <div>
-          <label for="fTotalDeposit">Total Deposit</label>
-          <input type="number" step="0.01" id="fTotalDeposit" value="0">
-        </div>
-        <div>
-          <label for="fOpenedOn">Opened On</label>
-          <input type="date" id="fOpenedOn">
-        </div>
-        <div>
-          <label for="fNextDueDate">Next Due Date</label>
-          <input type="date" id="fNextDueDate">
-        </div>
+        <div><label>Account No. *</label><input type="text" id="fAccountNo" required></div>
+        <div><label>Short Code</label><input type="text" id="fShortCodeInput"></div>
+        <div><label>Account Holder Name *</label><input type="text" id="fHolderName" required></div>
+        <div><label>Amount (Installment) *</label><input type="number" step="0.01" id="fAmount" required></div>
+        <div><label>Total Deposit</label><input type="number" step="0.01" id="fTotalDeposit" readonly title="Auto-calculated from ledger"></div>
+        <div><label>Opened On</label><input type="date" id="fOpenedOn"></div>
+        <div><label>Next Due Date</label><input type="date" id="fNextDueDate" title="Auto-advances when payments are added"></div>
       </div>
-      <div class="btn-row">
-        <button type="button" class="btn secondary" id="btnCancelModal">Cancel</button>
-        <button type="submit" class="btn brass">Save client</button>
+      <div class="btn-row" style="justify-content:flex-end; margin-top:20px;">
+        <button type="button" class="btn secondary" onclick="el('overlayClient').classList.remove('show')">Cancel</button>
+        <button type="submit" class="btn brass">Save Client Profile</button>
       </div>
     </form>
   </div>
 </div>
 
+<!-- LEDGER TRANSACTIONS MODAL -->
+<div class="overlay" id="overlayLedger">
+  <div class="modal large">
+    <h3 id="ledgerTitle">Ledger Details</h3>
+    <input type="hidden" id="activeLedgerAccount">
+    
+    <div class="grid cols-2 ledger-box">
+      <div><label>Total Deposit</label><div class="nums" id="ledgerTotal" style="font-size:18px; font-weight:600;">₹0</div></div>
+      <div><label>Next Due Date</label><div class="nums" id="ledgerDue" style="font-size:18px; font-weight:600;">—</div></div>
+    </div>
+
+    <form class="ledger-form" id="txnForm">
+      <input type="hidden" id="tEditingId">
+      <div style="flex:1"><label>Date</label><input type="date" id="tDate" required></div>
+      <div style="flex:1"><label>Amount Received</label><input type="number" step="0.01" id="tAmount" required></div>
+      <div style="flex:2"><label>Remarks</label><input type="text" id="tRemarks" placeholder="Optional notes"></div>
+      <button type="submit" class="btn brass" id="tSubmitBtn">Add Record</button>
+      <button type="button" class="btn secondary" id="tCancelBtn" style="display:none;" onclick="resetTxnForm()">Cancel</button>
+    </form>
+
+    <div class="table-wrap" style="margin-top:14px; max-height:40vh;">
+      <table class="ledger-table">
+        <thead><tr><th>Date</th> <th>Amount</th> <th>Remarks</th> <th style="text-align:right;">Actions</th></tr></thead>
+        <tbody id="ledgerTableBody"></tbody>
+      </table>
+    </div>
+    
+    <div class="btn-row" style="justify-content:flex-end; margin-top:16px;">
+      <button class="btn secondary" onclick="el('overlayLedger').classList.remove('show')">Close Ledger</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ============================================================
-   STATE
+   STATE & CONFIGURATION
    ============================================================ */
+// ** PASTE YOUR NEW APPS SCRIPT URL HERE **
 const sheetUrl = "https://script.google.com/macros/s/AKfycbzWRoN9uB3kmsQCmeB8P4OsouTlsX-6werl3Bq6V1jkCofKE7vK7lWn5TLlo46Nb0c/exec";
+
 let clients = [];          
-let sortKey = 'accountNo';
-let sortDir = 1;
+let transactions = {}; // format: { "AccountNo": [ {txnId, date, amount, remarks} ] }
 let dirty = false;
 
-const COLUMN_HEADERS = ['Account No.','Amount','Account Holder Name','Next Due Date','Total Deposit','Opened On','Short Code'];
-
-/* ============================================================
-   HELPERS
-   ============================================================ */
-function uid(){ return 'c_' + Math.random().toString(36).slice(2, 10); }
-
-function toISODate(v){
-  if(!v) return '';
-  if(v instanceof Date && !isNaN(v)) return v.toISOString().slice(0,10);
-  if(typeof v === 'number'){ 
-    const d = XLSX.SSF.parse_date_code(v);
-    if(d) return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;
-  }
-  const s = String(v).trim();
-  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if(m) return `${m[1]}-${m[2]}-${m[3]}`;
-  const d2 = new Date(s);
-  if(!isNaN(d2)) return d2.toISOString().slice(0,10);
-  return s;
-}
-
-function fmtDate(iso){
-  if(!iso) return '—';
-  const d = new Date(iso + 'T00:00:00');
-  if(isNaN(d)) return iso;
-  return d.toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
-}
-
-function fmtMoney(n){
-  n = Number(n) || 0;
-  return '₹' + n.toLocaleString('en-IN', {maximumFractionDigits:2});
-}
-
-function daysUntil(iso){
-  if(!iso) return null;
-  const target = new Date(iso + 'T00:00:00');
-  if(isNaN(target)) return null;
-  const today = new Date(); today.setHours(0,0,0,0);
-  return Math.round((target - today) / 86400000);
-}
-
-function setStatus(el, msg, cls){
-  el.textContent = msg;
-  el.className = 'status-line' + (cls ? ' ' + cls : '');
-}
-
-/* ============================================================
-   EXCEL <-> CLIENT OBJECT MAPPING
-   ============================================================ */
-function sheetRowsToClients(rows){
-  return rows.map(r => ({
-    id: uid(),
-    accountNo: String(r['Account No.'] ?? r['Account No'] ?? '').trim(),
-    amount: Number(r['Amount']) || 0,
-    holderName: String(r['Account Holder Name'] ?? '').trim(),
-    nextDueDate: toISODate(r['Next Due Date']),
-    totalDeposit: Number(r['Total Deposit']) || 0,
-    openedOn: toISODate(r['Opened On']),
-    shortCode: String(r['Short Code'] ?? '').trim(),
-  })).filter(c => c.accountNo !== '');
-}
-
-function clientsToSheetRows(list){
-  return list.map(c => ({
-    'Account No.': c.accountNo,
-    'Amount': Number(c.amount) || 0,
-    'Account Holder Name': c.holderName,
-    'Next Due Date': c.nextDueDate,
-    'Total Deposit': Number(c.totalDeposit) || 0,
-    'Opened On': c.openedOn,
-    'Short Code': c.shortCode,
-  }));
-}
-
-function buildWorkbook(list){
-  const ws = XLSX.utils.json_to_sheet(clientsToSheetRows(list), {header: COLUMN_HEADERS});
-  ws['!cols'] = [{wch:14},{wch:10},{wch:26},{wch:14},{wch:14},{wch:12},{wch:12}];
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Clients');
-  return wb;
-}
-
-/* ============================================================
-   AUTO CONNECT / LOAD FLOW (GOOGLE SHEETS)
-   ============================================================ */
 const el = id => document.getElementById(id);
+const uid = () => 'id_' + Math.random().toString(36).substr(2, 9);
+const toISODate = (v) => v ? new Date(v).toISOString().slice(0,10) : '';
+const fmtMoney = (n) => '₹' + (Number(n)||0).toLocaleString('en-IN', {maximumFractionDigits:2});
+const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'}) : '—';
+const escapeHtml = (s) => String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
+/* ============================================================
+   INITIALIZATION & GOOGLE SHEETS SYNC
+   ============================================================ */
 window.addEventListener('DOMContentLoaded', async () => {
   try {
     const res = await fetch(sheetUrl);
-    if (!res.ok) throw new Error("Failed to fetch data.");
-    
+    if (!res.ok) throw new Error("Fetch failed.");
     const result = await res.json();
-    clients = sheetRowsToClients(result.rows || []);
-    dirty = false;
     
-    setConnected(true, `Loaded ${clients.length} accounts`);
-    afterDataLoaded();
+    // Parse Master Clients
+    clients = (result.clients || []).map(r => ({
+      id: uid(),
+      accountNo: String(r['Account No.'] || '').trim(),
+      amount: Number(r['Amount']) || 0,
+      holderName: String(r['Account Holder Name'] || '').trim(),
+      nextDueDate: toISODate(r['Next Due Date']),
+      totalDeposit: Number(r['Total Deposit']) || 0,
+      openedOn: toISODate(r['Opened On']),
+      shortCode: String(r['Short Code'] || '').trim(),
+    })).filter(c => c.accountNo !== '');
+
+    // Parse Transactions (Client Tabs)
+    transactions = {};
+    Object.keys(result.transactions || {}).forEach(accNo => {
+      transactions[accNo] = result.transactions[accNo].map(t => ({
+        txnId: t['Txn ID'] || uid(),
+        date: toISODate(t['Date']),
+        amount: Number(t['Amount']) || 0,
+        remarks: String(t['Remarks'] || '')
+      }));
+    });
+
+    el('connDot').className = 'dot on';
+    el('connText').textContent = 'Connected to Google Sheets (Master + Tabs)';
+    el('btnSaveSheet').disabled = false;
+    el('appArea').style.display = 'block';
+    renderMasterTable();
   } catch(err) {
-    setConnected(false, 'Connection failed');
-    alert("Error loading data from Google Sheets: " + err.message);
+    el('connText').textContent = 'Connection failed: ' + err.message;
+    alert("Error loading data from Google Sheets.");
   }
 });
 
-function setConnected(isConnected, customText){
-  const dot = el('connDot'), text = el('connText');
-  if(isConnected){
-    dot.className = 'dot on';
-    text.textContent = 'Connected to Google Sheets';
-    if(el('btnSaveSheet')) el('btnSaveSheet').disabled = false;
-  } else {
-    dot.className = 'dot off';
-    text.textContent = customText || 'Not connected';
-    if(el('btnSaveSheet')) el('btnSaveSheet').disabled = true;
-  }
-}
-
-function afterDataLoaded(){
-  el('appArea').style.display = 'block';
-  populateShortCodeFilter();
-  renderTable();
-}
-
 /* ============================================================
-   FILTERING / SORTING / RENDERING
+   MASTER TABLE LOGIC
    ============================================================ */
-function populateShortCodeFilter(){
-  const sel = el('fShortCode');
-  const current = sel.value;
-  const codes = Array.from(new Set(clients.map(c => c.shortCode).filter(Boolean))).sort();
-  sel.innerHTML = '<option value="">All</option>' + codes.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
-  sel.value = codes.includes(current) ? current : '';
-}
-
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-}
-
-function getFiltered(){
-  const q = el('fSearch').value.trim().toLowerCase();
-  const sc = el('fShortCode').value;
-  const dueFrom = el('fDueFrom').value;
-  const dueTo = el('fDueTo').value;
-  const openFrom = el('fOpenFrom').value;
-  const openTo = el('fOpenTo').value;
-  const amtMin = el('fAmountMin').value !== '' ? Number(el('fAmountMin').value) : null;
-  const amtMax = el('fAmountMax').value !== '' ? Number(el('fAmountMax').value) : null;
-
-  let list = clients.filter(c => {
-    if(q){
-      const hay = `${c.accountNo} ${c.holderName} ${c.shortCode}`.toLowerCase();
-      if(!hay.includes(q)) return false;
-    }
-    if(sc && c.shortCode !== sc) return false;
-    if(dueFrom && (!c.nextDueDate || c.nextDueDate < dueFrom)) return false;
-    if(dueTo && (!c.nextDueDate || c.nextDueDate > dueTo)) return false;
-    if(openFrom && (!c.openedOn || c.openedOn < openFrom)) return false;
-    if(openTo && (!c.openedOn || c.openedOn > openTo)) return false;
-    if(amtMin !== null && c.amount < amtMin) return false;
-    if(amtMax !== null && c.amount > amtMax) return false;
-    return true;
-  });
-
-  list.sort((a,b) => {
-    let av = a[sortKey], bv = b[sortKey];
-    if(typeof av === 'string') av = av.toLowerCase();
-    if(typeof bv === 'string') bv = bv.toLowerCase();
-    if(av < bv) return -1 * sortDir;
-    if(av > bv) return 1 * sortDir;
-    return 0;
-  });
-
-  return list;
-}
-
-function renderTable(){
-  const list = getFiltered();
+function renderMasterTable(){
   const tbody = el('tableBody');
-
-  if(list.length === 0){
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No client accounts match the current filters.</td></tr>`;
-  } else {
-    tbody.innerHTML = list.map(c => {
-      const dleft = daysUntil(c.nextDueDate);
-      let rowClass = '';
-      if(dleft !== null){
-        if(dleft < 0) rowClass = 'overdue';
-        else if(dleft <= 7) rowClass = 'due-soon';
-      }
-      return `
-      <tr class="${rowClass}" data-id="${c.id}">
-        <td class="nums" data-label="Account No.">${escapeHtml(c.accountNo)}</td>
-        <td class="nums num-cell" data-label="Amount">${fmtMoney(c.amount)}</td>
-        <td data-label="Account Holder Name">${escapeHtml(c.holderName)}</td>
-        <td data-label="Next Due Date">${fmtDate(c.nextDueDate)}</td>
-        <td class="nums num-cell" data-label="Total Deposit">${fmtMoney(c.totalDeposit)}</td>
-        <td data-label="Opened On">${fmtDate(c.openedOn)}</td>
-        <td data-label="Short Code">${c.shortCode ? `<span class="badge">${escapeHtml(c.shortCode)}</span>` : '—'}</td>
-        <td data-label="">
-          <div class="row-actions">
-            <button class="btn secondary btn-sm" data-action="edit" data-id="${c.id}">Edit</button>
-            <button class="btn danger btn-sm" data-action="delete" data-id="${c.id}">Delete</button>
-          </div>
-        </td>
-      </tr>`;
-    }).join('');
+  if(clients.length === 0){
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; font-style:italic;">No clients found. Add one above.</td></tr>`;
+    return;
   }
-
-  updateSortArrows();
-  updateStats(list);
-}
-
-function updateSortArrows(){
-  document.querySelectorAll('#clientsTable thead th[data-key]').forEach(th => {
-    const arrow = th.querySelector('.arrow');
-    if(th.dataset.key === sortKey){
-      arrow.textContent = sortDir === 1 ? '▲' : '▼';
-    } else {
-      arrow.textContent = '';
-    }
-  });
-  const msf = el('mobileSortField');
-  if(msf.value !== sortKey) msf.value = sortKey;
-  el('mobileSortDir').textContent = sortDir === 1 ? '▲ Asc' : '▼ Desc';
-}
-
-el('mobileSortField').addEventListener('change', () => {
-  sortKey = el('mobileSortField').value;
-  renderTable();
-});
-el('mobileSortDir').addEventListener('click', () => {
-  sortDir *= -1;
-  renderTable();
-});
-
-function updateStats(list){
-  el('statCount').textContent = list.length;
-  el('statAmount').textContent = fmtMoney(list.reduce((s,c) => s + (Number(c.amount)||0), 0));
-  el('statDeposit').textContent = fmtMoney(list.reduce((s,c) => s + (Number(c.totalDeposit)||0), 0));
-  el('statDueSoon').textContent = list.filter(c => {
-    const d = daysUntil(c.nextDueDate);
-    return d !== null && d >= 0 && d <= 7;
-  }).length;
-}
-
-document.querySelectorAll('#clientsTable thead th[data-key]').forEach(th => {
-  th.addEventListener('click', () => {
-    const key = th.dataset.key;
-    if(sortKey === key){ sortDir *= -1; } else { sortKey = key; sortDir = 1; }
-    renderTable();
-  });
-});
-
-['fSearch','fShortCode','fDueFrom','fDueTo','fOpenFrom','fOpenTo','fAmountMin','fAmountMax'].forEach(id => {
-  el(id).addEventListener('input', renderTable);
-  el(id).addEventListener('change', renderTable);
-});
-
-el('btnClearFilters').addEventListener('click', () => {
-  ['fSearch','fShortCode','fDueFrom','fDueTo','fOpenFrom','fOpenTo','fAmountMin','fAmountMax'].forEach(id => el(id).value = '');
-  renderTable();
-});
-
-el('btnDueSoon').addEventListener('click', () => {
-  const today = new Date(); today.setHours(0,0,0,0);
-  const in7 = new Date(today); in7.setDate(in7.getDate()+7);
-  el('fDueFrom').value = today.toISOString().slice(0,10);
-  el('fDueTo').value = in7.toISOString().slice(0,10);
-  renderTable();
-});
-
-el('btnOverdue').addEventListener('click', () => {
-  const today = new Date(); today.setHours(0,0,0,0);
-  el('fDueFrom').value = '';
-  el('fDueTo').value = new Date(today.getTime()-86400000).toISOString().slice(0,10);
-  renderTable();
-});
-
-/* ============================================================
-   ROW ACTIONS (EDIT / DELETE)
-   ============================================================ */
-el('tableBody').addEventListener('click', (e) => {
-  const btn = e.target.closest('button[data-action]');
-  if(!btn) return;
-  const id = btn.dataset.id;
-  const client = clients.find(c => c.id === id);
-  if(!client) return;
-  if(btn.dataset.action === 'edit') openModal(client);
-  if(btn.dataset.action === 'delete') deleteClient(client);
-});
-
-function deleteClient(client){
-  if(!confirm(`Delete account ${client.accountNo} (${client.holderName})? This cannot be undone.`)) return;
-  clients = clients.filter(c => c.id !== client.id);
-  dirty = true;
-  populateShortCodeFilter();
-  renderTable();
-  setStatus(el('saveStatusLine'), 'Client deleted locally — remember to save changes to the Sheet.', 'ok');
+  tbody.innerHTML = clients.map(c => `
+    <tr>
+      <td class="nums"><b>${escapeHtml(c.accountNo)}</b></td>
+      <td class="nums num-cell">${fmtMoney(c.amount)}</td>
+      <td>${escapeHtml(c.holderName)}</td>
+      <td>${fmtDate(c.nextDueDate)}</td>
+      <td class="nums num-cell" style="font-weight:600; color:var(--ok);">${fmtMoney(c.totalDeposit)}</td>
+      <td>${fmtDate(c.openedOn)}</td>
+      <td>${c.shortCode ? `<span class="badge">${escapeHtml(c.shortCode)}</span>` : '—'}</td>
+      <td>
+        <div class="btn-row" style="margin:0;">
+          <button class="btn brass btn-sm" onclick="openLedger('${c.accountNo}')">📖 Ledger</button>
+          <button class="btn secondary btn-sm" onclick="editClient('${c.id}')">Edit</button>
+          <button class="btn danger btn-sm" onclick="deleteClient('${c.id}')">Del</button>
+        </div>
+      </td>
+    </tr>`).join('');
 }
 
 /* ============================================================
-   ADD / EDIT MODAL
+   CLIENT PROFILE (MASTER) ADD/EDIT/DELETE
    ============================================================ */
-function openModal(client){
-  el('modalTitle').textContent = client ? `Edit account ${client.accountNo}` : 'Add client';
-  el('fEditingId').value = client ? client.id : '';
-  el('fAccountNo').value = client ? client.accountNo : '';
-  el('fShortCodeInput').value = client ? client.shortCode : '';
-  el('fHolderName').value = client ? client.holderName : '';
-  el('fAmount').value = client ? client.amount : '';
-  el('fTotalDeposit').value = client ? client.totalDeposit : 0;
-  el('fOpenedOn').value = client ? client.openedOn : new Date().toISOString().slice(0,10);
-  el('fNextDueDate').value = client ? client.nextDueDate : '';
-  el('overlay').classList.add('show');
-  el('fAccountNo').focus();
-}
+el('btnAddClient').addEventListener('click', () => {
+  el('clientForm').reset();
+  el('fEditingId').value = '';
+  el('fTotalDeposit').value = 0;
+  el('fOpenedOn').value = new Date().toISOString().slice(0,10);
+  el('modalTitle').textContent = 'Add New Client';
+  el('overlayClient').classList.add('show');
+});
 
-function closeModal(){ el('overlay').classList.remove('show'); }
-
-el('btnAddClient').addEventListener('click', () => openModal(null));
-el('fabAdd').addEventListener('click', () => openModal(null));
-el('btnCancelModal').addEventListener('click', closeModal);
-el('overlay').addEventListener('click', (e) => { if(e.target.id === 'overlay') closeModal(); });
+window.editClient = (id) => {
+  const c = clients.find(x => x.id === id);
+  if(!c) return;
+  el('fEditingId').value = c.id;
+  el('fAccountNo').value = c.accountNo;
+  el('fShortCodeInput').value = c.shortCode;
+  el('fHolderName').value = c.holderName;
+  el('fAmount').value = c.amount;
+  el('fTotalDeposit').value = c.totalDeposit;
+  el('fOpenedOn').value = c.openedOn;
+  el('fNextDueDate').value = c.nextDueDate;
+  el('modalTitle').textContent = `Edit Profile: ${c.accountNo}`;
+  el('overlayClient').classList.add('show');
+};
 
 el('clientForm').addEventListener('submit', (e) => {
   e.preventDefault();
-  const editingId = el('fEditingId').value;
-  const accountNo = el('fAccountNo').value.trim();
-  if(!accountNo){ return; }
-
-  const dupe = clients.find(c => c.accountNo === accountNo && c.id !== editingId);
-  if(dupe){
-    alert(`Account No. "${accountNo}" already exists. Account numbers must be unique.`);
-    return;
+  const id = el('fEditingId').value;
+  const accNo = el('fAccountNo').value.trim();
+  
+  if(clients.some(c => c.accountNo === accNo && c.id !== id)){
+    alert("Account Number already exists! Tabs must have unique account numbers."); return;
   }
 
   const data = {
-    accountNo,
+    accountNo: accNo,
     shortCode: el('fShortCodeInput').value.trim(),
     holderName: el('fHolderName').value.trim(),
-    amount: Number(el('fAmount').value) || 0,
-    totalDeposit: Number(el('fTotalDeposit').value) || 0,
+    amount: Number(el('fAmount').value)||0,
+    totalDeposit: Number(el('fTotalDeposit').value)||0,
     openedOn: el('fOpenedOn').value,
     nextDueDate: el('fNextDueDate').value,
   };
 
-  if(editingId){
-    const idx = clients.findIndex(c => c.id === editingId);
+  if(id){
+    const idx = clients.findIndex(x => x.id === id);
+    const oldAcc = clients[idx].accountNo;
     clients[idx] = {...clients[idx], ...data};
+    // Migrate transaction array if Account No. was renamed
+    if(oldAcc !== accNo) {
+      transactions[accNo] = transactions[oldAcc] || [];
+      delete transactions[oldAcc];
+    }
   } else {
     clients.push({id: uid(), ...data});
+    transactions[accNo] = []; // Initialize empty ledger for new client tab
   }
 
   dirty = true;
-  populateShortCodeFilter();
-  renderTable();
-  closeModal();
-  setStatus(el('saveStatusLine'), 'Changes saved locally — click "Save changes to Sheet" to commit them.', 'ok');
+  el('saveStatusLine').textContent = "Changes saved locally. Click 'Save Master & Ledgers' to push to Google Sheets.";
+  el('overlayClient').classList.remove('show');
+  renderMasterTable();
 });
 
+window.deleteClient = (id) => {
+  const c = clients.find(x => x.id === id);
+  if(!confirm(`Delete Master profile AND entire ledger tab for ${c.accountNo}?`)) return;
+  clients = clients.filter(x => x.id !== id);
+  delete transactions[c.accountNo];
+  dirty = true;
+  renderMasterTable();
+};
+
 /* ============================================================
-   SAVE TO GOOGLE SHEETS / DOWNLOAD / EXPORT
+   INDIVIDUAL LEDGER LOGIC (TRANSACTIONS)
+   ============================================================ */
+window.openLedger = (accNo) => {
+  const c = clients.find(x => x.accountNo === accNo);
+  el('ledgerTitle').textContent = `Ledger: ${c.holderName} (${c.accountNo})`;
+  el('activeLedgerAccount').value = accNo;
+  resetTxnForm();
+  renderLedgerTable(accNo);
+  el('overlayLedger').classList.add('show');
+};
+
+function renderLedgerTable(accNo) {
+  const c = clients.find(x => x.accountNo === accNo);
+  el('ledgerTotal').textContent = fmtMoney(c.totalDeposit);
+  el('ledgerDue').textContent = fmtDate(c.nextDueDate);
+  
+  const txns = transactions[accNo] || [];
+  const tbody = el('ledgerTableBody');
+  if(txns.length === 0){
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:15px;">No transactions recorded yet.</td></tr>`;
+    return;
+  }
+  
+  // Sort descending by date
+  const sorted = [...txns].sort((a,b) => (a.date < b.date ? 1 : -1));
+  tbody.innerHTML = sorted.map(t => `
+    <tr>
+      <td>${fmtDate(t.date)}</td>
+      <td class="nums"><b>${fmtMoney(t.amount)}</b></td>
+      <td>${escapeHtml(t.remarks)}</td>
+      <td style="text-align:right;">
+        <button class="btn secondary btn-sm" onclick="editTxn('${accNo}', '${t.txnId}')">Edit</button>
+        <button class="btn danger btn-sm" onclick="deleteTxn('${accNo}', '${t.txnId}')">Del</button>
+      </td>
+    </tr>`).join('');
+}
+
+function resetTxnForm() {
+  el('tEditingId').value = '';
+  el('tDate').value = new Date().toISOString().slice(0,10);
+  el('tAmount').value = '';
+  el('tRemarks').value = '';
+  el('tSubmitBtn').textContent = 'Add Record';
+  el('tCancelBtn').style.display = 'none';
+}
+
+window.editTxn = (accNo, txnId) => {
+  const txn = transactions[accNo].find(x => x.txnId === txnId);
+  el('tEditingId').value = txn.txnId;
+  el('tDate').value = txn.date;
+  el('tAmount').value = txn.amount;
+  el('tRemarks').value = txn.remarks;
+  el('tSubmitBtn').textContent = 'Update Record';
+  el('tCancelBtn').style.display = 'inline-flex';
+};
+
+window.deleteTxn = (accNo, txnId) => {
+  if(!confirm('Delete this transaction?')) return;
+  transactions[accNo] = transactions[accNo].filter(x => x.txnId !== txnId);
+  recalculateClientTotals(accNo);
+};
+
+el('txnForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const accNo = el('activeLedgerAccount').value;
+  const txnId = el('tEditingId').value;
+  
+  const data = {
+    date: el('tDate').value,
+    amount: Number(el('tAmount').value) || 0,
+    remarks: el('tRemarks').value.trim()
+  };
+
+  if(txnId) {
+    const idx = transactions[accNo].findIndex(x => x.txnId === txnId);
+    transactions[accNo][idx] = {...transactions[accNo][idx], ...data};
+  } else {
+    if(!transactions[accNo]) transactions[accNo] = [];
+    transactions[accNo].push({ txnId: uid(), ...data });
+  }
+
+  recalculateClientTotals(accNo);
+  resetTxnForm();
+});
+
+// CORE LOGIC: Auto-calculate Master Totals and Due Dates based on Ledger
+function recalculateClientTotals(accNo) {
+  const client = clients.find(c => c.accountNo === accNo);
+  if(!client) return;
+  
+  const txns = transactions[accNo] || [];
+  // 1. Sum up all ledger payments
+  client.totalDeposit = txns.reduce((sum, t) => sum + (Number(t.amount)||0), 0);
+  
+  // 2. Auto-advance due date (Total Deposit divided by Installment Amount = months paid)
+  if (client.openedOn && client.amount > 0) {
+    const monthsPaid = Math.floor(client.totalDeposit / client.amount);
+    const d = new Date(client.openedOn);
+    d.setMonth(d.getMonth() + monthsPaid);
+    client.nextDueDate = d.toISOString().slice(0,10);
+  }
+
+  dirty = true;
+  el('saveStatusLine').textContent = "Ledger updated locally. Click 'Save' to push tabs to Sheets.";
+  renderLedgerTable(accNo); // Update modal UI
+  renderMasterTable();      // Update background master UI
+}
+
+/* ============================================================
+   SAVE TO GOOGLE SHEETS / EXPORT
    ============================================================ */
 el('btnSaveSheet').addEventListener('click', async () => {
   const btn = el('btnSaveSheet');
   btn.disabled = true;
-  setStatus(el('saveStatusLine'), 'Saving to Google Sheets…');
+  el('saveStatusLine').textContent = 'Pushing Master and all Ledgers to Google Sheets...';
   
+  // Prepare payload mapping
+  const masterPayload = clients.map(c => ({
+    'Account No.': c.accountNo, 'Amount': c.amount, 'Account Holder Name': c.holderName,
+    'Next Due Date': c.nextDueDate, 'Total Deposit': c.totalDeposit, 
+    'Opened On': c.openedOn, 'Short Code': c.shortCode
+  }));
+
+  const txnPayload = {};
+  Object.keys(transactions).forEach(acc => {
+    txnPayload[acc] = transactions[acc].map(t => ({
+      'Txn ID': t.txnId, 'Date': t.date, 'Amount': t.amount, 'Remarks': t.remarks
+    }));
+  });
+
   try {
-    const rows = clientsToSheetRows(clients);
     const res = await fetch(sheetUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ rows })
+      body: JSON.stringify({ clients: masterPayload, transactions: txnPayload })
     });
-    
     if (!res.ok) throw new Error("Failed to save data.");
-    
     dirty = false;
-    setStatus(el('saveStatusLine'), `Saved — ${clients.length} account(s) synced to Google Sheets.`, 'ok');
+    el('saveStatusLine').textContent = `Success! Saved Master and ${Object.keys(transactions).length} Ledger tab(s).`;
   } catch(err) {
-    setStatus(el('saveStatusLine'), 'Error: ' + err.message, 'err');
+    el('saveStatusLine').textContent = 'Error: ' + err.message;
   } finally {
     btn.disabled = false;
   }
 });
 
+// Download multi-sheet Excel file
 el('btnDownloadXlsx').addEventListener('click', () => {
-  const wb = buildWorkbook(clients);
-  XLSX.writeFile(wb, 'rd-clients.xlsx');
+  const wb = XLSX.utils.book_new();
+  // Master Sheet
+  const masterRows = clients.map(c => ({
+    'Account No.': c.accountNo, 'Amount': c.amount, 'Holder Name': c.holderName,
+    'Next Due': c.nextDueDate, 'Total Deposit': c.totalDeposit, 'Opened': c.openedOn
+  }));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(masterRows), 'Master');
+  
+  // Client Tabs
+  clients.forEach(c => {
+    const tRows = (transactions[c.accountNo]||[]).map(t => ({'Date': t.date, 'Amount': t.amount, 'Remarks': t.remarks}));
+    if(tRows.length > 0) {
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(tRows), String(c.accountNo).substring(0,31));
+    }
+  });
+  XLSX.writeFile(wb, `RD-Ledger-${new Date().toISOString().slice(0,10)}.xlsx`);
 });
 
-el('btnExportCsv').addEventListener('click', () => {
-  const list = getFiltered();
-  const ws = XLSX.utils.json_to_sheet(clientsToSheetRows(list), {header: COLUMN_HEADERS});
-  const csv = XLSX.utils.sheet_to_csv(ws);
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `rd-statement-${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-});
-
-el('btnPrint').addEventListener('click', () => window.print());
-
-window.addEventListener('beforeunload', (e) => {
-  if(dirty){ e.preventDefault(); e.returnValue = ''; }
-});
+window.addEventListener('beforeunload', (e) => { if(dirty){ e.preventDefault(); e.returnValue = ''; } });
 </script>
 </body>
 </html>
