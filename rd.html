@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#16302A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>RD Register — Recurring Deposit Client Ledger</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -225,6 +229,124 @@
   a{color:var(--brass);}
 
   footer{max-width:1180px;margin:0 auto;padding:0 28px 40px;color:var(--ink-soft);font-size:11.5px;}
+
+  /* ---------- collapsible panel summary ---------- */
+  summary.panel-summary{
+    list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  }
+  summary.panel-summary::-webkit-details-marker{display:none;}
+  summary.panel-summary h2{margin:0;}
+  .chev{font-size:12px;color:var(--brass);transition:transform 0.15s ease;flex-shrink:0;}
+  details[open] > summary .chev{transform:rotate(90deg);}
+  .details-body{margin-top:14px;}
+  .conn-mini{font-size:12px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;}
+
+  /* ---------- FAB (mobile add button) ---------- */
+  .fab{
+    display:none;
+    position:fixed;
+    right:18px;
+    bottom:calc(18px + env(safe-area-inset-bottom));
+    width:56px;height:56px;
+    border-radius:50%;
+    background:var(--brass);
+    color:#fff;
+    border:none;
+    font-size:28px;
+    line-height:1;
+    box-shadow:0 4px 14px rgba(22,48,42,0.35);
+    align-items:center;justify-content:center;
+    z-index:40;
+    cursor:pointer;
+  }
+  .fab:active{background:#845A1B;}
+
+  /* ---------- mobile sort bar ---------- */
+  .mobile-sort{display:none;gap:8px;margin-top:10px;}
+  .mobile-sort select{flex:1;}
+  .mobile-sort button{white-space:nowrap;}
+
+  /* ================================================================
+     MOBILE BREAKPOINT — phones & small tablets
+     ================================================================ */
+  @media (max-width: 700px){
+    .band{padding:16px 16px 14px;}
+    .brand h1{font-size:21px;}
+    .brand p{display:none;}
+    .wrap{padding:14px 12px 90px;}
+    .panel{padding:13px 13px;margin-bottom:12px;}
+    .panel h2{font-size:13.5px;}
+
+    /* bigger, thumb-friendly controls, and 16px inputs to stop iOS auto-zoom */
+    input[type=text], input[type=number], input[type=date], input[type=password], select{
+      padding:11px 10px;font-size:16px;min-height:44px;
+    }
+    label{font-size:10.5px;}
+    .btn{min-height:44px;padding:10px 16px;font-size:14px;}
+    .btn-sm{min-height:38px;padding:7px 12px;font-size:12.5px;}
+    .btn-row{gap:8px;}
+
+    .toolbar .field, .search-field{min-width:0;width:100%;max-width:none;}
+    .toolbar .left{gap:12px;}
+    .grid.cols-4, .grid.cols-3, .grid.cols-2{grid-template-columns:1fr;}
+
+    .stat-cards{grid-template-columns:1fr 1fr;gap:8px;}
+    .stat-card{padding:10px 11px;}
+    .stat-card .value{font-size:18px;}
+
+    .mobile-sort{display:flex;}
+    .fab{display:flex;}
+    #btnAddClient{display:none;} /* replaced by the FAB on mobile */
+
+    /* card-style table */
+    .table-wrap{border:none;background:transparent;overflow-x:visible;}
+    table{min-width:0;width:100%;}
+    thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
+    tbody, tr, td{display:block;width:100%;}
+    tbody tr{
+      background:#FBFAF4;
+      border:1px solid var(--rule);
+      border-radius:6px;
+      margin-bottom:10px;
+      padding:4px 12px;
+    }
+    tbody tr.due-soon{background:#FBEFE1;}
+    tbody tr.overdue{background:#F6E0DA;}
+    tbody td{
+      display:flex;justify-content:space-between;align-items:center;gap:12px;
+      border-bottom:1px solid var(--rule);
+      padding:9px 0;
+      white-space:normal;
+      text-align:right;
+    }
+    tbody td:last-child{border-bottom:none;}
+    tbody td::before{
+      content:attr(data-label);
+      font-size:10.5px;
+      text-transform:uppercase;
+      letter-spacing:0.04em;
+      color:var(--ink-soft);
+      text-align:left;
+      flex-shrink:0;
+    }
+    tbody td.num-cell{text-align:right;}
+    tbody td[data-label="Account Holder Name"]{font-weight:600;}
+    .row-actions{width:100%;justify-content:flex-end;}
+    .empty-row td::before{content:none;}
+    .empty-row td{display:block;text-align:center;}
+
+    /* bottom-sheet modal */
+    .overlay{align-items:flex-end;padding:0;}
+    .modal{
+      max-width:none;width:100%;
+      border-radius:14px 14px 0 0;
+      padding:18px 16px calc(18px + env(safe-area-inset-bottom));
+      max-height:88vh;
+      border-bottom:none;
+    }
+    .modal .btn-row{flex-direction:column-reverse;}
+    .modal .btn-row .btn{width:100%;justify-content:center;}
+  }
 </style>
 </head>
 <body>
@@ -246,38 +368,25 @@
 
   <!-- CONNECTION PANEL -->
   <div class="panel" id="connectPanel">
-    <h2><span class="idx">01</span> Connect your GitHub repository</h2>
-    <div class="grid cols-4">
+   <details class="panel-details" id="connectDetails" open>
+    <summary class="panel-summary">
+      <h2><span class="idx">01</span> Connect your Google Sheet</h2>
+      <span class="chev">▶</span>
+    </summary>
+    <div class="details-body">
+    <div class="grid cols-2">
       <div>
-        <label for="cfgOwner">Owner / Organization</label>
-        <input type="text" id="cfgOwner" placeholder="e.g. yourusername">
-      </div>
-      <div>
-        <label for="cfgRepo">Repository</label>
-        <input type="text" id="cfgRepo" placeholder="e.g. rd-clients">
-      </div>
-      <div>
-        <label for="cfgBranch">Branch</label>
-        <input type="text" id="cfgBranch" placeholder="main" value="main">
-      </div>
-      <div>
-        <label for="cfgPath">File path</label>
-        <input type="text" id="cfgPath" placeholder="data/clients.xlsx" value="data/clients.xlsx">
-      </div>
-    </div>
-    <div class="grid cols-2" style="margin-top:10px;">
-      <div>
-        <label for="cfgToken">Personal Access Token</label>
-        <input type="password" id="cfgToken" placeholder="ghp_... (repo contents read/write)">
+        <label for="cfgUrl">Google Apps Script Web App URL</label>
+        <input type="text" id="cfgUrl" placeholder="https://script.google.com/macros/s/XXXXXXXX/exec">
       </div>
       <div style="display:flex;align-items:flex-end;">
         <details class="help">
-          <summary>Where do I get a token?</summary>
+          <summary>Where do I get this URL?</summary>
           <div>
-            Go to GitHub → Settings → Developer settings → Personal access tokens →
-            Fine‑grained tokens → Generate new token. Scope it to this one repository only,
-            and grant <b>Contents: Read and write</b>. Paste the token here — it is kept only in this
-            browser tab's memory and is never saved anywhere by this page.
+            This isn't a token — it's a one-time link you create by attaching a small script to
+            your own Google Sheet and deploying it as a "Web app". Full step-by-step instructions
+            are in the README that came with this app. Once deployed, that URL is the only thing
+            you paste here — no separate password, key, or token to manage or renew.
           </div>
         </details>
       </div>
@@ -291,13 +400,20 @@
       </label>
     </div>
     <div class="status-line" id="connStatusLine"></div>
+    </div>
+   </details>
   </div>
 
   <!-- MAIN APP (hidden until data loaded) -->
   <div id="appArea" style="display:none;">
 
     <div class="panel">
-      <h2><span class="idx">02</span> Search &amp; filter</h2>
+     <details class="panel-details" id="filterDetails" open>
+      <summary class="panel-summary">
+        <h2><span class="idx">02</span> Search &amp; filter</h2>
+        <span class="chev">▶</span>
+      </summary>
+      <div class="details-body">
       <div class="toolbar">
         <div class="left">
           <div class="field search-field">
@@ -339,6 +455,8 @@
         <button class="btn secondary btn-sm" id="btnDueSoon">Due in next 7 days</button>
         <button class="btn secondary btn-sm" id="btnOverdue">Overdue only</button>
       </div>
+      </div>
+     </details>
     </div>
 
     <div class="panel">
@@ -365,6 +483,19 @@
         </div>
       </div>
       <div class="status-line" id="saveStatusLine" style="margin-top:8px;"></div>
+
+      <div class="mobile-sort">
+        <select id="mobileSortField">
+          <option value="accountNo">Sort: Account No.</option>
+          <option value="holderName">Sort: Holder Name</option>
+          <option value="amount">Sort: Amount</option>
+          <option value="totalDeposit">Sort: Total Deposit</option>
+          <option value="nextDueDate">Sort: Next Due Date</option>
+          <option value="openedOn">Sort: Opened On</option>
+          <option value="shortCode">Sort: Short Code</option>
+        </select>
+        <button type="button" class="btn secondary btn-sm" id="mobileSortDir">▲ Asc</button>
+      </div>
 
       <div class="table-wrap" style="margin-top:14px;">
         <table id="clientsTable">
@@ -393,6 +524,8 @@
   RD Register keeps no server of its own — your Excel file lives in your GitHub repository and this page
   reads and writes it directly through the GitHub API. Nothing is stored on any third‑party server.
 </footer>
+
+<button class="fab" id="fabAdd" aria-label="Add client" title="Add client">+</button>
 
 <!-- ADD/EDIT MODAL -->
 <div class="overlay" id="overlay">
@@ -683,6 +816,9 @@ function afterDataLoaded(){
   el('appArea').style.display = 'block';
   populateShortCodeFilter();
   renderTable();
+  // free up screen space on mobile once the ledger is loaded
+  const cd = el('connectDetails');
+  if(cd) cd.open = false;
 }
 
 /* ============================================================
@@ -753,14 +889,14 @@ function renderTable(){
       }
       return `
       <tr class="${rowClass}" data-id="${c.id}">
-        <td class="nums">${escapeHtml(c.accountNo)}</td>
-        <td class="nums num-cell">${fmtMoney(c.amount)}</td>
-        <td>${escapeHtml(c.holderName)}</td>
-        <td>${fmtDate(c.nextDueDate)}</td>
-        <td class="nums num-cell">${fmtMoney(c.totalDeposit)}</td>
-        <td>${fmtDate(c.openedOn)}</td>
-        <td>${c.shortCode ? `<span class="badge">${escapeHtml(c.shortCode)}</span>` : '—'}</td>
-        <td>
+        <td class="nums" data-label="Account No.">${escapeHtml(c.accountNo)}</td>
+        <td class="nums num-cell" data-label="Amount">${fmtMoney(c.amount)}</td>
+        <td data-label="Account Holder Name">${escapeHtml(c.holderName)}</td>
+        <td data-label="Next Due Date">${fmtDate(c.nextDueDate)}</td>
+        <td class="nums num-cell" data-label="Total Deposit">${fmtMoney(c.totalDeposit)}</td>
+        <td data-label="Opened On">${fmtDate(c.openedOn)}</td>
+        <td data-label="Short Code">${c.shortCode ? `<span class="badge">${escapeHtml(c.shortCode)}</span>` : '—'}</td>
+        <td data-label="">
           <div class="row-actions">
             <button class="btn secondary btn-sm" data-action="edit" data-id="${c.id}">Edit</button>
             <button class="btn danger btn-sm" data-action="delete" data-id="${c.id}">Delete</button>
@@ -783,7 +919,19 @@ function updateSortArrows(){
       arrow.textContent = '';
     }
   });
+  const msf = el('mobileSortField');
+  if(msf.value !== sortKey) msf.value = sortKey;
+  el('mobileSortDir').textContent = sortDir === 1 ? '▲ Asc' : '▼ Desc';
 }
+
+el('mobileSortField').addEventListener('change', () => {
+  sortKey = el('mobileSortField').value;
+  renderTable();
+});
+el('mobileSortDir').addEventListener('click', () => {
+  sortDir *= -1;
+  renderTable();
+});
 
 function updateStats(list){
   el('statCount').textContent = list.length;
@@ -870,6 +1018,7 @@ function openModal(client){
 function closeModal(){ el('overlay').classList.remove('show'); }
 
 el('btnAddClient').addEventListener('click', () => openModal(null));
+el('fabAdd').addEventListener('click', () => openModal(null));
 el('btnCancelModal').addEventListener('click', closeModal);
 el('overlay').addEventListener('click', (e) => { if(e.target.id === 'overlay') closeModal(); });
 
