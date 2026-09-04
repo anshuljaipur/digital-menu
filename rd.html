@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RD Register — Recurring Deposit Client Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --paper:#F1EEE2;
+    --paper-2:#E8E4D3;
+    --ink:#16302A;
+    --ink-soft:#3E5850;
+    --rule:#C9C2A6;
+    --rule-strong:#16302A;
+    --brass:#9C6B22;
+    --brass-2:#B98A3B;
+    --brass-soft:#EADFC6;
+    --danger:#8C3A2B;
+    --danger-soft:#F3DCD5;
+    --ok:#2F6B4F;
+    --shadow: 0 1px 0 rgba(22,48,42,0.12);
+    --radius: 3px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', system-ui, sans-serif;
+    font-size:14px;
+    line-height:1.45;
+    min-height:100vh;
+  }
+  ::selection{background:var(--brass-soft);}
+  .nums{font-family:'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums;}
+
+  /* ---------- header ---------- */
+  .band{
+    background:var(--ink);
+    color:var(--paper);
+    padding:22px 28px 18px;
+    border-bottom:4px double var(--brass-2);
+  }
+  .band-inner{max-width:1180px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+  .brand h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:26px;
+    letter-spacing:0.2px;
+    margin:0 0 3px;
+  }
+  .brand p{margin:0;color:#C9CFC9;font-size:12.5px;}
+  .conn-status{
+    font-size:12px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:#C9CFC9;
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:#7A8C86;display:inline-block;}
+  .dot.on{background:#7FC79A;}
+  .dot.off{background:#D08B7B;}
+
+  /* ---------- layout ---------- */
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 28px 60px;}
+
+  .panel{
+    background:var(--paper-2);
+    border:1px solid var(--rule);
+    border-radius:var(--radius);
+    padding:16px 18px;
+    margin-bottom:18px;
+  }
+  .panel h2{
+    font-family:'Fraunces', serif;
+    font-size:15px;
+    font-weight:600;
+    margin:0 0 12px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .panel h2 .idx{color:var(--brass);font-family:'IBM Plex Mono',monospace;font-size:12px;}
+
+  .grid{display:grid;gap:10px 14px;}
+  .grid.cols-4{grid-template-columns:repeat(4,1fr);}
+  .grid.cols-3{grid-template-columns:repeat(3,1fr);}
+  .grid.cols-2{grid-template-columns:repeat(2,1fr);}
+  @media (max-width:860px){
+    .grid.cols-4,.grid.cols-3,.grid.cols-2{grid-template-columns:1fr 1fr;}
+  }
+  @media (max-width:560px){
+    .grid.cols-4,.grid.cols-3,.grid.cols-2{grid-template-columns:1fr;}
+  }
+
+  label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--ink-soft);margin-bottom:4px;}
+  input[type=text], input[type=number], input[type=date], input[type=password], select{
+    width:100%;
+    padding:8px 9px;
+    border:1px solid var(--rule);
+    background:#FBFAF4;
+    border-radius:2px;
+    color:var(--ink);
+    font-family:inherit;
+    font-size:13.5px;
+  }
+  input:focus, select:focus{outline:2px solid var(--brass-2); outline-offset:0; border-color:var(--brass-2);}
+
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:8px 14px;
+    border-radius:2px;
+    border:1px solid var(--ink);
+    background:var(--ink);
+    color:var(--paper);
+    font-size:13px;
+    font-weight:500;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .btn:hover{background:#0F241F;}
+  .btn.secondary{background:transparent;color:var(--ink);border-color:var(--rule-strong);}
+  .btn.secondary:hover{background:#e4dfc9;}
+  .btn.brass{background:var(--brass);border-color:var(--brass);color:#fff;}
+  .btn.brass:hover{background:#845A1B;}
+  .btn.danger{background:transparent;color:var(--danger);border-color:var(--danger);}
+  .btn.danger:hover{background:var(--danger-soft);}
+  .btn:disabled{opacity:0.45;cursor:not-allowed;}
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .btn-sm{padding:4px 9px;font-size:12px;border-radius:2px;}
+
+  .status-line{font-size:12.5px;margin-top:10px;color:var(--ink-soft);}
+  .status-line.err{color:var(--danger);}
+  .status-line.ok{color:var(--ok);}
+
+  /* ---------- toolbar ---------- */
+  .toolbar{
+    display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;
+    justify-content:space-between;
+  }
+  .toolbar .left{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;flex:1;}
+  .toolbar .field{min-width:150px;}
+  .search-field{min-width:220px;flex:1;max-width:320px;}
+  .toolbar .right{display:flex;gap:8px;align-items:flex-end;}
+
+  /* ---------- table ---------- */
+  .table-wrap{
+    background:#FBFAF4;
+    border:1px solid var(--rule);
+    border-radius:var(--radius);
+    overflow-x:auto;
+  }
+  table{width:100%;border-collapse:collapse;min-width:920px;}
+  thead th{
+    text-align:left;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--ink-soft);
+    padding:10px 12px;
+    border-bottom:2px solid var(--rule-strong);
+    background:var(--paper-2);
+    white-space:nowrap;
+    cursor:pointer;
+    user-select:none;
+  }
+  thead th:hover{color:var(--ink);}
+  thead th .arrow{opacity:0.5;font-size:10px;margin-left:3px;}
+  tbody td{
+    padding:9px 12px;
+    border-bottom:1px solid var(--rule);
+    vertical-align:middle;
+    white-space:nowrap;
+  }
+  tbody tr:hover{background:#F3EEDD;}
+  tbody tr.due-soon td{background:#FBEFE1;}
+  tbody tr.overdue td{background:#F6E0DA;}
+  .num-cell{text-align:right;}
+  .badge{
+    display:inline-block;
+    padding:2px 8px;
+    border:1px solid var(--brass);
+    color:var(--brass);
+    border-radius:20px;
+    font-size:11.5px;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .row-actions{display:flex;gap:6px;}
+  .empty-row td{text-align:center;padding:34px;color:var(--ink-soft);font-style:italic;}
+
+  /* ---------- statement summary ---------- */
+  .stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+  @media (max-width:760px){.stat-cards{grid-template-columns:1fr 1fr;}}
+  .stat-card{
+    background:#FBFAF4;border:1px solid var(--rule);border-radius:var(--radius);
+    padding:12px 14px;
+  }
+  .stat-card .label{font-size:11px;text-transform:uppercase;color:var(--ink-soft);letter-spacing:0.05em;}
+  .stat-card .value{font-family:'Fraunces',serif;font-size:22px;font-weight:600;margin-top:4px;}
+
+  /* ---------- modal ---------- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(22,48,42,0.55);
+    display:none;align-items:center;justify-content:center;padding:20px;z-index:50;
+  }
+  .overlay.show{display:flex;}
+  .modal{
+    background:var(--paper);
+    border:1px solid var(--rule-strong);
+    border-radius:var(--radius);
+    max-width:560px;width:100%;
+    padding:22px 24px;
+    max-height:90vh;overflow-y:auto;
+  }
+  .modal h3{font-family:'Fraunces',serif;font-size:18px;margin:0 0 16px;}
+  .modal .btn-row{justify-content:flex-end;}
+
+  details.help{margin-top:4px;}
+  details.help summary{cursor:pointer;font-size:12px;color:var(--brass);}
+  details.help div{font-size:12.5px;color:var(--ink-soft);margin-top:8px;line-height:1.6;}
+  code{background:var(--brass-soft);padding:1px 5px;border-radius:2px;font-size:12px;}
+  a{color:var(--brass);}
+
+  footer{max-width:1180px;margin:0 auto;padding:0 28px 40px;color:var(--ink-soft);font-size:11.5px;}
+</style>
+</head>
+<body>
+
+<div class="band">
+  <div class="band-inner">
+    <div class="brand">
+      <h1>RD Register</h1>
+      <p>Recurring deposit client ledger — stored as an Excel file in your GitHub repository</p>
+    </div>
+    <div class="conn-status" id="connStatus">
+      <span class="dot off" id="connDot"></span>
+      <span id="connText">Not connected</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- CONNECTION PANEL -->
+  <div class="panel" id="connectPanel">
+    <h2><span class="idx">01</span> Connect your GitHub repository</h2>
+    <div class="grid cols-4">
+      <div>
+        <label for="cfgOwner">Owner / Organization</label>
+        <input type="text" id="cfgOwner" placeholder="e.g. yourusername">
+      </div>
+      <div>
+        <label for="cfgRepo">Repository</label>
+        <input type="text" id="cfgRepo" placeholder="e.g. rd-clients">
+      </div>
+      <div>
+        <label for="cfgBranch">Branch</label>
+        <input type="text" id="cfgBranch" placeholder="main" value="main">
+      </div>
+      <div>
+        <label for="cfgPath">File path</label>
+        <input type="text" id="cfgPath" placeholder="data/clients.xlsx" value="data/clients.xlsx">
+      </div>
+    </div>
+    <div class="grid cols-2" style="margin-top:10px;">
+      <div>
+        <label for="cfgToken">Personal Access Token</label>
+        <input type="password" id="cfgToken" placeholder="ghp_... (repo contents read/write)">
+      </div>
+      <div style="display:flex;align-items:flex-end;">
+        <details class="help">
+          <summary>Where do I get a token?</summary>
+          <div>
+            Go to GitHub → Settings → Developer settings → Personal access tokens →
+            Fine‑grained tokens → Generate new token. Scope it to this one repository only,
+            and grant <b>Contents: Read and write</b>. Paste the token here — it is kept only in this
+            browser tab's memory and is never saved anywhere by this page.
+          </div>
+        </details>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn brass" id="btnConnect">Connect &amp; load ledger</button>
+      <button class="btn secondary" id="btnDisconnect" style="display:none;">Disconnect</button>
+      <label class="btn secondary btn-sm" style="cursor:pointer;">
+        Load from local .xlsx instead
+        <input type="file" id="localFileInput" accept=".xlsx,.xls" style="display:none;">
+      </label>
+    </div>
+    <div class="status-line" id="connStatusLine"></div>
+  </div>
+
+  <!-- MAIN APP (hidden until data loaded) -->
+  <div id="appArea" style="display:none;">
+
+    <div class="panel">
+      <h2><span class="idx">02</span> Search &amp; filter</h2>
+      <div class="toolbar">
+        <div class="left">
+          <div class="field search-field">
+            <label for="fSearch">Search</label>
+            <input type="text" id="fSearch" placeholder="Account no., name or short code">
+          </div>
+          <div class="field">
+            <label for="fShortCode">Short code</label>
+            <select id="fShortCode"><option value="">All</option></select>
+          </div>
+          <div class="field">
+            <label for="fDueFrom">Next due from</label>
+            <input type="date" id="fDueFrom">
+          </div>
+          <div class="field">
+            <label for="fDueTo">Next due to</label>
+            <input type="date" id="fDueTo">
+          </div>
+          <div class="field">
+            <label for="fOpenFrom">Opened from</label>
+            <input type="date" id="fOpenFrom">
+          </div>
+          <div class="field">
+            <label for="fOpenTo">Opened to</label>
+            <input type="date" id="fOpenTo">
+          </div>
+          <div class="field">
+            <label for="fAmountMin">Amount min</label>
+            <input type="number" id="fAmountMin" placeholder="0">
+          </div>
+          <div class="field">
+            <label for="fAmountMax">Amount max</label>
+            <input type="number" id="fAmountMax" placeholder="">
+          </div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn secondary btn-sm" id="btnClearFilters">Clear filters</button>
+        <button class="btn secondary btn-sm" id="btnDueSoon">Due in next 7 days</button>
+        <button class="btn secondary btn-sm" id="btnOverdue">Overdue only</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2><span class="idx">03</span> Statement summary <span style="font-weight:400;font-family:'IBM Plex Sans';font-size:12px;color:var(--ink-soft);">— reflects active filters</span></h2>
+      <div class="stat-cards">
+        <div class="stat-card"><div class="label">Clients shown</div><div class="value nums" id="statCount">0</div></div>
+        <div class="stat-card"><div class="label">Sum of installment amount</div><div class="value nums" id="statAmount">₹0</div></div>
+        <div class="stat-card"><div class="label">Sum of total deposit</div><div class="value nums" id="statDeposit">₹0</div></div>
+        <div class="stat-card"><div class="label">Due within 7 days</div><div class="value nums" id="statDueSoon">0</div></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn secondary btn-sm" id="btnExportCsv">Export statement as CSV</button>
+        <button class="btn secondary btn-sm" id="btnPrint">Print statement</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <h2 style="margin:0;"><span class="idx">04</span> Client accounts</h2>
+        <div class="btn-row" style="margin:0;">
+          <button class="btn brass" id="btnAddClient">+ Add client</button>
+          <button class="btn" id="btnSaveGithub" disabled>Save changes to GitHub</button>
+          <button class="btn secondary" id="btnDownloadXlsx">Download .xlsx</button>
+        </div>
+      </div>
+      <div class="status-line" id="saveStatusLine" style="margin-top:8px;"></div>
+
+      <div class="table-wrap" style="margin-top:14px;">
+        <table id="clientsTable">
+          <thead>
+            <tr>
+              <th data-key="accountNo">Account No.<span class="arrow"></span></th>
+              <th data-key="amount">Amount<span class="arrow"></span></th>
+              <th data-key="holderName">Account Holder Name<span class="arrow"></span></th>
+              <th data-key="nextDueDate">Next Due Date<span class="arrow"></span></th>
+              <th data-key="totalDeposit">Total Deposit<span class="arrow"></span></th>
+              <th data-key="openedOn">Opened On<span class="arrow"></span></th>
+              <th data-key="shortCode">Short Code<span class="arrow"></span></th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  RD Register keeps no server of its own — your Excel file lives in your GitHub repository and this page
+  reads and writes it directly through the GitHub API. Nothing is stored on any third‑party server.
+</footer>
+
+<!-- ADD/EDIT MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3 id="modalTitle">Add client</h3>
+    <form id="clientForm">
+      <input type="hidden" id="fEditingId">
+      <div class="grid cols-2">
+        <div>
+          <label for="fAccountNo">Account No. *</label>
+          <input type="text" id="fAccountNo" required>
+        </div>
+        <div>
+          <label for="fShortCodeInput">Short Code</label>
+          <input type="text" id="fShortCodeInput" placeholder="e.g. RJ-01">
+        </div>
+        <div>
+          <label for="fHolderName">Account Holder Name *</label>
+          <input type="text" id="fHolderName" required>
+        </div>
+        <div>
+          <label for="fAmount">Amount (installment) *</label>
+          <input type="number" step="0.01" id="fAmount" required>
+        </div>
+        <div>
+          <label for="fTotalDeposit">Total Deposit</label>
+          <input type="number" step="0.01" id="fTotalDeposit" value="0">
+        </div>
+        <div>
+          <label for="fOpenedOn">Opened On</label>
+          <input type="date" id="fOpenedOn">
+        </div>
+        <div>
+          <label for="fNextDueDate">Next Due Date</label>
+          <input type="date" id="fNextDueDate">
+        </div>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn secondary" id="btnCancelModal">Cancel</button>
+        <button type="submit" class="btn brass">Save client</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   STATE
+   ============================================================ */
+let clients = [];          // array of client row objects (in-memory only)
+let github = null;         // {owner, repo, branch, path, token, sha}
+let sortKey = 'accountNo';
+let sortDir = 1;
+let dirty = false;
+
+const COLUMN_HEADERS = ['Account No.','Amount','Account Holder Name','Next Due Date','Total Deposit','Opened On','Short Code'];
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function uid(){ return 'c_' + Math.random().toString(36).slice(2, 10); }
+
+function toISODate(v){
+  if(!v) return '';
+  if(v instanceof Date && !isNaN(v)) return v.toISOString().slice(0,10);
+  if(typeof v === 'number'){ // excel serial date
+    const d = XLSX.SSF.parse_date_code(v);
+    if(d) return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;
+  }
+  const s = String(v).trim();
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m) return `${m[1]}-${m[2]}-${m[3]}`;
+  const d2 = new Date(s);
+  if(!isNaN(d2)) return d2.toISOString().slice(0,10);
+  return s;
+}
+
+function fmtDate(iso){
+  if(!iso) return '—';
+  const d = new Date(iso + 'T00:00:00');
+  if(isNaN(d)) return iso;
+  return d.toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
+}
+
+function fmtMoney(n){
+  n = Number(n) || 0;
+  return '₹' + n.toLocaleString('en-IN', {maximumFractionDigits:2});
+}
+
+function daysUntil(iso){
+  if(!iso) return null;
+  const target = new Date(iso + 'T00:00:00');
+  if(isNaN(target)) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  return Math.round((target - today) / 86400000);
+}
+
+function setStatus(el, msg, cls){
+  el.textContent = msg;
+  el.className = 'status-line' + (cls ? ' ' + cls : '');
+}
+
+/* ============================================================
+   EXCEL <-> CLIENT OBJECT MAPPING
+   ============================================================ */
+function sheetRowsToClients(rows){
+  return rows.map(r => ({
+    id: uid(),
+    accountNo: String(r['Account No.'] ?? r['Account No'] ?? '').trim(),
+    amount: Number(r['Amount']) || 0,
+    holderName: String(r['Account Holder Name'] ?? '').trim(),
+    nextDueDate: toISODate(r['Next Due Date']),
+    totalDeposit: Number(r['Total Deposit']) || 0,
+    openedOn: toISODate(r['Opened On']),
+    shortCode: String(r['Short Code'] ?? '').trim(),
+  })).filter(c => c.accountNo !== '');
+}
+
+function clientsToSheetRows(list){
+  return list.map(c => ({
+    'Account No.': c.accountNo,
+    'Amount': Number(c.amount) || 0,
+    'Account Holder Name': c.holderName,
+    'Next Due Date': c.nextDueDate,
+    'Total Deposit': Number(c.totalDeposit) || 0,
+    'Opened On': c.openedOn,
+    'Short Code': c.shortCode,
+  }));
+}
+
+function buildWorkbook(list){
+  const ws = XLSX.utils.json_to_sheet(clientsToSheetRows(list), {header: COLUMN_HEADERS});
+  ws['!cols'] = [{wch:14},{wch:10},{wch:26},{wch:14},{wch:14},{wch:12},{wch:12}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Clients');
+  return wb;
+}
+
+/* ============================================================
+   GITHUB API
+   ============================================================ */
+const GH_API = 'https://api.github.com';
+
+function ghHeaders(token){
+  return {
+    'Authorization': 'Bearer ' + token,
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  };
+}
+
+function base64ToArrayBuffer(b64){
+  const bin = atob(b64.replace(/\n/g,''));
+  const bytes = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+  return bytes.buffer;
+}
+
+function arrayBufferToBase64(buf){
+  const bytes = new Uint8Array(buf);
+  let bin = '';
+  const chunk = 0x8000;
+  for(let i=0;i<bytes.length;i+=chunk){
+    bin += String.fromCharCode.apply(null, bytes.subarray(i, i+chunk));
+  }
+  return btoa(bin);
+}
+
+async function ghLoadFile(cfg){
+  const url = `${GH_API}/repos/${cfg.owner}/${cfg.repo}/contents/${encodeURIComponent(cfg.path).replace(/%2F/g,'/')}?ref=${encodeURIComponent(cfg.branch)}`;
+  const res = await fetch(url, {headers: ghHeaders(cfg.token)});
+  if(res.status === 404){
+    return {notFound:true};
+  }
+  if(!res.ok){
+    const body = await res.text();
+    throw new Error(`GitHub load failed (${res.status}): ${body.slice(0,200)}`);
+  }
+  const json = await res.json();
+  const buf = base64ToArrayBuffer(json.content);
+  const wb = XLSX.read(buf, {type:'array', cellDates:true});
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
+  return {sha: json.sha, rows};
+}
+
+async function ghSaveFile(cfg, list){
+  const wb = buildWorkbook(list);
+  const out = XLSX.write(wb, {bookType:'xlsx', type:'array'});
+  const b64 = arrayBufferToBase64(out);
+  const url = `${GH_API}/repos/${cfg.owner}/${cfg.repo}/contents/${encodeURIComponent(cfg.path).replace(/%2F/g,'/')}`;
+  const body = {
+    message: `Update RD client ledger (${list.length} accounts) — ${new Date().toISOString()}`,
+    content: b64,
+    branch: cfg.branch,
+  };
+  if(cfg.sha) body.sha = cfg.sha;
+  const res = await fetch(url, {
+    method:'PUT',
+    headers: {...ghHeaders(cfg.token), 'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+  if(!res.ok){
+    const errBody = await res.text();
+    throw new Error(`GitHub save failed (${res.status}): ${errBody.slice(0,300)}`);
+  }
+  const json = await res.json();
+  cfg.sha = json.content.sha;
+  return json;
+}
+
+/* ============================================================
+   CONNECT / LOAD FLOW
+   ============================================================ */
+const el = id => document.getElementById(id);
+
+el('btnConnect').addEventListener('click', async () => {
+  const cfg = {
+    owner: el('cfgOwner').value.trim(),
+    repo: el('cfgRepo').value.trim(),
+    branch: el('cfgBranch').value.trim() || 'main',
+    path: el('cfgPath').value.trim() || 'data/clients.xlsx',
+    token: el('cfgToken').value.trim(),
+  };
+  if(!cfg.owner || !cfg.repo || !cfg.token){
+    setStatus(el('connStatusLine'), 'Please fill in owner, repository and a personal access token.', 'err');
+    return;
+  }
+  setStatus(el('connStatusLine'), 'Connecting…');
+  try{
+    const result = await ghLoadFile(cfg);
+    if(result.notFound){
+      cfg.sha = null;
+      clients = [];
+      setStatus(el('connStatusLine'), `No file found yet at ${cfg.path} — starting a new, empty ledger. It will be created on your first save.`, 'ok');
+    } else {
+      cfg.sha = result.sha;
+      clients = sheetRowsToClients(result.rows);
+      setStatus(el('connStatusLine'), `Loaded ${clients.length} client account(s) from ${cfg.path}.`, 'ok');
+    }
+    github = cfg;
+    dirty = false;
+    setConnected(true);
+    afterDataLoaded();
+  }catch(err){
+    setStatus(el('connStatusLine'), err.message, 'err');
+  }
+});
+
+el('btnDisconnect').addEventListener('click', () => {
+  github = null;
+  clients = [];
+  setConnected(false);
+  el('appArea').style.display = 'none';
+});
+
+el('localFileInput').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf, {type:'array', cellDates:true});
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
+  clients = sheetRowsToClients(rows);
+  github = null;
+  dirty = false;
+  setStatus(el('connStatusLine'), `Loaded ${clients.length} client account(s) from local file "${file.name}". Connect to GitHub above to save changes back to a repository, or use "Download .xlsx" to save manually.`, 'ok');
+  setConnected(false);
+  afterDataLoaded();
+});
+
+function setConnected(isConnected){
+  const dot = el('connDot'), text = el('connText');
+  if(isConnected){
+    dot.className = 'dot on';
+    text.textContent = `${github.owner}/${github.repo} · ${github.path}`;
+    el('btnDisconnect').style.display = 'inline-flex';
+    el('btnSaveGithub').disabled = false;
+  } else {
+    dot.className = 'dot off';
+    text.textContent = 'Not connected';
+    el('btnDisconnect').style.display = 'none';
+    el('btnSaveGithub').disabled = true;
+  }
+}
+
+function afterDataLoaded(){
+  el('appArea').style.display = 'block';
+  populateShortCodeFilter();
+  renderTable();
+}
+
+/* ============================================================
+   FILTERING / SORTING / RENDERING
+   ============================================================ */
+function populateShortCodeFilter(){
+  const sel = el('fShortCode');
+  const current = sel.value;
+  const codes = Array.from(new Set(clients.map(c => c.shortCode).filter(Boolean))).sort();
+  sel.innerHTML = '<option value="">All</option>' + codes.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+  sel.value = codes.includes(current) ? current : '';
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function getFiltered(){
+  const q = el('fSearch').value.trim().toLowerCase();
+  const sc = el('fShortCode').value;
+  const dueFrom = el('fDueFrom').value;
+  const dueTo = el('fDueTo').value;
+  const openFrom = el('fOpenFrom').value;
+  const openTo = el('fOpenTo').value;
+  const amtMin = el('fAmountMin').value !== '' ? Number(el('fAmountMin').value) : null;
+  const amtMax = el('fAmountMax').value !== '' ? Number(el('fAmountMax').value) : null;
+
+  let list = clients.filter(c => {
+    if(q){
+      const hay = `${c.accountNo} ${c.holderName} ${c.shortCode}`.toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    if(sc && c.shortCode !== sc) return false;
+    if(dueFrom && (!c.nextDueDate || c.nextDueDate < dueFrom)) return false;
+    if(dueTo && (!c.nextDueDate || c.nextDueDate > dueTo)) return false;
+    if(openFrom && (!c.openedOn || c.openedOn < openFrom)) return false;
+    if(openTo && (!c.openedOn || c.openedOn > openTo)) return false;
+    if(amtMin !== null && c.amount < amtMin) return false;
+    if(amtMax !== null && c.amount > amtMax) return false;
+    return true;
+  });
+
+  list.sort((a,b) => {
+    let av = a[sortKey], bv = b[sortKey];
+    if(typeof av === 'string') av = av.toLowerCase();
+    if(typeof bv === 'string') bv = bv.toLowerCase();
+    if(av < bv) return -1 * sortDir;
+    if(av > bv) return 1 * sortDir;
+    return 0;
+  });
+
+  return list;
+}
+
+function renderTable(){
+  const list = getFiltered();
+  const tbody = el('tableBody');
+
+  if(list.length === 0){
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No client accounts match the current filters.</td></tr>`;
+  } else {
+    tbody.innerHTML = list.map(c => {
+      const dleft = daysUntil(c.nextDueDate);
+      let rowClass = '';
+      if(dleft !== null){
+        if(dleft < 0) rowClass = 'overdue';
+        else if(dleft <= 7) rowClass = 'due-soon';
+      }
+      return `
+      <tr class="${rowClass}" data-id="${c.id}">
+        <td class="nums">${escapeHtml(c.accountNo)}</td>
+        <td class="nums num-cell">${fmtMoney(c.amount)}</td>
+        <td>${escapeHtml(c.holderName)}</td>
+        <td>${fmtDate(c.nextDueDate)}</td>
+        <td class="nums num-cell">${fmtMoney(c.totalDeposit)}</td>
+        <td>${fmtDate(c.openedOn)}</td>
+        <td>${c.shortCode ? `<span class="badge">${escapeHtml(c.shortCode)}</span>` : '—'}</td>
+        <td>
+          <div class="row-actions">
+            <button class="btn secondary btn-sm" data-action="edit" data-id="${c.id}">Edit</button>
+            <button class="btn danger btn-sm" data-action="delete" data-id="${c.id}">Delete</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  updateSortArrows();
+  updateStats(list);
+}
+
+function updateSortArrows(){
+  document.querySelectorAll('#clientsTable thead th[data-key]').forEach(th => {
+    const arrow = th.querySelector('.arrow');
+    if(th.dataset.key === sortKey){
+      arrow.textContent = sortDir === 1 ? '▲' : '▼';
+    } else {
+      arrow.textContent = '';
+    }
+  });
+}
+
+function updateStats(list){
+  el('statCount').textContent = list.length;
+  el('statAmount').textContent = fmtMoney(list.reduce((s,c) => s + (Number(c.amount)||0), 0));
+  el('statDeposit').textContent = fmtMoney(list.reduce((s,c) => s + (Number(c.totalDeposit)||0), 0));
+  el('statDueSoon').textContent = list.filter(c => {
+    const d = daysUntil(c.nextDueDate);
+    return d !== null && d >= 0 && d <= 7;
+  }).length;
+}
+
+document.querySelectorAll('#clientsTable thead th[data-key]').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.key;
+    if(sortKey === key){ sortDir *= -1; } else { sortKey = key; sortDir = 1; }
+    renderTable();
+  });
+});
+
+['fSearch','fShortCode','fDueFrom','fDueTo','fOpenFrom','fOpenTo','fAmountMin','fAmountMax'].forEach(id => {
+  el(id).addEventListener('input', renderTable);
+  el(id).addEventListener('change', renderTable);
+});
+
+el('btnClearFilters').addEventListener('click', () => {
+  ['fSearch','fShortCode','fDueFrom','fDueTo','fOpenFrom','fOpenTo','fAmountMin','fAmountMax'].forEach(id => el(id).value = '');
+  renderTable();
+});
+
+el('btnDueSoon').addEventListener('click', () => {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const in7 = new Date(today); in7.setDate(in7.getDate()+7);
+  el('fDueFrom').value = today.toISOString().slice(0,10);
+  el('fDueTo').value = in7.toISOString().slice(0,10);
+  renderTable();
+});
+
+el('btnOverdue').addEventListener('click', () => {
+  const today = new Date(); today.setHours(0,0,0,0);
+  el('fDueFrom').value = '';
+  el('fDueTo').value = new Date(today.getTime()-86400000).toISOString().slice(0,10);
+  renderTable();
+});
+
+/* ============================================================
+   ROW ACTIONS (EDIT / DELETE)
+   ============================================================ */
+el('tableBody').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-action]');
+  if(!btn) return;
+  const id = btn.dataset.id;
+  const client = clients.find(c => c.id === id);
+  if(!client) return;
+  if(btn.dataset.action === 'edit') openModal(client);
+  if(btn.dataset.action === 'delete') deleteClient(client);
+});
+
+function deleteClient(client){
+  if(!confirm(`Delete account ${client.accountNo} (${client.holderName})? This cannot be undone.`)) return;
+  clients = clients.filter(c => c.id !== client.id);
+  dirty = true;
+  populateShortCodeFilter();
+  renderTable();
+  setStatus(el('saveStatusLine'), 'Client deleted locally — remember to save changes to GitHub.', 'ok');
+}
+
+/* ============================================================
+   ADD / EDIT MODAL
+   ============================================================ */
+function openModal(client){
+  el('modalTitle').textContent = client ? `Edit account ${client.accountNo}` : 'Add client';
+  el('fEditingId').value = client ? client.id : '';
+  el('fAccountNo').value = client ? client.accountNo : '';
+  el('fShortCodeInput').value = client ? client.shortCode : '';
+  el('fHolderName').value = client ? client.holderName : '';
+  el('fAmount').value = client ? client.amount : '';
+  el('fTotalDeposit').value = client ? client.totalDeposit : 0;
+  el('fOpenedOn').value = client ? client.openedOn : new Date().toISOString().slice(0,10);
+  el('fNextDueDate').value = client ? client.nextDueDate : '';
+  el('overlay').classList.add('show');
+  el('fAccountNo').focus();
+}
+
+function closeModal(){ el('overlay').classList.remove('show'); }
+
+el('btnAddClient').addEventListener('click', () => openModal(null));
+el('btnCancelModal').addEventListener('click', closeModal);
+el('overlay').addEventListener('click', (e) => { if(e.target.id === 'overlay') closeModal(); });
+
+el('clientForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const editingId = el('fEditingId').value;
+  const accountNo = el('fAccountNo').value.trim();
+  if(!accountNo){ return; }
+
+  const dupe = clients.find(c => c.accountNo === accountNo && c.id !== editingId);
+  if(dupe){
+    alert(`Account No. "${accountNo}" already exists. Account numbers must be unique.`);
+    return;
+  }
+
+  const data = {
+    accountNo,
+    shortCode: el('fShortCodeInput').value.trim(),
+    holderName: el('fHolderName').value.trim(),
+    amount: Number(el('fAmount').value) || 0,
+    totalDeposit: Number(el('fTotalDeposit').value) || 0,
+    openedOn: el('fOpenedOn').value,
+    nextDueDate: el('fNextDueDate').value,
+  };
+
+  if(editingId){
+    const idx = clients.findIndex(c => c.id === editingId);
+    clients[idx] = {...clients[idx], ...data};
+  } else {
+    clients.push({id: uid(), ...data});
+  }
+
+  dirty = true;
+  populateShortCodeFilter();
+  renderTable();
+  closeModal();
+  setStatus(el('saveStatusLine'), 'Changes saved locally — click "Save changes to GitHub" to commit them.', 'ok');
+});
+
+/* ============================================================
+   SAVE TO GITHUB / DOWNLOAD / EXPORT
+   ============================================================ */
+el('btnSaveGithub').addEventListener('click', async () => {
+  if(!github){ return; }
+  const btn = el('btnSaveGithub');
+  btn.disabled = true;
+  setStatus(el('saveStatusLine'), 'Committing changes to GitHub…');
+  try{
+    await ghSaveFile(github, clients);
+    dirty = false;
+    setStatus(el('saveStatusLine'), `Saved — ${clients.length} account(s) committed to ${github.owner}/${github.repo}/${github.path}.`, 'ok');
+  }catch(err){
+    setStatus(el('saveStatusLine'), err.message, 'err');
+  }finally{
+    btn.disabled = false;
+  }
+});
+
+el('btnDownloadXlsx').addEventListener('click', () => {
+  const wb = buildWorkbook(clients);
+  XLSX.writeFile(wb, 'rd-clients.xlsx');
+});
+
+el('btnExportCsv').addEventListener('click', () => {
+  const list = getFiltered();
+  const ws = XLSX.utils.json_to_sheet(clientsToSheetRows(list), {header: COLUMN_HEADERS});
+  const csv = XLSX.utils.sheet_to_csv(ws);
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `rd-statement-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+el('btnPrint').addEventListener('click', () => window.print());
+
+window.addEventListener('beforeunload', (e) => {
+  if(dirty){ e.preventDefault(); e.returnValue = ''; }
+});
+</script>
+</body>
+</html>
