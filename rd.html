@@ -468,17 +468,43 @@ window.downloadLedger = () => {
 function markUnsaved() { el('saveStatusLine').textContent = "⚠️ Unsaved changes. Click Sync Cloud."; el('btnSaveSheet').style.backgroundColor = "var(--danger)"; }
 
 el('btnSaveSheet').addEventListener('click', async () => {
-  const btn = el('btnSaveSheet'); btn.disabled = true; el('saveStatusLine').textContent = 'Syncing...';
+  const btn = el('btnSaveSheet'); 
+  btn.disabled = true; 
+  el('saveStatusLine').textContent = 'Syncing...';
   
   const masterPayload = clients.map(c => ({ 'Account No.': c.accountNo, 'Amount': c.amount, 'Account Holder Name': c.holderName, 'Next Due Date': c.nextDueDate, 'Total Deposit': c.totalDeposit, 'Opened On': c.openedOn, 'Short Code': c.shortCode }));
   const txnPayload = {}; Object.keys(transactions).forEach(acc => { txnPayload[acc] = transactions[acc].map(t => ({ 'Txn ID': t.txnId, 'Date': t.date, 'Amount': t.amount, 'Remarks': t.remarks })); });
 
   try {
-    const res = await fetch(sheetUrl, { method: 'POST', body: JSON.stringify({ pin: activePin, clients: masterPayload, transactions: txnPayload }) });
-    if (!res.ok) throw new Error("Failed"); const responseData = await res.json();
+    const res = await fetch(sheetUrl, { 
+      method: 'POST', 
+      headers: { 
+        'Accept': 'application/json',
+        'Content-Type': 'text/plain;charset=utf-8' 
+      },
+      redirect: 'follow', // Crucial for iOS Safari
+      body: JSON.stringify({ pin: activePin, clients: masterPayload, transactions: txnPayload }) 
+    });
+    
+    const textRaw = await res.text();
+    let responseData;
+    try { responseData = JSON.parse(textRaw); } 
+    catch(e) { throw new Error("Backend error. Did you deploy Apps Script as 'New version'?"); }
+    
     if (responseData.error) throw new Error(responseData.error);
-    dirty = false; el('saveStatusLine').textContent = `Cloud Synced!`; btn.style.backgroundColor = "var(--ink)";
-  } catch(err) { el('saveStatusLine').textContent = 'Error: ' + err.message; } finally { btn.disabled = false; }
+    
+    dirty = false; 
+    el('saveStatusLine').className = 'status-line ok';
+    el('saveStatusLine').textContent = `Cloud Synced!`; 
+    btn.style.backgroundColor = "var(--ink)";
+  } catch(err) { 
+    el('saveStatusLine').className = 'status-line err';
+    // Clean up iOS specific error phrasing
+    const errorMsg = err.message === 'Load failed' ? 'Network blocked. Try disabling "Prevent Cross-Site Tracking" in Safari settings.' : err.message;
+    el('saveStatusLine').textContent = 'Error: ' + errorMsg; 
+  } finally { 
+    btn.disabled = false; 
+  }
 });
 
 el('btnDownloadXlsx').addEventListener('click', () => {
