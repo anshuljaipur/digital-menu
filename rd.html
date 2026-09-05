@@ -9,65 +9,97 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
-    --paper:#F1EEE2; --paper-2:#E8E4D3; --ink:#16302A; --ink-soft:#3E5850;
-    --rule:#C9C2A6; --rule-strong:#16302A; --brass:#9C6B22; --brass-2:#B98A3B;
-    --danger:#8C3A2B; --danger-soft:#F3DCD5; --ok:#2F6B4F; --radius:3px;
+    --paper:#F4F2EB; --paper-2:#FFFFFF; --ink:#16302A; --ink-soft:#4A5D57;
+    --rule:#DCD8C8; --rule-strong:#16302A; --brass:#9C6B22; --brass-2:#B98A3B;
+    --danger:#B34A38; --danger-soft:#F3DCD5; --ok:#2F6B4F; --radius:8px;
   }
   *{box-sizing:border-box;} html,body{margin:0;padding:0;}
   body{background:var(--paper); color:var(--ink); font-family:'IBM Plex Sans', sans-serif; font-size:14px; min-height:100vh; padding-bottom:40px; -webkit-text-size-adjust:100%;}
   .nums{font-family:'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums;}
   
-  .band{background:var(--ink); color:var(--paper); padding:16px 20px;}
+  /* Icons */
+  svg { stroke-width: 2; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
+  .icon-sm { width: 14px; height: 14px; }
+  .icon-md { width: 16px; height: 16px; }
+
+  /* Header */
+  .band{background:var(--ink); color:var(--paper-2); padding:16px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);}
   .band-inner{max-width:1180px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;}
-  .brand h1{font-family:'Fraunces', serif; font-size:20px; margin:0;}
-  .conn-status{font-size:12px; display:flex; align-items:center; gap:6px; color:#C9CFC9;}
-  .dot{width:7px; height:7px; border-radius:50%; background:#7A8C86;} .dot.on{background:#7FC79A;}
+  .brand h1{font-family:'Fraunces', serif; font-size:22px; margin:0; display:flex; align-items:center; gap:8px;}
+  .conn-status{font-size:12.5px; display:flex; align-items:center; gap:6px; color:#D3D8D6; font-weight:500;}
+  .dot{width:8px; height:8px; border-radius:50%; background:#7A8C86; box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);} .dot.on{background:#5EE89D;}
   
   .wrap{max-width:1180px; margin:0 auto; padding:20px;}
-  .panel{background:var(--paper-2); border:1px solid var(--rule); border-radius:var(--radius); padding:16px; margin-bottom:18px;}
+  .panel{background:transparent; border:none; padding:0; margin-bottom:18px;}
   
-  .grid{display:grid; gap:10px;} .cols-2{grid-template-columns:repeat(2,1fr);}
-  label{display:block; font-size:11px; text-transform:uppercase; color:var(--ink-soft); margin-bottom:4px;}
-  input, select{width:100%; padding:10px; border:1px solid var(--rule); background:#FBFAF4; border-radius:2px; font-family:inherit; font-size:16px;}
-  input:focus, select:focus{outline:2px solid var(--brass-2); border-color:var(--brass-2);}
+  /* Grid & Forms */
+  .grid{display:grid; gap:14px;} .cols-2{grid-template-columns:repeat(2,1fr);}
+  label{display:block; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-soft); margin-bottom:6px;}
+  input, select{width:100%; padding:12px; border:1px solid var(--rule); background:var(--paper-2); border-radius:var(--radius); font-family:inherit; font-size:16px; transition:all 0.2s; box-shadow:inset 0 1px 2px rgba(0,0,0,0.03); color:var(--ink);}
+  input:focus, select:focus{outline:none; border-color:var(--brass-2); box-shadow:0 0 0 3px rgba(185,138,59,0.15);}
+  input:read-only { background: var(--paper); color: var(--ink-soft); }
   
-  .btn{display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:10px 14px; border-radius:2px; border:1px solid var(--ink); background:var(--ink); color:var(--paper); font-size:14px; font-weight:500; cursor:pointer; white-space:nowrap;}
-  .btn:hover{background:#0F241F;} .btn.secondary{background:transparent; color:var(--ink); border-color:var(--rule-strong);} .btn.secondary:hover{background:#e4dfc9;}
-  .btn.brass{background:var(--brass); border-color:var(--brass); color:#fff;} .btn.brass:hover{background:#845A1B;}
-  .btn.danger{background:transparent; color:var(--danger); border-color:var(--danger);} .btn:disabled{opacity:0.45; cursor:not-allowed;}
-  .btn-row{display:flex; gap:8px; flex-wrap:wrap;} .btn-sm{padding:6px 10px; font-size:12px;}
-  .status-line{font-size:12.5px; margin-top:10px; color:var(--ink-soft);} .status-line.ok{color:var(--ok);}
+  /* Buttons */
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 16px; border-radius:var(--radius); border:1px solid var(--ink); background:var(--ink); color:var(--paper-2); font-size:14px; font-weight:600; cursor:pointer; transition:all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1);}
+  .btn:active{transform:scale(0.98);}
+  .btn.secondary{background:var(--paper-2); color:var(--ink); border-color:var(--rule);} 
+  .btn.secondary:hover{background:#F7F7F7;}
+  .btn.brass{background:var(--brass); border-color:var(--brass); color:#fff;} 
+  .btn.brass:hover{background:#8A5F1C;}
+  .btn.danger{background:#FFF5F5; color:var(--danger); border-color:#F5C6CB;}
+  .btn:disabled{opacity:0.6; cursor:not-allowed;}
+  .btn-row{display:flex; gap:10px; flex-wrap:wrap;} 
+  .btn-sm{padding:8px 12px; font-size:13px;}
+  .status-line{font-size:13px; margin-top:12px; color:var(--ink-soft); display:flex; align-items:center; gap:6px;} .status-line.ok{color:var(--ok);}
   .status-line.err{color:var(--danger); font-weight:600;}
+
+  /* Modern Search Bar */
+  .search-wrapper { position: relative; margin-top: 14px; }
+  .search-wrapper svg.search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--ink-soft); }
+  .search-wrapper input { padding-left: 42px; padding-right: 42px; border-color: var(--rule-strong); font-weight: 500; border-radius: 10px; }
+  .search-wrapper button.clear-btn { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #E5E2D9; border: none; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; color: var(--ink-soft); padding: 0; cursor: pointer; display: none; }
   
-  .table-wrap{background:#FBFAF4; border:1px solid var(--rule); border-radius:var(--radius); overflow-x:auto; -webkit-overflow-scrolling:touch;}
+  /* Tables */
+  .table-wrap{background:var(--paper-2); border:1px solid var(--rule); border-radius:10px; overflow-x:auto; -webkit-overflow-scrolling:touch; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-top:16px;}
   table{width:100%; border-collapse:collapse; min-width:700px;}
-  thead th{text-align:left; font-size:11px; text-transform:uppercase; color:var(--ink-soft); padding:12px; border-bottom:2px solid var(--rule-strong); background:var(--paper-2); cursor:pointer; user-select:none; white-space:nowrap;}
-  thead th:active{background:var(--rule);}
-  tbody td{padding:10px 12px; border-bottom:1px solid var(--rule); white-space:nowrap;}
-  tbody tr:hover{background:#F3EEDD;} .num-cell{text-align:right;}
-  .badge{display:inline-block; padding:2px 8px; border:1px solid var(--brass); color:var(--brass); border-radius:20px; font-size:11.5px;}
-  
-  .name-link{color:var(--brass-2); font-weight:600; text-decoration:underline; cursor:pointer;}
+  thead th{text-align:left; font-size:11.5px; font-weight:600; text-transform:uppercase; color:var(--ink-soft); padding:14px; border-bottom:1px solid var(--rule); background:#FAFAFA; cursor:pointer; user-select:none; white-space:nowrap;}
+  tbody td{padding:12px 14px; border-bottom:1px solid var(--rule); white-space:nowrap; vertical-align:middle;}
+  tbody tr:last-child td {border-bottom:none;}
+  tbody tr:hover{background:#FDFCF8;} .num-cell{text-align:right;}
+  .name-link{color:var(--brass-2); font-weight:600; cursor:pointer; text-decoration:none;}
   .name-link:active{color:var(--ink);}
 
-  .overlay{position:fixed; inset:0; background:rgba(22,48,42,0.7); display:none; align-items:flex-end; justify-content:center; z-index:50;}
-  .overlay.show{display:flex;}
-  .overlay.center{align-items:center;}
-  .modal{background:var(--paper); border-radius:12px 12px 0 0; width:100%; max-width:800px; padding:20px; max-height:90vh; overflow-y:auto;}
-  .overlay.center .modal{border-radius:12px; max-width:400px;}
-  .modal h3{font-family:'Fraunces',serif; font-size:18px; margin:0 0 16px;}
+  /* Modals (Native iOS Style) */
+  .overlay{position:fixed; inset:0; background:rgba(15, 30, 26, 0.6); display:none; align-items:flex-end; justify-content:center; z-index:50; backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px);}
+  .overlay.show{display:flex; animation: fadeIn 0.2s ease;}
+  .overlay.center{align-items:center; padding: 20px;}
+  .modal{background:var(--paper); border-radius:20px 20px 0 0; width:100%; max-width:800px; padding:24px 20px calc(24px + env(safe-area-inset-bottom)); max-height:92vh; overflow-y:auto; position:relative; box-shadow: 0 -10px 40px rgba(0,0,0,0.15); animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);}
+  .overlay.center .modal{border-radius:16px; max-width:400px; animation: scaleUp 0.2s ease;}
+  .drag-handle { width: 40px; height: 5px; background: #D0CCC0; border-radius: 3px; margin: 0 auto 20px; }
   
-  .ledger-box{background:#FBFAF4; border:1px solid var(--rule); padding:12px; margin-bottom:14px; border-radius:var(--radius);}
-  .ledger-table th, .ledger-table td{font-size:13px; padding:8px;}
-  .ledger-form{display:flex; flex-direction:column; gap:10px; background:var(--paper-2); padding:12px; border-radius:var(--radius);}
-  .sort-arrow{font-size:10px; margin-left:4px; opacity:0.6;}
+  .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+  .modal-header h3 { font-family:'Fraunces',serif; font-size:20px; margin:0; line-height:1.2; }
+  .modal-header .subtitle { font-size: 13px; color: var(--ink-soft); font-weight:500; font-family:'IBM Plex Mono', monospace; margin-top:4px; display:block; }
+  
+  /* Ledger Specific Layout */
+  .ledger-stats{display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:20px;}
+  .stat-card{background:var(--paper-2); border:1px solid var(--rule); border-radius:12px; padding:16px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);}
+  .stat-card label{font-size:10.5px; color:var(--ink-soft); margin-bottom:8px;}
+  .stat-card .val{font-size:22px; font-weight:600; color:var(--ink); font-family:'IBM Plex Mono', monospace;}
+  
+  .form-card{background:var(--paper-2); border:1px solid var(--rule); padding:16px; border-radius:12px; margin-bottom:20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);}
+  
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes scaleUp { from { transform: scale(0.95); opacity:0; } to { transform: scale(1); opacity:1; } }
 
   @media (max-width: 600px){
-    .wrap { padding: 0; }
-    .panel { border: none; border-radius: 0; padding: 12px; margin-bottom: 10px; border-bottom: 1px solid var(--rule); }
-    .table-wrap { border-left: none; border-right: none; border-radius: 0; }
+    .wrap { padding: 14px; }
+    .table-wrap { border-left: none; border-right: none; border-radius: 0; margin-left: -14px; margin-right: -14px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
     .btn { flex: 1; justify-content: center; } 
     .btn-row.actions { flex-wrap: nowrap; }
+    .stat-card { padding: 12px; }
+    .stat-card .val { font-size: 18px; }
   }
 </style>
 </head>
@@ -75,7 +107,10 @@
 
 <div class="band">
   <div class="band-inner">
-    <div class="brand"><h1>RD Register</h1></div>
+    <div class="brand">
+      <svg class="icon-md" viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg>
+      RD Register
+    </div>
     <div class="conn-status"><span class="dot off" id="connDot"></span><span id="connText">Locked</span></div>
   </div>
 </div>
@@ -83,39 +118,49 @@
 <!-- LOCK SCREEN MODAL -->
 <div class="overlay center show" id="overlayLock">
   <div class="modal" style="text-align:center;">
-    <h3 style="font-size:22px; color:var(--ink);">App Locked</h3>
-    <p style="color:var(--ink-soft); font-size:13px; margin-bottom:20px;">Enter your PIN to access the ledger.</p>
-    <form id="authForm" style="display:flex; flex-direction:column; gap:14px;">
-      <input type="password" id="appPin" placeholder="Enter PIN" required style="text-align:center; letter-spacing:4px; font-size:20px; padding:14px;">
-      <button type="submit" class="btn brass" id="btnUnlock" style="padding:14px; font-size:16px;">Unlock & Sync</button>
-      <div id="authStatus" class="status-line err" style="margin-top:0;"></div>
+    <svg class="icon-md" style="width:32px; height:32px; margin-bottom:12px; color:var(--brass);" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+    <h3 style="font-size:22px; color:var(--ink); margin-bottom:8px;">App Locked</h3>
+    <p style="color:var(--ink-soft); font-size:13.5px; margin-bottom:24px; margin-top:0;">Enter your secure PIN to access ledger data.</p>
+    <form id="authForm" style="display:flex; flex-direction:column; gap:16px;">
+      <input type="password" id="appPin" placeholder="••••" required style="text-align:center; letter-spacing:8px; font-size:24px; padding:16px; border-radius:12px;">
+      <button type="submit" class="btn brass" id="btnUnlock" style="padding:16px; font-size:16px; border-radius:12px;">Unlock & Sync</button>
+      <div id="authStatus" class="status-line err" style="margin-top:0; justify-content:center;"></div>
     </form>
   </div>
 </div>
 
 <div class="wrap" id="appArea" style="display:none;">
   <div class="panel">
-    <div class="btn-row" style="margin-bottom:12px;">
-      <button class="btn brass" id="btnAddClient">+ New</button>
-      <button class="btn" id="btnSaveSheet" disabled>Sync Cloud</button>
-      <button class="btn secondary" id="btnDownloadXlsx">↓ Master</button>
+    <div class="btn-row">
+      <button class="btn brass" id="btnAddClient">
+        <svg class="icon-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> New
+      </button>
+      <button class="btn" id="btnSaveSheet" disabled>
+        <svg class="icon-sm" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg> Sync Cloud
+      </button>
+      <button class="btn secondary" id="btnDownloadXlsx">
+        <svg class="icon-sm" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Master
+      </button>
     </div>
     <div class="status-line" id="saveStatusLine"></div>
 
-    <div style="display:flex; gap:8px; margin-top:14px; align-items:stretch;">
-      <input type="text" id="fSearchMaster" placeholder="🔍 Search name or A/C..." style="flex:1; border:1px solid var(--rule-strong); font-weight:500; font-size:16px; padding:12px;" autocomplete="off">
-      <button type="button" class="btn secondary" id="btnClearSearch" style="display:none; font-size:16px; padding:0 20px; border:1px solid var(--rule-strong);">✕ Clear</button>
+    <div class="search-wrapper">
+      <svg class="icon-md search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" id="fSearchMaster" placeholder="Search name or A/C..." autocomplete="off">
+      <button type="button" class="clear-btn" id="btnClearSearch">
+        <svg class="icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
     </div>
 
-    <div class="table-wrap" style="margin-top:14px;">
+    <div class="table-wrap">
       <table id="clientsTable">
         <thead>
           <tr>
-            <th data-key="accountNo">A/C No.<span class="sort-arrow"></span></th>
-            <th data-key="holderName">Name (Tap to open)<span class="sort-arrow"></span></th>
-            <th data-key="amount">Installment<span class="sort-arrow"></span></th>
-            <th data-key="totalDeposit">Total Dep.<span class="sort-arrow"></span></th>
-            <th data-key="nextDueDate">Next Due<span class="sort-arrow"></span></th>
+            <th data-key="accountNo">A/C No. <span class="sort-arrow"></span></th>
+            <th data-key="holderName">Name (Tap to open) <span class="sort-arrow"></span></th>
+            <th data-key="amount">Installment <span class="sort-arrow"></span></th>
+            <th data-key="totalDeposit">Total Dep. <span class="sort-arrow"></span></th>
+            <th data-key="nextDueDate">Next Due <span class="sort-arrow"></span></th>
             <th>Edit</th>
           </tr>
         </thead>
@@ -128,13 +173,17 @@
 <!-- CLIENT DETAILS MODAL -->
 <div class="overlay" id="overlayClient">
   <div class="modal">
-    <h3 id="modalTitle">Client Profile</h3>
-    <form id="clientForm">
+    <div class="drag-handle"></div>
+    <div class="modal-header">
+      <h3 id="modalTitle">Client Profile</h3>
+    </div>
+    
+    <form id="clientForm" class="form-card" style="margin-bottom:0;">
       <input type="hidden" id="fEditingId">
       <div class="grid cols-2">
         <div><label>A/C No. *</label><input type="text" id="fAccountNo" required></div>
         <div><label>Short Code</label><input type="text" id="fShortCodeInput"></div>
-        <div style="grid-column: span 2;"><label>Name *</label><input type="text" id="fHolderName" required></div>
+        <div style="grid-column: span 2;"><label>Full Name *</label><input type="text" id="fHolderName" required></div>
         <div><label>Installment *</label><input type="number" step="0.01" id="fAmount" required></div>
         <div><label>Opened On</label><input type="date" id="fOpenedOn"></div>
         <div><label>Total Deposit</label><input type="number" step="0.01" id="fTotalDeposit" readonly></div>
@@ -144,7 +193,9 @@
         <button type="submit" class="btn brass" style="flex:2;">Save Profile</button>
         <button type="button" class="btn secondary" style="flex:1;" onclick="el('overlayClient').classList.remove('show')">Cancel</button>
       </div>
-      <button type="button" class="btn danger" style="width:100%; margin-top:10px;" id="btnDeleteProfile" style="display:none;">Delete Client</button>
+      <button type="button" class="btn danger" style="width:100%; margin-top:12px;" id="btnDeleteProfile" style="display:none;">
+        <svg class="icon-sm" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Delete Client
+      </button>
     </form>
   </div>
 </div>
@@ -152,38 +203,60 @@
 <!-- LEDGER TRANSACTIONS MODAL -->
 <div class="overlay" id="overlayLedger">
   <div class="modal">
-    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-      <h3 id="ledgerTitle" style="margin-bottom:10px;">Ledger Details</h3>
-      <button class="btn secondary btn-sm" onclick="el('overlayLedger').classList.remove('show')">✕ Close</button>
+    <div class="drag-handle"></div>
+    <div class="modal-header">
+      <div>
+        <h3 id="ledgerTitleName">Name</h3>
+        <span class="subtitle" id="ledgerTitleAcc">A/C: ---</span>
+      </div>
+      <button class="btn secondary btn-sm" style="border-radius:20px;" onclick="el('overlayLedger').classList.remove('show')">
+        <svg class="icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Close
+      </button>
     </div>
     
     <input type="hidden" id="activeLedgerAccount">
     
-    <div class="grid cols-2 ledger-box">
-      <div><label>Total Deposit</label><div class="nums" id="ledgerTotal" style="font-size:18px; font-weight:600;">₹0</div></div>
-      <div><label>Next Due</label><div class="nums" id="ledgerDue" style="font-size:18px; font-weight:600;">—</div></div>
+    <!-- Stats Row -->
+    <div class="ledger-stats">
+      <div class="stat-card">
+        <label>Total Deposit</label>
+        <div class="val" id="ledgerTotal">₹0</div>
+      </div>
+      <div class="stat-card">
+        <label>Next Due Date</label>
+        <div class="val" id="ledgerDue" style="font-family:'IBM Plex Sans',sans-serif; letter-spacing:-0.5px;">—</div>
+      </div>
     </div>
 
-    <div class="btn-row" style="margin-bottom:14px;">
-      <button class="btn secondary btn-sm" onclick="forwardLedger()">📤 Share / Forward</button>
-      <button class="btn secondary btn-sm" onclick="downloadLedger()">📥 Download Excel</button>
+    <!-- Quick Actions -->
+    <div class="btn-row" style="margin-bottom:20px;">
+      <button class="btn secondary" style="flex:1;" onclick="forwardLedger()">
+        <svg class="icon-sm" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share
+      </button>
+      <button class="btn secondary" style="flex:1;" onclick="downloadLedger()">
+        <svg class="icon-sm" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Export
+      </button>
     </div>
 
-    <form class="ledger-form" id="txnForm">
+    <!-- Add Payment Form -->
+    <form class="form-card" id="txnForm">
       <input type="hidden" id="tEditingId">
       <div class="grid cols-2">
         <div><label>Date</label><input type="date" id="tDate" required></div>
         <div><label>Amount</label><input type="number" step="0.01" id="tAmount" required></div>
       </div>
-      <div><label>Remarks (Optional)</label><input type="text" id="tRemarks"></div>
-      <div class="btn-row">
-        <button type="submit" class="btn brass" id="tSubmitBtn" style="flex:2;">+ Add Payment</button>
+      <div style="margin-top:14px;"><label>Remarks (Optional)</label><input type="text" id="tRemarks"></div>
+      <div class="btn-row" style="margin-top:16px;">
+        <button type="submit" class="btn brass" id="tSubmitBtn" style="flex:2;">
+          <svg class="icon-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Add Payment
+        </button>
         <button type="button" class="btn secondary" id="tCancelBtn" style="display:none; flex:1;" onclick="resetTxnForm()">Cancel</button>
       </div>
     </form>
 
-    <div class="table-wrap" style="margin-top:14px; max-height:40vh;">
-      <table class="ledger-table">
+    <!-- Ledger Table -->
+    <div class="table-wrap" style="margin-top:0;">
+      <table>
         <thead><tr><th>Date</th> <th>Amount</th> <th>Notes</th> <th>Actions</th></tr></thead>
         <tbody id="ledgerTableBody"></tbody>
       </table>
@@ -226,7 +299,7 @@ el('authForm').addEventListener('submit', (e) => {
 });
 
 async function attemptLoad(pin) {
-  el('btnUnlock').disabled = true; el('btnUnlock').textContent = 'Verifying...';
+  el('btnUnlock').disabled = true; el('btnUnlock').innerHTML = '<svg class="icon-sm" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg> Verifying...';
   el('authStatus').textContent = ''; el('authStatus').className = 'status-line err';
 
   try {
@@ -256,7 +329,7 @@ async function attemptLoad(pin) {
     el('btnSaveSheet').disabled = false; el('appArea').style.display = 'block';
     renderMasterTable();
   } catch(err) {
-    el('authStatus').textContent = err.name === 'AbortError' ? 'Connection timed out.' : err.message;
+    el('authStatus').innerHTML = `<svg class="icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> ` + (err.name === 'AbortError' ? 'Connection timed out.' : err.message);
     localStorage.removeItem('rd_app_pin'); activePin = ''; el('appPin').value = '';
     el('btnUnlock').disabled = false; el('btnUnlock').textContent = 'Unlock & Sync';
   }
@@ -275,7 +348,7 @@ function renderMasterTable(){
   });
 
   if(filtered.length === 0){
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px;">No clients found matching "${escapeHtml(query)}".</td></tr>`; return;
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--ink-soft);">No clients found matching "${escapeHtml(query)}".</td></tr>`; return;
   }
 
   let sortedList = [...filtered];
@@ -289,12 +362,12 @@ function renderMasterTable(){
 
   tbody.innerHTML = sortedList.map(c => `
     <tr>
-      <td class="nums">${escapeHtml(c.accountNo)}</td>
-      <td class="name-link" onclick="openLedger('${c.accountNo}')">${escapeHtml(c.holderName)}</td>
+      <td class="nums" style="font-weight:600;">${escapeHtml(c.accountNo)}</td>
+      <td><a class="name-link" onclick="openLedger('${c.accountNo}')">${escapeHtml(c.holderName)}</a></td>
       <td class="nums num-cell">${fmtMoney(c.amount)}</td>
       <td class="nums num-cell" style="font-weight:600; color:var(--ok);">${fmtMoney(c.totalDeposit)}</td>
       <td>${fmtDate(c.nextDueDate)}</td>
-      <td><button class="btn secondary btn-sm" onclick="editClient('${c.id}')">Edit</button></td>
+      <td><button class="btn secondary btn-sm" style="padding:6px;" onclick="editClient('${c.id}')"><svg class="icon-sm" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button></td>
     </tr>`).join('');
 
   document.querySelectorAll('th[data-key]').forEach(th => {
@@ -303,7 +376,7 @@ function renderMasterTable(){
   });
 }
 
-el('fSearchMaster').addEventListener('input', () => { el('btnClearSearch').style.display = el('fSearchMaster').value ? 'inline-flex' : 'none'; renderMasterTable(); });
+el('fSearchMaster').addEventListener('input', () => { el('btnClearSearch').style.display = el('fSearchMaster').value ? 'flex' : 'none'; renderMasterTable(); });
 el('btnClearSearch').addEventListener('click', () => { el('fSearchMaster').value = ''; el('btnClearSearch').style.display = 'none'; el('fSearchMaster').focus(); renderMasterTable(); });
 document.querySelectorAll('th[data-key]').forEach(th => { th.addEventListener('click', () => { const key = th.dataset.key; if(sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = 1; } renderMasterTable(); }); });
 
@@ -321,7 +394,7 @@ window.editClient = (id) => {
   el('fEditingId').value = c.id; el('fAccountNo').value = c.accountNo; el('fShortCodeInput').value = c.shortCode;
   el('fHolderName').value = c.holderName; el('fAmount').value = c.amount; el('fTotalDeposit').value = c.totalDeposit;
   el('fOpenedOn').value = c.openedOn; el('fNextDueDate').value = c.nextDueDate; el('modalTitle').textContent = `Edit Profile`;
-  el('btnDeleteProfile').style.display = 'block'; el('btnDeleteProfile').onclick = () => deleteClient(c.id);
+  el('btnDeleteProfile').style.display = 'flex'; el('btnDeleteProfile').onclick = () => deleteClient(c.id);
   el('overlayClient').classList.add('show');
 };
 
@@ -358,7 +431,8 @@ window.deleteClient = (id) => {
    ============================================================ */
 window.openLedger = async (accNo) => {
   const c = clients.find(x => x.accountNo === accNo);
-  el('ledgerTitle').textContent = `${c.holderName} (${c.accountNo})`; 
+  el('ledgerTitleName').textContent = c.holderName; 
+  el('ledgerTitleAcc').textContent = `A/C: ${c.accountNo}`; 
   el('activeLedgerAccount').value = accNo;
   
   if (!transactions[accNo]) {
@@ -382,36 +456,37 @@ function renderLedgerTable(accNo) {
   el('ledgerTotal').textContent = fmtMoney(c.totalDeposit); el('ledgerDue').textContent = fmtDate(c.nextDueDate);
   
   const txns = transactions[accNo] || []; const tbody = el('ledgerTableBody');
-  if(txns.length === 0){ tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No records yet.</td></tr>`; return; }
+  if(txns.length === 0){ tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:30px; color:var(--ink-soft);">No records yet.</td></tr>`; return; }
   
   const sorted = [...txns].sort((a,b) => (a.date < b.date ? 1 : -1));
   tbody.innerHTML = sorted.map(t => `<tr><td>${fmtDate(t.date)}</td><td class="nums"><b>${fmtMoney(t.amount)}</b></td>
-      <td>${escapeHtml(t.remarks)}</td><td><div class="btn-row actions">
-      <button class="btn secondary btn-sm" onclick="editTxn('${accNo}', '${t.txnId}')">✎</button>
-      <button class="btn danger btn-sm" onclick="deleteTxn('${accNo}', '${t.txnId}')">✕</button></div></td></tr>`).join('');
+      <td>${escapeHtml(t.remarks)}</td><td><div class="btn-row actions" style="justify-content:flex-end; gap:6px;">
+      <button class="btn secondary btn-sm" style="padding:6px;" onclick="editTxn('${accNo}', '${t.txnId}')"><svg class="icon-sm" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+      <button class="btn danger btn-sm" style="padding:6px;" onclick="deleteTxn('${accNo}', '${t.txnId}')"><svg class="icon-sm" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></div></td></tr>`).join('');
 }
 
-// Prefills amount based on current client
 function resetTxnForm(accNo) {
   const currentAcc = accNo || el('activeLedgerAccount').value;
   const c = clients.find(x => x.accountNo === currentAcc);
   
   el('tEditingId').value = ''; 
   el('tDate').value = new Date().toISOString().slice(0,10); 
-  el('tAmount').value = c ? c.amount : ''; // Inject base installment amount
+  el('tAmount').value = c ? c.amount : ''; 
   el('tRemarks').value = ''; 
-  el('tSubmitBtn').textContent = '+ Add Payment'; 
+  el('tSubmitBtn').innerHTML = '<svg class="icon-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Add Payment'; 
   el('tCancelBtn').style.display = 'none';
 }
 
 window.editTxn = (accNo, txnId) => {
   const txn = transactions[accNo].find(x => x.txnId === txnId);
   el('tEditingId').value = txn.txnId; el('tDate').value = txn.date; el('tAmount').value = txn.amount;
-  el('tRemarks').value = txn.remarks; el('tSubmitBtn').textContent = 'Update'; el('tCancelBtn').style.display = 'inline-flex';
+  el('tRemarks').value = txn.remarks; 
+  el('tSubmitBtn').innerHTML = '<svg class="icon-sm" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg> Update'; 
+  el('tCancelBtn').style.display = 'inline-flex';
 };
 
 window.deleteTxn = (accNo, txnId) => {
-  if(!confirm('Delete transaction?')) return;
+  if(!confirm('Delete this payment record?')) return;
   transactions[accNo] = transactions[accNo].filter(x => x.txnId !== txnId); recalculateClientTotals(accNo);
 };
 
@@ -460,10 +535,15 @@ window.downloadLedger = () => {
 /* ============================================================
    SMART SAVE (ONLY UPDATES MODIFIED LEDGERS)
    ============================================================ */
-function markUnsaved() { el('saveStatusLine').textContent = "⚠️ Unsaved changes. Click Sync Cloud."; el('btnSaveSheet').style.backgroundColor = "var(--danger)"; }
+function markUnsaved() { 
+  el('saveStatusLine').innerHTML = `<svg class="icon-sm" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> Unsaved changes. Click Sync Cloud.`; 
+  el('btnSaveSheet').style.backgroundColor = "var(--danger)"; 
+  el('btnSaveSheet').style.borderColor = "var(--danger)"; 
+}
 
 el('btnSaveSheet').addEventListener('click', async () => {
-  const btn = el('btnSaveSheet'); btn.disabled = true; el('saveStatusLine').textContent = 'Syncing...';
+  const btn = el('btnSaveSheet'); btn.disabled = true; 
+  el('saveStatusLine').innerHTML = `<svg class="icon-sm" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg> Syncing...`;
   
   const masterPayload = clients.map(c => ({ 'Account No.': c.accountNo, 'Amount': c.amount, 'Account Holder Name': c.holderName, 'Next Due Date': c.nextDueDate, 'Total Deposit': c.totalDeposit, 'Opened On': c.openedOn, 'Short Code': c.shortCode }));
   
@@ -486,11 +566,14 @@ el('btnSaveSheet').addEventListener('click', async () => {
     if (responseData.error) throw new Error(responseData.error);
     
     dirty = false; modifiedLedgers.clear(); deletedAccounts = [];
-    el('saveStatusLine').className = 'status-line ok'; el('saveStatusLine').textContent = `Cloud Synced!`; btn.style.backgroundColor = "var(--ink)";
+    el('saveStatusLine').className = 'status-line ok'; 
+    el('saveStatusLine').innerHTML = `<svg class="icon-sm" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Cloud Synced!`; 
+    btn.style.backgroundColor = "var(--ink)";
+    btn.style.borderColor = "var(--ink)";
   } catch(err) { 
     el('saveStatusLine').className = 'status-line err';
     const errorMsg = err.message === 'Load failed' ? 'Network blocked. Try disabling "Prevent Cross-Site Tracking" in Safari.' : err.message;
-    el('saveStatusLine').textContent = 'Error: ' + errorMsg; 
+    el('saveStatusLine').innerHTML = `<svg class="icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> Error: ` + errorMsg; 
   } finally { btn.disabled = false; }
 });
 
