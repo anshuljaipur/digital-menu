@@ -35,7 +35,8 @@
   /* Grid & Forms */
   .grid{display:grid; gap:14px;} .cols-2{grid-template-columns:repeat(2,1fr);}
   label{display:block; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-soft); margin-bottom:6px;}
-  input, select{width:100%; padding:12px; border:1px solid var(--rule); background:var(--paper-2); border-radius:var(--radius); font-family:inherit; font-size:16px; transition:all 0.2s; box-shadow:inset 0 1px 2px rgba(0,0,0,0.03); color:var(--ink);}
+  /* Standardized heights and appearances for iOS consistency */
+  input, select{width:100%; height:48px; padding:12px; border:1px solid var(--rule); background:var(--paper-2); border-radius:var(--radius); font-family:inherit; font-size:16px; transition:all 0.2s; box-shadow:inset 0 1px 2px rgba(0,0,0,0.03); color:var(--ink); box-sizing: border-box; -webkit-appearance: none; appearance: none; margin:0;}
   input:focus, select:focus{outline:none; border-color:var(--brass-2); box-shadow:0 0 0 3px rgba(185,138,59,0.15);}
   input:read-only { background: var(--paper); color: var(--ink-soft); }
   
@@ -56,10 +57,10 @@
   /* Modern Search Bar */
   .search-wrapper { position: relative; margin-top: 14px; }
   .search-wrapper svg.search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--ink-soft); }
-  .search-wrapper input { padding-left: 42px; padding-right: 42px; border-color: var(--rule-strong); font-weight: 500; border-radius: 10px; }
+  .search-wrapper input { padding-left: 42px; padding-right: 42px; border-color: var(--rule-strong); font-weight: 500; border-radius: 10px; height: 48px; }
   .search-wrapper button.clear-btn { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #E5E2D9; border: none; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; color: var(--ink-soft); padding: 0; cursor: pointer; display: none; }
   
-  /* Tables */
+  /* Master Table */
   .table-wrap{background:var(--paper-2); border:1px solid var(--rule); border-radius:10px; overflow-x:auto; -webkit-overflow-scrolling:touch; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-top:16px;}
   table{width:100%; border-collapse:collapse; min-width:700px;}
   thead th{text-align:left; font-size:11.5px; font-weight:600; text-transform:uppercase; color:var(--ink-soft); padding:14px; border-bottom:1px solid var(--rule); background:#FAFAFA; cursor:pointer; user-select:none; white-space:nowrap;}
@@ -77,8 +78,9 @@
   .overlay.center .modal{border-radius:16px; max-width:400px; animation: scaleUp 0.2s ease;}
   .drag-handle { width: 40px; height: 5px; background: #D0CCC0; border-radius: 3px; margin: 0 auto 20px; }
   
-  .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-  .modal-header h3 { font-family:'Fraunces',serif; font-size:20px; margin:0; line-height:1.2; }
+  .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; gap:10px; }
+  .modal-header .title-wrap { flex: 1; overflow: hidden; }
+  .modal-header h3 { font-family:'Fraunces',serif; font-size:19px; margin:0; line-height:1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .modal-header .subtitle { font-size: 13px; color: var(--ink-soft); font-weight:500; font-family:'IBM Plex Mono', monospace; margin-top:4px; display:block; }
   
   /* Ledger Specific Layout */
@@ -89,6 +91,11 @@
   
   .form-card{background:var(--paper-2); border:1px solid var(--rule); padding:16px; border-radius:12px; margin-bottom:20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);}
   
+  /* Compact Ledger Table Mobile Overrides */
+  .ledger-table { min-width: 100%; table-layout: auto; }
+  .ledger-table th, .ledger-table td { font-size: 13px; padding: 12px 6px; white-space: normal; word-break: break-word; }
+  .ledger-table td:last-child { padding-right: 0; }
+  
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes scaleUp { from { transform: scale(0.95); opacity:0; } to { transform: scale(1); opacity:1; } }
@@ -96,10 +103,12 @@
   @media (max-width: 600px){
     .wrap { padding: 14px; }
     .table-wrap { border-left: none; border-right: none; border-radius: 0; margin-left: -14px; margin-right: -14px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
-    .btn { flex: 1; justify-content: center; } 
-    .btn-row.actions { flex-wrap: nowrap; }
+    /* Selectively stretch buttons, exclude specific compact buttons */
+    .btn:not(.btn-compact) { flex: 1; justify-content: center; } 
+    .btn-row.actions { flex-wrap: nowrap; justify-content: flex-end; }
     .stat-card { padding: 12px; }
     .stat-card .val { font-size: 18px; }
+    .ledger-table th, .ledger-table td { font-size: 12px; padding: 10px 4px; }
   }
 </style>
 </head>
@@ -205,12 +214,13 @@
   <div class="modal">
     <div class="drag-handle"></div>
     <div class="modal-header">
-      <div>
+      <div class="title-wrap">
         <h3 id="ledgerTitleName">Name</h3>
         <span class="subtitle" id="ledgerTitleAcc">A/C: ---</span>
       </div>
-      <button class="btn secondary btn-sm" style="border-radius:20px;" onclick="el('overlayLedger').classList.remove('show')">
-        <svg class="icon-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Close
+      <!-- Added btn-compact so mobile CSS doesn't stretch it -->
+      <button class="btn secondary btn-sm btn-compact" style="flex:0 0 auto; border-radius:20px; padding:8px 12px;" onclick="el('overlayLedger').classList.remove('show')">
+        ✕ Close
       </button>
     </div>
     
@@ -241,7 +251,7 @@
     <!-- Add Payment Form -->
     <form class="form-card" id="txnForm">
       <input type="hidden" id="tEditingId">
-      <div class="grid cols-2">
+      <div class="grid cols-2" style="align-items:end;">
         <div><label>Date</label><input type="date" id="tDate" required></div>
         <div><label>Amount</label><input type="number" step="0.01" id="tAmount" required></div>
       </div>
@@ -254,10 +264,17 @@
       </div>
     </form>
 
-    <!-- Ledger Table -->
+    <!-- Ledger Table (Compact) -->
     <div class="table-wrap" style="margin-top:0;">
-      <table>
-        <thead><tr><th>Date</th> <th>Amount</th> <th>Notes</th> <th>Actions</th></tr></thead>
+      <table class="ledger-table">
+        <thead>
+          <tr>
+            <th style="width:25%;">Date</th> 
+            <th style="width:25%;">Amount</th> 
+            <th style="width:30%;">Notes</th> 
+            <th style="width:20%; text-align:right;">Actions</th>
+          </tr>
+        </thead>
         <tbody id="ledgerTableBody"></tbody>
       </table>
     </div>
@@ -367,7 +384,7 @@ function renderMasterTable(){
       <td class="nums num-cell">${fmtMoney(c.amount)}</td>
       <td class="nums num-cell" style="font-weight:600; color:var(--ok);">${fmtMoney(c.totalDeposit)}</td>
       <td>${fmtDate(c.nextDueDate)}</td>
-      <td><button class="btn secondary btn-sm" style="padding:6px;" onclick="editClient('${c.id}')"><svg class="icon-sm" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button></td>
+      <td><button class="btn secondary btn-sm" style="padding:8px;" onclick="editClient('${c.id}')"><svg class="icon-sm" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button></td>
     </tr>`).join('');
 
   document.querySelectorAll('th[data-key]').forEach(th => {
@@ -459,10 +476,19 @@ function renderLedgerTable(accNo) {
   if(txns.length === 0){ tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:30px; color:var(--ink-soft);">No records yet.</td></tr>`; return; }
   
   const sorted = [...txns].sort((a,b) => (a.date < b.date ? 1 : -1));
-  tbody.innerHTML = sorted.map(t => `<tr><td>${fmtDate(t.date)}</td><td class="nums"><b>${fmtMoney(t.amount)}</b></td>
-      <td>${escapeHtml(t.remarks)}</td><td><div class="btn-row actions" style="justify-content:flex-end; gap:6px;">
-      <button class="btn secondary btn-sm" style="padding:6px;" onclick="editTxn('${accNo}', '${t.txnId}')"><svg class="icon-sm" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
-      <button class="btn danger btn-sm" style="padding:6px;" onclick="deleteTxn('${accNo}', '${t.txnId}')"><svg class="icon-sm" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></div></td></tr>`).join('');
+  
+  // Compact buttons specifically for ledger actions to prevent horizontal scroll
+  tbody.innerHTML = sorted.map(t => `<tr>
+    <td>${fmtDate(t.date)}</td>
+    <td class="nums" style="font-weight:600;">${fmtMoney(t.amount)}</td>
+    <td>${escapeHtml(t.remarks)}</td>
+    <td style="padding-right:0;">
+      <div class="btn-row actions btn-compact" style="justify-content:flex-end; gap:6px;">
+        <button class="btn secondary btn-sm btn-compact" style="padding:6px; flex:0 0 auto;" onclick="editTxn('${accNo}', '${t.txnId}')"><svg class="icon-sm" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+        <button class="btn danger btn-sm btn-compact" style="padding:6px; flex:0 0 auto;" onclick="deleteTxn('${accNo}', '${t.txnId}')"><svg class="icon-sm" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+      </div>
+    </td>
+  </tr>`).join('');
 }
 
 function resetTxnForm(accNo) {
