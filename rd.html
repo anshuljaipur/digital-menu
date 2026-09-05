@@ -231,15 +231,36 @@ async function attemptLoad(pin) {
   el('btnUnlock').disabled = true;
   el('btnUnlock').textContent = 'Verifying...';
   el('authStatus').textContent = '';
+  el('authStatus').className = 'status-line err';
 
   try {
-    const res = await fetch(sheetUrl + "?pin=" + encodeURIComponent(pin));
-    if (!res.ok) throw new Error("Network error.");
-    const result = await res.json();
+    // 1. Add a 10-second timeout so it NEVER gets stuck infinitely
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const res = await fetch(sheetUrl + "?pin=" + encodeURIComponent(pin), {
+      method: 'GET',
+      redirect: 'follow',
+      signal: controller.signal
+    });
     
-    if (result.error) {
-      throw new Error(result.error);
+    clearTimeout(timeoutId);
+
+    const textRaw = await res.text();
+    
+    // 2. Detect if Google is trying to serve a blocked HTML login page
+    if (textRaw.trim().startsWith("<!DOCTYPE html>")) {
+      throw new Error("Google blocked access. Ensure script access is set to 'Anyone'.");
     }
+
+    let result;
+    try { 
+      result = JSON.parse(textRaw); 
+    } catch (e) { 
+      throw new Error("Invalid backend response. Did you deploy as 'New version'?"); 
+    }
+    
+    if (result.error) throw new Error(result.error);
 
     // Success - save PIN and unlock app
     activePin = pin;
@@ -266,7 +287,8 @@ async function attemptLoad(pin) {
     el('appArea').style.display = 'block';
     renderMasterTable();
   } catch(err) {
-    el('authStatus').textContent = 'Access Denied: ' + err.message;
+    // 3. Gracefully handle errors and reset the UI so it doesn't stay stuck
+    el('authStatus').textContent = err.name === 'AbortError' ? 'Connection timed out. Check your internet.' : err.message;
     localStorage.removeItem('rd_app_pin');
     activePin = '';
     el('appPin').value = '';
