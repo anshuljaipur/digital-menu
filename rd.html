@@ -199,8 +199,8 @@ const sheetUrl = "https://script.google.com/macros/s/AKfycbzWRoN9uB3kmsQCmeB8P4O
 
 let activePin = localStorage.getItem('rd_app_pin') || '';
 let clients = [];          
-let transactions = {}; // Caches tabs ONLY when opened
-let modifiedLedgers = new Set(); // Tracks which tabs need saving
+let transactions = {}; 
+let modifiedLedgers = new Set();
 let deletedAccounts = [];
 
 let dirty = false;
@@ -215,7 +215,7 @@ const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString('en-IN', {day:'2
 const escapeHtml = (s) => String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
 /* ============================================================
-   AUTHENTICATION & LOAD (LAZY LOAD ENABLED)
+   AUTHENTICATION & LOAD 
    ============================================================ */
 window.addEventListener('DOMContentLoaded', () => {
   if(activePin) { el('appPin').value = activePin; attemptLoad(activePin); }
@@ -232,11 +232,10 @@ async function attemptLoad(pin) {
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
-
     const res = await fetch(sheetUrl + "?pin=" + encodeURIComponent(pin), { method: 'GET', redirect: 'follow', signal: controller.signal });
     clearTimeout(timeoutId);
-    const textRaw = await res.text();
     
+    const textRaw = await res.text();
     if (textRaw.trim().startsWith("<!DOCTYPE html>")) throw new Error("Google blocked access. Ensure Apps Script is shared with 'Anyone'.");
 
     let result;
@@ -245,7 +244,6 @@ async function attemptLoad(pin) {
 
     activePin = pin; localStorage.setItem('rd_app_pin', activePin);
     
-    // Only loads Master sheet on boot
     clients = (result.clients || []).map(r => ({
       id: uid(), accountNo: String(r['Account No.'] || '').trim(), amount: Number(r['Amount']) || 0,
       holderName: String(r['Account Holder Name'] || '').trim(), nextDueDate: toISODate(r['Next Due Date']),
@@ -363,7 +361,6 @@ window.openLedger = async (accNo) => {
   el('ledgerTitle').textContent = `${c.holderName} (${c.accountNo})`; 
   el('activeLedgerAccount').value = accNo;
   
-  // Lazy Load Trigger
   if (!transactions[accNo]) {
     el('connText').textContent = 'Fetching ledger...';
     try {
@@ -377,7 +374,7 @@ window.openLedger = async (accNo) => {
     }
   }
 
-  resetTxnForm(); renderLedgerTable(accNo); el('overlayLedger').classList.add('show');
+  resetTxnForm(accNo); renderLedgerTable(accNo); el('overlayLedger').classList.add('show');
 };
 
 function renderLedgerTable(accNo) {
@@ -394,9 +391,17 @@ function renderLedgerTable(accNo) {
       <button class="btn danger btn-sm" onclick="deleteTxn('${accNo}', '${t.txnId}')">✕</button></div></td></tr>`).join('');
 }
 
-function resetTxnForm() {
-  el('tEditingId').value = ''; el('tDate').value = new Date().toISOString().slice(0,10); el('tAmount').value = '';
-  el('tRemarks').value = ''; el('tSubmitBtn').textContent = '+ Add Payment'; el('tCancelBtn').style.display = 'none';
+// Prefills amount based on current client
+function resetTxnForm(accNo) {
+  const currentAcc = accNo || el('activeLedgerAccount').value;
+  const c = clients.find(x => x.accountNo === currentAcc);
+  
+  el('tEditingId').value = ''; 
+  el('tDate').value = new Date().toISOString().slice(0,10); 
+  el('tAmount').value = c ? c.amount : ''; // Inject base installment amount
+  el('tRemarks').value = ''; 
+  el('tSubmitBtn').textContent = '+ Add Payment'; 
+  el('tCancelBtn').style.display = 'none';
 }
 
 window.editTxn = (accNo, txnId) => {
