@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voter List Manager - Sunita Mavar</title>
+    <title>Voter List Manager 1.0</title>
     
     <!-- Libraries for CSV parsing, PDF and Image generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -28,7 +28,7 @@
             min-height: 100vh;
         }
 
-        /* Congress Symbol Watermark */
+        /* Congress Symbol Watermark using local inc.webp */
         body::before {
             content: "";
             position: fixed;
@@ -37,7 +37,7 @@
             transform: translate(-50%, -50%);
             width: 80%;
             height: 80%;
-            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Indian_National_Congress_hand_logo.svg/1024px-Indian_National_Congress_hand_logo.svg.png');
+            background-image: url('inc.webp');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
@@ -53,33 +53,52 @@
             padding: 10px 15px;
             display: flex;
             align-items: center;
+            justify-content: space-between;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             position: sticky;
             top: 0;
             z-index: 10;
+            box-sizing: border-box;
+            min-height: 68px;
         }
 
         .header-logo {
-            width: 50px;
-            height: 50px;
+            width: 48px;
+            height: 48px;
             background-color: white;
             border-radius: 50%;
-            padding: 4px;
+            padding: 3px;
             object-fit: contain;
-            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        /* Spacer balance to keep center element centered */
+        .header-spacer {
+            width: 48px;
+            flex-shrink: 0;
+        }
+
+        .header-info {
+            flex-grow: 1;
+            text-align: center;
+            padding: 0 10px;
         }
 
         .header-info h1 {
             margin: 0;
-            font-size: 20px;
-            letter-spacing: 1px;
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: 1.2px;
             text-transform: uppercase;
+            line-height: 1.2;
         }
 
         .header-info #datetimeDisplay {
-            font-size: 12px;
-            margin-top: 3px;
+            font-size: 11px;
+            margin-top: 4px;
             opacity: 0.9;
+            font-weight: normal;
+            letter-spacing: 0.3px;
         }
 
         .main-content {
@@ -199,13 +218,15 @@
 </head>
 <body>
 
-    <!-- Header Title Bar -->
+    <!-- Header Title Bar with centered Candidate Name -->
     <div class="top-header" id="export-header">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Indian_National_Congress_hand_logo.svg/1024px-Indian_National_Congress_hand_logo.svg.png" alt="INC Symbol" class="header-logo">
+        <img src="inc.webp" alt="INC Symbol" class="header-logo">
         <div class="header-info">
             <h1>SUNITA MAVAR</h1>
             <div id="datetimeDisplay">Loading Date & Time...</div>
         </div>
+        <!-- Symmetrical spacer so the centered text sits in the true center of the screen -->
+        <div class="header-spacer"></div>
     </div>
 
     <div class="main-content">
@@ -244,7 +265,7 @@
             </div>
         </div>
 
-        <!-- This section will be converted to PDF/Image -->
+        <!-- Filtered results list -->
         <div id="export-container">
             <div id="resultsList">
                 <div class="loading">Loading data from Google Sheets...</div>
@@ -260,7 +281,7 @@
             document.getElementById('datetimeDisplay').innerText = now.toLocaleDateString('en-IN', options);
         }
         setInterval(updateDateTime, 1000);
-        updateDateTime(); // run instantly on load
+        updateDateTime();
 
         // Auto-focus search bar on load
         window.onload = () => {
@@ -269,7 +290,6 @@
             }, 500);
         };
 
-        // Your provided CSV URL
         const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHKf8MEj6EatuPnVn_UC-J7HrH3pn4vFLW9swh4UDWQjNphYUC9OmSjXGiENIiTjSrhNtMV5UcaYwF/pub?output=csv"; 
 
         let sheetData = [];
@@ -346,7 +366,6 @@
             filteredData = sheetData.filter(item => {
                 let matchesSearch = false;
                 
-                // Determine search area based on radio button
                 if (searchText === "") {
                     matchesSearch = true;
                 } else if (searchScope === "All") {
@@ -366,7 +385,6 @@
             renderData(filteredData);
         }
 
-        // Export Functions
         function exportToPDF() {
             const element = document.getElementById('export-container');
             const opt = {
