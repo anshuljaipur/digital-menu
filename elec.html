@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voter List Manager 1.0</title>
+    <title>Voter List Manager - SUNITA MAVAR</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -43,7 +43,7 @@
         .card-details { font-size: 14px; color: #444; display: flex; justify-content: space-between; margin-bottom: 4px; }
         .loading { text-align: center; padding: 20px; font-weight: bold; color: #666; }
         
-        .btn-load-more { background-color: #6c757d; width: 100%; margin-top: 15px; padding: 15px; font-size: 16px; display: none; }
+        .btn-load-more { background-color: #6c757d; width: 100%; margin-top: 15px; padding: 15px; font-size: 16px; display: none; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -111,8 +111,6 @@
 
         let sheetData = [];
         let filteredData = [];
-        
-        // Pagination Variables
         let itemsPerPage = 100;
         let currentPage = 1;
 
@@ -143,7 +141,6 @@
             });
         }
 
-        // Updated Render Data with Pagination
         function renderData(reset = false) {
             const container = document.getElementById('resultsList');
             const loadMoreBtn = document.getElementById('loadMoreBtn');
@@ -182,13 +179,7 @@
             });
 
             document.getElementById('countDisplay').innerText = `Total Found: ${filteredData.length} (Showing ${Math.min(endIndex, filteredData.length)})`;
-
-            // Show or Hide "Load More" Button
-            if (endIndex < filteredData.length) {
-                loadMoreBtn.style.display = 'block';
-            } else {
-                loadMoreBtn.style.display = 'none';
-            }
+            loadMoreBtn.style.display = (endIndex < filteredData.length) ? 'block' : 'none';
         }
 
         function loadMore() {
@@ -196,27 +187,49 @@
             renderData(false);
         }
 
+        function normalizeHindiToNumeric(str) {
+            if (!str) return "";
+            const hindiToNumericMap = {
+                '०': '0', '१': '1', '२': '2', '३': '3', '४': '4',
+                '५': '5', '६': '6', '७': '7', '८': '8', '९': '9'
+            };
+            return String(str).replace(/[०-९]/g, match => hindiToNumericMap[match]);
+        }
+
         function applyFilters() {
-            const searchText = document.getElementById('searchInput').value.toLowerCase().trim();
+            const rawSearchText = document.getElementById('searchInput').value.toLowerCase().trim();
+            const searchText = normalizeHindiToNumeric(rawSearchText);
+            
             const searchScope = document.querySelector('input[name="searchScope"]:checked').value;
             const sex = document.getElementById('sexFilter').value;
             const status = document.getElementById('statusFilter').value;
 
             filteredData = sheetData.filter(item => {
                 let matchesSearch = false;
-                if (searchText === "") { matchesSearch = true; } 
+                
+                if (searchText === "") { 
+                    matchesSearch = true; 
+                } 
                 else if (searchScope === "All") {
-                    matchesSearch = Object.values(item).some(val => String(val || "").toLowerCase().includes(searchText));
+                    // Search all columns EXCEPT 'S.No.'
+                    matchesSearch = Object.entries(item).some(([key, val]) => {
+                        if (key === 'S.No.') return false; // Ignore Serial Number column entirely
+                        
+                        const normalizedVal = normalizeHindiToNumeric(String(val || "").toLowerCase());
+                        return normalizedVal.includes(searchText);
+                    });
                 } else {
-                    matchesSearch = String(item[searchScope] || "").toLowerCase().includes(searchText);
+                    const normalizedVal = normalizeHindiToNumeric(String(item[searchScope] || "").toLowerCase());
+                    matchesSearch = normalizedVal.includes(searchText);
                 }
+                
                 const matchesSex = sex === "All" || item['Sex'] === sex;
                 const matchesStatus = status === "All" || item['Status'] === status;
                 
                 return matchesSearch && matchesSex && matchesStatus;
             });
 
-            renderData(true); // Reset to page 1 on new search
+            renderData(true);
         }
 
         function exportToPDF() {
