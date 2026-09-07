@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voter List Manager</title>
+    <title>Voter List Manager 1.0</title>
     
     <!-- Libraries for CSV parsing, PDF and Image generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -133,8 +133,8 @@
 <body>
 
     <div class="header-controls">
-        <label>Search (Name or Voter ID):</label>
-        <input type="text" id="searchInput" placeholder="Type to search..." onkeyup="applyFilters()">
+        <label>Smart Search:</label>
+        <input type="text" id="searchInput" placeholder="Search any detail..." onkeyup="applyFilters()">
         
         <label>Filter by Sex:</label>
         <select id="sexFilter" onchange="applyFilters()">
@@ -219,15 +219,15 @@
                 card.className = 'card';
                 card.innerHTML = `
                     <div class="card-title">
-                        ${item['Name']} <span>(${item['Sex']}, Age: ${item['Age']})</span>
+                        ${item['Name'] || 'N/A'} <span>(${item['Sex'] || '-'}, Age: ${item['Age'] || '-'})</span>
                     </div>
                     <div class="card-details">
-                        <span>Voter ID: <strong>${item['VoterID Number']}</strong></span>
-                        <span>Status: <strong>${item['Status']}</strong></span>
+                        <span>Voter ID: <strong>${item['VoterID Number'] || 'N/A'}</strong></span>
+                        <span>Status: <strong>${item['Status'] || '-'}</strong></span>
                     </div>
                     <div class="card-details" style="font-size: 13px; color: #666;">
-                        <span>Relative: ${item['Relative Name']}</span>
-                        <span>House No: ${item['House Number']}</span>
+                        <span>Relative: ${item['Relative Name'] || '-'}</span>
+                        <span>House No: ${item['House Number'] || '-'}</span>
                     </div>
                 `;
                 container.appendChild(card);
@@ -237,16 +237,16 @@
         }
 
         function applyFilters() {
-            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const searchText = document.getElementById('searchInput').value.toLowerCase().trim();
             const sex = document.getElementById('sexFilter').value;
             const status = document.getElementById('statusFilter').value;
 
             filteredData = sheetData.filter(item => {
-                // Ensure data exists before calling .toLowerCase()
-                const safeName = (item['Name'] || "").toLowerCase();
-                const safeVoterId = (item['VoterID Number'] || "").toLowerCase();
+                // SMART SEARCH: Checks if the search text exists in ANY column of the row
+                const matchesSearch = Object.values(item).some(val => 
+                    String(val || "").toLowerCase().includes(searchText)
+                );
                 
-                const matchesSearch = safeName.includes(searchText) || safeVoterId.includes(searchText);
                 const matchesSex = sex === "All" || item['Sex'] === sex;
                 const matchesStatus = status === "All" || item['Status'] === status;
                 
