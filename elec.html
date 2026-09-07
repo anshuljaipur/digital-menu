@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voter List Manager</title>
+    
+    <!-- Libraries for CSV parsing, PDF and Image generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #0056b3;
+            --bg: #f8f9fa;
+            --text: #333;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Congress Symbol Watermark */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Indian_National_Congress_hand_logo.svg/1024px-Indian_National_Congress_hand_logo.svg.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.08; 
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .header-controls {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 15px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .stats {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+        }
+
+        .btn-pdf { background-color: #e74c3c; }
+        .btn-wa { background-color: #25D366; }
+
+        /* Container to be exported */
+        #export-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .card {
+            border-bottom: 1px solid #ddd;
+            padding: 12px 5px;
+        }
+        .card:last-child {
+            border-bottom: none;
+        }
+        .card-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 6px;
+            color: var(--primary);
+        }
+        .card-title span {
+            color: #555;
+            font-weight: normal;
+            font-size: 14px;
+        }
+        .card-details {
+            font-size: 14px;
+            color: #444;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-weight: bold;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-controls">
+        <label>Search (Name or Voter ID):</label>
+        <input type="text" id="searchInput" placeholder="Type to search..." onkeyup="applyFilters()">
+        
+        <label>Filter by Sex:</label>
+        <select id="sexFilter" onchange="applyFilters()">
+            <option value="All">All</option>
+            <!-- Options added dynamically -->
+        </select>
+
+        <label>Filter by Status:</label>
+        <select id="statusFilter" onchange="applyFilters()">
+            <option value="All">All</option>
+            <!-- Options added dynamically -->
+        </select>
+
+        <div class="stats" id="countDisplay">Total Shown: 0</div>
+
+        <div class="button-group">
+            <button class="btn-pdf" onclick="exportToPDF()">Export PDF</button>
+            <button class="btn-wa" onclick="shareToWhatsApp()">Share WhatsApp</button>
+        </div>
+    </div>
+
+    <!-- This section will be converted to PDF/Image -->
+    <div id="export-container">
+        <div id="resultsList">
+            <div class="loading">Loading data from Google Sheets...</div>
+        </div>
+    </div>
+
+    <script>
+        // PASTE YOUR PUBLISHED GOOGLE SHEET CSV LINK HERE inside the quotes
+        const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHKf8MEj6EatuPnVn_UC-J7HrH3pn4vFLW9swh4UDWQjNphYUC9OmSjXGiENIiTjSrhNtMV5UcaYwF/pub?output=csv"; 
+
+        let sheetData = [];
+        let filteredData = [];
+
+        // Fetch and parse the CSV on page load
+        Papa.parse(csvUrl, {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            complete: function(results) {
+                sheetData = results.data;
+                
+                // Automatically build the dropdown filters based on sheet data
+                populateDropdown('sexFilter', 'Sex');
+                populateDropdown('statusFilter', 'Status');
+                
+                filteredData = [...sheetData];
+                renderData(filteredData);
+            },
+            error: function(error) {
+                document.getElementById('resultsList').innerHTML = 
+                    `<p style="color:red; text-align:center;">Failed to load data. Make sure your CSV link is correct.</p>`;
+                console.error("Error parsing CSV:", error);
+            }
+        });
+
+        // Helper function to dynamically create dropdown options based on unique sheet values
+        function populateDropdown(selectId, columnName) {
+            const select = document.getElementById(selectId);
+            // Get unique values from the column, remove empty ones
+            const uniqueValues = [...new Set(sheetData.map(item => item[columnName]))].filter(val => val && val.trim() !== "");
+            
+            uniqueValues.forEach(val => {
+                const opt = document.createElement('option');
+                opt.value = val;
+                opt.innerText = val;
+                select.appendChild(opt);
+            });
+        }
+
+        function renderData(data) {
+            const container = document.getElementById('resultsList');
+            container.innerHTML = '';
+            
+            if(data.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#888;">No results found.</p>';
+            }
+
+            data.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-title">
+                        ${item['Name']} <span>(${item['Sex']}, Age: ${item['Age']})</span>
+                    </div>
+                    <div class="card-details">
+                        <span>Voter ID: <strong>${item['VoterID Number']}</strong></span>
+                        <span>Status: <strong>${item['Status']}</strong></span>
+                    </div>
+                    <div class="card-details" style="font-size: 13px; color: #666;">
+                        <span>Relative: ${item['Relative Name']}</span>
+                        <span>House No: ${item['House Number']}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            document.getElementById('countDisplay').innerText = `Total Shown: ${data.length}`;
+        }
+
+        function applyFilters() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const sex = document.getElementById('sexFilter').value;
+            const status = document.getElementById('statusFilter').value;
+
+            filteredData = sheetData.filter(item => {
+                // Ensure data exists before calling .toLowerCase()
+                const safeName = (item['Name'] || "").toLowerCase();
+                const safeVoterId = (item['VoterID Number'] || "").toLowerCase();
+                
+                const matchesSearch = safeName.includes(searchText) || safeVoterId.includes(searchText);
+                const matchesSex = sex === "All" || item['Sex'] === sex;
+                const matchesStatus = status === "All" || item['Status'] === status;
+                
+                return matchesSearch && matchesSex && matchesStatus;
+            });
+
+            renderData(filteredData);
+        }
+
+        function exportToPDF() {
+            const element = document.getElementById('export-container');
+            const opt = {
+                margin:       10,
+                filename:     'voter_list.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        async function shareToWhatsApp() {
+            const element = document.getElementById('export-container');
+            
+            try {
+                const originalBg = element.style.background;
+                element.style.background = '#ffffff';
+                
+                const canvas = await html2canvas(element, { scale: 2 });
+                element.style.background = originalBg;
+
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], "voters.png", { type: "image/png" });
+                    
+                    if (navigator.share) {
+                        try {
+                            await navigator.share({
+                                title: 'Filtered Voter List',
+                                text: `Filtered List Count: ${filteredData.length}`,
+                                files: [file]
+                            });
+                        } catch (err) {
+                            console.error("Share failed:", err);
+                        }
+                    } else {
+                        alert("Web Share API is not supported on this browser. Use a modern mobile browser over HTTPS.");
+                    }
+                });
+            } catch (error) {
+                console.error("Error generating image:", error);
+                alert("Failed to generate image.");
+            }
+        }
+    </script>
+</body>
+</html>
