@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voter List Manager 1.0</title>
+    <title>Voter List Manager - Sunita Mavar</title>
     
     <!-- Libraries for CSV parsing, PDF and Image generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -13,6 +13,7 @@
     <style>
         :root {
             --primary: #0056b3;
+            --primary-dark: #003d82;
             --bg: #f8f9fa;
             --text: #333;
         }
@@ -22,7 +23,7 @@
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
-            padding: 15px;
+            padding: 0;
             position: relative;
             min-height: 100vh;
         }
@@ -45,6 +46,46 @@
             pointer-events: none;
         }
 
+        /* Top Header Bar */
+        .top-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header-logo {
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            border-radius: 50%;
+            padding: 4px;
+            object-fit: contain;
+            margin-right: 15px;
+        }
+
+        .header-info h1 {
+            margin: 0;
+            font-size: 20px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .header-info #datetimeDisplay {
+            font-size: 12px;
+            margin-top: 3px;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 15px;
+        }
+
         .header-controls {
             background: white;
             padding: 15px;
@@ -55,12 +96,38 @@
 
         input[type="text"], select {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin: 5px 0 15px 0;
             border: 1px solid #ddd;
             border-radius: 5px;
             box-sizing: border-box;
             font-size: 16px;
+        }
+
+        /* Radio Buttons */
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+            background: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .radio-group input[type="radio"] {
+            margin-right: 5px;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
         }
 
         .stats {
@@ -132,39 +199,77 @@
 </head>
 <body>
 
-    <div class="header-controls">
-        <label>Smart Search:</label>
-        <input type="text" id="searchInput" placeholder="Search any detail..." onkeyup="applyFilters()">
-        
-        <label>Filter by Sex:</label>
-        <select id="sexFilter" onchange="applyFilters()">
-            <option value="All">All</option>
-            <!-- Options added dynamically -->
-        </select>
-
-        <label>Filter by Status:</label>
-        <select id="statusFilter" onchange="applyFilters()">
-            <option value="All">All</option>
-            <!-- Options added dynamically -->
-        </select>
-
-        <div class="stats" id="countDisplay">Total Shown: 0</div>
-
-        <div class="button-group">
-            <button class="btn-pdf" onclick="exportToPDF()">Export PDF</button>
-            <button class="btn-wa" onclick="shareToWhatsApp()">Share WhatsApp</button>
+    <!-- Header Title Bar -->
+    <div class="top-header" id="export-header">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Indian_National_Congress_hand_logo.svg/1024px-Indian_National_Congress_hand_logo.svg.png" alt="INC Symbol" class="header-logo">
+        <div class="header-info">
+            <h1>SUNITA MAVAR</h1>
+            <div id="datetimeDisplay">Loading Date & Time...</div>
         </div>
     </div>
 
-    <!-- This section will be converted to PDF/Image -->
-    <div id="export-container">
-        <div id="resultsList">
-            <div class="loading">Loading data from Google Sheets...</div>
+    <div class="main-content">
+        <div class="header-controls">
+            
+            <label><strong>Search In:</strong></label>
+            <div class="radio-group">
+                <label><input type="radio" name="searchScope" value="All" checked onchange="applyFilters()"> All</label>
+                <label><input type="radio" name="searchScope" value="House Number" onchange="applyFilters()"> House No</label>
+                <label><input type="radio" name="searchScope" value="Name" onchange="applyFilters()"> Name</label>
+                <label><input type="radio" name="searchScope" value="VoterID Number" onchange="applyFilters()"> VIN</label>
+            </div>
+
+            <input type="text" id="searchInput" placeholder="Type to search..." onkeyup="applyFilters()" autofocus>
+            
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label>Sex:</label>
+                    <select id="sexFilter" onchange="applyFilters()">
+                        <option value="All">All</option>
+                    </select>
+                </div>
+                <div style="flex: 1;">
+                    <label>Status:</label>
+                    <select id="statusFilter" onchange="applyFilters()">
+                        <option value="All">All</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="stats" id="countDisplay">Total Shown: 0</div>
+
+            <div class="button-group">
+                <button class="btn-pdf" onclick="exportToPDF()">Export PDF</button>
+                <button class="btn-wa" onclick="shareToWhatsApp()">Share WhatsApp</button>
+            </div>
+        </div>
+
+        <!-- This section will be converted to PDF/Image -->
+        <div id="export-container">
+            <div id="resultsList">
+                <div class="loading">Loading data from Google Sheets...</div>
+            </div>
         </div>
     </div>
 
     <script>
-        // PASTE YOUR PUBLISHED GOOGLE SHEET CSV LINK HERE inside the quotes
+        // Live Date & Time Updater
+        function updateDateTime() {
+            const now = new Date();
+            const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            document.getElementById('datetimeDisplay').innerText = now.toLocaleDateString('en-IN', options);
+        }
+        setInterval(updateDateTime, 1000);
+        updateDateTime(); // run instantly on load
+
+        // Auto-focus search bar on load
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById('searchInput').focus();
+            }, 500);
+        };
+
+        // Your provided CSV URL
         const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHKf8MEj6EatuPnVn_UC-J7HrH3pn4vFLW9swh4UDWQjNphYUC9OmSjXGiENIiTjSrhNtMV5UcaYwF/pub?output=csv"; 
 
         let sheetData = [];
@@ -178,7 +283,6 @@
             complete: function(results) {
                 sheetData = results.data;
                 
-                // Automatically build the dropdown filters based on sheet data
                 populateDropdown('sexFilter', 'Sex');
                 populateDropdown('statusFilter', 'Status');
                 
@@ -187,17 +291,14 @@
             },
             error: function(error) {
                 document.getElementById('resultsList').innerHTML = 
-                    `<p style="color:red; text-align:center;">Failed to load data. Make sure your CSV link is correct.</p>`;
+                    `<p style="color:red; text-align:center;">Failed to load data. Please check connection.</p>`;
                 console.error("Error parsing CSV:", error);
             }
         });
 
-        // Helper function to dynamically create dropdown options based on unique sheet values
         function populateDropdown(selectId, columnName) {
             const select = document.getElementById(selectId);
-            // Get unique values from the column, remove empty ones
             const uniqueValues = [...new Set(sheetData.map(item => item[columnName]))].filter(val => val && val.trim() !== "");
-            
             uniqueValues.forEach(val => {
                 const opt = document.createElement('option');
                 opt.value = val;
@@ -227,7 +328,7 @@
                     </div>
                     <div class="card-details" style="font-size: 13px; color: #666;">
                         <span>Relative: ${item['Relative Name'] || '-'}</span>
-                        <span>House No: ${item['House Number'] || '-'}</span>
+                        <span>House No: <strong>${item['House Number'] || '-'}</strong></span>
                     </div>
                 `;
                 container.appendChild(card);
@@ -238,14 +339,23 @@
 
         function applyFilters() {
             const searchText = document.getElementById('searchInput').value.toLowerCase().trim();
+            const searchScope = document.querySelector('input[name="searchScope"]:checked').value;
             const sex = document.getElementById('sexFilter').value;
             const status = document.getElementById('statusFilter').value;
 
             filteredData = sheetData.filter(item => {
-                // SMART SEARCH: Checks if the search text exists in ANY column of the row
-                const matchesSearch = Object.values(item).some(val => 
-                    String(val || "").toLowerCase().includes(searchText)
-                );
+                let matchesSearch = false;
+                
+                // Determine search area based on radio button
+                if (searchText === "") {
+                    matchesSearch = true;
+                } else if (searchScope === "All") {
+                    matchesSearch = Object.values(item).some(val => 
+                        String(val || "").toLowerCase().includes(searchText)
+                    );
+                } else {
+                    matchesSearch = String(item[searchScope] || "").toLowerCase().includes(searchText);
+                }
                 
                 const matchesSex = sex === "All" || item['Sex'] === sex;
                 const matchesStatus = status === "All" || item['Status'] === status;
@@ -256,11 +366,12 @@
             renderData(filteredData);
         }
 
+        // Export Functions
         function exportToPDF() {
             const element = document.getElementById('export-container');
             const opt = {
                 margin:       10,
-                filename:     'voter_list.pdf',
+                filename:     'SUNITA_MAVAR_voter_list.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2 },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -284,7 +395,7 @@
                     if (navigator.share) {
                         try {
                             await navigator.share({
-                                title: 'Filtered Voter List',
+                                title: 'Sunita Mavar - Voter List',
                                 text: `Filtered List Count: ${filteredData.length}`,
                                 files: [file]
                             });
