@@ -5,233 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voter List Manager 1.0</title>
     
-    <!-- Libraries for CSV parsing, PDF and Image generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
-        :root {
-            --primary: #0056b3;
-            --primary-dark: #003d82;
-            --bg: #f8f9fa;
-            --text: #333;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
-            position: relative;
-            min-height: 100vh;
-        }
-
-        /* Congress Symbol Watermark using local inc.webp */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80%;
-            height: 80%;
-            background-image: url('inc.webp');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            opacity: 0.08; 
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        /* Top Header Bar */
-        .top-header {
-            background-color: var(--primary);
-            color: white;
-            padding: 10px 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            box-sizing: border-box;
-            min-height: 68px;
-        }
-
-        .header-logo {
-            width: 48px;
-            height: 48px;
-            background-color: white;
-            border-radius: 50%;
-            padding: 3px;
-            object-fit: contain;
-            flex-shrink: 0;
-        }
-
-        /* Spacer balance to keep center element centered */
-        .header-spacer {
-            width: 48px;
-            flex-shrink: 0;
-        }
-
-        .header-info {
-            flex-grow: 1;
-            text-align: center;
-            padding: 0 10px;
-        }
-
-        .header-info h1 {
-            margin: 0;
-            font-size: 21px;
-            font-weight: 800;
-            letter-spacing: 1.2px;
-            text-transform: uppercase;
-            line-height: 1.2;
-        }
-
-        .header-info #datetimeDisplay {
-            font-size: 11px;
-            margin-top: 4px;
-            opacity: 0.9;
-            font-weight: normal;
-            letter-spacing: 0.3px;
-        }
-
-        .main-content {
-            padding: 15px;
-        }
-
-        .header-controls {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin-bottom: 15px;
-        }
-
-        input[type="text"], select {
-            width: 100%;
-            padding: 12px;
-            margin: 5px 0 15px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-
-        /* Radio Buttons */
-        .radio-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 15px;
-            background: #f1f1f1;
-            padding: 10px;
-            border-radius: 5px;
-        }
+        :root { --primary: #0056b3; --primary-dark: #003d82; --bg: #f8f9fa; --text: #333; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; position: relative; min-height: 100vh; }
         
-        .radio-group label {
-            display: flex;
-            align-items: center;
-            font-size: 14px;
-            cursor: pointer;
-            margin-right: 5px;
-        }
+        body::before { content: ""; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 80%; background-image: url('inc.webp'); background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.08; z-index: -1; pointer-events: none; }
 
-        .radio-group input[type="radio"] {
-            margin-right: 5px;
-            width: 18px;
-            height: 18px;
-            accent-color: var(--primary);
-        }
+        .top-header { background-color: var(--primary); color: white; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 10; box-sizing: border-box; min-height: 68px; }
+        .header-logo { width: 48px; height: 48px; background-color: white; border-radius: 50%; padding: 3px; object-fit: contain; flex-shrink: 0; }
+        .header-spacer { width: 48px; flex-shrink: 0; }
+        .header-info { flex-grow: 1; text-align: center; padding: 0 10px; }
+        .header-info h1 { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; line-height: 1.2; }
+        .header-info #datetimeDisplay { font-size: 11px; margin-top: 4px; opacity: 0.9; letter-spacing: 0.3px; }
 
-        .stats {
-            font-weight: bold;
-            color: var(--primary);
-            margin-bottom: 15px;
-            font-size: 1.1em;
-        }
+        .main-content { padding: 15px; }
+        .header-controls { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        input[type="text"], select { width: 100%; padding: 12px; margin: 5px 0 15px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
 
-        .button-group {
-            display: flex;
-            gap: 10px;
-        }
+        .radio-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; background: #f1f1f1; padding: 10px; border-radius: 5px; }
+        .radio-group label { display: flex; align-items: center; font-size: 14px; cursor: pointer; margin-right: 5px; }
+        .radio-group input[type="radio"] { margin-right: 5px; width: 18px; height: 18px; accent-color: var(--primary); }
 
-        button {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 5px;
-            font-size: 14px;
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
-        }
+        .stats { font-weight: bold; color: var(--primary); margin-bottom: 15px; font-size: 1.1em; text-align: center;}
+        .button-group { display: flex; gap: 10px; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-size: 14px; font-weight: bold; color: white; cursor: pointer; }
+        .btn-pdf { background-color: #e74c3c; } .btn-wa { background-color: #25D366; }
 
-        .btn-pdf { background-color: #e74c3c; }
-        .btn-wa { background-color: #25D366; }
-
-        /* Container to be exported */
-        #export-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 10px;
-            padding: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .card {
-            border-bottom: 1px solid #ddd;
-            padding: 12px 5px;
-        }
-        .card:last-child {
-            border-bottom: none;
-        }
-        .card-title {
-            font-weight: bold;
-            font-size: 16px;
-            margin-bottom: 6px;
-            color: var(--primary);
-        }
-        .card-title span {
-            color: #555;
-            font-weight: normal;
-            font-size: 14px;
-        }
-        .card-details {
-            font-size: 14px;
-            color: #444;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 4px;
-        }
-        .loading {
-            text-align: center;
-            padding: 20px;
-            font-weight: bold;
-            color: #666;
-        }
+        #export-container { background: rgba(255, 255, 255, 0.95); border-radius: 10px; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .card { border-bottom: 1px solid #ddd; padding: 12px 5px; }
+        .card:last-child { border-bottom: none; }
+        .card-title { font-weight: bold; font-size: 16px; margin-bottom: 6px; color: var(--primary); }
+        .card-title span { color: #555; font-weight: normal; font-size: 14px; }
+        .card-details { font-size: 14px; color: #444; display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .loading { text-align: center; padding: 20px; font-weight: bold; color: #666; }
+        
+        .btn-load-more { background-color: #6c757d; width: 100%; margin-top: 15px; padding: 15px; font-size: 16px; display: none; }
     </style>
 </head>
 <body>
 
-    <!-- Header Title Bar with centered Candidate Name -->
     <div class="top-header" id="export-header">
         <img src="inc.webp" alt="INC Symbol" class="header-logo">
         <div class="header-info">
             <h1>SUNITA MAVAR</h1>
             <div id="datetimeDisplay">Loading Date & Time...</div>
         </div>
-        <!-- Symmetrical spacer so the centered text sits in the true center of the screen -->
         <div class="header-spacer"></div>
     </div>
 
     <div class="main-content">
         <div class="header-controls">
-            
             <label><strong>Search In:</strong></label>
             <div class="radio-group">
                 <label><input type="radio" name="searchScope" value="All" checked onchange="applyFilters()"> All</label>
@@ -245,19 +72,15 @@
             <div style="display: flex; gap: 10px;">
                 <div style="flex: 1;">
                     <label>Sex:</label>
-                    <select id="sexFilter" onchange="applyFilters()">
-                        <option value="All">All</option>
-                    </select>
+                    <select id="sexFilter" onchange="applyFilters()"><option value="All">All</option></select>
                 </div>
                 <div style="flex: 1;">
                     <label>Status:</label>
-                    <select id="statusFilter" onchange="applyFilters()">
-                        <option value="All">All</option>
-                    </select>
+                    <select id="statusFilter" onchange="applyFilters()"><option value="All">All</option></select>
                 </div>
             </div>
 
-            <div class="stats" id="countDisplay">Total Shown: 0</div>
+            <div class="stats" id="countDisplay">Total Found: 0</div>
 
             <div class="button-group">
                 <button class="btn-pdf" onclick="exportToPDF()">Export PDF</button>
@@ -265,16 +88,15 @@
             </div>
         </div>
 
-        <!-- Filtered results list -->
         <div id="export-container">
             <div id="resultsList">
-                <div class="loading">Loading data from Google Sheets...</div>
+                <div class="loading">Loading 20,000 voters from Google Sheets...</div>
             </div>
+            <button id="loadMoreBtn" class="btn-load-more" onclick="loadMore()">Load Next 100</button>
         </div>
     </div>
 
     <script>
-        // Live Date & Time Updater
         function updateDateTime() {
             const now = new Date();
             const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
@@ -283,36 +105,30 @@
         setInterval(updateDateTime, 1000);
         updateDateTime();
 
-        // Auto-focus search bar on load
-        window.onload = () => {
-            setTimeout(() => {
-                document.getElementById('searchInput').focus();
-            }, 500);
-        };
+        window.onload = () => { setTimeout(() => { document.getElementById('searchInput').focus(); }, 500); };
 
         const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHKf8MEj6EatuPnVn_UC-J7HrH3pn4vFLW9swh4UDWQjNphYUC9OmSjXGiENIiTjSrhNtMV5UcaYwF/pub?output=csv"; 
 
         let sheetData = [];
         let filteredData = [];
+        
+        // Pagination Variables
+        let itemsPerPage = 100;
+        let currentPage = 1;
 
-        // Fetch and parse the CSV on page load
         Papa.parse(csvUrl, {
             download: true,
             header: true,
             skipEmptyLines: true,
             complete: function(results) {
                 sheetData = results.data;
-                
                 populateDropdown('sexFilter', 'Sex');
                 populateDropdown('statusFilter', 'Status');
-                
                 filteredData = [...sheetData];
-                renderData(filteredData);
+                renderData(true);
             },
             error: function(error) {
-                document.getElementById('resultsList').innerHTML = 
-                    `<p style="color:red; text-align:center;">Failed to load data. Please check connection.</p>`;
-                console.error("Error parsing CSV:", error);
+                document.getElementById('resultsList').innerHTML = `<p style="color:red; text-align:center;">Failed to load data.</p>`;
             }
         });
 
@@ -327,21 +143,32 @@
             });
         }
 
-        function renderData(data) {
+        // Updated Render Data with Pagination
+        function renderData(reset = false) {
             const container = document.getElementById('resultsList');
-            container.innerHTML = '';
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
             
-            if(data.length === 0) {
+            if(reset) {
+                container.innerHTML = '';
+                currentPage = 1;
+            }
+            
+            if(filteredData.length === 0) {
                 container.innerHTML = '<p style="text-align:center; color:#888;">No results found.</p>';
+                loadMoreBtn.style.display = 'none';
+                document.getElementById('countDisplay').innerText = `Total Found: 0`;
+                return;
             }
 
-            data.forEach(item => {
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const dataToShow = filteredData.slice(startIndex, endIndex);
+
+            dataToShow.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.innerHTML = `
-                    <div class="card-title">
-                        ${item['Name'] || 'N/A'} <span>(${item['Sex'] || '-'}, Age: ${item['Age'] || '-'})</span>
-                    </div>
+                    <div class="card-title">${item['Name'] || 'N/A'} <span>(${item['Sex'] || '-'}, Age: ${item['Age'] || '-'})</span></div>
                     <div class="card-details">
                         <span>Voter ID: <strong>${item['VoterID Number'] || 'N/A'}</strong></span>
                         <span>Status: <strong>${item['Status'] || '-'}</strong></span>
@@ -354,7 +181,19 @@
                 container.appendChild(card);
             });
 
-            document.getElementById('countDisplay').innerText = `Total Shown: ${data.length}`;
+            document.getElementById('countDisplay').innerText = `Total Found: ${filteredData.length} (Showing ${Math.min(endIndex, filteredData.length)})`;
+
+            // Show or Hide "Load More" Button
+            if (endIndex < filteredData.length) {
+                loadMoreBtn.style.display = 'block';
+            } else {
+                loadMoreBtn.style.display = 'none';
+            }
+        }
+
+        function loadMore() {
+            currentPage++;
+            renderData(false);
         }
 
         function applyFilters() {
@@ -365,69 +204,42 @@
 
             filteredData = sheetData.filter(item => {
                 let matchesSearch = false;
-                
-                if (searchText === "") {
-                    matchesSearch = true;
-                } else if (searchScope === "All") {
-                    matchesSearch = Object.values(item).some(val => 
-                        String(val || "").toLowerCase().includes(searchText)
-                    );
+                if (searchText === "") { matchesSearch = true; } 
+                else if (searchScope === "All") {
+                    matchesSearch = Object.values(item).some(val => String(val || "").toLowerCase().includes(searchText));
                 } else {
                     matchesSearch = String(item[searchScope] || "").toLowerCase().includes(searchText);
                 }
-                
                 const matchesSex = sex === "All" || item['Sex'] === sex;
                 const matchesStatus = status === "All" || item['Status'] === status;
                 
                 return matchesSearch && matchesSex && matchesStatus;
             });
 
-            renderData(filteredData);
+            renderData(true); // Reset to page 1 on new search
         }
 
         function exportToPDF() {
             const element = document.getElementById('export-container');
-            const opt = {
-                margin:       10,
-                filename:     'SUNITA_MAVAR_voter_list.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+            const opt = { margin: 10, filename: 'SUNITA_MAVAR_voter_list.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
             html2pdf().set(opt).from(element).save();
         }
 
         async function shareToWhatsApp() {
             const element = document.getElementById('export-container');
-            
             try {
                 const originalBg = element.style.background;
                 element.style.background = '#ffffff';
-                
                 const canvas = await html2canvas(element, { scale: 2 });
                 element.style.background = originalBg;
-
                 canvas.toBlob(async (blob) => {
                     const file = new File([blob], "voters.png", { type: "image/png" });
-                    
                     if (navigator.share) {
-                        try {
-                            await navigator.share({
-                                title: 'Sunita Mavar - Voter List',
-                                text: `Filtered List Count: ${filteredData.length}`,
-                                files: [file]
-                            });
-                        } catch (err) {
-                            console.error("Share failed:", err);
-                        }
-                    } else {
-                        alert("Web Share API is not supported on this browser. Use a modern mobile browser over HTTPS.");
-                    }
+                        try { await navigator.share({ title: 'Sunita Mavar - Voter List', text: `Found: ${filteredData.length} voters`, files: [file] }); } 
+                        catch (err) { console.error("Share failed:", err); }
+                    } else { alert("Web Share API is not supported. Use a modern mobile browser over HTTPS."); }
                 });
-            } catch (error) {
-                console.error("Error generating image:", error);
-                alert("Failed to generate image.");
-            }
+            } catch (error) { alert("Failed to generate image."); }
         }
     </script>
 </body>
