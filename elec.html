@@ -25,23 +25,25 @@
         .header-info h1 { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; line-height: 1.2; }
         .header-info #datetimeDisplay { font-size: 11px; margin-top: 4px; opacity: 0.9; letter-spacing: 0.3px; }
 
-        /* Right Aligned Ballot Circle (Symmetrical to Logo) */
-        .ballot-circle {
-            width: 48px;
-            height: 48px;
+       /* Ballot Number Styling with INC Rings */
+        .header-ballot {
+            width: 42px; 
+            height: 42px;
             background-color: white;
             border-radius: 50%;
-            padding: 3px;
             flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--primary);
-            font-size: 34px;
+            font-size: 24px;
             font-weight: 900;
-            box-sizing: content-box;
-            line-height: 1;
-            font-family: Arial, sans-serif;
+            color: var(--primary);
+            margin-right: 6px; /* Offset for the shadows so it doesn't touch the screen edge */
+            /* Creates the concentric rings: Green inner, White middle, Saffron outer */
+            box-shadow: 
+                0 0 0 2px #138808, 
+                0 0 0 4px #ffffff, 
+                0 0 0 6px #FF9933;
         }
 
         /* Search Bar Setup */
