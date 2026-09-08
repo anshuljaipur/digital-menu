@@ -71,12 +71,18 @@
     </div>
 
     <div class="main-content">
-        
+         <!-- Sticky Search Bar -->
+        <div class="sticky-search-wrapper">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Type to search..." onkeyup="handleSearchInput()" autofocus>
+                <button id="clearBtn" class="clear-btn" onclick="clearSearch()">✖ Clear</button>
+            </div>
+        </div>
         <div class="header-controls">
             <label><strong>Search In:</strong></label>
             <div class="radio-group">
-                <label><input type="radio" name="searchScope" value="All" checked onchange="applyFilters()"> All</label>
-                <label><input type="radio" name="searchScope" value="House Number" onchange="applyFilters()"> House No</label>
+                <label><input type="radio" name="searchScope" value="All" onchange="applyFilters()"> All</label>
+                <label><input type="radio" name="searchScope" value="House Number" checked onchange="applyFilters()"> House No</label>
                 <label><input type="radio" name="searchScope" value="Name" onchange="applyFilters()"> Name</label>
                 <label><input type="radio" name="searchScope" value="VoterID Number" onchange="applyFilters()"> VIN</label>
             </div>
@@ -94,17 +100,11 @@
             </div>
         </div>
 
-        <!-- Sticky Search Bar -->
-        <div class="sticky-search-wrapper">
-            <div class="search-container">
-                <input type="text" id="searchInput" placeholder="Type to search..." onkeyup="handleSearchInput()" autofocus>
-                <button id="clearBtn" class="clear-btn" onclick="clearSearch()">✖ Clear</button>
-            </div>
-        </div>
+       
 
         <div id="export-container">
             <div id="resultsList">
-                <div class="loading">Loading Ward 118 Voters...</div>
+                <div class="loading">Loading (Ward No.118) Voters...</div>
             </div>
             <button id="loadMoreBtn" class="btn-load-more" onclick="loadMore()">Load Next 100</button>
         </div>
