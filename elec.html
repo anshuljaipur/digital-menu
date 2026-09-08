@@ -25,10 +25,24 @@
         .header-info h1 { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; line-height: 1.2; }
         .header-info #datetimeDisplay { font-size: 11px; margin-top: 4px; opacity: 0.9; letter-spacing: 0.3px; }
 
-        /* Right Aligned Ballot Section */
-        .header-ballot { width: 48px; flex-shrink: 0; text-align: right; line-height: 1.1; }
-        .ballot-label { font-size: 10px; font-weight: bold; opacity: 0.9; text-transform: uppercase; }
-        .ballot-num { font-size: 16px; font-weight: 900; }
+        /* Right Aligned Ballot Circle (Symmetrical to Logo) */
+        .ballot-circle {
+            width: 48px;
+            height: 48px;
+            background-color: white;
+            border-radius: 50%;
+            padding: 3px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 34px;
+            font-weight: 900;
+            box-sizing: content-box;
+            line-height: 1;
+            font-family: Arial, sans-serif;
+        }
 
         /* Search Bar Setup */
         .search-container { background: white; padding: 10px 15px; border-bottom: 1px solid #ddd; }
@@ -70,14 +84,14 @@
     <div class="sticky-top">
         <div class="top-header" id="export-header">
             <img src="inc.webp" alt="INC Symbol" class="header-logo">
+            
             <div class="header-info">
                 <h1>SUNITA MAVAR</h1>
                 <div id="datetimeDisplay">Loading Date & Time...</div>
             </div>
-            <div class="header-ballot">
-                <div class="ballot-label">Ballot No.</div>
-                <div class="ballot-num">02</div> <!-- Replace --- with actual ballot number if needed -->
-            </div>
+            
+            <!-- Exact size match to INC logo -->
+            <div class="ballot-circle" title="Ballot No. 2">2</div>
         </div>
         
         <div class="search-container">
