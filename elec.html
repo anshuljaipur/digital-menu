@@ -15,60 +15,16 @@
         
         body::before { content: ""; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 80%; background-image: url('inc.webp'); background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.08; z-index: -1; pointer-events: none; }
 
-        .top-header { background-color: var(--primary); color: white; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 11; box-sizing: border-box; height: 68px; }
+        .top-header { background-color: var(--primary); color: white; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 10; box-sizing: border-box; min-height: 68px; }
         .header-logo { width: 48px; height: 48px; background-color: white; border-radius: 50%; padding: 3px; object-fit: contain; flex-shrink: 0; }
         .header-spacer { width: 48px; flex-shrink: 0; }
         .header-info { flex-grow: 1; text-align: center; padding: 0 10px; }
         .header-info h1 { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; line-height: 1.2; }
         .header-info #datetimeDisplay { font-size: 11px; margin-top: 4px; opacity: 0.9; letter-spacing: 0.3px; }
 
-        .main-content { padding: 0 15px 15px 15px; }
-        
-        /* Sticky Search Container */
-        .sticky-search-container {
-            position: sticky;
-            top: 68px; /* sits right below the 68px header */
-            z-index: 10;
-            background-color: var(--bg);
-            padding: 15px 0 10px 0; /* solid background covers scrolling elements */
-        }
-        
-        .search-wrapper {
-            position: relative;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-        }
-        
-        .search-wrapper input {
-            width: 100%;
-            padding: 14px 45px 14px 15px;
-            border: 2px solid transparent;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        
-        .search-wrapper input:focus {
-            border-color: var(--primary);
-        }
-
-        .clear-btn {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 24px;
-            color: #999;
-            cursor: pointer;
-            display: none;
-            user-select: none;
-        }
-
+        .main-content { padding: 15px; }
         .header-controls { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px; }
-        select { width: 100%; padding: 12px; margin: 5px 0 15px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
+        input[type="text"], select { width: 100%; padding: 12px; margin: 5px 0 15px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
 
         .radio-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; background: #f1f1f1; padding: 10px; border-radius: 5px; }
         .radio-group label { display: flex; align-items: center; font-size: 14px; cursor: pointer; margin-right: 5px; }
@@ -85,30 +41,9 @@
         .card-title { font-weight: bold; font-size: 16px; margin-bottom: 6px; color: var(--primary); }
         .card-title span { color: #555; font-weight: normal; font-size: 14px; }
         .card-details { font-size: 14px; color: #444; display: flex; justify-content: space-between; margin-bottom: 4px; }
-        .loading { text-align: center; padding: 20px; font-weight: bold; color: #666; font-size: 16px; }
+        .loading { text-align: center; padding: 20px; font-weight: bold; color: #666; }
         
         .btn-load-more { background-color: #6c757d; width: 100%; margin-top: 15px; padding: 15px; font-size: 16px; display: none; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
-
-        /* Go To Top Button */
-        #goToTopBtn {
-            display: none;
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            z-index: 100;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 24px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            cursor: pointer;
-            text-align: center;
-            line-height: 50px;
-            padding: 0;
-        }
     </style>
 </head>
 <body>
@@ -123,15 +58,6 @@
     </div>
 
     <div class="main-content">
-        
-        <!-- Sticky Search Bar with Clear Button -->
-        <div class="sticky-search-container">
-            <div class="search-wrapper">
-                <input type="text" id="searchInput" placeholder="Type to search..." oninput="applyFilters()" autofocus>
-                <span class="clear-btn" id="clearBtn" onclick="clearSearch()">&times;</span>
-            </div>
-        </div>
-
         <div class="header-controls">
             <label><strong>Search In:</strong></label>
             <div class="radio-group">
@@ -140,16 +66,12 @@
                 <label><input type="radio" name="searchScope" value="Name" onchange="applyFilters()"> Name</label>
                 <label><input type="radio" name="searchScope" value="VoterID Number" onchange="applyFilters()"> VIN</label>
             </div>
+
+            <input type="text" id="searchInput" placeholder="Type to search..." onkeyup="applyFilters()" autofocus>
             
-            <div style="display: flex; gap: 10px;">
-                <div style="flex: 1;">
-                    <label>Sex:</label>
-                    <select id="sexFilter" onchange="applyFilters()"><option value="All">All</option></select>
-                </div>
-                <div style="flex: 1;">
-                    <label>Status:</label>
-                    <select id="statusFilter" onchange="applyFilters()"><option value="All">All</option></select>
-                </div>
+            <div style="margin-bottom: 10px;">
+                <label>Filter by Sex:</label>
+                <select id="sexFilter" onchange="applyFilters()"><option value="All">All</option></select>
             </div>
 
             <div class="stats" id="countDisplay">Total Found: 0</div>
@@ -162,17 +84,13 @@
 
         <div id="export-container">
             <div id="resultsList">
-                <div class="loading" id="loadingText">Fetching database...</div>
+                <div class="loading">Loading 20,000 voters from Google Sheets...</div>
             </div>
             <button id="loadMoreBtn" class="btn-load-more" onclick="loadMore()">Load Next 100</button>
         </div>
     </div>
 
-    <!-- Floating Go To Top Button -->
-    <button id="goToTopBtn" onclick="scrollToTop()">&#8679;</button>
-
     <script>
-        // Date & Time Logic
         function updateDateTime() {
             const now = new Date();
             const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
@@ -181,26 +99,10 @@
         setInterval(updateDateTime, 1000);
         updateDateTime();
 
-        // Auto-focus search bar safely
         window.onload = () => { setTimeout(() => { document.getElementById('searchInput').focus(); }, 500); };
 
-        // Scroll to Top Logic
-        window.addEventListener('scroll', () => {
-            const btn = document.getElementById("goToTopBtn");
-            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-                btn.style.display = "block";
-            } else {
-                btn.style.display = "none";
-            }
-        });
-
-        function scrollToTop() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // CSV Setup
         const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHKf8MEj6EatuPnVn_UC-J7HrH3pn4vFLW9swh4UDWQjNphYUC9OmSjXGiENIiTjSrhNtMV5UcaYwF/pub?output=csv"; 
-        
+
         let sheetData = [];
         let filteredData = [];
         let itemsPerPage = 100;
@@ -212,17 +114,9 @@
             skipEmptyLines: true,
             complete: function(results) {
                 sheetData = results.data;
-                
-                // Update dynamic loading text
-                document.getElementById('loadingText').innerText = `Loading ${sheetData.length} voters from Ward 118...`;
-                
-                // Add a tiny delay so the user actually sees the exact voter count before the list draws
-                setTimeout(() => {
-                    populateDropdown('sexFilter', 'Sex');
-                    populateDropdown('statusFilter', 'Status');
-                    filteredData = [...sheetData];
-                    renderData(true);
-                }, 600);
+                populateDropdown('sexFilter', 'Sex');
+                filteredData = [...sheetData];
+                renderData(true);
             },
             error: function(error) {
                 document.getElementById('resultsList').innerHTML = `<p style="color:red; text-align:center;">Failed to load data.</p>`;
@@ -267,7 +161,6 @@
                     <div class="card-title">${item['Name'] || 'N/A'} <span>(${item['Sex'] || '-'}, Age: ${item['Age'] || '-'})</span></div>
                     <div class="card-details">
                         <span>Voter ID: <strong>${item['VoterID Number'] || 'N/A'}</strong></span>
-                        <span>Status: <strong>${item['Status'] || '-'}</strong></span>
                     </div>
                     <div class="card-details" style="font-size: 13px; color: #666;">
                         <span>Relative: ${item['Relative Name'] || '-'}</span>
@@ -286,34 +179,21 @@
             renderData(false);
         }
 
-        // Converts Hindi numerals typed into the search bar into standard numerals
         function normalizeHindiToNumeric(str) {
             if (!str) return "";
-            const hindiToNumericMap = { '०': '0', '१': '1', '२': '2', '३': '3', '४': '4', '५': '5', '६': '6', '७': '7', '८': '8', '९': '9' };
+            const hindiToNumericMap = {
+                '०': '0', '१': '1', '२': '2', '३': '3', '४': '4',
+                '५': '5', '६': '6', '७': '7', '८': '8', '९': '9'
+            };
             return String(str).replace(/[०-९]/g, match => hindiToNumericMap[match]);
         }
 
-        // Clear Search Button Logic
-        function clearSearch() {
-            const input = document.getElementById('searchInput');
-            input.value = '';
-            input.focus();
-            applyFilters();
-        }
-
         function applyFilters() {
-            const input = document.getElementById('searchInput');
-            const clearBtn = document.getElementById('clearBtn');
-            
-            // Show or Hide the clear button depending on text presence
-            clearBtn.style.display = input.value.length > 0 ? 'block' : 'none';
-
-            const rawSearchText = input.value.toLowerCase().trim();
+            const rawSearchText = document.getElementById('searchInput').value.toLowerCase().trim();
             const searchText = normalizeHindiToNumeric(rawSearchText);
             
             const searchScope = document.querySelector('input[name="searchScope"]:checked').value;
             const sex = document.getElementById('sexFilter').value;
-            const status = document.getElementById('statusFilter').value;
 
             filteredData = sheetData.filter(item => {
                 let matchesSearch = false;
@@ -324,7 +204,7 @@
                 else if (searchScope === "All") {
                     // Search all columns EXCEPT 'S.No.'
                     matchesSearch = Object.entries(item).some(([key, val]) => {
-                        if (key === 'S.No.') return false; 
+                        if (key === 'S.No.') return false; // Ignore Serial Number column entirely
                         
                         const normalizedVal = normalizeHindiToNumeric(String(val || "").toLowerCase());
                         return normalizedVal.includes(searchText);
@@ -335,92 +215,35 @@
                 }
                 
                 const matchesSex = sex === "All" || item['Sex'] === sex;
-                const matchesStatus = status === "All" || item['Status'] === status;
                 
-                return matchesSearch && matchesSex && matchesStatus;
+                return matchesSearch && matchesSex;
             });
 
             renderData(true);
         }
 
-        // Export/Share integrations
         function exportToPDF() {
             const element = document.getElementById('export-container');
             const opt = { margin: 10, filename: 'SUNITA_MAVAR_voter_list.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
             html2pdf().set(opt).from(element).save();
         }
 
-                async function shareToWhatsApp() {
-            const btn = document.querySelector('.btn-wa');
-            const originalText = btn.innerText;
-            
-            // Show loading state on button
-            btn.innerText = "Processing...";
-            btn.style.opacity = "0.7";
-            btn.disabled = true;
-
+        async function shareToWhatsApp() {
             const element = document.getElementById('export-container');
-            
             try {
-                // Temporarily set background to white for clean image
                 const originalBg = element.style.background;
                 element.style.background = '#ffffff';
-                
-                // useCORS helps prevent cross-origin image errors
-                const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+                const canvas = await html2canvas(element, { scale: 2 });
                 element.style.background = originalBg;
-                
                 canvas.toBlob(async (blob) => {
-                    const file = new File([blob], "voters_list.png", { type: "image/png" });
-                    
-                    // FALLBACK FUNCTION: Downloads the image if sharing fails
-                    const downloadFallback = () => {
-                        const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.style.display = 'none';
-                        a.href = url;
-                        a.download = 'SUNITA_MAVAR_Voters.png';
-                        document.body.appendChild(a);
-                        a.click();
-                        window.URL.revokeObjectURL(url);
-                        alert("Image saved to your device! You can now attach it in WhatsApp.");
-                    };
-
-                    // Check if the browser supports sharing files natively (Mobile over HTTPS)
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        try { 
-                            await navigator.share({ 
-                                title: 'Sunita Mavar - Voter List', 
-                                text: `Here is the filtered list (${filteredData.length} voters found).`, 
-                                files: [file] 
-                            }); 
-                        } 
-                        catch (err) { 
-                            console.error("Share failed or cancelled:", err); 
-                            // If the user didn't just hit 'cancel', trigger the download fallback
-                            if (err.name !== 'AbortError') {
-                                downloadFallback();
-                            }
-                        }
-                    } else { 
-                        // If Web Share API is blocked (Desktop or Local File), force download
-                        downloadFallback();
-                    }
-                    
-                    // Reset button
-                    btn.innerText = originalText;
-                    btn.style.opacity = "1";
-                    btn.disabled = false;
+                    const file = new File([blob], "voters.png", { type: "image/png" });
+                    if (navigator.share) {
+                        try { await navigator.share({ title: 'Sunita Mavar - Voter List', text: `Found: ${filteredData.length} voters`, files: [file] }); } 
+                        catch (err) { console.error("Share failed:", err); }
+                    } else { alert("Web Share API is not supported. Use a modern mobile browser over HTTPS."); }
                 });
-            } catch (error) { 
-                console.error("Error generating image:", error);
-                alert("Failed to generate image."); 
-                btn.innerText = originalText;
-                btn.style.opacity = "1";
-                btn.disabled = false;
-            }
+            } catch (error) { alert("Failed to generate image."); }
         }
-
     </script>
 </body>
 </html>
