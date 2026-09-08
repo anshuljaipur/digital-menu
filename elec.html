@@ -15,53 +15,32 @@
         
         body::before { content: ""; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 80%; background-image: url('inc.webp'); background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.08; z-index: -1; pointer-events: none; }
 
-        .top-header { background-color: var(--primary); color: white; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 10; box-sizing: border-box; min-height: 75px; }
-        
-        .header-logo { 
-            width: 48px; 
-            height: 48px; 
-            background-color: white; 
-            border-radius: 50%; 
-            padding: 3px; 
-            object-fit: contain; 
-            flex-shrink: 0; 
-        }
-        
-        /* Ballot Number Styling with INC Rings */
-        .header-ballot {
-            width: 42px; 
-            height: 42px;
-            background-color: white;
-            border-radius: 50%;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: 900;
-            color: var(--primary);
-            margin-right: 6px; /* Offset for the shadows so it doesn't touch the screen edge */
-            /* Creates the concentric rings: Green inner, White middle, Saffron outer */
-            box-shadow: 
-                0 0 0 2px #138808, 
-                0 0 0 4px #ffffff, 
-                0 0 0 6px #FF9933;
-        }
-
+        /* Header */
+        .top-header { background-color: var(--primary); color: white; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 20; box-sizing: border-box; min-height: 75px; }
+        .header-logo { width: 48px; height: 48px; background-color: white; border-radius: 50%; padding: 3px; object-fit: contain; flex-shrink: 0; }
+        .header-ballot { width: 42px; height: 42px; background-color: white; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; color: var(--primary); margin-right: 6px; box-shadow: 0 0 0 2px #138808, 0 0 0 4px #ffffff, 0 0 0 6px #FF9933; }
         .header-info { flex-grow: 1; text-align: center; padding: 0 10px; }
         .header-info h1 { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; line-height: 1.2; }
         .header-info #datetimeDisplay { font-size: 11px; margin-top: 4px; opacity: 0.9; letter-spacing: 0.3px; }
 
         .main-content { padding: 15px; }
-        .header-controls { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px; }
-        input[type="text"], select { width: 100%; padding: 12px; margin: 5px 0 15px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
+        .header-controls { background: white; padding: 15px 15px 5px 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 10px; }
+        
+        /* Sticky Search Bar */
+        .sticky-search-wrapper { position: sticky; top: 75px; z-index: 15; background: var(--bg); padding: 10px 0; margin-bottom: 5px; }
+        .search-container { position: relative; width: 100%; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border-radius: 5px; background: white; }
+        .search-container input { width: 100%; padding: 14px 45px 14px 15px; margin: 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; outline: none; }
+        .search-container input:focus { border-color: var(--primary); }
+        .clear-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; font-size: 18px; color: #888; cursor: pointer; display: none; padding: 5px; }
+
+        select { width: 100%; padding: 12px; margin: 5px 0 15px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
 
         .radio-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; background: #f1f1f1; padding: 10px; border-radius: 5px; }
         .radio-group label { display: flex; align-items: center; font-size: 14px; cursor: pointer; margin-right: 5px; }
         .radio-group input[type="radio"] { margin-right: 5px; width: 18px; height: 18px; accent-color: var(--primary); }
 
         .stats { font-weight: bold; color: var(--primary); margin-bottom: 15px; font-size: 1.1em; text-align: center;}
-        .button-group { display: flex; gap: 10px; }
+        .button-group { display: flex; gap: 10px; margin-bottom: 10px;}
         button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-size: 14px; font-weight: bold; color: white; cursor: pointer; }
         .btn-pdf { background-color: #e74c3c; } .btn-wa { background-color: #25D366; }
 
@@ -74,6 +53,10 @@
         .loading { text-align: center; padding: 20px; font-weight: bold; color: #666; }
         
         .btn-load-more { background-color: #6c757d; width: 100%; margin-top: 15px; padding: 15px; font-size: 16px; display: none; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+
+        /* Go to Top Button */
+        #goToTopBtn { display: none; position: fixed; bottom: 25px; right: 25px; z-index: 99; border: none; outline: none; background-color: var(--primary); color: white; cursor: pointer; width: 50px; height: 50px; border-radius: 50%; font-size: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); align-items: center; justify-content: center; line-height: 0; padding: 0; }
+        #goToTopBtn:hover { background-color: var(--primary-dark); }
     </style>
 </head>
 <body>
@@ -84,11 +67,11 @@
             <h1>SUNITA MAVAR</h1>
             <div id="datetimeDisplay">Loading Date & Time...</div>
         </div>
-        <!-- Replaced spacer with the Ballot Number -->
         <div class="header-ballot">3</div>
     </div>
 
     <div class="main-content">
+        
         <div class="header-controls">
             <label><strong>Search In:</strong></label>
             <div class="radio-group">
@@ -98,8 +81,6 @@
                 <label><input type="radio" name="searchScope" value="VoterID Number" onchange="applyFilters()"> VIN</label>
             </div>
 
-            <input type="text" id="searchInput" placeholder="Type to search..." onkeyup="applyFilters()" autofocus>
-            
             <div style="margin-bottom: 10px;">
                 <label>Filter by Sex:</label>
                 <select id="sexFilter" onchange="applyFilters()"><option value="All">All</option></select>
@@ -109,19 +90,45 @@
 
             <div class="button-group">
                 <button class="btn-pdf" onclick="exportToPDF()">Export PDF</button>
-                <button class="btn-wa" onclick="shareToWhatsApp()">Share WhatsApp</button>
+                <button id="btnWa" class="btn-wa" onclick="shareToWhatsApp()">Share WhatsApp</button>
+            </div>
+        </div>
+
+        <!-- Sticky Search Bar -->
+        <div class="sticky-search-wrapper">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Type to search..." onkeyup="handleSearchInput()" autofocus>
+                <button id="clearBtn" class="clear-btn" onclick="clearSearch()">✖</button>
             </div>
         </div>
 
         <div id="export-container">
             <div id="resultsList">
-                <div class="loading">Loading 20,000 voters from Google Sheets...</div>
+                <div class="loading">Loading Ward 118 Voters...</div>
             </div>
             <button id="loadMoreBtn" class="btn-load-more" onclick="loadMore()">Load Next 100</button>
         </div>
     </div>
 
+    <!-- Go To Top Button -->
+    <button id="goToTopBtn" onclick="scrollToTop()">↑</button>
+
     <script>
+        // Go to Top Logic
+        window.onscroll = function() {
+            const topBtn = document.getElementById("goToTopBtn");
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                topBtn.style.display = "flex";
+            } else {
+                topBtn.style.display = "none";
+            }
+        };
+
+        function scrollToTop() {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        // Date Time Updater
         function updateDateTime() {
             const now = new Date();
             const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
@@ -219,6 +226,28 @@
             return String(str).replace(/[०-९]/g, match => hindiToNumericMap[match]);
         }
 
+        function handleSearchInput() {
+            const input = document.getElementById('searchInput');
+            const clearBtn = document.getElementById('clearBtn');
+            
+            // Show or hide the clear button based on text length
+            if (input.value.length > 0) {
+                clearBtn.style.display = 'block';
+            } else {
+                clearBtn.style.display = 'none';
+            }
+            
+            applyFilters();
+        }
+
+        function clearSearch() {
+            const input = document.getElementById('searchInput');
+            input.value = '';
+            document.getElementById('clearBtn').style.display = 'none';
+            applyFilters();
+            input.focus();
+        }
+
         function applyFilters() {
             const rawSearchText = document.getElementById('searchInput').value.toLowerCase().trim();
             const searchText = normalizeHindiToNumeric(rawSearchText);
@@ -244,7 +273,6 @@
                 }
                 
                 const matchesSex = sex === "All" || item['Sex'] === sex;
-                
                 return matchesSearch && matchesSex;
             });
 
@@ -257,21 +285,62 @@
             html2pdf().set(opt).from(element).save();
         }
 
+        // Updated WhatsApp share with iOS fallback
         async function shareToWhatsApp() {
             const element = document.getElementById('export-container');
+            const btn = document.getElementById('btnWa');
+            const originalText = btn.innerText;
+            
+            // Give user feedback since html2canvas takes a moment
+            btn.innerText = "Generating Image..."; 
+            
             try {
                 const originalBg = element.style.background;
                 element.style.background = '#ffffff';
                 const canvas = await html2canvas(element, { scale: 2 });
                 element.style.background = originalBg;
+                
                 canvas.toBlob(async (blob) => {
                     const file = new File([blob], "voters.png", { type: "image/png" });
-                    if (navigator.share) {
-                        try { await navigator.share({ title: 'Sunita Mavar - Voter List', text: `Found: ${filteredData.length} voters`, files: [file] }); } 
-                        catch (err) { console.error("Share failed:", err); }
-                    } else { alert("Web Share API is not supported. Use a modern mobile browser over HTTPS."); }
+                    
+                    // Check if native share supports files
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                        try { 
+                            await navigator.share({ 
+                                title: 'Sunita Mavar - Voter List', 
+                                files: [file] 
+                            }); 
+                        } 
+                        catch (err) { 
+                            console.warn("Native share cancelled or failed due to iOS timeout. Falling back to download.", err); 
+                            fallbackDownload(blob);
+                        }
+                    } else { 
+                        fallbackDownload(blob);
+                    }
+                    btn.innerText = originalText;
                 });
-            } catch (error) { alert("Failed to generate image."); }
+            } catch (error) { 
+                alert("Failed to generate image."); 
+                btn.innerText = originalText;
+            }
+        }
+
+        // Fallback for iOS/Browsers that block the share api timeout
+        function fallbackDownload(blob) {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'voters_list.png';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            // Slight delay so the prompt isn't instant over the download UI
+            setTimeout(() => {
+                alert("Image downloaded! You can now easily share it from your phone's gallery/downloads.");
+            }, 500);
         }
     </script>
 </body>
