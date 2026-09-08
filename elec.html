@@ -350,22 +350,77 @@
             html2pdf().set(opt).from(element).save();
         }
 
-        async function shareToWhatsApp() {
+                async function shareToWhatsApp() {
+            const btn = document.querySelector('.btn-wa');
+            const originalText = btn.innerText;
+            
+            // Show loading state on button
+            btn.innerText = "Processing...";
+            btn.style.opacity = "0.7";
+            btn.disabled = true;
+
             const element = document.getElementById('export-container');
+            
             try {
+                // Temporarily set background to white for clean image
                 const originalBg = element.style.background;
                 element.style.background = '#ffffff';
-                const canvas = await html2canvas(element, { scale: 2 });
+                
+                // useCORS helps prevent cross-origin image errors
+                const canvas = await html2canvas(element, { scale: 2, useCORS: true });
                 element.style.background = originalBg;
+                
                 canvas.toBlob(async (blob) => {
-                    const file = new File([blob], "voters.png", { type: "image/png" });
-                    if (navigator.share) {
-                        try { await navigator.share({ title: 'Sunita Mavar - Voter List', text: `Found: ${filteredData.length} voters`, files: [file] }); } 
-                        catch (err) { console.error("Share failed:", err); }
-                    } else { alert("Web Share API is not supported. Use a modern mobile browser over HTTPS."); }
+                    const file = new File([blob], "voters_list.png", { type: "image/png" });
+                    
+                    // FALLBACK FUNCTION: Downloads the image if sharing fails
+                    const downloadFallback = () => {
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = 'SUNITA_MAVAR_Voters.png';
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        alert("Image saved to your device! You can now attach it in WhatsApp.");
+                    };
+
+                    // Check if the browser supports sharing files natively (Mobile over HTTPS)
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        try { 
+                            await navigator.share({ 
+                                title: 'Sunita Mavar - Voter List', 
+                                text: `Here is the filtered list (${filteredData.length} voters found).`, 
+                                files: [file] 
+                            }); 
+                        } 
+                        catch (err) { 
+                            console.error("Share failed or cancelled:", err); 
+                            // If the user didn't just hit 'cancel', trigger the download fallback
+                            if (err.name !== 'AbortError') {
+                                downloadFallback();
+                            }
+                        }
+                    } else { 
+                        // If Web Share API is blocked (Desktop or Local File), force download
+                        downloadFallback();
+                    }
+                    
+                    // Reset button
+                    btn.innerText = originalText;
+                    btn.style.opacity = "1";
+                    btn.disabled = false;
                 });
-            } catch (error) { alert("Failed to generate image."); }
+            } catch (error) { 
+                console.error("Error generating image:", error);
+                alert("Failed to generate image."); 
+                btn.innerText = originalText;
+                btn.style.opacity = "1";
+                btn.disabled = false;
+            }
         }
+
     </script>
 </body>
 </html>
