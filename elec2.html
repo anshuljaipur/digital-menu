@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voter List Manager - SUNITA MAVAR</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        :root { --primary: #0056b3; --primary-dark: #003d82; --bg: #f8f9fa; --text: #333; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; position: relative; min-height: 100vh; }
+        
+        body::before { content: ""; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 80%; background-image: url('inc.webp'); background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.08; z-index: -1; pointer-events: none; }
+
+        /* Header */
+        .top-header { background-color: var(--primary); color: white; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 20; box-sizing: border-box; min-height: 75px; }
+        .header-logo { width: 48px; height: 48px; background-color: white; border-radius: 50%; padding: 3px; object-fit: contain; flex-shrink: 0; }
+        .header-ballot { width: 42px; height: 42px; background-color: white; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; color: var(--primary); margin-right: 6px; box-shadow: 0 0 0 2px #138808, 0 0 0 4px #ffffff, 0 0 0 6px #FF9933; }
+        .header-info { flex-grow: 1; text-align: center; padding: 0 10px; }
+        .header-info h1 { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; line-height: 1.2; }
+        .header-info #datetimeDisplay { font-size: 11px; margin-top: 4px; opacity: 0.9; letter-spacing: 0.3px; }
+
+        .main-content { padding: 15px; }
+        .header-controls { background: white; padding: 15px 15px 5px 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 10px; }
+        
+        /* Sticky Search Bar & Keypad */
+        .sticky-search-wrapper { position: sticky; top: 75px; z-index: 15; background: var(--bg); padding: 10px 0; margin-bottom: 5px; }
+        .search-container { position: relative; width: 100%; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-radius: 5px; background: white; }
+        .search-container input { width: 100%; padding: 14px 45px 14px 15px; margin: 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; outline: none; }
+        .search-container input:focus { border-color: var(--primary); }
+        .clear-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; font-size: 18px; color: #888; cursor: pointer; display: none; padding: 5px; }
+
+        /* Custom Numeric Keypad */
+        .numeric-keypad { display: flex; width: 100%; justify-content: space-between; gap: 4px; margin-top: 8px; box-sizing: border-box; }
+        .num-btn { flex: 1; padding: 10px 0; margin: 0; border: 1px solid #ddd; border-radius: 4px; background: #fff; color: #333; font-size: 16px; font-weight: bold; text-align: center; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .num-btn:active { background: #e2e6ea; }
+        .num-btn.backspace { background: #ffebeb; color: #d9534f; border-color: #ffc2c2; font-size: 18px; }
+        .num-btn.backspace:active { background: #ffcccc; }
+
+        select { width: 100%; padding: 12px; margin: 5px 0 15px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
+
+        .radio-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; background: #f1f1f1; padding: 10px; border-radius: 5px; }
+        .radio-group label { display: flex; align-items: center; font-size: 14px; cursor: pointer; margin-right: 5px; }
+        .radio-group input[type="radio"] { margin-right: 5px; width: 18px; height: 18px; accent-color: var(--primary); }
+
+        .stats { font-weight: bold; color: var(--primary); margin-bottom: 15px; font-size: 1.1em; text-align: center;}
+        .button-group { display: flex; gap: 10px; margin-bottom: 10px;}
+        button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-size: 14px; font-weight: bold; color: white; cursor: pointer; }
+        .btn-pdf { background-color: #e74c3c; } .btn-wa { background-color: #25D366; }
+
+        #export-container { background: rgba(255, 255, 255, 0.95); border-radius: 10px; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .card { border-bottom: 1px solid #ddd; padding: 12px 5px; }
+        .card:last-child { border-bottom: none; }
+        .card-title { font-weight: bold; font-size: 16px; margin-bottom: 6px; color: var(--primary); }
+        .card-title span { color: #555; font-weight: normal; font-size: 14px; }
+        .card-details { font-size: 14px; color: #444; display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .loading { text-align: center; padding: 20px; font-weight: bold; color: #666; }
+        
+        .btn-load-more { background-color: #6c757d; width: 100%; margin-top: 15px; padding: 15px; font-size: 16px; display: none; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+
+        /* Go to Top Button */
+        #goToTopBtn { display: none; position: fixed; bottom: 25px; right: 25px; z-index: 99; border: none; outline: none; background-color: var(--primary); color: white; cursor: pointer; width: 50px; height: 50px; border-radius: 50%; font-size: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); align-items: center; justify-content: center; line-height: 0; padding: 0; }
+        #goToTopBtn:hover { background-color: var(--primary-dark); }
+    </style>
+</head>
+<body>
+
+    <div class="top-header" id="export-header">
+        <img src="inc.webp" alt="INC Symbol" class="header-logo">
+        <div class="header-info">
+            <h1>SUNITA MAVAR</h1>
+            <div id="datetimeDisplay">Loading Date & Time...</div>
+        </div>
+        <div class="header-ballot">3</div>
+    </div>
+
+    <div class="main-content">
+           <!-- Sticky Search Bar with Numeric Keypad -->
+        <div class="sticky-search-wrapper">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Type to search..." onkeyup="handleSearchInput()" autofocus>
+                <button id="clearBtn" class="clear-btn" onclick="clearSearch()">✖</button>
+            </div>
+            
+            <div class="numeric-keypad">
+                <button class="num-btn" onclick="typeNumber('1')">1</button>
+                <button class="num-btn" onclick="typeNumber('2')">2</button>
+                <button class="num-btn" onclick="typeNumber('3')">3</button>
+                <button class="num-btn" onclick="typeNumber('4')">4</button>
+                <button class="num-btn" onclick="typeNumber('5')">5</button>
+                <button class="num-btn" onclick="typeNumber('6')">6</button>
+                <button class="num-btn" onclick="typeNumber('7')">7</button>
+                <button class="num-btn" onclick="typeNumber('8')">8</button>
+                <button class="num-btn" onclick="typeNumber('9')">9</button>
+                <button class="num-btn" onclick="typeNumber('0')">0</button>
+                <button class="num-btn backspace" onclick="backspaceNumber()">⌫</button>
+            </div>
+        </div>
+        <div class="header-controls">
+            <label><strong>Search In:</strong></label>
+            <div class="radio-group">
+                <label><input type="radio" name="searchScope" value="All" onchange="applyFilters()"> All</label>
+                <label><input type="radio" name="searchScope" value="House Number" checked onchange="applyFilters()"> House No</label>
+                <label><input type="radio" name="searchScope" value="Name" onchange="applyFilters()"> Name</label>
+                <label><input type="radio" name="searchScope" value="VoterID Number" onchange="applyFilters()"> VIN</label>
+            </div>
+
+            <div style="margin-bottom: 10px;">
+                <label>Filter by Sex:</label>
+                <select id="sexFilter" onchange="applyFilters()"><option value="All">All</option></select>
+            </div>
+
+            <div class="stats" id="countDisplay">Total Found: 0</div>
+
+            <div class="button-group">
+                <button class="btn-pdf" onclick="exportToPDF()">Export PDF</button>
+                <button id="btnWa" class="btn-wa" onclick="shareToWhatsApp()">Share WhatsApp</button>
+            </div>
+        </div>
+
+       
+
+        <div id="export-container">
+            <div id="resultsList">
+                <div class="loading">Loading (Ward No.118) Voters...</div>
+            </div>
+            <button id="loadMoreBtn" class="btn-load-more" onclick="loadMore()">Load Next 100</button>
+        </div>
+    </div>
+
+    <!-- Go To Top Button -->
+    <button id="goToTopBtn" onclick="scrollToTop()">↑</button>
+
+    <script>
+        // Go to Top Logic
+        window.onscroll = function() {
+            const topBtn = document.getElementById("goToTopBtn");
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                topBtn.style.display = "flex";
+            } else {
+                topBtn.style.display = "none";
+            }
+        };
+
+        function scrollToTop() {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+      // Custom Numeric Keypad Handlers
+        function typeNumber(num) {
+            const input = document.getElementById('searchInput');
+            input.value += num;
+            handleSearchInput();
+        }
+
+        function backspaceNumber() {
+            const input = document.getElementById('searchInput');
+            input.value = input.value.slice(0, -1);
+            handleSearchInput();
+        }
+
+        // Date Time Updater
+        function updateDateTime() {
+            const now = new Date();
+            const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            document.getElementById('datetimeDisplay').innerText = now.toLocaleDateString('en-IN', options);
+        }
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+
+        window.onload = () => { setTimeout(() => { document.getElementById('searchInput').focus(); }, 500); };
+
+        const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHKf8MEj6EatuPnVn_UC-J7HrH3pn4vFLW9swh4UDWQjNphYUC9OmSjXGiENIiTjSrhNtMV5UcaYwF/pub?output=csv"; 
+
+        let sheetData = [];
+        let filteredData = [];
+        let itemsPerPage = 100;
+        let currentPage = 1;
+
+        Papa.parse(csvUrl, {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            complete: function(results) {
+                sheetData = results.data;
+                populateDropdown('sexFilter', 'Sex');
+                filteredData = [...sheetData];
+                renderData(true);
+            },
+            error: function(error) {
+                document.getElementById('resultsList').innerHTML = `<p style="color:red; text-align:center;">Failed to load data.</p>`;
+            }
+        });
+
+        function populateDropdown(selectId, columnName) {
+            const select = document.getElementById(selectId);
+            const uniqueValues = [...new Set(sheetData.map(item => item[columnName]))].filter(val => val && val.trim() !== "");
+            uniqueValues.forEach(val => {
+                const opt = document.createElement('option');
+                opt.value = val;
+                opt.innerText = val;
+                select.appendChild(opt);
+            });
+        }
+
+        function renderData(reset = false) {
+            const container = document.getElementById('resultsList');
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            
+            if(reset) {
+                container.innerHTML = '';
+                currentPage = 1;
+            }
+            
+            if(filteredData.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#888;">No results found.</p>';
+                loadMoreBtn.style.display = 'none';
+                document.getElementById('countDisplay').innerText = `Total Found: 0`;
+                return;
+            }
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const dataToShow = filteredData.slice(startIndex, endIndex);
+
+            dataToShow.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-title">${item['Name'] || 'N/A'} <span>(${item['Sex'] || '-'}, Age: ${item['Age'] || '-'})</span></div>
+                    <div class="card-details">
+                        <span>Voter ID: <strong>${item['VoterID Number'] || 'N/A'}</strong></span>
+                    </div>
+                    <div class="card-details" style="font-size: 13px; color: #666;">
+                        <span>Relative: ${item['Relative Name'] || '-'}</span>
+                        <span>House No: <strong>${item['House Number'] || '-'}</strong></span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            document.getElementById('countDisplay').innerText = `Total Found: ${filteredData.length} (Showing ${Math.min(endIndex, filteredData.length)})`;
+            loadMoreBtn.style.display = (endIndex < filteredData.length) ? 'block' : 'none';
+        }
+
+        function loadMore() {
+            currentPage++;
+            renderData(false);
+        }
+
+        function normalizeHindiToNumeric(str) {
+            if (!str) return "";
+            const hindiToNumericMap = {
+                '०': '0', '१': '1', '२': '2', '३': '3', '४': '4',
+                '५': '5', '६': '6', '७': '7', '८': '8', '९': '9'
+            };
+            return String(str).replace(/[०-९]/g, match => hindiToNumericMap[match]);
+        }
+
+        function handleSearchInput() {
+            const input = document.getElementById('searchInput');
+            const clearBtn = document.getElementById('clearBtn');
+            
+            // Show or hide the clear button based on text length
+            if (input.value.length > 0) {
+                clearBtn.style.display = 'block';
+            } else {
+                clearBtn.style.display = 'none';
+            }
+            
+            applyFilters();
+        }
+
+        function clearSearch() {
+            const input = document.getElementById('searchInput');
+            input.value = '';
+            document.getElementById('clearBtn').style.display = 'none';
+            applyFilters();
+            input.focus();
+        }
+
+        function applyFilters() {
+            const rawSearchText = document.getElementById('searchInput').value.toLowerCase().trim();
+            const searchText = normalizeHindiToNumeric(rawSearchText);
+            
+            const searchScope = document.querySelector('input[name="searchScope"]:checked').value;
+            const sex = document.getElementById('sexFilter').value;
+
+            filteredData = sheetData.filter(item => {
+                let matchesSearch = false;
+                
+                if (searchText === "") { 
+                    matchesSearch = true; 
+                } 
+                else if (searchScope === "All") {
+                    matchesSearch = Object.entries(item).some(([key, val]) => {
+                        if (key === 'S.No.') return false;
+                        const normalizedVal = normalizeHindiToNumeric(String(val || "").toLowerCase());
+                        return normalizedVal.includes(searchText);
+                    });
+                } else {
+                    const normalizedVal = normalizeHindiToNumeric(String(item[searchScope] || "").toLowerCase());
+                    matchesSearch = normalizedVal.includes(searchText);
+                }
+                
+                const matchesSex = sex === "All" || item['Sex'] === sex;
+                return matchesSearch && matchesSex;
+            });
+
+            renderData(true);
+        }
+
+        function exportToPDF() {
+            const element = document.getElementById('export-container');
+            const opt = { margin: 10, filename: 'SUNITA_MAVAR_voter_list.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        // Updated WhatsApp share with iOS fallback
+        async function shareToWhatsApp() {
+            const element = document.getElementById('export-container');
+            const btn = document.getElementById('btnWa');
+            const originalText = btn.innerText;
+            
+            // Give user feedback since html2canvas takes a moment
+            btn.innerText = "Generating Image..."; 
+            
+            try {
+                const originalBg = element.style.background;
+                element.style.background = '#ffffff';
+                const canvas = await html2canvas(element, { scale: 2 });
+                element.style.background = originalBg;
+                
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], "voters.png", { type: "image/png" });
+                    
+                    // Check if native share supports files
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                        try { 
+                            await navigator.share({ 
+                                title: 'Sunita Mavar - Voter List', 
+                                files: [file] 
+                            }); 
+                        } 
+                        catch (err) { 
+                            console.warn("Native share cancelled or failed due to iOS timeout. Falling back to download.", err); 
+                            fallbackDownload(blob);
+                        }
+                    } else { 
+                        fallbackDownload(blob);
+                    }
+                    btn.innerText = originalText;
+                });
+            } catch (error) { 
+                alert("Failed to generate image."); 
+                btn.innerText = originalText;
+            }
+        }
+
+        // Fallback for iOS/Browsers that block the share api timeout
+        function fallbackDownload(blob) {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'voters_list.png';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            // Slight delay so the prompt isn't instant over the download UI
+            setTimeout(() => {
+                alert("Image downloaded! You can now easily share it from your phone's gallery/downloads.");
+            }, 500);
+        }
+    </script>
+</body>
+</html>
