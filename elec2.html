@@ -31,7 +31,7 @@
         .search-container { position: relative; width: 100%; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-radius: 5px; background: white; }
         .search-container input { width: 100%; padding: 14px 45px 14px 15px; margin: 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; outline: none; }
         .search-container input:focus { border-color: var(--primary); }
-        .clear-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; font-size: 18px; color: #888; cursor: pointer; display: none; padding: 5px; }
+        .clear-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: #f1f1f1; border: none; font-size: 18px; color: #888; cursor: pointer; display: none; padding: 5px; }
 
         /* Custom Numeric Keypad */
         .numeric-keypad { display: flex; width: 100%; justify-content: space-between; gap: 4px; margin-top: 8px; box-sizing: border-box; }
@@ -82,7 +82,7 @@
         <div class="sticky-search-wrapper">
             <div class="search-container">
                 <input type="text" id="searchInput" placeholder="Type to search..." onkeyup="handleSearchInput()" autofocus>
-                <button id="clearBtn" class="clear-btn" onclick="clearSearch()">✖</button>
+                <button id="clearBtn" class="clear-btn" onclick="clearSearch()">✖ Clear</button>
             </div>
             
             <div class="numeric-keypad">
