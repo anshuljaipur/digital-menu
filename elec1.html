@@ -26,12 +26,19 @@
         .main-content { padding: 15px; }
         .header-controls { background: white; padding: 15px 15px 5px 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 10px; }
         
-        /* Sticky Search Bar */
+        /* Sticky Search Bar & Keypad */
         .sticky-search-wrapper { position: sticky; top: 75px; z-index: 15; background: var(--bg); padding: 10px 0; margin-bottom: 5px; }
-        .search-container { position: relative; width: 100%; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border-radius: 5px; background: white; }
+        .search-container { position: relative; width: 100%; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-radius: 5px; background: white; }
         .search-container input { width: 100%; padding: 14px 45px 14px 15px; margin: 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; outline: none; }
         .search-container input:focus { border-color: var(--primary); }
-        .clear-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: #f1f1f1; border: none; font-size: 18px; color: #888; cursor: pointer; display: none; padding: 5px; }
+        .clear-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; font-size: 18px; color: #888; cursor: pointer; display: none; padding: 5px; }
+
+        /* Custom Numeric Keypad */
+        .numeric-keypad { display: flex; width: 100%; justify-content: space-between; gap: 4px; margin-top: 8px; box-sizing: border-box; }
+        .num-btn { flex: 1; padding: 10px 0; margin: 0; border: 1px solid #ddd; border-radius: 4px; background: #fff; color: #333; font-size: 16px; font-weight: bold; text-align: center; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .num-btn:active { background: #e2e6ea; }
+        .num-btn.backspace { background: #ffebeb; color: #d9534f; border-color: #ffc2c2; font-size: 18px; }
+        .num-btn.backspace:active { background: #ffcccc; }
 
         select { width: 100%; padding: 12px; margin: 5px 0 15px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
 
@@ -71,18 +78,12 @@
     </div>
 
     <div class="main-content">
-         <!-- Sticky Search Bar -->
-        <div class="sticky-search-wrapper">
-            <div class="search-container">
-                <input type="text" id="searchInput" placeholder="Type to search..." onkeyup="handleSearchInput()" autofocus>
-                <button id="clearBtn" class="clear-btn" onclick="clearSearch()">✖ Clear</button>
-            </div>
-        </div>
+        
         <div class="header-controls">
             <label><strong>Search In:</strong></label>
             <div class="radio-group">
-                <label><input type="radio" name="searchScope" value="All" onchange="applyFilters()"> All</label>
-                <label><input type="radio" name="searchScope" value="House Number" checked onchange="applyFilters()"> House No</label>
+                <label><input type="radio" name="searchScope" value="All" checked onchange="applyFilters()"> All</label>
+                <label><input type="radio" name="searchScope" value="House Number" onchange="applyFilters()"> House No</label>
                 <label><input type="radio" name="searchScope" value="Name" onchange="applyFilters()"> Name</label>
                 <label><input type="radio" name="searchScope" value="VoterID Number" onchange="applyFilters()"> VIN</label>
             </div>
@@ -100,11 +101,31 @@
             </div>
         </div>
 
-       
+        <!-- Sticky Search Bar with Numeric Keypad -->
+        <div class="sticky-search-wrapper">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Type to search..." onkeyup="handleSearchInput()" autofocus>
+                <button id="clearBtn" class="clear-btn" onclick="clearSearch()">✖</button>
+            </div>
+            
+            <div class="numeric-keypad">
+                <button class="num-btn" onclick="typeNumber('1')">1</button>
+                <button class="num-btn" onclick="typeNumber('2')">2</button>
+                <button class="num-btn" onclick="typeNumber('3')">3</button>
+                <button class="num-btn" onclick="typeNumber('4')">4</button>
+                <button class="num-btn" onclick="typeNumber('5')">5</button>
+                <button class="num-btn" onclick="typeNumber('6')">6</button>
+                <button class="num-btn" onclick="typeNumber('7')">7</button>
+                <button class="num-btn" onclick="typeNumber('8')">8</button>
+                <button class="num-btn" onclick="typeNumber('9')">9</button>
+                <button class="num-btn" onclick="typeNumber('0')">0</button>
+                <button class="num-btn backspace" onclick="backspaceNumber()">⌫</button>
+            </div>
+        </div>
 
         <div id="export-container">
             <div id="resultsList">
-                <div class="loading">Loading Ward 118 Voters...</div>
+                <div class="loading">Loading 20,000 voters from Google Sheets...</div>
             </div>
             <button id="loadMoreBtn" class="btn-load-more" onclick="loadMore()">Load Next 100</button>
         </div>
@@ -126,6 +147,19 @@
 
         function scrollToTop() {
             window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        // Custom Numeric Keypad Handlers
+        function typeNumber(num) {
+            const input = document.getElementById('searchInput');
+            input.value += num;
+            handleSearchInput();
+        }
+
+        function backspaceNumber() {
+            const input = document.getElementById('searchInput');
+            input.value = input.value.slice(0, -1);
+            handleSearchInput();
         }
 
         // Date Time Updater
@@ -230,7 +264,6 @@
             const input = document.getElementById('searchInput');
             const clearBtn = document.getElementById('clearBtn');
             
-            // Show or hide the clear button based on text length
             if (input.value.length > 0) {
                 clearBtn.style.display = 'block';
             } else {
@@ -285,13 +318,11 @@
             html2pdf().set(opt).from(element).save();
         }
 
-        // Updated WhatsApp share with iOS fallback
         async function shareToWhatsApp() {
             const element = document.getElementById('export-container');
             const btn = document.getElementById('btnWa');
             const originalText = btn.innerText;
             
-            // Give user feedback since html2canvas takes a moment
             btn.innerText = "Generating Image..."; 
             
             try {
@@ -303,7 +334,6 @@
                 canvas.toBlob(async (blob) => {
                     const file = new File([blob], "voters.png", { type: "image/png" });
                     
-                    // Check if native share supports files
                     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
                         try { 
                             await navigator.share({ 
@@ -326,7 +356,6 @@
             }
         }
 
-        // Fallback for iOS/Browsers that block the share api timeout
         function fallbackDownload(blob) {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -337,7 +366,6 @@
             a.click();
             window.URL.revokeObjectURL(url);
             
-            // Slight delay so the prompt isn't instant over the download UI
             setTimeout(() => {
                 alert("Image downloaded! You can now easily share it from your phone's gallery/downloads.");
             }, 500);
