@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voter List Manager - SUNITA MAVAR</title>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <!-- PapaParse is removed because we now use secure JSON via Apps Script -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -14,6 +14,17 @@
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; position: relative; min-height: 100vh; }
         
         body::before { content: ""; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 80%; background-image: url('inc.webp'); background-size: contain; background-repeat: no-repeat; background-position: center; opacity: 0.08; z-index: -1; pointer-events: none; }
+
+        /* Login Screen */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; }
+        .login-box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; width: 85%; max-width: 350px; }
+        .login-box h2 { color: var(--primary); margin-top: 0; }
+        .login-box input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ccc; border-radius: 5px; font-size: 18px; text-align: center; letter-spacing: 3px; box-sizing: border-box;}
+        .login-box button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        #login-error { color: #e74c3c; font-size: 14px; margin-top: 10px; display: none; }
+
+        /* Main App Wrapper (Hidden by default) */
+        #main-app { display: none; }
 
         /* Header */
         .top-header { background-color: var(--primary); color: white; padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 20; box-sizing: border-box; min-height: 75px; }
@@ -26,12 +37,19 @@
         .main-content { padding: 15px; }
         .header-controls { background: white; padding: 15px 15px 5px 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 10px; }
         
-        /* Sticky Search Bar */
+        /* Sticky Search Bar & Keypad */
         .sticky-search-wrapper { position: sticky; top: 75px; z-index: 15; background: var(--bg); padding: 10px 0; margin-bottom: 5px; }
-        .search-container { position: relative; width: 100%; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border-radius: 5px; background: white; }
+        .search-container { position: relative; width: 100%; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-radius: 5px; background: white; }
         .search-container input { width: 100%; padding: 14px 45px 14px 15px; margin: 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; outline: none; }
         .search-container input:focus { border-color: var(--primary); }
-        .clear-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: #f1f1f1; border: none; font-size: 18px; color: #888; cursor: pointer; display: none; padding: 5px; }
+        .clear-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; font-size: 18px; color: #888; cursor: pointer; display: none; padding: 5px; }
+
+        /* Custom Numeric Keypad */
+        .numeric-keypad { display: flex; width: 100%; justify-content: space-between; gap: 4px; margin-top: 8px; box-sizing: border-box; }
+        .num-btn { flex: 1; padding: 10px 0; margin: 0; border: 1px solid #ddd; border-radius: 4px; background: #fff; color: #333; font-size: 16px; font-weight: bold; text-align: center; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .num-btn:active { background: #e2e6ea; }
+        .num-btn.backspace { background: #ffebeb; color: #d9534f; border-color: #ffc2c2; font-size: 18px; }
+        .num-btn.backspace:active { background: #ffcccc; }
 
         select { width: 100%; padding: 12px; margin: 5px 0 15px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
 
@@ -41,7 +59,7 @@
 
         .stats { font-weight: bold; color: var(--primary); margin-bottom: 15px; font-size: 1.1em; text-align: center;}
         .button-group { display: flex; gap: 10px; margin-bottom: 10px;}
-        button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-size: 14px; font-weight: bold; color: white; cursor: pointer; }
+        .btn-pdf, .btn-wa { flex: 1; padding: 12px; border: none; border-radius: 5px; font-size: 14px; font-weight: bold; color: white; cursor: pointer; }
         .btn-pdf { background-color: #e74c3c; } .btn-wa { background-color: #25D366; }
 
         #export-container { background: rgba(255, 255, 255, 0.95); border-radius: 10px; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -56,65 +74,156 @@
 
         /* Go to Top Button */
         #goToTopBtn { display: none; position: fixed; bottom: 25px; right: 25px; z-index: 99; border: none; outline: none; background-color: var(--primary); color: white; cursor: pointer; width: 50px; height: 50px; border-radius: 50%; font-size: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); align-items: center; justify-content: center; line-height: 0; padding: 0; }
-        #goToTopBtn:hover { background-color: var(--primary-dark); }
     </style>
 </head>
 <body>
 
-    <div class="top-header" id="export-header">
-        <img src="inc.webp" alt="INC Symbol" class="header-logo">
-        <div class="header-info">
-            <h1>SUNITA MAVAR</h1>
-            <div id="datetimeDisplay">Loading Date & Time...</div>
-        </div>
-        <div class="header-ballot">3</div>
-    </div>
-
-    <div class="main-content">
-         <!-- Sticky Search Bar -->
-        <div class="sticky-search-wrapper">
-            <div class="search-container">
-                <input type="text" id="searchInput" placeholder="Type to search..." onkeyup="handleSearchInput()" autofocus>
-                <button id="clearBtn" class="clear-btn" onclick="clearSearch()">✖ Clear</button>
-            </div>
-        </div>
-        <div class="header-controls">
-            <label><strong>Search In:</strong></label>
-            <div class="radio-group">
-                <label><input type="radio" name="searchScope" value="All" onchange="applyFilters()"> All</label>
-                <label><input type="radio" name="searchScope" value="House Number" checked onchange="applyFilters()"> House No</label>
-                <label><input type="radio" name="searchScope" value="Name" onchange="applyFilters()"> Name</label>
-                <label><input type="radio" name="searchScope" value="VoterID Number" onchange="applyFilters()"> VIN</label>
-            </div>
-
-            <div style="margin-bottom: 10px;">
-                <label>Filter by Sex:</label>
-                <select id="sexFilter" onchange="applyFilters()"><option value="All">All</option></select>
-            </div>
-
-            <div class="stats" id="countDisplay">Total Found: 0</div>
-
-            <div class="button-group">
-                <button class="btn-pdf" onclick="exportToPDF()">Export PDF</button>
-                <button id="btnWa" class="btn-wa" onclick="shareToWhatsApp()">Share WhatsApp</button>
-            </div>
-        </div>
-
-       
-
-        <div id="export-container">
-            <div id="resultsList">
-                <div class="loading">Loading (Ward No.118) Voters...</div>
-            </div>
-            <button id="loadMoreBtn" class="btn-load-more" onclick="loadMore()">Load Next 100</button>
+    <!-- Security Login Screen -->
+    <div id="login-screen">
+        <div class="login-box">
+            <h2>Secure Access</h2>
+            <p style="color: #666; font-size: 14px;">Enter PIN to load voter data</p>
+            <input type="password" id="pinInput" placeholder="Enter PIN" inputmode="numeric">
+            <button id="loginBtn" onclick="verifyPin()">Unlock Data</button>
+            <div id="login-error">Incorrect PIN. Try again.</div>
         </div>
     </div>
 
-    <!-- Go To Top Button -->
-    <button id="goToTopBtn" onclick="scrollToTop()">↑</button>
+    <!-- Main Application (Hidden until unlocked) -->
+    <div id="main-app">
+        <div class="top-header" id="export-header">
+            <img src="inc.webp" alt="INC Symbol" class="header-logo">
+            <div class="header-info">
+                <h1>SUNITA MAVAR</h1>
+                <div id="datetimeDisplay">Loading Date & Time...</div>
+            </div>
+            <div class="header-ballot">3</div>
+        </div>
+
+        <div class="main-content">
+             <!-- Sticky Search Bar with Numeric Keypad -->
+            <div class="sticky-search-wrapper">
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Type to search..." onkeyup="handleSearchInput()">
+                    <button id="clearBtn" class="clear-btn" onclick="clearSearch()">✖</button>
+                </div>
+                
+                <div class="numeric-keypad">
+                    <button class="num-btn" onclick="typeNumber('1')">1</button>
+                    <button class="num-btn" onclick="typeNumber('2')">2</button>
+                    <button class="num-btn" onclick="typeNumber('3')">3</button>
+                    <button class="num-btn" onclick="typeNumber('4')">4</button>
+                    <button class="num-btn" onclick="typeNumber('5')">5</button>
+                    <button class="num-btn" onclick="typeNumber('6')">6</button>
+                    <button class="num-btn" onclick="typeNumber('7')">7</button>
+                    <button class="num-btn" onclick="typeNumber('8')">8</button>
+                    <button class="num-btn" onclick="typeNumber('9')">9</button>
+                    <button class="num-btn" onclick="typeNumber('0')">0</button>
+                    <button class="num-btn backspace" onclick="backspaceNumber()">⌫</button>
+                </div>
+            </div>
+            <div class="header-controls">
+                <label><strong>Search In:</strong></label>
+                <div class="radio-group">
+                    <label><input type="radio" name="searchScope" value="All" onchange="applyFilters()"> All</label>
+                    <label><input type="radio" name="searchScope" value="House Number" checked onchange="applyFilters()"> House No</label>
+                    <label><input type="radio" name="searchScope" value="Name" onchange="applyFilters()"> Name</label>
+                    <label><input type="radio" name="searchScope" value="VoterID Number" onchange="applyFilters()"> VIN</label>
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                    <label>Filter by Sex:</label>
+                    <select id="sexFilter" onchange="applyFilters()"><option value="All">All</option></select>
+                </div>
+
+                <div class="stats" id="countDisplay">Total Found: 0</div>
+
+                <div class="button-group">
+                    <button class="btn-pdf" onclick="exportToPDF()">Export PDF</button>
+                    <button id="btnWa" class="btn-wa" onclick="shareToWhatsApp()">Share WhatsApp</button>
+                </div>
+            </div>
+
+           
+
+            <div id="export-container">
+                <div id="resultsList">
+                    <div class="loading">Loading voters...</div>
+                </div>
+                <button id="loadMoreBtn" class="btn-load-more" onclick="loadMore()">Load Next 100</button>
+            </div>
+        </div>
+
+        <button id="goToTopBtn" onclick="scrollToTop()">↑</button>
+    </div>
 
     <script>
-        // Go to Top Logic
+        // --- SECURITY / API FETCHING ---
+        // PASTE YOUR NEW APPS SCRIPT WEB APP URL HERE:
+        const API_URL = "https://script.google.com/macros/s/AKfycbz4Wa5dyrCzaPy4UwhWPMme-P2wkRYhUyKqgv9VDeoD0klho9IYAs_Eq_Z5QyagpRtj/exec"; 
+
+        let sheetData = [];
+        let filteredData = [];
+        let itemsPerPage = 100;
+        let currentPage = 1;
+
+        async function verifyPin() {
+            const pin = document.getElementById('pinInput').value;
+            const btn = document.getElementById('loginBtn');
+            const errorMsg = document.getElementById('login-error');
+            
+            if(!pin) return;
+
+            btn.innerText = "Verifying & Loading Data...";
+            btn.style.opacity = "0.7";
+            errorMsg.style.display = "none";
+
+            try {
+                // Fetch data from Apps Script securely passing the PIN
+                const response = await fetch(`${API_URL}?pin=${pin}`);
+                const result = await response.json();
+
+                if (result.status === "success") {
+                    sheetData = result.data;
+                    
+                    // Hide login, show main app
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('main-app').style.display = 'block';
+                    
+                    // Initialize app
+                    populateDropdown('sexFilter', 'Sex');
+                    filteredData = [...sheetData];
+                    renderData(true);
+                    
+                    // Auto focus search bar after login success
+                    setTimeout(() => { document.getElementById('searchInput').focus(); }, 500);
+                } else {
+                    // PIN was wrong or script threw error
+                    errorMsg.innerText = result.message;
+                    errorMsg.style.display = "block";
+                    btn.innerText = "Unlock Data";
+                    btn.style.opacity = "1";
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+                errorMsg.innerText = "Connection error. Ensure URL is correct.";
+                errorMsg.style.display = "block";
+                btn.innerText = "Unlock Data";
+                btn.style.opacity = "1";
+            }
+        }
+
+        // --- APP LOGIC ---
+
+        function updateDateTime() {
+            const now = new Date();
+            const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            const dtElement = document.getElementById('datetimeDisplay');
+            if(dtElement) dtElement.innerText = now.toLocaleDateString('en-IN', options);
+        }
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+
         window.onscroll = function() {
             const topBtn = document.getElementById("goToTopBtn");
             if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
@@ -128,38 +237,17 @@
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
-        // Date Time Updater
-        function updateDateTime() {
-            const now = new Date();
-            const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-            document.getElementById('datetimeDisplay').innerText = now.toLocaleDateString('en-IN', options);
+        function typeNumber(num) {
+            const input = document.getElementById('searchInput');
+            input.value += num;
+            handleSearchInput();
         }
-        setInterval(updateDateTime, 1000);
-        updateDateTime();
 
-        window.onload = () => { setTimeout(() => { document.getElementById('searchInput').focus(); }, 500); };
-
-        const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHKf8MEj6EatuPnVn_UC-J7HrH3pn4vFLW9swh4UDWQjNphYUC9OmSjXGiENIiTjSrhNtMV5UcaYwF/pub?output=csv"; 
-
-        let sheetData = [];
-        let filteredData = [];
-        let itemsPerPage = 100;
-        let currentPage = 1;
-
-        Papa.parse(csvUrl, {
-            download: true,
-            header: true,
-            skipEmptyLines: true,
-            complete: function(results) {
-                sheetData = results.data;
-                populateDropdown('sexFilter', 'Sex');
-                filteredData = [...sheetData];
-                renderData(true);
-            },
-            error: function(error) {
-                document.getElementById('resultsList').innerHTML = `<p style="color:red; text-align:center;">Failed to load data.</p>`;
-            }
-        });
+        function backspaceNumber() {
+            const input = document.getElementById('searchInput');
+            input.value = input.value.slice(0, -1);
+            handleSearchInput();
+        }
 
         function populateDropdown(selectId, columnName) {
             const select = document.getElementById(selectId);
@@ -219,24 +307,14 @@
 
         function normalizeHindiToNumeric(str) {
             if (!str) return "";
-            const hindiToNumericMap = {
-                '०': '0', '१': '1', '२': '2', '३': '3', '४': '4',
-                '५': '5', '६': '6', '७': '7', '८': '8', '९': '9'
-            };
+            const hindiToNumericMap = { '०': '0', '१': '1', '२': '2', '३': '3', '४': '4', '५': '5', '६': '6', '७': '7', '८': '8', '९': '9' };
             return String(str).replace(/[०-९]/g, match => hindiToNumericMap[match]);
         }
 
         function handleSearchInput() {
             const input = document.getElementById('searchInput');
             const clearBtn = document.getElementById('clearBtn');
-            
-            // Show or hide the clear button based on text length
-            if (input.value.length > 0) {
-                clearBtn.style.display = 'block';
-            } else {
-                clearBtn.style.display = 'none';
-            }
-            
+            clearBtn.style.display = input.value.length > 0 ? 'block' : 'none';
             applyFilters();
         }
 
@@ -251,7 +329,6 @@
         function applyFilters() {
             const rawSearchText = document.getElementById('searchInput').value.toLowerCase().trim();
             const searchText = normalizeHindiToNumeric(rawSearchText);
-            
             const searchScope = document.querySelector('input[name="searchScope"]:checked').value;
             const sex = document.getElementById('sexFilter').value;
 
@@ -260,16 +337,13 @@
                 
                 if (searchText === "") { 
                     matchesSearch = true; 
-                } 
-                else if (searchScope === "All") {
+                } else if (searchScope === "All") {
                     matchesSearch = Object.entries(item).some(([key, val]) => {
                         if (key === 'S.No.') return false;
-                        const normalizedVal = normalizeHindiToNumeric(String(val || "").toLowerCase());
-                        return normalizedVal.includes(searchText);
+                        return normalizeHindiToNumeric(String(val || "").toLowerCase()).includes(searchText);
                     });
                 } else {
-                    const normalizedVal = normalizeHindiToNumeric(String(item[searchScope] || "").toLowerCase());
-                    matchesSearch = normalizedVal.includes(searchText);
+                    matchesSearch = normalizeHindiToNumeric(String(item[searchScope] || "").toLowerCase()).includes(searchText);
                 }
                 
                 const matchesSex = sex === "All" || item['Sex'] === sex;
@@ -285,13 +359,11 @@
             html2pdf().set(opt).from(element).save();
         }
 
-        // Updated WhatsApp share with iOS fallback
         async function shareToWhatsApp() {
             const element = document.getElementById('export-container');
             const btn = document.getElementById('btnWa');
             const originalText = btn.innerText;
             
-            // Give user feedback since html2canvas takes a moment
             btn.innerText = "Generating Image..."; 
             
             try {
@@ -302,19 +374,9 @@
                 
                 canvas.toBlob(async (blob) => {
                     const file = new File([blob], "voters.png", { type: "image/png" });
-                    
-                    // Check if native share supports files
                     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                        try { 
-                            await navigator.share({ 
-                                title: 'Sunita Mavar - Voter List', 
-                                files: [file] 
-                            }); 
-                        } 
-                        catch (err) { 
-                            console.warn("Native share cancelled or failed due to iOS timeout. Falling back to download.", err); 
-                            fallbackDownload(blob);
-                        }
+                        try { await navigator.share({ title: 'Sunita Mavar - Voter List', files: [file] }); } 
+                        catch (err) { fallbackDownload(blob); }
                     } else { 
                         fallbackDownload(blob);
                     }
@@ -326,7 +388,6 @@
             }
         }
 
-        // Fallback for iOS/Browsers that block the share api timeout
         function fallbackDownload(blob) {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -336,11 +397,7 @@
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
-            
-            // Slight delay so the prompt isn't instant over the download UI
-            setTimeout(() => {
-                alert("Image downloaded! You can now easily share it from your phone's gallery/downloads.");
-            }, 500);
+            setTimeout(() => { alert("Image downloaded! You can now easily share it from your phone's gallery/downloads."); }, 500);
         }
     </script>
 </body>
