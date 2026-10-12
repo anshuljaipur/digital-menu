@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>About, Delivery, Returns, Privacy and FAQs - GLACIER</title>
+<link rel="stylesheet" href="css/style.css">
+<style>main section{margin:1.6rem 0;scroll-margin-top:1rem}main li{margin:.4rem 0}nav.jump{display:flex;flex-wrap:wrap;gap:.5rem}nav.jump a{padding:.5rem .9rem;border:2px solid var(--ice2);border-radius:2rem;text-decoration:none;font-weight:600;min-height:2.7rem;display:inline-flex;align-items:center}</style>
+</head>
+<body>
+<header class="hdr"><div class="row"><a class="logo" href="index.html">🍦 <b>GLACIER</b> <small>Ice Cream Parlor</small></a><a class="btn sm" href="index.html">← Back to Store</a></div></header>
+<main style="max-width:42rem">
+<h1>Information</h1>
+<nav class="jump" aria-label="Sections"><a href="#about">About</a><a href="#contact">Contact</a><a href="#delivery">Delivery</a><a href="#cancel">Cancellation</a><a href="#returns">Returns</a><a href="#privacy">Privacy</a><a href="#terms">Terms</a><a href="#faq">FAQs</a></nav>
+
+<section id="about"><h2>About Us</h2><p><span data-s="StoreName">GLACIER ICE CREAM PARLOR</span> is a neighbourhood store in <span data-s="Address">Jaipur, Rajasthan</span>, selling ice creams, frozen desserts, chocolates, cakes, groceries, snacks and everyday essentials. You can order here without making an account.</p></section>
+
+<section id="contact"><h2>Contact Us</h2><p>Phone: <b data-s="Phone"></b><br>Address: <span data-s="Address"></span><br>Open: <span data-s="Timings"></span></p><p id="contactbtns"></p></section>
+
+<section id="delivery"><h2>Delivery Policy</h2><ul>
+<li>Orders are sent to us on WhatsApp. An order is <b>only confirmed when the store replies and accepts it</b>.</li>
+<li>Home delivery charge: <b data-s="DeliveryCharge" data-pre="₹"></b>. Free delivery on orders above <b data-s="FreeDeliveryAbove" data-pre="₹"></b>. Minimum order for home delivery: <b data-s="MinOrder" data-pre="₹"></b>.</li>
+<li>We deliver only to certain areas (PIN codes): <span data-s="DeliveryPincodes"></span>.</li>
+<li>You can also collect your order from the store.</li>
+<li>Delivery time depends on the order and the weather. Ice cream and frozen items are kept cold until they leave the store. We will tell you the expected time when we confirm.</li></ul></section>
+
+<section id="cancel"><h2>Cancellation Policy</h2><ul>
+<li>To cancel or change an order, please call or WhatsApp us as soon as possible.</li>
+<li>An order can be cancelled before we start preparing it. Once it is packed or out for delivery, cancellation may not be possible, especially for frozen and perishable items.</li></ul></section>
+
+<section id="returns"><h2>Returns and Refunds</h2><ul>
+<li>Because ice cream, frozen desserts, dairy and cakes are perishable, we do not take back these items for change of mind.</li>
+<li>If an item arrives <b>damaged, spoiled, melted or different from what you ordered</b>, please tell us on the same day by calling or WhatsApp, with a photo if you can. We will look into it and offer a replacement or refund where appropriate.</li>
+<li>Packaged non-perishable items: please contact the store to discuss any problem.</li>
+<li>Payment is made directly to the store (cash or another method the store confirms). Refunds, if any, are made the same way.</li></ul></section>
+
+<section id="privacy"><h2>Privacy Policy</h2><ul>
+<li>We collect only what is needed to deliver your order: name, mobile number, address and, if you choose to share it, your location.</li>
+<li>Location is requested only when you press the location button. You can refuse and type your address instead.</li>
+<li>Your order details are recorded in the store&rsquo;s order sheet so we can process your order. They are used only for your order and for contacting you about it.</li>
+<li>We do not sell your details. We do not need you to make an account.</li>
+<li>If you tick &ldquo;Save my name and address on this phone&rdquo;, they are stored only in your phone&rsquo;s browser. You can remove them any time using &ldquo;Forget my saved details&rdquo; at checkout.</li>
+<li>To ask us to correct or delete your order details, please contact the store.</li></ul></section>
+
+<section id="terms"><h2>Terms and Conditions</h2><ul>
+<li>Prices and availability on this website can change and may be slightly out of date. The store confirms the final price and availability when it accepts your order.</li>
+<li>Sending an order on WhatsApp does not guarantee that the items are reserved for you.</li>
+<li>We may decline or change an order if an item is unavailable, or if we cannot deliver to your address.</li>
+<li>Product images are for guidance. Packaging may differ.</li></ul></section>
+
+<section id="faq"><h2>Frequently Asked Questions</h2>
+<h3>Do I need to make an account?</h3><p>No. Add items to your cart, enter your details and send the order on WhatsApp.</p>
+<h3>Do I pay online?</h3><p>No. You pay the store directly, for example cash on delivery or cash at the store.</p>
+<h3>I pressed the WhatsApp button. Is my order placed?</h3><p>Not yet. WhatsApp opens with your order written out. You must press <b>Send</b> there. Your order is confirmed only when the store replies.</p>
+<h3>Is the stock shown always right?</h3><p>It is updated every few minutes. If an item has just sold out, the store will tell you when it confirms.</p>
+<h3>My location was not found. Can I still order?</h3><p>Yes. Just type your address.</p>
+<h3>I need help ordering.</h3><p>Press <b>Need Help Ordering?</b> at the top of any page, or call us.</p></section>
+</main>
+<footer id="foot"><div class="in"><span data-s="StoreName"></span></div></footer>
+<script src="js/config.js"></script>
+<script>
+(function () {
+  fetch(GLACIER.API_URL + '?action=settings').then(function (r) { return r.json(); }).then(function (a) {
+    if (!a.ok) return; var S = a.settings;
+    document.querySelectorAll('[data-s]').forEach(function (el) { var v = S[el.dataset.s]; if (v) el.textContent = (el.dataset.pre || '') + v; });
+    var b = document.getElementById('contactbtns'), ph = (S.Phone || '').replace(/[^\d+]/g, ''), wa = (S.WhatsAppNumber || '').replace(/\D/g, '');
+    if (ph) { var c = document.createElement('a'); c.className = 'btn'; c.href = 'tel:' + ph; c.textContent = 'Call the store'; b.appendChild(c); b.appendChild(document.createTextNode(' ')); }
+    if (wa.length >= 10 && !/X/i.test(S.WhatsAppNumber)) { var w = document.createElement('a'); w.className = 'btn'; w.href = 'https://wa.me/' + wa; w.textContent = 'WhatsApp the store'; b.appendChild(w); }
+  }).catch(function () { /* page still readable with defaults */ });
+})();
+</script>
+</body>
+</html>

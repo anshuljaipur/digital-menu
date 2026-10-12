@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GLACIER ICE CREAM PARLOR - Order Online</title>
+<meta name="description" content="Order ice creams, chocolates, cakes, grocery and more from Glacier Ice Cream Parlor, Jaipur. Send your order on WhatsApp.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<a class="skip" href="#app">Skip to products</a>
+<header class="hdr">
+  <div class="row">
+    <a class="logo" href="#/" aria-label="Glacier Ice Cream Parlor - home">🍦 <b>GLACIER</b> <small>Ice Cream Parlor</small></a>
+    <div class="tools">
+      <button class="btn sm" id="txtm" aria-label="Make text smaller">A−</button>
+      <button class="btn sm" id="txtp" aria-label="Make text larger">A+</button>
+      <button class="btn sm" id="helpb">Need Help Ordering?</button>
+    </div>
+  </div>
+  <form id="sf" class="search" role="search">
+    <div class="sbox">
+      <input id="q" type="search" role="combobox" aria-expanded="false" aria-controls="sug" aria-autocomplete="list" autocomplete="off" placeholder="Search ice cream, maggi, biscuits..." aria-label="Search products">
+      <button type="button" id="qc" class="x" hidden aria-label="Clear search">✕</button>
+      <ul id="sug" role="listbox" hidden></ul>
+    </div>
+    <button class="btn pri">Search</button>
+  </form>
+  <nav id="cats" aria-label="Categories"></nav>
+</header>
+<div id="banner" role="status"></div>
+<main id="app" tabindex="-1"><p class="msg">Loading products...</p></main>
+<footer id="foot"></footer>
+<button id="cartbar" class="cartbar" aria-label="Open shopping cart"><span>🛒 Cart (<span id="cc">0</span>)</span><span id="ct"></span></button>
+<div id="bd" hidden></div>
+<aside id="cart" class="drawer" role="dialog" aria-label="Shopping cart" hidden></aside>
+<dialog id="help"></dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
