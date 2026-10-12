@@ -163,9 +163,10 @@ function act(a, k) {
   saveCart(); updateCart(); refreshCtl(k, a);
   if (!$('#cart').hidden) renderCart(a === 'rm' ? 'rm' : null);
 }
-function ctlInner(p) {
+function ctlInner(p, mini) {
   var q = cart[p.key] || 0, k = esc(p.key);
-  if (!p.inStock) return '<button class="btn" disabled>Out of stock</button>';
+  if (!p.inStock) return mini ? '<span class="oos">Out of stock</span>' : '<button class="btn" disabled>Out of stock</button>';
+  if (!q && mini) return '<button class="btn add" data-act="add" data-k="' + k + '" aria-label="Add ' + esc(p.name) + ' to cart">+</button>';
   if (!q) return '<button class="btn pri" data-act="add" data-k="' + k + '">\uD83D\uDED2 Add to Cart</button>';
   return '<div class="step"><button class="btn" data-act="dec" data-k="' + k + '" aria-label="Remove one ' + esc(p.name) + '">\u2212</button><b aria-live="polite">' + q + '</b><button class="btn" data-act="inc" data-k="' + k + '" aria-label="Add one ' + esc(p.name) + '">+</button></div>';
 }
@@ -174,7 +175,7 @@ function refreshCtl(k, a) {
   document.querySelectorAll('.ctl').forEach(function (el) {
     if (el.dataset.k !== k) return;
     var mine = el.contains(document.activeElement);
-    el.innerHTML = ctlInner(p);
+    el.innerHTML = ctlInner(p, el.dataset.mini);
     if (mine) { var b = el.querySelector(a === 'dec' ? '[data-act=dec],[data-act=add]' : '[data-act=inc]') || el.querySelector('button'); if (b) b.focus(); }
   });
 }
@@ -182,7 +183,15 @@ function cartLines() { return Object.keys(cart).map(function (k) { return { k: k
 function updateCart() {
   var n = 0, tot = 0;
   cartLines().forEach(function (l) { if (l.p && l.p.inStock) { n += l.q; tot += l.q * l.p.price; } });
-  $('#cc').textContent = n; $('#ct').textContent = n ? rs(tot) : 'Empty';
+  $('#cc').textContent = n;
+  var free = +S.FreeDeliveryAbove || 0, pill = $('#pill'), un = free > 0 && tot >= free;
+  if (n) {
+    pill.className = 'pill on';
+    pill.innerHTML = '<span><b>CART</b> ' + n + ' item' + (n > 1 ? 's' : '') + ' \u00B7 ' + rs(tot) + '</span><span>' + (free ? (un ? 'FREE DELIVERY unlocked' : 'Add ' + rs(free - tot) + ' more for FREE DELIVERY') : 'View cart') + ' \u203A</span>' + (free ? '<i style="width:' + Math.min(100, Math.round(tot / free * 100)) + '%"></i>' : '');
+  } else if (free) { pill.className = 'pill strip'; pill.textContent = 'FREE DELIVERY on orders above ' + rs(free); }
+  else pill.className = 'pill';
+  if (updateCart.u === false && un) toast('You unlocked FREE DELIVERY');
+  updateCart.u = un;
 }
 function renderCart(focus) {
   var L = cartLines(), sub = 0, sav = 0, bad = false, h = '<div class="row"><h2 id="ch" tabindex="-1">Your Cart</h2><button class="btn" data-close="1">\u2715 Close</button></div>';
@@ -195,12 +204,14 @@ function renderCart(focus) {
       h += '<div class="line"><img src="' + esc(p.image || FB) + '" alt=""><div><b>' + esc(p.name) + '</b><div class="sz">' + esc(p._sz) + '</div><div>' + rs(p.price) + ' each</div>' +
         '<div class="ctl" data-k="' + k + '">' + ctlInner(p) + '</div><div class="pr">' + rs(p.price * l.q) + '</div><button class="btn sm" data-act="rm" data-k="' + k + '">Remove</button></div></div>';
     });
-    h += '<div class="tot"><span>Items total</span><b>' + rs(sub) + '</b></div>';
-    if (sav > 0) h += '<div class="tot save"><span>You save (vs MRP)</span><b>' + rs(sav) + '</b></div>';
-    var min = +S.MinOrder || 0, free = +S.FreeDeliveryAbove || 0;
-    h += '<p class="sz">Delivery charge is added at checkout.' + (free ? ' Free delivery above ' + rs(free) + '.' : '') + (min ? ' Minimum order for home delivery: ' + rs(min) + '.' : '') + '</p>';
+    
+    
+    var min = +S.MinOrder || 0, free = +S.FreeDeliveryAbove || 0, del = free > 0 && sub >= free ? 0 : (+S.DeliveryCharge || 0);
+    if (sav > 0) h += '<div class="saved">' + rs(sav) + ' saved!</div>';
+    h += '<div class="bill"><h3>Bill details</h3><div class="tot"><span>Item total</span><span>' + (sav > 0 ? '<s>' + rs(sub + sav) + '</s> ' : '') + '<b>' + rs(sub) + '</b></span></div><div class="tot"><span>Delivery charge</span><b>' + (del ? rs(del) : 'FREE') + '</b></div><div class="tot big"><span>To pay (estimate)</span><b>' + rs(sub + del) + '</b></div><p class="sz">Your order is pending until the store confirms it on WhatsApp.</p></div>';
+    h += '<p class="sz">Shown for home delivery; store pickup has no delivery charge.' + (free ? ' Free delivery above ' + rs(free) + '.' : '') + (min ? ' Minimum order for home delivery: ' + rs(min) + '.' : '') + '</p>';
     if (meta.stale) h += '<p class="warn">Stock may be out of date. The store will confirm availability.</p>';
-    h += bad ? '<p class="warn">Please remove the items marked above before checkout.</p><a class="btn" aria-disabled="true">Continue to Checkout</a>' : '<a class="btn pri" href="checkout.html" style="width:100%">Continue to Checkout \u2192</a>';
+    h += bad ? '<p class="warn">Please remove the items marked above before checkout.</p><a class="btn" aria-disabled="true">Continue to Checkout</a>' : '<div class="cta"><a class="btn pri" href="checkout.html" style="width:100%">Continue to Checkout \u2192</a></div>';
     h += '<p><button class="btn" data-clear="1">Empty the Cart</button></p>';
   }
   $('#cart').innerHTML = h;
@@ -213,21 +224,25 @@ function stockHtml(p) { return p.inStock ? (p.lowStock ? '<span class="st low">O
 function priceHtml(p) { return '<div class="pr">' + rs(p.price) + (p.mrp > p.price ? '<span class="mrp">' + rs(p.mrp) + '</span>' : '') + '</div>' + (p.mrp > p.price ? '<div class="save">Save ' + rs(p.mrp - p.price) + ' (' + p.discountPct + '% off)</div>' : ''); }
 function pHref(p) { return '#/p/' + encodeURIComponent(p.key); }
 function card(p) {
-  return '<article class="card"><a class="im" href="' + pHref(p) + '" tabindex="-1" aria-hidden="true"><img src="' + esc(p.image || FB) + '" alt="" loading="lazy" width="300" height="300"></a>' +
+  return '<article class="card"><div class="imw"><a class="im" href="' + pHref(p) + '" tabindex="-1" aria-hidden="true"><img src="' + esc(p.image || FB) + '" alt="" loading="lazy" width="300" height="300"></a><div class="ctl mini" data-mini="1" data-k="' + esc(p.key) + '">' + ctlInner(p, 1) + '</div></div>' +
     (p.brand ? '<p class="br">' + esc(p.brand) + '</p>' : '') + '<h3><a href="' + pHref(p) + '">' + esc(p.name) + '</a></h3>' + (p._sz ? '<div class="sz">' + esc(p._sz) + '</div>' : '') +
-    priceHtml(p) + stockHtml(p) + '<div class="ctl" data-k="' + esc(p.key) + '">' + ctlInner(p) + '</div></article>';
+    priceHtml(p) + stockHtml(p) + '</article>';
 }
 function sec(title, list, href) {
   return list.length ? '<section class="sec"><div class="sh"><h2>' + title + '</h2><a href="' + href + '">See all</a></div><div class="grid">' + list.slice(0, 8).map(card).join('') + '</div></section>' : '';
 }
 function count(k) { var o = {}; P.forEach(function (p) { vals(p, k).forEach(function (v) { if (v) o[v] = (o[v] || 0) + 1; }); }); return Object.keys(o).sort(function (a, b) { return o[b] - o[a]; }).map(function (v) { return [v, o[v]]; }); }
 function drawNav() { $('#cats').innerHTML = '<a href="#/?all=1">All Products</a>' + count('cat').map(function (c) { return '<a href="#/?cat=' + encodeURIComponent(c[0]) + '">' + esc(c[0]) + '</a>'; }).join(''); }
+function catImg(c) { var p = P.find(function (x) { return x.category === c && x.image; }); return '<span class="ci">' + (p ? '<img src="' + esc(p.image) + '" alt="" loading="lazy">' : '\uD83C\uDF66') + '</span>'; }
+function catTile(c) { return '<a class="tile" href="#/?cat=' + encodeURIComponent(c[0]) + '">' + catImg(c[0]) + esc(c[0]) + '</a>'; }
+function railHtml(st) { return '<a href="#/?all=1"' + (!st.cat.length ? ' class="on"' : '') + '><span class="ci">\uD83C\uDF66</span>All</a>' + count('cat').map(function (c) { return '<a href="#/?cat=' + encodeURIComponent(c[0]) + '"' + (st.cat.indexOf(c[0]) >= 0 ? ' class="on" aria-current="true"' : '') + '>' + catImg(c[0]) + esc(c[0]) + '</a>'; }).join(''); }
+function cats() { document.title = 'Categories - GLACIER'; app('<h1>Categories</h1><div class="tiles">' + count('cat').map(catTile).join('') + '</div>'); }
 function home() {
   document.title = (S.StoreName || 'GLACIER ICE CREAM PARLOR') + ' - Order Online';
   var deals = P.filter(function (p) { return p.inStock && p.discountPct > 0; }).sort(SORTS.disc[1]);
   var rv = ls.get('gl_rv', []).map(function (k) { return by[k]; }).filter(Boolean);
   var del = [S.DeliveryCharge ? 'Delivery ' + rs(+S.DeliveryCharge) : '', +S.FreeDeliveryAbove ? 'free above ' + rs(+S.FreeDeliveryAbove) : '', +S.MinOrder ? 'minimum order ' + rs(+S.MinOrder) : ''].filter(Boolean).join(' \u00B7 ');
-  app('<section class="sec"><h1>What would you like today?</h1><div class="tiles">' + count('cat').map(function (c) { return '<a class="tile" href="#/?cat=' + encodeURIComponent(c[0]) + '">' + esc(c[0]) + '<small>' + c[1] + ' items</small></a>'; }).join('') + '</div></section>' +
+  app('<section class="sec"><h1>What would you like today?</h1><div class="tiles">' + count('cat').map(catTile).join('') + '</div></section>' +
     '<div class="info"><b>How ordering works:</b> add items, enter your address, and send your order on WhatsApp. Your order is <b>pending</b> until the store confirms it.' + (del ? '<br>' + esc(del) : '') + (S.Timings ? '<br>Open: ' + esc(S.Timings) : '') + '</div>' +
     sec('Today\u2019s Deals', deals, '#/?offer=1&sort=disc') + sec('Best Sellers', P.filter(function (p) { return p.bestSeller; }), '#/?sort=best') +
     sec('Featured', P.filter(function (p) { return p.featured; }), '#/?sort=recommended') + sec('New Arrivals', P.filter(function (p) { return p.isNew; }), '#/?sort=new') +
@@ -273,7 +288,7 @@ function listing(st) {
     '<div class="grid">' + shown.map(card).join('') + '</div>' + (res.length > shown.length ? '<p style="text-align:center"><button class="btn pri" data-more="1">Show more products (' + (res.length - shown.length) + ' left)</button></p>' : '');
   var opts = Object.keys(SORTS).filter(function (k) { return k !== 'relevance' || st.q; }).map(function (k) { return '<option value="' + k + '"' + (k === sort ? ' selected' : '') + '>' + SORTS[k][0] + '</option>'; }).join('');
   var old = $('#filters'), top = old ? old.scrollTop : 0;
-  app(crumb + '<h1>' + title + '</h1><div class="bar"><span><b>' + res.length + '</b> product' + (res.length === 1 ? '' : 's') + '</span><span><button class="btn" data-fopen="1">\u2630 Filters</button> <label>Sort: <select id="sort">' + opts + '</select></label></span></div>' + ch + '<div class="lay">' + fl + '<div>' + body + '</div></div>');
+  app(crumb + '<h1>' + title + '</h1><div class="bar"><span><b>' + res.length + '</b> product' + (res.length === 1 ? '' : 's') + '</span><span><button class="btn" data-fopen="1">\u2630 Filters</button> <label>Sort: <select id="sort">' + opts + '</select></label></span></div>' + ch + '<div class="lay">' + fl + '<div class="split"><nav class="rail" aria-label="Categories">' + railHtml(st) + '</nav><div>' + body + '</div></div></div>');
   var nf = $('#filters'); if (nf) nf.scrollTop = top;
 }
 function product(k) {
@@ -290,11 +305,11 @@ function product(k) {
     '<button class="btn sm" onclick="history.back()">\u2190 Back</button><div class="detail"><div class="im"><img src="' + esc(p.image || FB) + '" alt="' + esc(p.name) + '"></div><div>' +
     (p.brand ? '<a href="#/?brand=' + encodeURIComponent(p.brand) + '">' + esc(p.brand) + '</a>' : '') + '<h1>' + esc(p.name) + '</h1>' + (p._sz ? '<div class="sz">' + esc(p._sz) + '</div>' : '') + priceHtml(p) + stockHtml(p) +
     (meta.stale ? '<p class="warn">Stock may be out of date. The store will confirm availability.</p>' : '') + (p.minQty > 1 ? '<p class="sz">Minimum order: ' + p.minQty + '</p>' : '') + (p.maxQty ? '<p class="sz">Maximum per order: ' + p.maxQty + '</p>' : '') +
-    '<div class="ctl" data-k="' + esc(k) + '" style="max-width:20rem;margin:.6rem 0">' + ctlInner(p) + '</div>' + (p.description ? '<p>' + esc(p.description) + '</p>' : '') +
+    (p.description ? '<p>' + esc(p.description) + '</p>' : '') +
     (rows.length ? '<table class="attr">' + rows.map(function (r) { return '<tr><th>' + r[0] + '</th><td>' + esc(r[1]) + '</td></tr>'; }).join('') + '</table>' : '') +
     (p._t.length ? '<div class="chips">' + p._t.map(function (t) { return '<a class="chip" style="text-decoration:none;display:inline-flex;align-items:center" href="#/?tag=' + encodeURIComponent(t) + '">' + esc(t) + '</a>'; }).join('') + '</div>' : '') +
     '</div></div>' + sec('More from ' + esc(p.brand), rel, '#/?brand=' + encodeURIComponent(p.brand)) + sec('Similar products', sim, '#/?cat=' + cat) +
-    sec('Recently viewed', rv.map(function (x) { return by[x]; }).filter(Boolean), '#/?all=1'));
+    sec('Recently viewed', rv.map(function (x) { return by[x]; }).filter(Boolean), '#/?all=1') + '<div class="stick"><div>' + priceHtml(p) + '</div><div class="ctl" data-k="' + esc(k) + '">' + ctlInner(p) + '</div></div>');
 }
 function drawFoot() {
   $('#foot').innerHTML = '<div class="in"><b>' + esc(S.StoreName || 'GLACIER ICE CREAM PARLOR') + '</b><br>' + (S.Address ? esc(S.Address) + '<br>' : '') + (S.Timings ? 'Open: ' + esc(S.Timings) + '<br>' : '') +
@@ -304,7 +319,9 @@ function route() {
   closeUI();
   var r = parse();
   $('#q').value = r.u.get('q') || ''; $('#qc').hidden = !$('#q').value;
+  document.body.classList.toggle('pdp', r.path.indexOf('/p/') === 0);
   if (r.path.indexOf('/p/') === 0) product(decodeURIComponent(r.path.slice(3)));
+  else if (r.path === '/cats') cats();
   else { var st = stateFrom(r.u); if (hasFilter(st)) listing(st); else home(); }
   if (!route.first) route.first = 1; else window.scrollTo(0, 0);
 }
@@ -351,10 +368,10 @@ $('#qc').addEventListener('click', function () { $('#q').value = ''; this.hidden
 document.addEventListener('click', function (e) {
   var t = e.target, a = t.closest('[data-act]');
   if (a) { act(a.dataset.act, a.dataset.k); return; }
-  if (t.closest('#cartbar')) { renderCart(); return; }
-  if (t.closest('[data-close]') || t.id === 'bd') { closeUI(); $('#cartbar').focus(); return; }
+  if (t.closest('#pill,#tabcart')) { renderCart(); return; }
+  if (t.closest('[data-close]') || t.id === 'bd') { closeUI(); $('#tabcart').focus(); return; }
   if (t.closest('[data-clear]')) {
-    if (t.closest('#cart')) { if (confirm('Remove everything from your cart?')) { cart = {}; saveCart(); updateCart(); renderCart(); document.querySelectorAll('.ctl').forEach(function (el) { if (by[el.dataset.k]) el.innerHTML = ctlInner(by[el.dataset.k]); }); } }
+    if (t.closest('#cart')) { if (confirm('Remove everything from your cart?')) { cart = {}; saveCart(); updateCart(); renderCart(); document.querySelectorAll('.ctl').forEach(function (el) { if (by[el.dataset.k]) el.innerHTML = ctlInner(by[el.dataset.k], el.dataset.mini); }); } }
     else location.hash = '#/?all=1';
     return;
   }

@@ -111,3 +111,44 @@ dialog::backdrop{background:rgba(18,38,63,.55)}
 .cl{display:flex;justify-content:space-between;gap:.6rem;padding:.4rem 0;border-bottom:1px solid var(--ice2)}
 textarea.out{width:100%;min-height:12rem;font:inherit;font-size:.95rem;padding:.6rem;border:2px solid var(--navy);border-radius:.7rem}
 .ok{color:var(--ok);font-weight:700}
+/* ---- app-style layout: bottom tabs, floating cart, category rail, "+" buttons ---- */
+body{padding-bottom:8.5rem}
+.hdr{background:linear-gradient(#dff0fc,#fff)}
+.sbox input{border-radius:2rem;border-color:var(--ice2)}
+#tabs{position:fixed;left:0;right:0;bottom:0;z-index:35;height:3.8rem;display:flex;background:#fff;border-top:2px solid var(--ice2)}
+#tabs a,#tabs button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;font:inherit;font-size:.8rem;font-weight:700;color:var(--navy);background:none;border:0;text-decoration:none;min-height:3rem;cursor:pointer}
+#tabs b{background:var(--blue);color:#fff;border-radius:1rem;padding:0 .45rem;font-size:.75rem;margin-left:.2rem}
+.pill{display:none}
+.pill.on{display:flex;position:fixed;left:.6rem;right:.6rem;bottom:4.4rem;z-index:34;min-height:3.4rem;align-items:center;justify-content:space-between;gap:.5rem;background:var(--blue);color:#fff;border:0;border-radius:1rem;padding:.3rem 1rem;font:inherit;font-size:.9rem;font-weight:700;cursor:pointer;overflow:hidden;text-align:left}
+.pill i{position:absolute;left:0;bottom:0;height:.3rem;background:#fff}
+.pill.strip{display:block;position:fixed;left:0;right:0;bottom:3.8rem;z-index:34;background:#e6f7ee;color:var(--ok);border:0;font:inherit;font-weight:700;font-size:.85rem;padding:.25rem;text-align:center}
+#toast{bottom:8.5rem}
+body.pdp #tabs,body.pdp #pill{display:none!important}
+body.pdp{padding-bottom:5.5rem}
+.stick{position:fixed;left:0;right:0;bottom:0;z-index:36;background:#fff;border-top:2px solid var(--ice2);padding:.5rem .8rem;display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.stick .pr{font-size:1.3rem}.stick .ctl{min-width:9.5rem;margin:0}
+.imw{position:relative}
+.ctl.mini{position:absolute;right:.35rem;bottom:.35rem;margin:0}
+.ctl.mini .btn.add{width:3rem;min-height:3rem;border-radius:50%;padding:0;font-size:1.7rem;line-height:1;background:#fff}
+.ctl.mini .step{background:#fff;border:2px solid var(--blue);border-radius:2rem;gap:0}
+.ctl.mini .step .btn{width:2.8rem;min-height:2.8rem;border:0;font-size:1.4rem;background:none}
+.ctl.mini .step b{min-width:1.5rem;font-size:1.05rem}
+.oos{background:#fff;border:2px solid #9aa7b5;color:var(--bad);font-size:.75rem;font-weight:700;padding:.1rem .4rem;border-radius:.5rem}
+.tiles{grid-template-columns:repeat(3,1fr)}
+.tile{align-items:center;text-align:center;background:none;border:0;font-size:.85rem;gap:.3rem}
+.ci{display:flex;width:4.6rem;height:4.6rem;border-radius:50%;background:var(--ice);align-items:center;justify-content:center;overflow:hidden;font-size:1.8rem}
+.ci img{width:100%;height:100%;object-fit:contain}
+.split{display:grid;grid-template-columns:4.8rem 1fr;gap:.5rem}
+.rail{display:flex;flex-direction:column;gap:.3rem;position:sticky;top:.5rem;align-self:start}
+.rail a{text-align:center;font-size:.75rem;font-weight:700;color:var(--navy);text-decoration:none;padding:.4rem .1rem;border-left:4px solid transparent;border-radius:.5rem;min-height:3rem}
+.rail a.on{background:var(--ice);border-left-color:var(--blue)}
+.rail .ci{width:3.2rem;height:3.2rem;margin:0 auto .15rem;font-size:1.4rem}
+.split .grid{grid-template-columns:1fr}
+.split .card{display:grid;grid-template-columns:6.5rem 1fr;column-gap:.7rem;align-items:start}
+.split .card>*{grid-column:2}.split .card>.imw{grid-column:1;grid-row:1/span 6}
+.bill{border:2px solid var(--ice2);border-radius:1rem;padding:.7rem 1rem;margin:.8rem 0}.bill h3{margin:0 0 .3rem}
+.saved{background:#d9f5e5;color:var(--ok);text-align:center;font-weight:800;border-radius:.8rem;padding:.4rem;margin:.6rem 0}
+.drawer .cta{position:sticky;bottom:0;background:#fff;padding:.6rem 0}
+#place{position:sticky;bottom:.6rem}
+@media(min-width:600px){.split .grid{grid-template-columns:repeat(2,1fr)}.split .card{display:flex}.split .card>*{grid-column:auto}}
+@media(min-width:1150px){.split .grid{grid-template-columns:repeat(3,1fr)}.tiles{grid-template-columns:repeat(6,1fr)}}
