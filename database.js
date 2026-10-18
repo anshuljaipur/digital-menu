@@ -4,7 +4,7 @@ const masterData = [
     { pan: "BYUPG2812F", name: "ANKITA GOYAL", category: "GOYAL", isTax: "No" },
     { pan: "AASPG5102D", name: "VIJAY GOYAL", category: "GOYAL", isTax: "No" },
     { pan: "AASPG5015F", name: "GOPAL KRISHAN GOYAL", category: "GOYAL", isTax: "No" },
-
+    { pan: "FEZPG8876N", name: "RISHAAN GOYAL", category: "GOYAL", isTax: "Yes" },
     { pan: "AAVPW3870B", name: "MANEW WATTS", category: "CHARU", isTax: "No" },
     { pan: "ACYPW3232E", name: "CHARU WATTS", category: "CHARU", isTax: "Yes" },
     { pan: "AAJPW1017E", name: "NEELAM WATTS", category: "CHARU", isTax: "No" },
