@@ -20,6 +20,8 @@
     --line-soft: #232D3B;
     --text: #ECEFF3;
     --text-muted: #8996A8;
+    --text-faint: #5C6779;
+    --on-text: #10151C;
     --income: #4FA37B;
     --income-soft: rgba(79,163,123,0.14);
     --expense: #E0645A;
@@ -28,6 +30,32 @@
     --radius: 14px;
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* ---------- Themes (set via <html data-theme="...">) ---------- */
+  html[data-theme="paper"]{
+    --bg:#F1F4F8; --surface:#FFFFFF; --surface-2:#EAEEF4; --line:#D3DAE5; --line-soft:#E2E7EF;
+    --text:#151B26; --text-muted:#5F6B7D; --text-faint:#8A95A6; --on-text:#FFFFFF;
+    --income:#1B8559; --income-soft:rgba(27,133,89,0.12);
+    --expense:#C5413A; --expense-soft:rgba(197,65,58,0.11); --focus:#2F6FD0;
+  }
+  html[data-theme="forest"]{
+    --bg:#0D1612; --surface:#15231C; --surface-2:#1C2E25; --line:#2A4136; --line-soft:#203227;
+    --text:#E6F0EA; --text-muted:#86A394; --text-faint:#587264; --on-text:#0D1612;
+    --income:#5BC48A; --income-soft:rgba(91,196,138,0.15);
+    --expense:#E8796B; --expense-soft:rgba(232,121,107,0.14); --focus:#8FD0B0;
+  }
+  html[data-theme="plum"]{
+    --bg:#15111F; --surface:#1F1A2E; --surface-2:#281F3B; --line:#38304F; --line-soft:#2C2640;
+    --text:#EEEAF7; --text-muted:#9A92B5; --text-faint:#6B6388; --on-text:#15111F;
+    --income:#5ED0A5; --income-soft:rgba(94,208,165,0.14);
+    --expense:#F07A8E; --expense-soft:rgba(240,122,142,0.14); --focus:#A99BFF;
+  }
+  html[data-theme="ocean"]{
+    --bg:#08171F; --surface:#10283A; --surface-2:#173549; --line:#23455E; --line-soft:#1B364B;
+    --text:#E4F1F8; --text-muted:#82A5BA; --text-faint:#54788E; --on-text:#08171F;
+    --income:#4FD1B0; --income-soft:rgba(79,209,176,0.14);
+    --expense:#F2886F; --expense-soft:rgba(242,136,111,0.14); --focus:#5CC4F0;
   }
 
   *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -53,7 +81,7 @@
     body{ max-width: 1160px; padding-bottom: 40px; }
   }
 
-  ::selection{ background: var(--focus); color: #0B0F14; }
+  ::selection{ background: var(--focus); color: var(--on-text); }
 
   a, button{ font-family: inherit; }
 
@@ -106,7 +134,7 @@
     align-items: center;
     gap: 12px;
     background: var(--text);
-    color: #10151C;
+    color: var(--on-text);
     border: none;
     border-radius: 999px;
     padding: 14px 26px;
@@ -121,7 +149,7 @@
     margin-top: 22px;
     font-family: 'IBM Plex Mono', monospace;
     font-size: 11px;
-    color: #5C6779;
+    color: var(--text-faint);
     letter-spacing: 0.02em;
   }
   #config-warning{
@@ -146,7 +174,7 @@
     position: sticky;
     top: 0;
     z-index: 5;
-    background: linear-gradient(180deg, var(--bg) 60%, rgba(16,21,28,0.94) 100%);
+    background: var(--bg);
   }
   .topbar{
     display: flex;
@@ -184,7 +212,7 @@
     align-items: center;
     gap: 6px;
     background: var(--text);
-    color: #10151C;
+    color: var(--on-text);
     border: none;
     border-radius: 999px;
     padding: 9px 16px;
@@ -291,7 +319,7 @@
   }
   .chip.active{
     background: var(--text);
-    color: #10151C;
+    color: var(--on-text);
     border-color: var(--text);
     font-weight: 600;
   }
@@ -310,7 +338,7 @@
     font-size: 14px;
     font-family: 'IBM Plex Sans', sans-serif;
   }
-  .search-field input::placeholder{ color: #5C6779; }
+  .search-field input::placeholder{ color: var(--text-faint); }
 
   /* ---------- Trend chart (desktop extra) ---------- */
   .chart-card{
@@ -388,7 +416,7 @@
     font-size: 11px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #5C6779;
+    color: var(--text-faint);
     padding: 16px 2px 8px;
   }
 
@@ -459,7 +487,7 @@
     width: 58px; height: 58px;
     border-radius: 50%;
     background: var(--text);
-    color: #10151C;
+    color: var(--on-text);
     border: none;
     font-size: 26px;
     line-height: 1;
@@ -483,7 +511,7 @@
   }
   #sheet-backdrop.open{ opacity: 1; pointer-events: auto; }
 
-  #sheet{
+  #sheet, #settings-sheet{
     position: fixed;
     left: 0; right: 0; bottom: 0;
     max-width: 520px;
@@ -499,7 +527,7 @@
     max-height: 88vh;
     overflow-y: auto;
   }
-  #sheet.open{ transform: translateY(0); }
+  #sheet.open, #settings-sheet.open{ transform: translateY(0); }
 
   .sheet-grip{
     width: 36px; height: 4px;
@@ -597,7 +625,7 @@
     border-radius: 999px;
     border: none;
     background: var(--text);
-    color: #10151C;
+    color: var(--on-text);
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
@@ -624,7 +652,7 @@
     bottom: calc(96px + var(--safe-bottom));
     transform: translateX(-50%) translateY(10px);
     background: var(--text);
-    color: #10151C;
+    color: var(--on-text);
     font-size: 13px;
     font-weight: 500;
     padding: 10px 16px;
@@ -636,6 +664,60 @@
     white-space: nowrap;
   }
   #toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ---------- Heads / settings ---------- */
+  .label-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:7px; }
+  .label-row label{ margin-bottom:0 !important; }
+  .link-btn{
+    background:none; border:none; padding:2px 0; cursor:pointer;
+    color: var(--focus); font-size:12.5px; font-weight:600;
+  }
+  .inline-add{ display:none; gap:8px; margin-top:8px; }
+  .inline-add.show{ display:flex; }
+  .inline-add input{
+    flex:1; min-width:0;
+    background: var(--surface-2); border:1px solid var(--line); border-radius:10px;
+    padding:10px 12px; color: var(--text); font-size:14px; font-family:'IBM Plex Sans',sans-serif;
+  }
+  .inline-add button{
+    border:none; border-radius:10px; padding:0 16px; cursor:pointer;
+    background: var(--text); color: var(--on-text); font-weight:600; font-size:13.5px;
+  }
+
+  .settings-section{ margin-bottom:22px; }
+  .settings-section h3{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.1em;
+    text-transform:uppercase; color: var(--text-muted); margin:0 0 10px; font-weight:500;
+  }
+  .theme-grid{ display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; }
+  .theme-opt{
+    background:none; border:1px solid var(--line); border-radius:12px; padding:8px 4px 7px;
+    cursor:pointer; color: var(--text-muted); font-size:11px; display:flex; flex-direction:column;
+    align-items:center; gap:6px;
+  }
+  .theme-opt.active{ border-color: var(--text); color: var(--text); }
+  .swatch{
+    width:34px; height:34px; border-radius:50%; border:1px solid rgba(128,128,128,0.35);
+    position:relative; overflow:hidden;
+  }
+  .swatch i{ position:absolute; right:0; bottom:0; width:50%; height:50%; }
+
+  .heads-group{ margin-bottom:14px; }
+  .heads-group .gl{ font-size:12.5px; color: var(--text-muted); margin-bottom:8px; }
+  .head-chips{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px; }
+  .head-chip{
+    display:inline-flex; align-items:center; gap:6px;
+    border:1px solid var(--line); border-radius:999px; padding:6px 8px 6px 12px;
+    font-size:13px; color: var(--text);
+  }
+  .head-chip button{
+    background:none; border:none; color: var(--text-muted); cursor:pointer; font-size:15px; line-height:1; padding:0 2px;
+  }
+  .head-chip.default{ padding:6px 12px; color: var(--text-muted); }
+  .signout-btn{
+    width:100%; padding:13px; border-radius:999px; border:1px solid var(--line);
+    background:transparent; color: var(--text); font-size:14px; font-weight:600; cursor:pointer;
+  }
 </style>
 </head>
 <body>
@@ -663,7 +745,7 @@
         <div class="topbar-actions">
           <button class="icon-btn" id="export-btn" title="Export CSV">⬇</button>
           <button class="new-entry-btn" id="new-entry-desktop">+ New entry</button>
-          <button class="avatar-btn" id="avatar-btn" title="Sign out"><img id="avatar-img" src="" alt=""></button>
+          <button class="avatar-btn" id="avatar-btn" title="Settings"><img id="avatar-img" src="" alt=""></button>
         </div>
       </div>
     </header>
@@ -743,8 +825,15 @@
     </div>
 
     <div class="field">
-      <label for="f-category">Category</label>
+      <div class="label-row">
+        <label for="f-category">Head</label>
+        <button type="button" class="link-btn" id="new-head-toggle">+ New head</button>
+      </div>
       <select id="f-category"></select>
+      <div class="inline-add" id="new-head-row">
+        <input type="text" id="new-head-input" maxlength="30" placeholder="e.g. Groceries">
+        <button type="button" id="new-head-add">Add</button>
+      </div>
     </div>
 
     <div class="field">
@@ -759,6 +848,42 @@
 
     <button id="save-btn">Save entry</button>
     <button id="delete-btn">Delete entry</button>
+  </div>
+
+  <!-- ===================== SETTINGS SHEET ===================== -->
+  <div id="settings-sheet">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head">
+      <h2>Settings</h2>
+      <button class="sheet-close" id="settings-close">&times;</button>
+    </div>
+
+    <div class="settings-section">
+      <h3>Theme</h3>
+      <div class="theme-grid" id="theme-grid"></div>
+    </div>
+
+    <div class="settings-section">
+      <h3>Your heads</h3>
+      <div class="heads-group">
+        <div class="gl">Expense</div>
+        <div class="head-chips" id="heads-expense"></div>
+        <div class="inline-add show">
+          <input type="text" id="set-head-expense" maxlength="30" placeholder="New expense head">
+          <button type="button" data-addhead="expense">Add</button>
+        </div>
+      </div>
+      <div class="heads-group">
+        <div class="gl">Income</div>
+        <div class="head-chips" id="heads-income"></div>
+        <div class="inline-add show">
+          <input type="text" id="set-head-income" maxlength="30" placeholder="New income head">
+          <button type="button" data-addhead="income">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="signout-btn" id="signout-btn">Sign out</button>
   </div>
 
   <div id="toast"></div>
@@ -782,6 +907,7 @@ const firebaseConfig = {
   appId: "1:505169924407:web:230982fe3c1e20222dcab2",
   measurementId: "G-LRLZ18L9P0"
 };
+
 
 const isConfigured = !Object.values(firebaseConfig).some(v => String(v).startsWith("YOUR_"));
 if (!isConfigured) {
@@ -823,7 +949,10 @@ let searchTerm = "";
 
 const $ = (id) => document.getElementById(id);
 const fmt = (n) => "₹" + Math.abs(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const todayStr = () => new Date().toISOString().slice(0, 10);
+const todayStr = () => {
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, '0') + "-" + String(d.getDate()).padStart(2, '0');
+};
 
 /* =========================================================================
    3) AUTH
@@ -877,8 +1006,9 @@ $('signin-btn').addEventListener('click', () => {
   }
 });
 
-$('avatar-btn').addEventListener('click', () => {
-  if (confirm("Sign out of Ledger?")) auth.signOut();
+$('avatar-btn').addEventListener('click', () => openSettings());
+$('signout-btn').addEventListener('click', () => {
+  if (confirm("Sign out of Ledger?")) { closeSheet(); auth.signOut(); }
 });
 
 // Catch errors from the redirect round-trip (e.g. blocked third-party
@@ -910,6 +1040,7 @@ if (firebaseReady) auth.onAuthStateChanged(user => {
     $('fab').style.display = 'flex';
     $('avatar-img').src = user.photoURL || "";
     listenToEntries();
+    listenToHeads();
   } else {
     $('signin').style.display = 'flex';
     $('app').style.display = 'none';
@@ -917,6 +1048,7 @@ if (firebaseReady) auth.onAuthStateChanged(user => {
     $('signin-btn').disabled = false;
     signinInFlight = false;
     if (unsubscribe) unsubscribe();
+    if (unsubHeads) { unsubHeads(); unsubHeads = null; }
     entries = [];
   }
 });
@@ -1013,11 +1145,7 @@ function render() {
 
 function formatDayLabel(dateStr) {
   const d = new Date(dateStr + "T00:00:00");
-  const today = new Date(); today.setHours(0,0,0,0);
-  const yest = new Date(today); yest.setDate(yest.getDate() - 1);
-  if (d.getTime() === today.getTime()) return "Today";
-  if (d.getTime() === yest.getTime()) return "Yesterday";
-  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: d.getFullYear() !== today.getFullYear() ? 'numeric' : undefined });
+  return d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 function escapeHtml(str) {
@@ -1140,14 +1268,17 @@ $('export-btn').addEventListener('click', () => {
 /* =========================================================================
    7) SHEET (add / edit)
    ========================================================================= */
-function populateCategories() {
+function populateCategories(selected) {
   const sel = $('f-category');
+  const list = getHeads(sheetType).slice();
+  if (selected && !list.some(h => h.toLowerCase() === selected.toLowerCase())) list.push(selected);
   sel.innerHTML = '';
-  CATEGORIES[sheetType].forEach(c => {
+  list.forEach(c => {
     const opt = document.createElement('option');
     opt.value = c; opt.textContent = c;
     sel.appendChild(opt);
   });
+  if (selected) sel.value = selected;
 }
 
 function setType(type) {
@@ -1166,9 +1297,14 @@ function openSheet(entry) {
   editingId = entry ? entry.id : null;
   $('sheet-title').textContent = entry ? "Edit entry" : "New entry";
   $('delete-btn').style.display = entry ? 'block' : 'none';
-  setType(entry ? entry.type : 'expense');
+  $('new-head-row').classList.remove('show');
+  $('new-head-input').value = '';
+  sheetType = entry ? entry.type : 'expense';
+  document.querySelectorAll('.type-toggle button').forEach(b => {
+    b.classList.toggle('active', b.dataset.type === sheetType);
+  });
+  populateCategories(entry ? entry.category : null);
   $('f-amount').value = entry ? entry.amount : '';
-  $('f-category').value = entry ? entry.category : CATEGORIES[sheetType][0];
   $('f-note').value = entry ? (entry.note || '') : '';
   $('f-date').value = entry ? entry.date : todayStr();
   $('sheet-backdrop').classList.add('open');
@@ -1178,8 +1314,156 @@ function openSheet(entry) {
 function closeSheet() {
   $('sheet-backdrop').classList.remove('open');
   $('sheet').classList.remove('open');
+  $('settings-sheet').classList.remove('open');
   editingId = null;
 }
+
+/* =========================================================================
+   7b) THEMES + CUSTOM HEADS
+   ========================================================================= */
+const THEMES = [
+  { id: 'ink',    name: 'Ink',    bg: '#10151C', accent: '#4FA37B', color: '#10151C' },
+  { id: 'paper',  name: 'Paper',  bg: '#F1F4F8', accent: '#1B8559', color: '#10151C' },
+  { id: 'forest', name: 'Forest', bg: '#0D1612', accent: '#5BC48A', color: '#0D1612' },
+  { id: 'plum',   name: 'Plum',   bg: '#15111F', accent: '#A99BFF', color: '#15111F' },
+  { id: 'ocean',  name: 'Ocean',  bg: '#08171F', accent: '#5CC4F0', color: '#08171F' }
+];
+
+function applyTheme(id) {
+  const t = THEMES.find(x => x.id === id) || THEMES[0];
+  if (t.id === 'ink') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', t.id);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', t.bg);
+  try { localStorage.setItem('ledger-theme', t.id); } catch (e) {}
+  if (typeof entries !== 'undefined') drawTrendChart();
+}
+function currentThemeId() {
+  try { return localStorage.getItem('ledger-theme') || 'ink'; } catch (e) { return 'ink'; }
+}
+function renderThemes() {
+  const cur = currentThemeId();
+  const grid = $('theme-grid');
+  grid.innerHTML = '';
+  THEMES.forEach(t => {
+    const b = document.createElement('button');
+    b.className = 'theme-opt' + (t.id === cur ? ' active' : '');
+    b.innerHTML = `<span class="swatch" style="background:${t.bg}"><i style="background:${t.accent}"></i></span>${t.name}`;
+    b.addEventListener('click', () => { applyTheme(t.id); renderThemes(); });
+    grid.appendChild(b);
+  });
+}
+applyTheme(currentThemeId());
+
+// Custom heads: stored at users/{uid}/settings/heads  { expense: [...], income: [...] }
+let customHeads = { expense: [], income: [] };
+try {
+  const cached = JSON.parse(localStorage.getItem('ledger-heads') || 'null');
+  if (cached) customHeads = { expense: cached.expense || [], income: cached.income || [] };
+} catch (e) {}
+
+function getHeads(type) {
+  const out = [];
+  [...CATEGORIES[type], ...(customHeads[type] || [])].forEach(h => {
+    if (!out.some(x => x.toLowerCase() === h.toLowerCase())) out.push(h);
+  });
+  return out;
+}
+
+function headsRef() {
+  return db.collection('users').doc(currentUser.uid).collection('settings').doc('heads');
+}
+
+let unsubHeads = null;
+function listenToHeads() {
+  if (unsubHeads) unsubHeads();
+  unsubHeads = headsRef().onSnapshot(doc => {
+    const d = doc.exists ? doc.data() : {};
+    customHeads = { expense: d.expense || [], income: d.income || [] };
+    try { localStorage.setItem('ledger-heads', JSON.stringify(customHeads)); } catch (e) {}
+    renderHeadsManager();
+    if ($('sheet').classList.contains('open')) populateCategories($('f-category').value);
+  }, err => showToast("Heads sync: " + err.message + " (update Firestore rules)"));
+}
+
+function saveHeads(next) {
+  customHeads = next;
+  try { localStorage.setItem('ledger-heads', JSON.stringify(next)); } catch (e) {}
+  renderHeadsManager();
+  return headsRef().set(next).catch(err => showToast("Couldn't save head: " + err.message));
+}
+
+function addHead(type, rawName) {
+  const name = (rawName || '').trim();
+  if (!name) { showToast("Enter a head name"); return null; }
+  const exists = getHeads(type).find(h => h.toLowerCase() === name.toLowerCase());
+  if (exists) { showToast("That head already exists"); return exists; }
+  const next = { expense: customHeads.expense.slice(), income: customHeads.income.slice() };
+  next[type].push(name);
+  saveHeads(next);
+  return name;
+}
+
+function removeHead(type, name) {
+  const next = { expense: customHeads.expense.slice(), income: customHeads.income.slice() };
+  next[type] = next[type].filter(h => h !== name);
+  saveHeads(next);
+}
+
+function renderHeadsManager() {
+  ['expense', 'income'].forEach(type => {
+    const box = $('heads-' + type);
+    if (!box) return;
+    box.innerHTML = '';
+    CATEGORIES[type].forEach(h => {
+      const c = document.createElement('span');
+      c.className = 'head-chip default';
+      c.textContent = h;
+      box.appendChild(c);
+    });
+    (customHeads[type] || []).forEach(h => {
+      const c = document.createElement('span');
+      c.className = 'head-chip';
+      c.appendChild(document.createTextNode(h));
+      const x = document.createElement('button');
+      x.type = 'button'; x.title = 'Remove'; x.innerHTML = '&times;';
+      x.addEventListener('click', () => removeHead(type, h));
+      c.appendChild(x);
+      box.appendChild(c);
+    });
+  });
+}
+
+function openSettings() {
+  renderThemes();
+  renderHeadsManager();
+  $('sheet-backdrop').classList.add('open');
+  $('settings-sheet').classList.add('open');
+}
+$('settings-close').addEventListener('click', closeSheet);
+
+document.querySelectorAll('[data-addhead]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const type = btn.dataset.addhead;
+    const input = $('set-head-' + type);
+    if (addHead(type, input.value)) input.value = '';
+  });
+});
+
+$('new-head-toggle').addEventListener('click', () => {
+  $('new-head-row').classList.toggle('show');
+  if ($('new-head-row').classList.contains('show')) $('new-head-input').focus();
+});
+function submitNewHead() {
+  const name = addHead(sheetType, $('new-head-input').value);
+  if (name) {
+    populateCategories(name);
+    $('new-head-input').value = '';
+    $('new-head-row').classList.remove('show');
+  }
+}
+$('new-head-add').addEventListener('click', submitNewHead);
+$('new-head-input').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); submitNewHead(); } });
 
 $('fab').addEventListener('click', () => openSheet(null));
 $('sheet-close').addEventListener('click', closeSheet);
