@@ -847,11 +847,34 @@ $('signin-btn').addEventListener('click', () => {
   }
   signinInFlight = true;
   $('signin-btn').disabled = true;
-  auth.signInWithRedirect(provider).catch(err => {
+
+  const failed = (err) => {
     signinInFlight = false;
     $('signin-btn').disabled = false;
+    console.error("Sign-in error:", err);
     showToast(authErrorMessage(err));
-  });
+  };
+
+  // Desktop browsers (esp. Chrome) block the third-party storage that the
+  // redirect flow relies on when the site isn't on the firebaseapp.com
+  // domain, so the redirect comes back signed-out and the page appears
+  // "stuck". Popups work reliably on desktop, so use them there and keep
+  // redirect for phones, where popups get killed.
+  const isMobile = window.matchMedia('(pointer: coarse)').matches ||
+                   /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  if (isMobile) {
+    auth.signInWithRedirect(provider).catch(failed);
+  } else {
+    auth.signInWithPopup(provider).catch(err => {
+      // Popup blocked by the browser → fall back to redirect
+      if (err.code === 'auth/popup-blocked' || err.code === 'auth/operation-not-supported-in-this-environment') {
+        auth.signInWithRedirect(provider).catch(failed);
+      } else {
+        failed(err);
+      }
+    });
+  }
 });
 
 $('avatar-btn').addEventListener('click', () => {
