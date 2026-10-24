@@ -11,6 +11,7 @@
 <main>
   <h1>Print station</h1>
   <section class="panel">
+    <p id="conn" class="status" role="status">Connecting to Firebase…</p>
     <p id="qzstatus" class="status" role="status">Connecting to QZ Tray…</p>
     <button id="retry" hidden>Retry connection</button>
     <label>Printer <select id="printer" disabled></select></label>
@@ -29,7 +30,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, onChildAdded, get, update, remove, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, onValue, onChildAdded, get, update, remove, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { firebaseConfig } from "./config.js";
 
 const db = getDatabase(initializeApp(firebaseConfig));
@@ -39,6 +40,12 @@ let qzReady = false, running = false, chain = Promise.resolve(), code = "";
 
 qz.security.setCertificatePromise(resolve => resolve());
 qz.security.setSignaturePromise(() => resolve => resolve());
+
+onValue(ref(db, ".info/connected"), snap => {
+  const c = $("conn");
+  c.textContent = snap.val() ? "Connected to Firebase" : "Not connected to Firebase…";
+  c.className = "status " + (snap.val() ? "ok" : "bad");
+});
 
 try { $("code").value = localStorage.getItem("pc_code") || ""; } catch (e) {}
 
@@ -94,7 +101,8 @@ async function handle(id, job) {
     const cfg = qz.configs.create($("printer").value, {
       units: "in", size: A4, orientation: job.orient || "portrait",
       copies: job.copies || 1, scaleContent: job.fit !== false,
-      duplex: !!job.duplex, margins: 0
+      duplex: !!job.duplex, margins: 0,
+      colorType: job.color === "bw" ? "grayscale" : "color"
     });
     await qz.print(cfg, [{ type: "pixel", format: job.kind === "pdf" ? "pdf" : "image", flavor: "base64", data }]);
     await update(jobRef, { status: "done", finished: Date.now() });
