@@ -2,15 +2,22 @@
   "rules": {
     ".read": false,
     ".write": false,
-    "queues": {
-      "$code": {
-        ".read": "$code.length >= 12",
-        ".write": "$code.length >= 12",
-        "files": {
-          "$id": {
-            ".validate": "newData.child('data').isString() && newData.child('data').val().length < 12000000"
-          }
-        }
+    "files": {
+      "$id": {
+        ".write": "!data.exists() && $id.length >= 15",
+        ".validate": "newData.child('data').isString() && newData.child('data').val().length < 12000000"
+      }
+    },
+    "orders": {
+      "$id": {
+        "job": {
+          ".write": "!data.exists() && $id.length >= 15",
+          ".validate": "newData.child('kind').val() == 'pdf' || newData.child('kind').val() == 'image'"
+        },
+        "payment": { ".write": "!data.exists() && $id.length >= 15" },
+        "quote": { ".read": true },
+        "status": { ".read": true },
+        "error": { ".read": true }
       }
     }
   }
