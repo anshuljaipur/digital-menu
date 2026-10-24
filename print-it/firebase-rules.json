@@ -1,0 +1,17 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "queues": {
+      "$code": {
+        ".read": "$code.length >= 12",
+        ".write": "$code.length >= 12",
+        "files": {
+          "$id": {
+            ".validate": "newData.child('data').isString() && newData.child('data').val().length < 12000000"
+          }
+        }
+      }
+    }
+  }
+}
