@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Print station</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/qz-tray@2.2.4/qz-tray.js"></script>
+</head>
+<body>
+<main>
+  <h1>Print station</h1>
+  <section class="panel">
+    <p id="qzstatus" class="status" role="status">Connecting to QZ Tray…</p>
+    <button id="retry" hidden>Retry connection</button>
+    <label>Printer <select id="printer" disabled></select></label>
+    <label>Shop code
+      <input type="password" id="code" autocomplete="off" placeholder="Same code as the upload page">
+    </label>
+    <button id="start" class="primary" disabled>Start auto-printing</button>
+    <p id="state" class="status" role="status"></p>
+    <small>Keep this page open in Chrome and stop the PC from sleeping. Jobs sent while it was closed print when you start.</small>
+  </section>
+  <section class="panel">
+    <strong>Jobs</strong>
+    <ul id="log"><li><small>No jobs yet.</small></li></ul>
+  </section>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onChildAdded, get, update, remove, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { firebaseConfig } from "./config.js";
+
+const db = getDatabase(initializeApp(firebaseConfig));
+const $ = id => document.getElementById(id);
+const A4 = { width: 8.27, height: 11.69 };
+let qzReady = false, running = false, chain = Promise.resolve(), code = "";
+
+qz.security.setCertificatePromise(resolve => resolve());
+qz.security.setSignaturePromise(() => resolve => resolve());
+
+try { $("code").value = localStorage.getItem("pc_code") || ""; } catch (e) {}
+
+function qzStatus(t, cls) { const s = $("qzstatus"); s.textContent = t; s.className = "status " + (cls || ""); }
+function updateStart() { $("start").disabled = !(qzReady && $("printer").value) || running; }
+
+async function connect() {
+  $("retry").hidden = true; qzStatus("Connecting to QZ Tray…");
+  try {
+    if (!qz.websocket.isActive()) await qz.websocket.connect();
+    const printers = await qz.printers.find();
+    const sel = $("printer"); sel.innerHTML = "";
+    printers.forEach(p => { const o = document.createElement("option"); o.value = o.textContent = p; sel.appendChild(o); });
+    let saved = null, def = null;
+    try { saved = localStorage.getItem("pc_printer"); } catch (e) {}
+    try { def = await qz.printers.getDefault(); } catch (e) {}
+    sel.value = printers.includes(saved) ? saved : (def || printers[0] || "");
+    sel.disabled = false; qzReady = true;
+    qzStatus("Connected to QZ Tray", "ok");
+  } catch (e) {
+    qzReady = false;
+    qzStatus("QZ Tray not found. Install it, start it on this PC, then retry.", "bad");
+    $("retry").hidden = false;
+  }
+  updateStart();
+}
+$("retry").onclick = connect;
+$("printer").onchange = function () { try { localStorage.setItem("pc_printer", this.value); } catch (e) {} };
+
+function row(id, name) {
+  const log = $("log");
+  if (log.firstElementChild && log.firstElementChild.querySelector("small")) log.innerHTML = "";
+  const li = document.createElement("li");
+  li.id = "j" + id; li.innerHTML = "<span></span><strong></strong>";
+  li.firstChild.textContent = name;
+  log.prepend(li);
+  return li;
+}
+function mark(li, text, cls) { const s = li.querySelector("strong"); s.textContent = text; s.className = cls || ""; }
+
+async function handle(id, job) {
+  if (job.status !== "queued") return;
+  const li = row(id, job.name || id);
+  const jobRef = ref(db, `queues/${code}/jobs/${id}`);
+  const claim = await runTransaction(ref(db, `queues/${code}/jobs/${id}/status`),
+    cur => (cur === "queued" || cur === null) ? "printing" : undefined);
+  if (!claim.committed) { li.remove(); return; }
+  mark(li, "Printing…");
+  try {
+    const snap = await get(ref(db, `queues/${code}/files/${id}`));
+    const data = snap.val() && snap.val().data;
+    if (!data) throw new Error("File data is missing.");
+    const cfg = qz.configs.create($("printer").value, {
+      units: "in", size: A4, orientation: job.orient || "portrait",
+      copies: job.copies || 1, scaleContent: job.fit !== false,
+      duplex: !!job.duplex, margins: 0
+    });
+    await qz.print(cfg, [{ type: "pixel", format: job.kind === "pdf" ? "pdf" : "image", flavor: "base64", data }]);
+    await update(jobRef, { status: "done", finished: Date.now() });
+    await remove(ref(db, `queues/${code}/files/${id}`));
+    mark(li, "Printed", "ok");
+  } catch (e) {
+    const m = e && e.message ? e.message : String(e);
+    await update(jobRef, { status: "error", error: m });
+    mark(li, "Failed", "bad"); li.title = m;
+  }
+}
+
+$("start").onclick = () => {
+  code = $("code").value.trim();
+  if (code.length < 12) { $("state").textContent = "Shop code must be at least 12 characters."; $("state").className = "status bad"; return; }
+  try { localStorage.setItem("pc_code", code); } catch (e) {}
+  running = true; updateStart();
+  $("state").textContent = "Auto-printing is on. Waiting for jobs…"; $("state").className = "status ok";
+  onChildAdded(ref(db, `queues/${code}/jobs`), snap => {
+    chain = chain.then(() => handle(snap.key, snap.val())).catch(() => {});
+  });
+};
+
+connect();
+</script>
+</body>
+</html>
