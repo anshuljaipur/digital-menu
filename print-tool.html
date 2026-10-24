@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Print Catalyst – Direct Print</title>
+<script src="https://cdn.jsdelivr.net/npm/qz-tray@2.2.4/qz-tray.js"></script>
+<style>
+  :root { --ink:#16202e; --paper:#f4f6f8; --card:#ffffff; --line:#d5dbe3; --mag:#c2185b; --ok:#1b7f4b; --bad:#b3261e; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width:960px; margin:0 auto; padding:28px 18px 48px; display:grid; gap:22px; grid-template-columns: 340px 1fr; }
+  h1 { grid-column:1/-1; margin:0; font-size:1.9rem; letter-spacing:-.01em; }
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px; display:grid; gap:14px; align-content:start; }
+  label { display:grid; gap:4px; font-weight:600; font-size:.92rem; }
+  label.row { display:flex; align-items:center; gap:8px; font-weight:500; }
+  select, input[type=number], input[type=file] { font:inherit; padding:8px; border:1px solid var(--line); border-radius:6px; background:#fff; width:100%; }
+  button { font:inherit; font-weight:600; padding:10px 14px; border-radius:6px; border:1px solid var(--ink); background:#fff; color:var(--ink); cursor:pointer; }
+  button.primary { background:var(--mag); border-color:var(--mag); color:#fff; font-size:1.05rem; }
+  button:disabled { opacity:.45; cursor:not-allowed; }
+  :focus-visible { outline:3px solid var(--mag); outline-offset:2px; }
+  #status { margin:0; font-weight:600; }
+  #status.ok { color:var(--ok); } #status.bad { color:var(--bad); }
+  #msg { margin:0; min-height:1.5em; }
+  .sheet { background:#fff; border:1px solid var(--line); border-radius:10px; aspect-ratio:210/297; display:grid; place-items:center; overflow:hidden; }
+  .sheet img, .sheet object { width:100%; height:100%; object-fit:contain; border:0; }
+  .sheet p { color:#6b7787; padding:20px; text-align:center; }
+  @media (max-width:760px) { main { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Print to A4</h1>
+
+  <section class="panel" aria-label="Print settings">
+    <p id="status" role="status">Connecting to QZ Tray…</p>
+    <button id="retry" hidden>Retry connection</button>
+
+    <label>Printer
+      <select id="printer" disabled></select>
+    </label>
+    <label>File (PDF or image)
+      <input type="file" id="file" accept="application/pdf,image/*">
+    </label>
+    <label>Copies
+      <input type="number" id="copies" min="1" max="999" value="1">
+    </label>
+    <label>Orientation
+      <select id="orient">
+        <option value="portrait">Portrait</option>
+        <option value="landscape">Landscape</option>
+      </select>
+    </label>
+    <label class="row"><input type="checkbox" id="fit" checked> Fit to page</label>
+    <label class="row"><input type="checkbox" id="duplex"> Print on both sides</label>
+
+    <button id="print" class="primary" disabled>Print</button>
+    <p id="msg" role="status"></p>
+  </section>
+
+  <section class="sheet" aria-label="Preview">
+    <p id="empty">Choose a file to see a preview.</p>
+  </section>
+</main>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var A4 = { width: 8.27, height: 11.69 };
+  var b64 = null, isPdf = false, connected = false, previewUrl = null;
+
+  // Unsigned mode: QZ Tray will ask for permission (tick "Remember this decision").
+  // For no prompts at all, replace these with your signed certificate (see qz.io docs).
+  qz.security.setCertificatePromise(function (resolve) { resolve(); });
+  qz.security.setSignaturePromise(function () { return function (resolve) { resolve(); }; });
+
+  function setStatus(text, cls) { var s = $('status'); s.textContent = text; s.className = cls || ''; }
+  function msg(text, bad) { var m = $('msg'); m.textContent = text; m.style.color = bad ? 'var(--bad)' : 'var(--ok)'; }
+  function refreshButton() { $('print').disabled = !(connected && b64 && $('printer').value); }
+
+  async function connect() {
+    $('retry').hidden = true;
+    setStatus('Connecting to QZ Tray…');
+    try {
+      if (!qz.websocket.isActive()) await qz.websocket.connect();
+      var printers = await qz.printers.find();
+      var sel = $('printer');
+      sel.innerHTML = '';
+      printers.forEach(function (p) { var o = document.createElement('option'); o.value = o.textContent = p; sel.appendChild(o); });
+      var saved = null;
+      try { saved = localStorage.getItem('pc_printer'); } catch (e) {}
+      var def = null;
+      try { def = await qz.printers.getDefault(); } catch (e) {}
+      sel.value = printers.indexOf(saved) > -1 ? saved : (def || printers[0] || '');
+      sel.disabled = false;
+      connected = true;
+      setStatus('Connected to QZ Tray', 'ok');
+    } catch (e) {
+      connected = false;
+      setStatus('QZ Tray not found. Install it, start it on this PC, then retry.', 'bad');
+      $('retry').hidden = false;
+    }
+    refreshButton();
+  }
+
+  $('retry').onclick = connect;
+  $('printer').onchange = function () {
+    try { localStorage.setItem('pc_printer', this.value); } catch (e) {}
+    refreshButton();
+  };
+
+  $('file').onchange = function () {
+    var f = this.files[0];
+    b64 = null; $('msg').textContent = '';
+    var sheet = document.querySelector('.sheet');
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    if (!f) { sheet.innerHTML = '<p>Choose a file to see a preview.</p>'; refreshButton(); return; }
+    isPdf = f.type === 'application/pdf';
+    previewUrl = URL.createObjectURL(f);
+    sheet.innerHTML = isPdf
+      ? '<object data="' + previewUrl + '" type="application/pdf"><p>Preview not available for this PDF.</p></object>'
+      : '<img alt="Preview of selected file" src="' + previewUrl + '">';
+    var r = new FileReader();
+    r.onload = function () { b64 = String(r.result).split(',')[1]; refreshButton(); };
+    r.readAsDataURL(f);
+  };
+
+  $('print').onclick = async function () {
+    var copies = Math.max(1, parseInt($('copies').value, 10) || 1);
+    var btn = this; btn.disabled = true; msg('Sending to printer…');
+    try {
+      var cfg = qz.configs.create($('printer').value, {
+        units: 'in',
+        size: A4,
+        orientation: $('orient').value,
+        copies: copies,
+        scaleContent: $('fit').checked,
+        duplex: $('duplex').checked,
+        margins: 0
+      });
+      await qz.print(cfg, [{ type: 'pixel', format: isPdf ? 'pdf' : 'image', flavor: 'base64', data: b64 }]);
+      msg('Sent to ' + $('printer').value + '.');
+    } catch (e) {
+      msg('Could not print: ' + (e && e.message ? e.message : e), true);
+    }
+    refreshButton();
+  };
+
+  connect();
+})();
+</script>
+</body>
+</html>
