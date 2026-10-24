@@ -10,6 +10,7 @@
 <main>
   <h1>Send to printer</h1>
   <section class="panel">
+    <p id="conn" class="status" role="status">Connecting to Firebase…</p>
     <label>Shop code
       <input type="password" id="code" autocomplete="off" placeholder="Same code as the print station">
     </label>
@@ -18,6 +19,9 @@
     </label>
     <label>Copies
       <input type="number" id="copies" min="1" max="999" value="1">
+    </label>
+    <label>Colour
+      <select id="color"><option value="color">Colour</option><option value="bw">Black &amp; white</option></select>
     </label>
     <label>Orientation
       <select id="orient"><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select>
@@ -41,6 +45,14 @@ import { firebaseConfig } from "./config.js";
 const db = getDatabase(initializeApp(firebaseConfig));
 const $ = id => document.getElementById(id);
 const LABEL = { queued: "Waiting for printer", printing: "Printing…", done: "Printed", error: "Failed" };
+
+const withTimeout = (p, ms, text) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(text)), ms))]);
+const NOCONN = "Could not reach Firebase. Check databaseURL in config.js, that the database exists, and that the rules are published.";
+onValue(ref(db, ".info/connected"), snap => {
+  const c = $("conn");
+  c.textContent = snap.val() ? "Connected to Firebase" : "Not connected to Firebase…";
+  c.className = "status " + (snap.val() ? "ok" : "bad");
+});
 
 try { $("code").value = localStorage.getItem("pc_code") || ""; } catch (e) {}
 
@@ -85,13 +97,13 @@ $("send").onclick = async () => {
     const data = isPdf ? await toBase64(file) : await shrink(file);
     if (data.length > 11500000) throw new Error("File is too large (limit about 8 MB).");
     const id = push(ref(db, `queues/${code}/jobs`)).key;
-    await set(ref(db, `queues/${code}/files/${id}`), { data });
-    await set(ref(db, `queues/${code}/jobs/${id}`), {
+    await withTimeout(set(ref(db, `queues/${code}/files/${id}`), { data }), 25000, NOCONN);
+    await withTimeout(set(ref(db, `queues/${code}/jobs/${id}`), {
       name: file.name, kind: isPdf ? "pdf" : "image",
       copies: Math.max(1, parseInt($("copies").value, 10) || 1),
       orient: $("orient").value, fit: $("fit").checked, duplex: $("duplex").checked,
-      status: "queued", created: Date.now()
-    });
+      color: $("color").value, status: "queued", created: Date.now()
+    }), 25000, NOCONN);
     msg("Sent. Keep this page open to see progress.");
     track(code, id, file.name);
     $("file").value = "";
