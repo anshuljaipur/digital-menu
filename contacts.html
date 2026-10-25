@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Contact Book</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700;800&display=swap">
+<style>
+:root{--bg:#eef1f5;--card:#fff;--ink:#16202c;--mute:#5d6b7b;--line:#dde3ea;--accent:#0f6bd6;--danger:#c93a3a;--r:18px}
+@media(prefers-color-scheme:dark){:root{--bg:#10161d;--card:#1a232d;--ink:#eaf0f6;--mute:#93a1b1;--line:#2b3744;--accent:#5aa5ff;--danger:#ff7676}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:Figtree,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:96px;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--bg);border-bottom:1px solid var(--line)}
+header h1{font-size:1.25rem;font-weight:800;margin:0;flex:1;letter-spacing:-.01em}
+#me{display:flex;align-items:center;gap:10px}
+#avatar{width:34px;height:34px;border-radius:50%;object-fit:cover;background:var(--line)}
+.btn{border:0;border-radius:12px;padding:10px 16px;font-weight:700;cursor:pointer;background:var(--accent);color:#fff}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.danger{background:transparent;color:var(--danger);border:1px solid var(--danger)}
+#login{min-height:70vh;display:grid;place-content:center;text-align:center;gap:14px;padding:24px}
+#login h2{font-size:2rem;margin:0;font-weight:800;letter-spacing:-.02em}
+#login p{margin:0;color:var(--mute)}
+main{max-width:1100px;margin:0 auto;padding:16px}
+#q{width:100%;padding:13px 16px;border-radius:14px;border:1px solid var(--line);background:var(--card);margin-bottom:16px}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+.card{background:var(--card);border-radius:var(--r);overflow:hidden;border:1px solid var(--line);cursor:pointer;display:flex;flex-direction:column}
+.band{height:56px;background:hsl(var(--h) 60% 52%)}
+.pic{width:76px;height:76px;border-radius:50%;margin:-38px 0 0 16px;border:4px solid var(--card);background:hsl(var(--h) 60% 40%);color:#fff;font-weight:800;font-size:1.6rem;display:grid;place-items:center;object-fit:cover}
+.body{padding:8px 16px 14px;flex:1}
+.name{font-size:1.15rem;font-weight:800;margin:4px 0 0;word-break:break-word}
+.sub{color:var(--mute);font-size:.9rem;margin:2px 0 8px}
+.line{font-size:.95rem;margin:2px 0;word-break:break-word}
+.acts{display:flex;gap:8px;padding:0 16px 16px;flex-wrap:wrap}
+.acts a,.chip{flex:1;min-width:64px;text-align:center;text-decoration:none;font-weight:700;font-size:.85rem;padding:9px 8px;border-radius:10px;border:1px solid var(--line);color:var(--accent);background:transparent}
+.empty{text-align:center;color:var(--mute);padding:48px 16px;grid-column:1/-1}
+#fab{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));width:60px;height:60px;border-radius:50%;border:0;background:var(--accent);color:#fff;font-size:2rem;line-height:1;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+dialog{border:0;border-radius:var(--r);padding:0;width:min(560px,calc(100vw - 20px));max-height:92vh;background:var(--card);color:var(--ink)}
+dialog::backdrop{background:rgba(5,10,16,.6)}
+.dlg{padding:18px;overflow:auto;max-height:92vh}
+.dlg h3{margin:0 0 12px;font-size:1.2rem}
+label{display:block;font-size:.85rem;font-weight:700;margin:10px 0 4px;color:var(--mute)}
+input,textarea{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:480px){.row{grid-template-columns:1fr}}
+.photo-row{display:flex;align-items:center;gap:14px}
+#prev{width:72px;height:72px;border-radius:50%;object-fit:cover;background:var(--line)}
+.foot{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+.map{width:100%;height:240px;border:0;border-radius:12px;margin-top:12px}
+.detail dt{font-size:.8rem;color:var(--mute);font-weight:700;margin-top:10px}
+.detail dd{margin:2px 0 0;word-break:break-word}
+.detail a{color:var(--accent)}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:700;z-index:20}
+</style>
+</head>
+<body>
+<header>
+  <h1>Contact Book</h1>
+  <div id="me" hidden>
+    <img id="avatar" alt="" referrerpolicy="no-referrer">
+    <button class="btn ghost" id="out">Sign out</button>
+  </div>
+</header>
+
+<section id="login">
+  <h2>Keep your people in one place</h2>
+  <p>Sign in to see your contacts on any device.</p>
+  <button class="btn" id="in">Sign in with Google</button>
+</section>
+
+<main id="app" hidden>
+  <input id="q" type="search" placeholder="Search name, number, city" aria-label="Search contacts">
+  <div id="grid"></div>
+</main>
+
+<button id="fab" aria-label="Add contact" hidden>+</button>
+
+<dialog id="formDlg"><form class="dlg" id="form">
+  <h3 id="formTitle">New contact</h3>
+  <div class="photo-row">
+    <img id="prev" alt="">
+    <div><input type="file" id="file" accept="image/*"><button type="button" class="btn ghost" id="rmPhoto" style="margin-top:6px">Remove photo</button></div>
+  </div>
+  <label for="name">Name *</label><input id="name" required autocomplete="off">
+  <div class="row">
+    <div><label for="phone">Phone *</label><input id="phone" type="tel" required placeholder="+91 98765 43210"></div>
+    <div><label for="phone2">Second phone</label><input id="phone2" type="tel"></div>
+  </div>
+  <div class="row">
+    <div><label for="email">Email</label><input id="email" type="email"></div>
+    <div><label for="website">Website</label><input id="website" placeholder="example.com"></div>
+  </div>
+  <div class="row">
+    <div><label for="company">Company</label><input id="company"></div>
+    <div><label for="title">Job title</label><input id="title"></div>
+  </div>
+  <label for="birthday">Birthday</label><input id="birthday" type="date">
+  <label for="address">Address</label><input id="address" autocomplete="off">
+  <div class="row">
+    <div><label for="city">City</label><input id="city"></div>
+    <div><label for="country">Country</label><input id="country"></div>
+  </div>
+  <div class="row">
+    <div><label for="lat">Latitude</label><input id="lat" inputmode="decimal"></div>
+    <div><label for="lng">Longitude</label><input id="lng" inputmode="decimal"></div>
+  </div>
+  <button type="button" class="btn ghost" id="geo" style="margin-top:8px">Use my current location</button>
+  <label for="notes">Notes</label><textarea id="notes" rows="3"></textarea>
+  <div class="foot">
+    <button type="button" class="btn ghost" id="cancel">Cancel</button>
+    <button class="btn" type="submit">Save contact</button>
+  </div>
+</form></dialog>
+
+<dialog id="viewDlg"><div class="dlg" id="viewBody"></div></dialog>
+<div id="toast" hidden></div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,collection,doc,addDoc,setDoc,deleteDoc,onSnapshot,query,orderBy,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// 1) PASTE YOUR FIREBASE WEB APP CONFIG HERE
+ const firebaseConfig = {
+    apiKey: "AIzaSyApA1KBRJ3NslKEWfYEAjCqAB3N_ODNq1M",
+    authDomain: "phonebook-26d80.firebaseapp.com",
+    projectId: "phonebook-26d80",
+    storageBucket: "phonebook-26d80.firebasestorage.app",
+    messagingSenderId: "736647008668",
+    appId: "1:736647008668:web:a2309a442e4c19312fb859"
+  };
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const $ = s => document.querySelector(s);
+let col, unsub, contacts = [], photo = "", editId = null;
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const hue = s => [...(s || "?")].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7);
+const initials = n => n.trim().split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase();
+const digits = p => String(p || "").replace(/\D/g, "");
+const url = u => /^https?:\/\//i.test(u) ? u : "https://" + u;
+const place = c => [c.address, c.city, c.country].filter(Boolean).join(", ");
+const mapQuery = c => (c.lat && c.lng) ? `${c.lat},${c.lng}` : place(c);
+const fields = ["name","phone","phone2","email","website","company","title","birthday","address","city","country","lat","lng","notes"];
+
+function toast(t){const e=$("#toast");e.textContent=t;e.hidden=false;setTimeout(()=>e.hidden=true,2200)}
+
+$("#in").onclick = () => signInWithPopup(auth, new GoogleAuthProvider()).catch(e => toast("Sign-in failed: " + e.code));
+$("#out").onclick = () => signOut(auth);
+
+onAuthStateChanged(auth, u => {
+  if (unsub) unsub();
+  $("#login").hidden = !!u; $("#app").hidden = !u; $("#fab").hidden = !u; $("#me").hidden = !u;
+  if (!u) { contacts = []; return; }
+  $("#avatar").src = u.photoURL || "";
+  col = collection(db, "users", u.uid, "contacts");
+  unsub = onSnapshot(query(col, orderBy("nameLower")), s => {
+    contacts = s.docs.map(d => ({id: d.id, ...d.data()}));
+    render();
+  }, e => toast("Could not load: " + e.code));
+});
+
+function avatar(c, cls = "pic") {
+  return c.photo
+    ? `<img class="${cls}" style="--h:${hue(c.name)}" src="${esc(c.photo)}" alt="">`
+    : `<div class="${cls}" style="--h:${hue(c.name)}">${esc(initials(c.name))}</div>`;
+}
+
+function render() {
+  const t = $("#q").value.trim().toLowerCase();
+  const list = contacts.filter(c => !t || [c.name,c.phone,c.phone2,c.email,c.company,c.city,c.country].join(" ").toLowerCase().includes(t));
+  $("#grid").innerHTML = list.length ? list.map(c => `
+    <article class="card" data-id="${c.id}" style="--h:${hue(c.name)}">
+      <div class="band"></div>
+      ${avatar(c)}
+      <div class="body">
+        <h2 class="name">${esc(c.name)}</h2>
+        <p class="sub">${esc([c.title, c.company].filter(Boolean).join(" at "))}</p>
+        <p class="line">${esc(c.phone)}</p>
+        ${c.email ? `<p class="line">${esc(c.email)}</p>` : ""}
+        ${c.city ? `<p class="line">${esc([c.city, c.country].filter(Boolean).join(", "))}</p>` : ""}
+      </div>
+      <div class="acts">
+        <a href="tel:${esc(c.phone)}">Call</a>
+        <a href="https://wa.me/${digits(c.phone)}" target="_blank" rel="noopener">WhatsApp</a>
+        ${c.email ? `<a href="mailto:${esc(c.email)}">Email</a>` : ""}
+      </div>
+    </article>`).join("")
+    : `<div class="empty">${contacts.length ? "No contacts match your search." : "No contacts yet. Tap + to add your first one."}</div>`;
+}
+$("#q").oninput = render;
+
+$("#grid").onclick = e => {
+  if (e.target.closest(".acts a")) return;
+  const card = e.target.closest(".card"); if (!card) return;
+  showDetail(contacts.find(c => c.id === card.dataset.id));
+};
+
+function showDetail(c) {
+  const q = mapQuery(c);
+  const row = (k, v) => v ? `<dt>${k}</dt><dd>${v}</dd>` : "";
+  $("#viewBody").innerHTML = `
+    <div class="card" style="--h:${hue(c.name)};cursor:default"><div class="band"></div>${avatar(c)}
+      <div class="body"><h2 class="name">${esc(c.name)}</h2><p class="sub">${esc([c.title, c.company].filter(Boolean).join(" at "))}</p></div></div>
+    <dl class="detail">
+      ${row("Phone", `<a href="tel:${esc(c.phone)}">${esc(c.phone)}</a>`)}
+      ${row("Second phone", c.phone2 && `<a href="tel:${esc(c.phone2)}">${esc(c.phone2)}</a>`)}
+      ${row("Email", c.email && `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`)}
+      ${row("Website", c.website && `<a href="${esc(url(c.website))}" target="_blank" rel="noopener">${esc(c.website)}</a>`)}
+      ${row("Birthday", esc(c.birthday))}
+      ${row("Address", esc(place(c)))}
+      ${row("Notes", esc(c.notes).replace(/\n/g, "<br>"))}
+    </dl>
+    ${q ? `<iframe class="map" loading="lazy" title="Map" src="https://www.google.com/maps?q=${encodeURIComponent(q)}&output=embed"></iframe>
+    <p><a class="chip" style="display:block" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}">Open in Maps</a></p>` : ""}
+    <div class="foot">
+      <button class="btn danger" id="del">Delete</button>
+      <button class="btn ghost" id="close">Close</button>
+      <button class="btn" id="edit">Edit</button>
+    </div>`;
+  $("#viewDlg").showModal();
+  $("#close").onclick = () => $("#viewDlg").close();
+  $("#edit").onclick = () => { $("#viewDlg").close(); openForm(c); };
+  $("#del").onclick = async () => {
+    if (!confirm(`Delete ${c.name}?`)) return;
+    await deleteDoc(doc(col, c.id)); $("#viewDlg").close(); toast("Contact deleted");
+  };
+}
+
+function openForm(c = null) {
+  editId = c ? c.id : null;
+  $("#formTitle").textContent = c ? "Edit contact" : "New contact";
+  fields.forEach(f => $("#" + f).value = c?.[f] ?? "");
+  photo = c?.photo || ""; $("#prev").src = photo; $("#prev").style.visibility = photo ? "visible" : "hidden";
+  $("#file").value = "";
+  $("#formDlg").showModal();
+}
+$("#fab").onclick = () => openForm();
+$("#cancel").onclick = () => $("#formDlg").close();
+$("#rmPhoto").onclick = () => { photo = ""; $("#prev").style.visibility = "hidden"; $("#file").value = ""; };
+
+// Resize the picture to 256px and keep it inside the Firestore document (no paid Storage needed)
+$("#file").onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const img = new Image();
+  img.onload = () => {
+    const s = 256 / Math.min(img.width, img.height), cv = document.createElement("canvas");
+    const w = Math.round(img.width * Math.min(1, s)), h = Math.round(img.height * Math.min(1, s));
+    cv.width = w; cv.height = h; cv.getContext("2d").drawImage(img, 0, 0, w, h);
+    photo = cv.toDataURL("image/jpeg", .8);
+    $("#prev").src = photo; $("#prev").style.visibility = "visible";
+    URL.revokeObjectURL(img.src);
+  };
+  img.src = URL.createObjectURL(f);
+};
+
+$("#geo").onclick = () => {
+  if (!navigator.geolocation) return toast("Location is not available on this device");
+  navigator.geolocation.getCurrentPosition(
+    p => { $("#lat").value = p.coords.latitude.toFixed(6); $("#lng").value = p.coords.longitude.toFixed(6); },
+    () => toast("Allow location access to use this"), {enableHighAccuracy: true});
+};
+
+$("#form").onsubmit = async e => {
+  e.preventDefault();
+  const data = {};
+  fields.forEach(f => data[f] = $("#" + f).value.trim());
+  data.photo = photo;
+  data.nameLower = data.name.toLowerCase();
+  data.updatedAt = serverTimestamp();
+  try {
+    if (editId) await setDoc(doc(col, editId), data);
+    else await addDoc(col, {...data, createdAt: serverTimestamp()});
+    $("#formDlg").close(); toast("Contact saved");
+  } catch (err) { toast("Could not save: " + err.code); }
+};
+</script>
+</body>
+</html>
