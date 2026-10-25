@@ -26,9 +26,12 @@ header h1{font-size:1.25rem;font-weight:800;margin:0;flex:1;letter-spacing:-.01e
 #login h2{font-size:2rem;margin:0;font-weight:800;letter-spacing:-.02em}
 #login p{margin:0;color:var(--mute)}
 main{max-width:1100px;margin:0 auto;padding:16px}
-#q{width:100%;padding:13px 16px;border-radius:14px;border:1px solid var(--line);background:var(--card);margin-bottom:16px}
+.bar{display:flex;gap:14px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+#q{flex:1;min-width:180px;width:auto;padding:13px 16px;border-radius:14px;border:1px solid var(--line);background:var(--card)}
+.sw{display:flex;align-items:center;gap:8px;font-weight:700;font-size:.9rem;color:var(--ink);margin:0;cursor:pointer}
+.sw input{width:20px;height:20px;padding:0;accent-color:var(--accent)}
 #grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
-.card{background:var(--card);border-radius:var(--r);overflow:hidden;border:1px solid var(--line);cursor:pointer;display:flex;flex-direction:column}
+.card{background:var(--card);border-radius:var(--r);overflow:hidden;border:1px solid var(--line);display:flex;flex-direction:column}
 .band{height:56px;background:hsl(var(--h) 60% 52%)}
 .pic{width:76px;height:76px;border-radius:50%;margin:-38px 0 0 16px;border:4px solid var(--card);background:hsl(var(--h) 60% 40%);color:#fff;font-weight:800;font-size:1.6rem;display:grid;place-items:center;object-fit:cover}
 .body{padding:8px 16px 14px;flex:1}
@@ -38,6 +41,11 @@ main{max-width:1100px;margin:0 auto;padding:16px}
 .acts{display:flex;gap:8px;padding:0 16px 16px;flex-wrap:wrap}
 .acts a,.chip{flex:1;min-width:64px;text-align:center;text-decoration:none;font-weight:700;font-size:.85rem;padding:9px 8px;border-radius:10px;border:1px solid var(--line);color:var(--accent);background:transparent}
 .empty{text-align:center;color:var(--mute);padding:48px 16px;grid-column:1/-1}
+.nm{background:none;border:0;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.nm:hover{text-decoration:underline}
+.zoom{cursor:zoom-in}
+#imgDlg{width:auto;max-width:96vw;background:transparent;overflow:visible}
+#imgDlg img{display:block;max-width:96vw;max-height:88vh;border-radius:var(--r)}
 #fab{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));width:60px;height:60px;border-radius:50%;border:0;background:var(--accent);color:#fff;font-size:2rem;line-height:1;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.25)}
 dialog{border:0;border-radius:var(--r);padding:0;width:min(560px,calc(100vw - 20px));max-height:92vh;background:var(--card);color:var(--ink)}
 dialog::backdrop{background:rgba(5,10,16,.6)}
@@ -73,7 +81,10 @@ input,textarea{width:100%;padding:11px 12px;border-radius:10px;border:1px solid 
 </section>
 
 <main id="app" hidden>
-  <input id="q" type="search" placeholder="Search name, number, city" aria-label="Search contacts">
+  <div class="bar">
+    <input id="q" type="search" placeholder="Search name, number, city" aria-label="Search contacts">
+    <label class="sw"><input type="checkbox" id="qa"> Quick actions</label>
+  </div>
   <div id="grid"></div>
 </main>
 
@@ -117,6 +128,7 @@ input,textarea{width:100%;padding:11px 12px;border-radius:10px;border:1px solid 
 </form></dialog>
 
 <dialog id="viewDlg"><div class="dlg" id="viewBody"></div></dialog>
+<dialog id="imgDlg"><img id="bigImg" alt="Contact photo"></dialog>
 <div id="toast" hidden></div>
 
 <script type="module">
@@ -166,9 +178,18 @@ onAuthStateChanged(auth, u => {
   }, e => toast("Could not load: " + e.code));
 });
 
+let showActs = true;
+try { showActs = localStorage.getItem("quickActions") !== "off"; } catch {}
+$("#qa").checked = showActs;
+$("#qa").onchange = e => {
+  showActs = e.target.checked;
+  try { localStorage.setItem("quickActions", showActs ? "on" : "off"); } catch {}
+  render();
+};
+
 function avatar(c, cls = "pic") {
   return c.photo
-    ? `<img class="${cls}" style="--h:${hue(c.name)}" src="${esc(c.photo)}" alt="">`
+    ? `<img class="${cls} zoom" data-id="${c.id}" style="--h:${hue(c.name)}" src="${esc(c.photo)}" alt="Open photo of ${esc(c.name)}">`
     : `<div class="${cls}" style="--h:${hue(c.name)}">${esc(initials(c.name))}</div>`;
 }
 
@@ -180,27 +201,36 @@ function render() {
       <div class="band"></div>
       ${avatar(c)}
       <div class="body">
-        <h2 class="name">${esc(c.name)}</h2>
+        <h2 class="name"><button class="nm" data-id="${c.id}">${esc(c.name)}</button></h2>
         <p class="sub">${esc([c.title, c.company].filter(Boolean).join(" at "))}</p>
         <p class="line">${esc(c.phone)}</p>
         ${c.email ? `<p class="line">${esc(c.email)}</p>` : ""}
         ${c.city ? `<p class="line">${esc([c.city, c.country].filter(Boolean).join(", "))}</p>` : ""}
       </div>
-      <div class="acts">
+      ${showActs ? `<div class="acts">
         <a href="tel:${esc(c.phone)}">Call</a>
         <a href="https://wa.me/${digits(c.phone)}" target="_blank" rel="noopener">WhatsApp</a>
+        ${mapQuery(c) ? `<a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(mapQuery(c))}" target="_blank" rel="noopener">Directions</a>` : ""}
         ${c.email ? `<a href="mailto:${esc(c.email)}">Email</a>` : ""}
-      </div>
+      </div>` : ""}
     </article>`).join("")
     : `<div class="empty">${contacts.length ? "No contacts match your search." : "No contacts yet. Tap + to add your first one."}</div>`;
 }
 $("#q").oninput = render;
 
+const byId = id => contacts.find(c => c.id === id);
+function zoom(e) {
+  const z = e.target.closest(".zoom"); if (!z) return;
+  $("#bigImg").src = byId(z.dataset.id).photo;
+  $("#imgDlg").showModal();
+}
 $("#grid").onclick = e => {
-  if (e.target.closest(".acts a")) return;
-  const card = e.target.closest(".card"); if (!card) return;
-  showDetail(contacts.find(c => c.id === card.dataset.id));
+  zoom(e);
+  const n = e.target.closest(".nm");
+  if (n) showDetail(byId(n.dataset.id));
 };
+$("#viewBody").addEventListener("click", zoom);
+$("#imgDlg").onclick = () => $("#imgDlg").close();
 
 function showDetail(c) {
   const q = mapQuery(c);
@@ -250,7 +280,7 @@ $("#file").onchange = e => {
   const f = e.target.files[0]; if (!f) return;
   const img = new Image();
   img.onload = () => {
-    const s = 256 / Math.min(img.width, img.height), cv = document.createElement("canvas");
+    const s = 512 / Math.min(img.width, img.height), cv = document.createElement("canvas");
     const w = Math.round(img.width * Math.min(1, s)), h = Math.round(img.height * Math.min(1, s));
     cv.width = w; cv.height = h; cv.getContext("2d").drawImage(img, 0, 0, w, h);
     photo = cv.toDataURL("image/jpeg", .8);
