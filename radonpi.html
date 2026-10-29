@@ -49,6 +49,15 @@ label{font-size:12px;color:var(--mute);display:block;margin-bottom:3px}
 .items td,.items th{padding:4px}
 .foot{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
 .err{color:var(--bad)}
+#tkw{min-height:100vh;display:grid;place-content:center;padding:24px}
+.tk{width:min(460px,92vw)}
+.steps{list-style:none;margin:16px 0;padding:0 0 0 18px;border-left:3px solid var(--line)}
+.steps li{position:relative;padding:6px 0 14px 14px;color:var(--mute)}
+.steps li::before{content:"";position:absolute;left:-26px;top:9px;width:13px;height:13px;border-radius:50%;background:var(--card);border:3px solid var(--line)}
+.steps li.done{color:var(--ink)}.steps li.done::before{background:var(--brand);border-color:var(--brand)}
+.steps li.now{color:var(--ink);font-weight:700}.steps li.now::before{background:var(--brand2);border-color:var(--brand);box-shadow:0 0 0 4px var(--brand2)}
+.steps small{display:block;font-weight:400;color:var(--mute)}
+.lg{padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}.lg small{display:block;color:var(--mute)}
 #toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:6px}
 </style>
 </head>
@@ -75,6 +84,16 @@ service cloud.firestore { match /databases/{db}/documents {
     allow create, delete: if request.auth != null && role() in ['admin','sales'];
     allow update: if request.auth != null && role() in ['admin','sales','production','accounts'];
   }
+  match /logs/{l} {
+    allow read: if staff();
+    allow create: if request.auth != null && role() in ['admin','sales','production','accounts'];
+    allow update, delete: if request.auth != null && role() == 'admin';
+  }
+  match /tracking/{t} {
+    allow get: if true;
+    allow create, update: if request.auth != null && role() in ['admin','sales','production','accounts'];
+    allow delete: if request.auth != null && role() in ['admin','sales'];
+  }
 }}
 
 3. Project settings > Your apps > Web app (</>) > copy the config into FIREBASE_CONFIG below.
@@ -93,6 +112,8 @@ service cloud.firestore { match /databases/{db}/documents {
   <p class="who">You are signed in as <span id="pEmail"></span>.<br>Ask an admin to assign your role, then refresh.</p>
   <div><button id="btnOut2">Sign out</button></div>
 </section>
+
+<section id="track" class="hide"><div id="tkw"><div class="tk"><h1>Order status</h1><div id="tkBody" class="who">Loading…</div></div></div></section>
 
 <section id="app" class="hide">
   <header>
@@ -139,6 +160,8 @@ service cloud.firestore { match /databases/{db}/documents {
     <tbody id="itemRows"></tbody></table>
   <button id="btnAddItem" data-g="sales">Add item</button>
   <span class="who">Total Amount fills from items when items are added.</span>
+  <div id="trackRow" class="hide" style="margin-top:12px"><button id="btnLink" type="button">Copy client tracking link</button></div>
+  <h3 id="logH" class="hide" style="margin:16px 0 4px;font-size:15px">History</h3><div id="logBox"></div>
   <p class="err" id="dErr"></p>
   <div class="foot">
     <button class="del" id="btnDel">Delete order</button>
@@ -157,10 +180,9 @@ service cloud.firestore { match /databases/{db}/documents {
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,doc,getDoc,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,runTransaction} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,collection,doc,getDoc,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,runTransaction,writeBatch,query,where,getDocs} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* ===== EDIT THESE ===== */
-  // Your web app's Firebase configuration
   const FIREBASE_CONFIG = {
   apiKey: "AIzaSyCp1E5repuDJjN--rTUlIoWN0iuafu2rI0",
   authDomain: "radonpi.firebaseapp.com",
@@ -186,6 +208,22 @@ const toast=m=>{const t=$("toast");t.textContent=m;t.classList.remove("hide");se
 const app=initializeApp(FIREBASE_CONFIG), auth=getAuth(app), db=getFirestore(app);
 let me=null, role="pending", orders=[], editing=null, unsubOrders=null;
 
+const TRACK=new URLSearchParams(location.search).get("track");
+const newId=()=>crypto.randomUUID().replace(/-/g,"").slice(0,20);
+const LBL={orderDate:"Order Received Date",piNumber:"PI Number",dealer:"Dealer Name",client:"Client Name",status:"Status",dispatchDate:"Dispatch Date",total:"Total Amount",received:"Amount Received",items:"Items"};
+const sv=v=>v==null||v===""?"(blank)":Array.isArray(v)?(v.map(i=>`${i.name} x${i.qty} @${i.rate}`).join("; ")||"(none)"):String(v);
+const diff=(a,b)=>Object.keys(LBL).filter(k=>k in b&&JSON.stringify(a?.[k]??"")!==JSON.stringify(b[k]??"")).map(k=>({f:LBL[k],from:sv(a?.[k]),to:sv(b[k])}));
+if(TRACK){
+  $("login").classList.add("hide");$("track").classList.remove("hide");
+  onSnapshot(doc(db,"tracking",TRACK),s=>{
+    if(!s.exists()){$("tkBody").textContent="Order not found. Check the link you were given.";return}
+    const t=s.data(),flow=STATUSES.filter(x=>x!=="Cancelled"),dt=t.statusDates||{},i=flow.indexOf(t.status);
+    $("tkBody").innerHTML=`<p>PI ${esc(t.pi)}${t.client?", "+esc(t.client):""}</p>`+
+      (t.status==="Cancelled"?'<p><span class="st Cancelled">Cancelled</span></p>':
+      `<ol class="steps">${flow.map((x,n)=>`<li class="${n<i?"done":n===i?"now":""}">${x}${dt[x]?`<small>${esc(dt[x])}</small>`:""}</li>`).join("")}</ol>`)+
+      (t.dispatchDate?`<p>Dispatch date: <b>${esc(t.dispatchDate)}</b></p>`:"")+"<p>This page updates live.</p>";
+  },()=>{$("tkBody").textContent="Could not load this order."});
+}
 const HINTS={
   "auth/unauthorized-domain":"Add this site's domain in Firebase > Authentication > Settings > Authorized domains.",
   "auth/operation-not-allowed":"Enable Google in Firebase > Authentication > Sign-in method.",
@@ -210,6 +248,7 @@ $("btnLogin").onclick=async()=>{
 for(const id of ["btnOut","btnOut2"]) $(id).onclick=()=>signOut(auth);
 
 onAuthStateChanged(auth,async u=>{
+  if(TRACK) return;
   if(unsubOrders){unsubOrders();unsubOrders=null}
   for(const s of ["login","pending","app"]) $(s).classList.add("hide");
   if(!u){me=null;$("login").classList.remove("hide");return}
@@ -301,11 +340,22 @@ function openOrder(o){
   document.querySelectorAll("#dlg [data-g]").forEach(x=>x.disabled=!c[x.dataset.g]);
   $("btnSave").classList.toggle("hide",!(c.sales||c.prod||c.acc));
   $("btnDel").classList.toggle("hide",!(o&&c.del));
+  $("trackRow").classList.toggle("hide",!(o&&c.sales)); $("logH").classList.toggle("hide",!o); $("logBox").innerHTML="";
+  if(o) loadLog(o.id);
   $("dErr").textContent=""; recalc(false); $("dlg").showModal();
 }
 $("btnNew").onclick=()=>openOrder(null);
 $("btnCancel").onclick=()=>$("dlg").close();
 
+async function loadLog(id){
+  $("logBox").textContent="Loading history...";
+  try{
+    const s=await getDocs(query(collection(db,"logs"),where("orderId","==",id)));
+    const L=s.docs.map(d=>d.data()).sort((a,b)=>(b.at?.seconds||9e15)-(a.at?.seconds||9e15));
+    $("logBox").innerHTML=L.length?L.map(l=>`<div class="lg"><b>${esc(l.action)}</b> by ${esc(l.by)} (${esc(l.role)})<small>${l.at?l.at.toDate().toLocaleString("en-IN"):"just now"}</small>${(l.changes||[]).map(c=>`<div>${esc(c.f)}: ${esc(c.from)} &rarr; ${esc(c.to)}</div>`).join("")}</div>`).join(""):"No history yet.";
+  }catch(e){$("logBox").textContent="Could not load history: "+e.code}
+}
+const logRef=()=>doc(collection(db,"logs"));
 $("btnSave").onclick=async()=>{
   const c=CAN[role]; const d={};
   if(c.sales){
@@ -317,22 +367,48 @@ $("btnSave").onclick=async()=>{
   }
   if(c.prod) Object.assign(d,{status:$("fSt").value,dispatchDate:$("fDisp").value});
   if(c.acc) d.received=+$("fRec").value||0;
+  const changes=editing?diff(editing,d):[];
+  if(editing&&!changes.length){$("dlg").close();return}
   d.updatedBy=me.email; d.updatedAt=serverTimestamp();
   try{
-    if(editing) await updateDoc(doc(db,"orders",editing.id),d);
+    let ref,base,sno; const b=writeBatch(db);
+    if(editing){ref=doc(db,"orders",editing.id);base=editing}
     else{
-      const sno=await runTransaction(db,async t=>{ // counter keeps S.No unique across users
+      sno=await runTransaction(db,async t=>{ // counter keeps S.No unique across users
         const cref=doc(db,"orders","_counter"); const s=await t.get(cref);
         const n=(s.exists()?s.data().n:orders.reduce((m,x)=>Math.max(m,x.sno||0),0))+1; t.set(cref,{n,counter:true}); return n});
-      await addDoc(collection(db,"orders"),{status:STATUSES[0],received:0,items:[],...d,sno,createdBy:me.email,createdAt:serverTimestamp()});
+      ref=doc(collection(db,"orders")); base={status:STATUSES[0],received:0,items:[]};
     }
-    $("dlg").close(); toast("Order saved");
+    const full={...base,...d}, tid=base.trackId||newId();
+    if(editing) b.update(ref,{...d,trackId:tid}); else b.set(ref,{...full,trackId:tid,sno,createdBy:me.email,createdAt:serverTimestamp()});
+    const tr={pi:full.piNumber||"",client:full.client||"",status:full.status,dispatchDate:full.dispatchDate||"",orderDate:full.orderDate||"",updatedAt:serverTimestamp()};
+    if(!editing||changes.some(x=>x.f==="Status")) tr.statusDates={[full.status]:new Date().toISOString().slice(0,10)};
+    b.set(doc(db,"tracking",tid),tr,{merge:true});
+    b.set(logRef(),{orderId:ref.id,pi:full.piNumber||"",at:serverTimestamp(),by:me.email,role,action:editing?"updated":"created",changes});
+    await b.commit(); $("dlg").close(); toast("Order saved");
   }catch(e){$("dErr").textContent="Could not save: "+e.code}
 };
 $("btnDel").onclick=async()=>{
-  if(!confirm("Delete this order permanently?"))return;
-  try{await deleteDoc(doc(db,"orders",editing.id));$("dlg").close();toast("Order deleted")}
-  catch(e){$("dErr").textContent="Could not delete: "+e.code}
+  if(!confirm("Delete this order permanently? The history is kept."))return;
+  try{
+    const b=writeBatch(db); b.delete(doc(db,"orders",editing.id));
+    if(editing.trackId) b.delete(doc(db,"tracking",editing.trackId));
+    b.set(logRef(),{orderId:editing.id,pi:editing.piNumber||"",at:serverTimestamp(),by:me.email,role,action:"deleted",changes:[]});
+    await b.commit(); $("dlg").close(); toast("Order deleted");
+  }catch(e){$("dErr").textContent="Could not delete: "+e.code}
+};
+$("btnLink").onclick=async()=>{
+  try{
+    let tid=editing.trackId;
+    if(!tid){ // older order without a link yet
+      tid=newId(); const b=writeBatch(db);
+      b.update(doc(db,"orders",editing.id),{trackId:tid});
+      b.set(doc(db,"tracking",tid),{pi:editing.piNumber||"",client:editing.client||"",status:editing.status||STATUSES[0],dispatchDate:editing.dispatchDate||"",orderDate:editing.orderDate||"",statusDates:{[editing.status||STATUSES[0]]:editing.orderDate||""},updatedAt:serverTimestamp()});
+      await b.commit(); editing.trackId=tid;
+    }
+    const url=location.origin+location.pathname+"?track="+tid;
+    try{await navigator.clipboard.writeText(url);toast("Link copied")}catch{prompt("Copy this link:",url)}
+  }catch(e){$("dErr").textContent="Could not create link: "+e.code}
 };
 
 /* ---------- users (admin) ---------- */
