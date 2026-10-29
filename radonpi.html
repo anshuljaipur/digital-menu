@@ -228,7 +228,7 @@ onAuthStateChanged(auth,async u=>{
   $("btnUsers").classList.toggle("hide",role!=="admin");
   $("btnNew").classList.toggle("hide",!CAN[role].create);
   unsubOrders=onSnapshot(collection(db,"orders"),s=>{
-    orders=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.sno||0)-(b.sno||0));
+    orders=s.docs.filter(d=>d.id!=="_counter").map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.sno||0)-(b.sno||0));
     buildMonths();render();
   },e=>toast("Cannot load orders: "+e.code));
 });
