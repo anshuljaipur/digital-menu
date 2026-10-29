@@ -156,7 +156,7 @@ service cloud.firestore { match /databases/{db}/documents {
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {getFirestore,collection,doc,getDoc,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,runTransaction} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* ===== EDIT THESE ===== */
@@ -186,9 +186,26 @@ const toast=m=>{const t=$("toast");t.textContent=m;t.classList.remove("hide");se
 const app=initializeApp(FIREBASE_CONFIG), auth=getAuth(app), db=getFirestore(app);
 let me=null, role="pending", orders=[], editing=null, unsubOrders=null;
 
+const HINTS={
+  "auth/unauthorized-domain":"Add this site's domain in Firebase > Authentication > Settings > Authorized domains.",
+  "auth/operation-not-allowed":"Enable Google in Firebase > Authentication > Sign-in method.",
+  "auth/operation-not-supported-in-this-environment":"Open this page from https:// (GitHub Pages or localhost), not by double-clicking the file.",
+  "auth/api-key-not-valid.-please-pass-a-valid-api-key.":"The apiKey in FIREBASE_CONFIG is wrong.",
+  "auth/invalid-api-key":"The apiKey in FIREBASE_CONFIG is wrong or still a placeholder.",
+  "auth/configuration-not-found":"Google sign-in is not set up for this Firebase project yet."
+};
+const showErr=e=>{$("loginErr").textContent=`Sign-in failed (${e.code||e.message}). ${HINTS[e.code]||""}`;console.error(e)};
+if(location.protocol==="file:") $("loginErr").textContent="This page is opened as a local file. "+HINTS["auth/operation-not-supported-in-this-environment"];
+else if(FIREBASE_CONFIG.apiKey.startsWith("YOUR_")||ADMIN_EMAILS[0].startsWith("YOUR_")) $("loginErr").textContent="Edit FIREBASE_CONFIG and ADMIN_EMAILS at the top of the script first.";
 $("btnLogin").onclick=async()=>{
-  try{await signInWithPopup(auth,new GoogleAuthProvider())}
-  catch(e){$("loginErr").textContent="Sign-in failed: "+e.code}
+  $("loginErr").textContent="";
+  const p=new GoogleAuthProvider();
+  try{await signInWithPopup(auth,p)}
+  catch(e){
+    if(["auth/popup-blocked","auth/cancelled-popup-request","auth/web-storage-unsupported"].includes(e.code)){
+      try{await signInWithRedirect(auth,p)}catch(e2){showErr(e2)}
+    }else if(e.code!=="auth/popup-closed-by-user") showErr(e);
+  }
 };
 for(const id of ["btnOut","btnOut2"]) $(id).onclick=()=>signOut(auth);
 
