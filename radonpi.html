@@ -112,6 +112,16 @@ main{width:100%}
   .bar input,.bar select{flex:1 1 140px}
   dialog{padding:16px}
 }
+#uDlg{width:min(860px,96vw);max-height:92vh}
+#uGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:12px}
+.uc{border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:10px;justify-items:center;text-align:center;background:var(--bg)}
+.uc.pend{border-color:#e0a100;box-shadow:0 0 0 2px #e0a10033}
+.uc b{word-break:break-word}.uc .em{color:var(--mute);font-size:13px;word-break:break-all}
+.uc small{color:var(--mute)}
+.av{position:relative;width:64px;height:64px;border-radius:50%;background:var(--brand2);color:var(--brand);display:grid;place-items:center;font-weight:700;font-size:22px;overflow:hidden;flex:none}
+.av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.av.sm{width:32px;height:32px;font-size:13px}
+.tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--brand2);color:var(--brand)}
 #toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:6px}
 </style>
 </head>
@@ -142,7 +152,7 @@ main{width:100%}
       <button id="btnOut"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5V3h4M16 17l5-5-5-5M21 12H9"/></svg><span>Sign out</span></button>
     </nav>
     <div class="content">
-      <header class="top"><h1 id="vTitle">Dashboard</h1><select id="fMonth" aria-label="Month"></select><span class="who" id="me"></span><span class="role" id="myRole"></span></header>
+      <header class="top"><h1 id="vTitle">Dashboard</h1><select id="fMonth" aria-label="Month"></select><span class="av sm" id="meAv"></span><span class="who" id="me"></span><span class="role" id="myRole"></span></header>
       <main>
         <div id="vDash"><div class="sum" id="sum"></div><div id="dash"></div></div>
         <div id="vOrders" class="hide">
@@ -195,8 +205,9 @@ main{width:100%}
 </dialog>
 
 <dialog id="uDlg">
-  <h2 style="margin-top:0">Users and roles</h2>
-  <div class="wrap"><table style="min-width:0"><thead><tr><th>Name</th><th>Email</th><th>Role</th></tr></thead><tbody id="uRows"></tbody></table></div>
+  <h2 style="margin:0">Users and roles</h2>
+  <p class="who" id="uSub" style="margin:2px 0 0"></p>
+  <div id="uGrid"></div>
   <div class="foot"><button id="uClose">Close</button></div>
 </dialog>
 <div id="toast" class="hide"></div>
@@ -216,6 +227,7 @@ import {getFirestore,collection,doc,getDoc,setDoc,addDoc,updateDoc,deleteDoc,onS
 };
 const ADMIN_EMAILS = ["anshul.jaipur@gmail.com"];
 
+
 const STATUSES=["Awaiting Confirmation","Confirmed","In-Production","Ready For Dispatch","Dispatched","Cancelled"];
 const ROLES=["pending","viewer","sales","production","accounts","admin"];
 const CAN={ // which field groups each role may edit
@@ -225,6 +237,8 @@ const CAN={ // which field groups each role may edit
 const $=id=>document.getElementById(id);
 const fmt=n=>(+n||0).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const avatar=(name,photo)=>`<span>${esc(String(name||"?").trim().split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase())}</span>${photo?`<img src="${esc(photo)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">`:""}`;
+const ROLE_INFO={admin:"Full access and user management",sales:"Creates and edits orders",production:"Updates status and dispatch",accounts:"Records payments received",viewer:"Read-only access",pending:"Waiting for approval"};
 const toast=m=>{const t=$("toast");t.textContent=m;t.classList.remove("hide");setTimeout(()=>t.classList.add("hide"),2500)};
 
 const app=initializeApp(FIREBASE_CONFIG), auth=getAuth(app), db=getFirestore(app);
@@ -279,13 +293,17 @@ onAuthStateChanged(auth,async u=>{
   let snap=await getDoc(ref);
   if(!snap.exists()){
     const isAdmin=ADMIN_EMAILS.map(e=>e.toLowerCase()).includes((u.email||"").toLowerCase());
-    await setDoc(ref,{email:u.email,name:u.displayName||"",role:isAdmin?"admin":"pending",createdAt:serverTimestamp()});
+    await setDoc(ref,{email:u.email,name:u.displayName||"",photo:u.photoURL||"",role:isAdmin?"admin":"pending",createdAt:serverTimestamp()});
     snap=await getDoc(ref);
   }
-  role=snap.data().role;
+  const sd=snap.data();
+  if((u.photoURL||"")!==(sd.photo||"")||(u.displayName||"")!==(sd.name||"")){
+    try{await updateDoc(ref,{photo:u.photoURL||"",name:u.displayName||""})}catch{}
+  }
+  role=sd.role;
   if(role==="pending"){$("pEmail").textContent=u.email;$("pending").classList.remove("hide");return}
   $("app").classList.remove("hide"); show("dash");
-  $("me").textContent=u.displayName||u.email; $("myRole").textContent=role;
+  $("me").textContent=u.displayName||u.email; $("meAv").innerHTML=avatar(u.displayName||u.email,u.photoURL); $("myRole").textContent=role;
   $("btnUsers").classList.toggle("hide",role!=="admin");
   $("btnNew").classList.toggle("hide",!CAN[role].create);
   unsubOrders=onSnapshot(collection(db,"orders"),s=>{
@@ -448,18 +466,26 @@ $("btnLink").onclick=async()=>{
 };
 
 /* ---------- users (admin) ---------- */
+let uSub=null;
 $("btnUsers").onclick=()=>{
-  $("uDlg").showModal();
-  onSnapshot(collection(db,"users"),s=>{
-    $("uRows").innerHTML=s.docs.map(d=>{const u=d.data();return `<tr><td>${esc(u.name)}</td><td>${esc(u.email)}</td>
-      <td><select data-uid="${d.id}">${ROLES.map(r=>`<option ${r===u.role?"selected":""}>${r}</option>`).join("")}</select></td></tr>`}).join("");
-  });
+  $("uDlg").showModal(); if(uSub) uSub();
+  uSub=onSnapshot(collection(db,"users"),s=>{
+    const L=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.role==="pending"?0:1)-(b.role==="pending"?0:1)||(a.name||a.email||"").localeCompare(b.name||b.email||""));
+    const pc=L.filter(x=>x.role==="pending").length;
+    $("uSub").textContent=`${L.length} users`+(pc?`, ${pc} waiting for approval`:"");
+    $("uGrid").innerHTML=L.map(u=>{const self=u.id===me.uid;return `<div class="uc${u.role==="pending"?" pend":""}">
+      <div class="av">${avatar(u.name||u.email,u.photo)}</div>
+      <div><b>${esc(u.name||"(no name)")}</b>${self?' <span class="tag">You</span>':""}<div class="em">${esc(u.email)}</div></div>
+      <select data-uid="${u.id}" aria-label="Role" ${self?"disabled":""}>${ROLES.map(r=>`<option ${r===u.role?"selected":""}>${r}</option>`).join("")}</select>
+      <small>${esc(ROLE_INFO[u.role]||"")}</small></div>`}).join("");
+  },e=>toast("Cannot load users: "+e.code));
 };
-$("uRows").onchange=async e=>{
+$("uGrid").onchange=async e=>{
   const uid=e.target.dataset.uid; if(!uid)return;
   try{await updateDoc(doc(db,"users",uid),{role:e.target.value});toast("Role updated")}catch(x){toast("Failed: "+x.code)}
 };
 $("uClose").onclick=()=>$("uDlg").close();
+$("uDlg").addEventListener("close",()=>{if(uSub){uSub();uSub=null}});
 
 /* ---------- export (respects current filters) ---------- */
 const HEAD=["S.No","Order Received Date","PI Number","Dealer Name","Client Name","Status","Dispatch Date","Total Amount","Amount Received","Amount Due"];
