@@ -132,10 +132,39 @@ main{width:100%}
 .ck input{width:auto;min-width:0;flex:none}
 #stClear{width:100%;margin-top:6px;font-size:13px}
 @media(max-width:760px){.dd{flex:1 1 140px}}
+th[data-k]{cursor:pointer;user-select:none}
+th.asc::after{content:" \25B2";font-size:11px}th.desc::after{content:" \25BC";font-size:11px}
+.mo{display:none}
+#dlg{padding:0;width:min(640px,96vw);max-height:92dvh;overflow:hidden}
+#dlg[open]{display:flex;flex-direction:column}
+.dh{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.dh h2{margin:0;font-size:18px;flex:1}
+.dh .x{font-size:24px;line-height:1;padding:2px 14px}
+.db{overflow-y:auto;padding:4px 16px 16px;flex:1}
+.df{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--card)}
+.sh{margin:18px 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--mute)}
+.grid{grid-template-columns:repeat(2,1fr)}.grid .full{grid-column:1/-1}
+@media(max-width:760px){
+  .mo{display:inline-block}
+  #dlg{width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;margin:0;border:0;border-radius:0;padding:0}
+  input,select{font-size:16px;min-height:44px}
+  .ck input{min-height:0}
+  .df button{flex:1;min-height:46px}.df .del{flex:0 0 100%;order:3}
+  .items thead{display:none}
+  .items,.items tbody{display:block}
+  .items tr{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px}
+  .items td{display:block;padding:0;border:0}
+  .items td:first-child{grid-column:1/-1}
+  .items td.iA{display:flex;justify-content:space-between;align-items:center}
+  .items td:last-child{text-align:right}
+  #btnAddItem{width:100%;min-height:46px}
+}
 #toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:6px}
 </style>
 </head>
 <body>
+
+
 
 <section id="login"><div class="card">
   <div class="logo">SC</div><h1>Supreme Creation</h1>
@@ -171,12 +200,13 @@ main{width:100%}
             <input id="q" type="search" placeholder="Search PI, dealer, client, item">
             <details id="stDD" class="dd"><summary id="stSum">All statuses</summary><div class="ddp" id="stPanel"></div></details>
             <button id="btnXlsx">Export Excel</button><button id="btnCsv">Export CSV</button>
+            <select id="sortSel" class="mo" aria-label="Sort by"></select><button id="sortDir" class="mo" type="button" aria-label="Reverse sort order"></button>
             <span class="who" id="cnt"></span>
           </div>
           <div class="wrap"><table>
             <thead><tr>
-              <th>S.No</th><th>Order Received Date</th><th>PI Number</th><th>Dealer Name</th><th>Client Name</th>
-              <th>Status</th><th>Dispatch Date</th><th class="n">Total Amount</th><th class="n">Amount Received</th><th class="n">Amount Due</th>
+              <th data-k="sno">S.No</th><th data-k="orderDate">Order Received Date</th><th data-k="piNumber">PI Number</th><th data-k="dealer">Dealer Name</th><th data-k="client">Client Name</th>
+              <th data-k="status">Status</th><th data-k="dispatchDate">Dispatch Date</th><th class="n" data-k="total">Total Amount</th><th class="n" data-k="received">Amount Received</th><th class="n" data-k="due">Amount Due</th>
             </tr></thead>
             <tbody id="rows"></tbody>
           </table><div id="empty" class="empty hide">No orders match. Use + to add one.</div></div>
@@ -188,30 +218,41 @@ main{width:100%}
 </section>
 
 <dialog id="dlg">
-  <h2 id="dTitle" style="margin-top:0">Order</h2>
-  <div class="grid">
-    <div><label>S.No</label><input id="fSno" type="number" disabled></div>
-    <div><label>Order Received Date</label><input id="fDate" type="date" data-g="sales"></div>
-    <div><label>PI Number</label><input id="fPi" data-g="sales"></div>
-    <div><label>Dealer Name</label><input id="fDealer" data-g="sales"></div>
-    <div><label>Client Name</label><input id="fClient" data-g="sales"></div>
-    <div><label>Status</label><select id="fSt" data-g="prod"></select></div>
-    <div><label>Dispatch Date</label><input id="fDisp" type="date" data-g="prod"></div>
-    <div><label>Total Amount</label><input id="fTotal" type="number" min="0" step="0.01" data-g="sales"></div>
-    <div><label>Amount Received</label><input id="fRec" type="number" min="0" step="0.01" data-g="acc"></div>
-    <div><label>Amount Due</label><input id="fDue" disabled></div>
+  <datalist id="dealers"></datalist><datalist id="clients"></datalist><datalist id="itemNames"></datalist>
+  <div class="dh"><h2 id="dTitle">Order</h2><button id="btnCancel" class="x" type="button" aria-label="Close">&times;</button></div>
+  <div class="db">
+    <h3 class="sh" style="margin-top:0">Order details</h3>
+    <div class="grid">
+      <div><label>S.No</label><input id="fSno" placeholder="Auto" disabled></div>
+      <div><label>Order Received Date</label><input id="fDate" type="date" data-g="sales"></div>
+      <div class="full"><label>PI Number</label><input id="fPi" autocomplete="off" enterkeyhint="next" data-g="sales"></div>
+      <div class="full"><label>Dealer Name</label><input id="fDealer" list="dealers" autocomplete="off" enterkeyhint="next" data-g="sales"></div>
+      <div class="full"><label>Client Name</label><input id="fClient" list="clients" autocomplete="off" enterkeyhint="next" data-g="sales"></div>
+    </div>
+    <h3 class="sh">Items</h3>
+    <table class="items"><thead><tr><th>Item</th><th style="width:90px">Qty</th><th style="width:120px">Rate</th><th style="width:120px" class="n">Amount</th><th style="width:44px"></th></tr></thead>
+      <tbody id="itemRows"></tbody></table>
+    <button id="btnAddItem" data-g="sales" type="button">+ Add item</button>
+    <span class="who">Total fills from items when items are added.</span>
+    <h3 class="sh">Status</h3>
+    <div class="grid">
+      <div><label>Status</label><select id="fSt" data-g="prod"></select></div>
+      <div><label>Dispatch Date</label><input id="fDisp" type="date" data-g="prod"></div>
+    </div>
+    <h3 class="sh">Payment</h3>
+    <div class="grid">
+      <div class="full"><label>Total Amount</label><input id="fTotal" type="number" inputmode="decimal" min="0" step="0.01" data-g="sales"></div>
+      <div><label>Amount Received</label><input id="fRec" type="number" inputmode="decimal" min="0" step="0.01" data-g="acc"></div>
+      <div><label>Amount Due</label><input id="fDue" disabled></div>
+    </div>
+    <div id="trackRow" class="hide" style="margin-top:14px"><button id="btnLink" type="button">Copy client tracking link</button></div>
+    <h3 id="logH" class="sh hide">History</h3><div id="logBox"></div>
+    <p class="err" id="dErr"></p>
   </div>
-  <table class="items"><thead><tr><th>Item</th><th style="width:90px">Qty</th><th style="width:120px">Rate</th><th style="width:120px" class="n">Amount</th><th style="width:44px"></th></tr></thead>
-    <tbody id="itemRows"></tbody></table>
-  <button id="btnAddItem" data-g="sales">Add item</button>
-  <span class="who">Total Amount fills from items when items are added.</span>
-  <div id="trackRow" class="hide" style="margin-top:12px"><button id="btnLink" type="button">Copy client tracking link</button></div>
-  <h3 id="logH" class="hide" style="margin:16px 0 4px;font-size:15px">History</h3><div id="logBox"></div>
-  <p class="err" id="dErr"></p>
-  <div class="foot">
-    <button class="del" id="btnDel">Delete order</button>
-    <button id="btnCancel">Close</button>
-    <button class="pri" id="btnSave">Save order</button>
+  <div class="df">
+    <button class="del" id="btnDel" type="button">Delete order</button>
+    <button id="btnSaveNew" type="button">Save &amp; add another</button>
+    <button class="pri" id="btnSave" type="button">Save order</button>
   </div>
 </dialog>
 
@@ -237,7 +278,6 @@ import {getFirestore,collection,doc,getDoc,setDoc,addDoc,updateDoc,deleteDoc,onS
   appId: "1:249802682242:web:e00c514e147adb80e6e99b"
 };
 const ADMIN_EMAILS = ["anshul.jaipur@gmail.com"];
-
 
 const STATUSES=["Awaiting Confirmation","Confirmed","In-Production","Ready For Dispatch","Dispatched","Completed","Cancelled"];
 const ROLES=["pending","viewer","sales","production","accounts","admin"];
@@ -319,7 +359,7 @@ onAuthStateChanged(auth,async u=>{
   $("btnNew").classList.toggle("hide",!CAN[role].create);
   unsubOrders=onSnapshot(collection(db,"orders"),s=>{
     orders=s.docs.filter(d=>d.id!=="_counter").map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.sno||0)-(b.sno||0));
-    buildMonths();render();
+    buildMonths();fillLists();render();
   },e=>toast("Cannot load orders: "+e.code));
 });
 
@@ -343,12 +383,35 @@ function syncDD(){
 $("stPanel").onchange=e=>{const i=e.target;if(i.type!=="checkbox")return;i.checked?stSel.add(i.value):stSel.delete(i.value);syncDD();render()};
 $("stPanel").onclick=e=>{if(e.target.id==="stClear"){stSel.clear();syncDD();render()}};
 document.addEventListener("click",e=>{if(!$("stDD").contains(e.target))$("stDD").open=false});
+function fillLists(){
+  const u=f=>[...new Set(orders.flatMap(f).filter(Boolean))].sort().map(v=>`<option value="${esc(v)}">`).join("");
+  $("dealers").innerHTML=u(o=>[o.dealer]);$("clients").innerHTML=u(o=>[o.client]);$("itemNames").innerHTML=u(o=>(o.items||[]).map(i=>i.name));
+}
 function monthList(){const m=$("fMonth").value;return orders.filter(o=>!m||(o.orderDate||"").startsWith(m))}
 function baseList(){
   const q=$("q").value.trim().toLowerCase();
   return monthList().filter(o=>!q||[o.piNumber,o.dealer,o.client,...(o.items||[]).map(i=>i.name)].join(" ").toLowerCase().includes(q));
 }
-function filtered(){return baseList().filter(o=>!stSel.size||stSel.has(o.status))}
+const COLS=[["sno","S.No"],["orderDate","Order Received Date"],["piNumber","PI Number"],["dealer","Dealer Name"],["client","Client Name"],["status","Status"],["dispatchDate","Dispatch Date"],["total","Total Amount"],["received","Amount Received"],["due","Amount Due"]];
+const SK={sno:o=>o.sno,orderDate:o=>o.orderDate,piNumber:o=>o.piNumber,dealer:o=>(o.dealer||"").toLowerCase(),client:o=>(o.client||"").toLowerCase(),status:o=>STATUSES.indexOf(o.status),dispatchDate:o=>o.dispatchDate,total:total,received:o=>+o.received||0,due:due};
+let sortK="sno", sortD=matchMedia("(max-width:760px)").matches?-1:1; // phones start with newest first
+function cmp(a,b){
+  const f=SK[sortK],x=f(a),y=f(b),bl=v=>v==null||v===""||(sortK==="status"&&v<0);
+  if(bl(x)||bl(y)) return bl(x)&&bl(y)?0:bl(x)?1:-1; // blanks always last
+  const r=typeof x==="number"&&typeof y==="number"?x-y:String(x).localeCompare(String(y),undefined,{numeric:true});
+  return r*sortD||((a.sno||0)-(b.sno||0));
+}
+function sortUI(){
+  document.querySelectorAll("th[data-k]").forEach(t=>{t.classList.toggle("asc",t.dataset.k===sortK&&sortD>0);t.classList.toggle("desc",t.dataset.k===sortK&&sortD<0)});
+  $("sortSel").value=sortK; $("sortDir").textContent=sortD>0?"\u2191":"\u2193";
+}
+function setSort(k){if(sortK===k)sortD=-sortD;else{sortK=k;sortD=1}sortUI();render()}
+$("sortSel").innerHTML=COLS.map(c=>`<option value="${c[0]}">${c[1]}</option>`).join("");
+$("sortSel").onchange=()=>{sortK=$("sortSel").value;sortD=1;sortUI();render()};
+$("sortDir").onclick=()=>{sortD=-sortD;sortUI();render()};
+document.querySelector("#vOrders thead").onclick=e=>{const t=e.target.closest("th[data-k]");if(t)setSort(t.dataset.k)};
+sortUI();
+function filtered(){return baseList().filter(o=>!stSel.size||stSel.has(o.status)).sort(cmp)}
 function dash(){
   const bl=monthList(),on=k=>k===""?!stSel.size:stSel.has(k);
   const tile=(key,label,l)=>`<button class="tile${on(key)?" on":""}${key==="Cancelled"?" cx":""}" data-s="${esc(key)}"><b>${l.length}</b>${esc(label)}<small>${fmt(l.reduce((a,o)=>a+total(o),0))}</small></button>`;
@@ -379,9 +442,9 @@ $("rows").onclick=e=>{const tr=e.target.closest("tr");if(tr)openOrder(orders.fin
 /* ---------- order form ---------- */
 function addItemRow(it={}){
   const tr=document.createElement("tr");
-  tr.innerHTML=`<td><input class="iN" value="${esc(it.name)}"></td><td><input class="iQ" type="number" min="0" step="any" value="${it.qty??""}"></td>
-  <td><input class="iR" type="number" min="0" step="any" value="${it.rate??""}"></td><td class="n iA">0.00</td>
-  <td><button class="del iX" type="button" aria-label="Remove item">×</button></td>`;
+  tr.innerHTML=`<td><input class="iN" list="itemNames" autocomplete="off" placeholder="Item name" value="${esc(it.name)}"></td><td><input class="iQ" type="number" inputmode="decimal" min="0" step="any" placeholder="Qty" value="${it.qty??""}"></td>
+  <td><input class="iR" type="number" inputmode="decimal" min="0" step="any" placeholder="Rate" value="${it.rate??""}"></td><td class="n iA" data-label="Amount">0.00</td>
+  <td><button class="del iX" type="button" aria-label="Remove item">&times;</button></td>`;
   const lock=!eff.sales; tr.querySelectorAll("input,button").forEach(x=>x.disabled=lock);
   $("itemRows").append(tr);
 }
@@ -400,14 +463,14 @@ function recalc(fromItems){
 }
 $("itemRows").oninput=()=>recalc(true);
 $("itemRows").onclick=e=>{if(e.target.classList.contains("iX")){e.target.closest("tr").remove();recalc(true)}};
-$("btnAddItem").onclick=()=>addItemRow();
+$("btnAddItem").onclick=()=>{addItemRow();$("itemRows").lastElementChild.querySelector(".iN").focus()};
 $("fTotal").oninput=$("fRec").oninput=()=>recalc(false);
 
 function openOrder(o){
   editing=o||null; const c=o?CAN[role]:(CAN[role].create?{sales:1,prod:1,acc:1}:{}); eff=c;
   $("dTitle").textContent=o?`PI ${o.piNumber||""}`:"New order";
   const nextSno=orders.reduce((m,x)=>Math.max(m,x.sno||0),0)+1;
-  $("fSno").value=o?o.sno:nextSno; $("fDate").value=o?.orderDate||new Date().toISOString().slice(0,10);
+  $("fSno").value=o?o.sno:""; $("fDate").value=o?.orderDate||new Date().toISOString().slice(0,10);
   $("fPi").value=o?.piNumber||""; $("fDealer").value=o?.dealer||""; $("fClient").value=o?.client||"";
   $("fSt").value=o?.status||STATUSES[0]; $("fDisp").value=o?.dispatchDate||"";
   $("fTotal").value=o?.total||""; $("fRec").value=o?.received||"";
@@ -417,7 +480,9 @@ function openOrder(o){
   $("btnDel").classList.toggle("hide",!(o&&c.del));
   $("trackRow").classList.toggle("hide",!(o&&c.sales)); $("logH").classList.toggle("hide",!o); $("logBox").innerHTML="";
   if(o) loadLog(o.id);
-  $("dErr").textContent=""; recalc(false); $("dlg").showModal();
+  $("btnSaveNew").classList.toggle("hide",!!o);
+  $("dErr").textContent=""; recalc(false); if(!$("dlg").open)$("dlg").showModal();
+  $("dlg").querySelector(".db").scrollTop=0; if(!o)setTimeout(()=>$("fPi").focus(),60);
 }
 $("btnNew").onclick=()=>openOrder(null);
 $("btnCancel").onclick=()=>$("dlg").close();
@@ -431,7 +496,7 @@ async function loadLog(id){
   }catch(e){$("logBox").textContent="Could not load history: "+e.code}
 }
 const logRef=()=>doc(collection(db,"logs"));
-$("btnSave").onclick=async()=>{
+async function saveOrder(again){
   const c=editing?CAN[role]:{sales:1,prod:1,acc:1}; const d={};
   if(c.sales){
     if(!$("fPi").value.trim()){$("dErr").textContent="PI Number is required.";return}
@@ -460,9 +525,11 @@ $("btnSave").onclick=async()=>{
     if(!editing||changes.some(x=>x.f==="Status")) tr.statusDates={[full.status]:new Date().toISOString().slice(0,10)};
     b.set(doc(db,"tracking",tid),tr,{merge:true});
     b.set(logRef(),{orderId:ref.id,pi:full.piNumber||"",at:serverTimestamp(),by:me.email,role,action:editing?"updated":"created",changes});
-    await b.commit(); $("dlg").close(); toast("Order saved");
+    await b.commit(); toast("Order saved"); if(again) openOrder(null); else $("dlg").close();
   }catch(e){$("dErr").textContent="Could not save: "+e.code}
-};
+}
+$("btnSave").onclick=()=>saveOrder(false);
+$("btnSaveNew").onclick=()=>saveOrder(true);
 $("btnDel").onclick=async()=>{
   if(!confirm("Delete this order permanently? The history is kept."))return;
   try{
