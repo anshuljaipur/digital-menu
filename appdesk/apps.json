@@ -1,4 +1,5 @@
 [
-  { "name": "Sample App", "icon": "🧪", "color": "#10b981", "path": "apps/sample/index.html" },
-  { "name": "Expense Tracker", "path": "apps/pnl/index.html" }
+  {"name":"Sample App","icon":"🧪","color":"#10b981","path":"apps/sample/index.html"},
+  {"name":"Expense Tracker","path":"apps/pnl/index.html"},
+  {"name":"Stock Broker Ledger","icon":"👨‍👩‍👧","path":"apps/stock-broker-ledger/index.html"}
 ]
