@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AppDesk</title>
+<style>
+:root{--bg1:#4f6df5;--bg2:#8b5cf6;--surf:#fff;--text:#1a1c23;--mut:#6b7280;--bd:#e3e5ea;--bar:rgba(255,255,255,.85);--acc:#4f6df5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#1e2a5a;--bg2:#3b2470;--surf:#1f2229;--text:#eceef3;--mut:#9aa1ad;--bd:#343843;--bar:rgba(20,22,28,.85)}}
+:root[data-theme="dark"]{--bg1:#1e2a5a;--bg2:#3b2470;--surf:#1f2229;--text:#eceef3;--mut:#9aa1ad;--bd:#343843;--bar:rgba(20,22,28,.85)}
+html,body{height:100%;margin:0}
+body{position:relative;overflow:hidden;font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--text);background:linear-gradient(135deg,var(--bg1),var(--bg2))}
+button{font:inherit;color:inherit;cursor:pointer}
+#desk{position:absolute;inset:0 0 48px 0;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,86px);grid-auto-rows:100px;gap:8px;align-content:start;overflow:auto}
+.ic{position:relative;background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 2px;border-radius:10px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.ic:hover{background:rgba(255,255,255,.18)}
+.gl{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:28px;box-shadow:0 3px 10px rgba(0,0,0,.3)}
+.lb{font-size:12px;max-width:82px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bd{display:none;position:absolute;top:0;width:22px;height:22px;border-radius:50%;border:0;background:#fff;color:#111;font-size:12px;text-shadow:none;place-items:center;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.bd.e{left:2px}.bd.x{right:2px}
+body.edit .bd{display:grid}
+#empty{color:#fff;opacity:.85;grid-column:1/-1;padding:20px}
+.win{position:absolute;display:flex;flex-direction:column;background:var(--surf);border:1px solid var(--bd);border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,.35);resize:both;overflow:hidden;min-width:280px;min-height:200px}
+.win.max{inset:0 0 48px 0!important;width:auto!important;height:auto!important;border-radius:0;resize:none}
+.win.min{display:none}
+.tb{display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--bar);border-bottom:1px solid var(--bd);cursor:move;user-select:none;touch-action:none}
+.tb .t{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tb button,.tools button{border:0;background:transparent;width:30px;height:28px;border-radius:6px}
+.tb button:hover,.tools button:hover{background:var(--bd)}
+.win iframe{flex:1;border:0;width:100%;background:#fff}
+body.drag iframe{pointer-events:none}
+#bar{position:absolute;left:0;right:0;bottom:0;height:48px;display:flex;align-items:center;gap:6px;padding:0 8px;background:var(--bar);backdrop-filter:blur(12px);border-top:1px solid var(--bd);z-index:99999}
+.tools{display:flex;gap:4px}
+.tools button{width:auto;padding:0 10px;height:34px;border:1px solid var(--bd);background:var(--surf)}
+.tools .p{background:var(--acc);color:#fff;border-color:var(--acc)}
+#tasks{flex:1;display:flex;gap:6px;overflow-x:auto}
+#tasks button{white-space:nowrap;height:34px;padding:0 10px;border:1px solid var(--bd);border-radius:8px;background:var(--surf);max-width:150px;overflow:hidden;text-overflow:ellipsis}
+#tasks button.on{border-color:var(--acc);box-shadow:inset 0 -3px 0 var(--acc)}
+#clock{color:var(--mut);font-variant-numeric:tabular-nums;padding:0 6px}
+dialog{border:1px solid var(--bd);border-radius:14px;background:var(--surf);color:var(--text);width:min(420px,92vw);padding:18px}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+dialog h3{margin:0 0 12px}
+label{display:block;margin:10px 0 4px;color:var(--mut);font-size:12px}
+input,select,textarea{width:100%;box-sizing:border-box;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--surf);color:var(--text);font:inherit}
+textarea{min-height:110px;font-family:ui-monospace,Menlo,monospace;font-size:12px}
+.row{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
+.row button{padding:8px 14px;border-radius:8px;border:1px solid var(--bd);background:var(--surf)}
+.row .p{background:var(--acc);color:#fff;border-color:var(--acc)}
+.hint{font-size:12px;color:var(--mut);margin-top:4px}
+dialog{max-height:90vh;overflow:auto}
+.pick{display:grid;grid-template-columns:repeat(auto-fill,38px);gap:4px}
+.pick button{height:38px;font-size:20px;border:1px solid var(--bd);border-radius:8px;background:var(--surf);padding:0}
+.pick button.sel{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
+.two{display:flex;gap:8px;margin-top:8px}.two button{flex:1;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--surf)}
+details{margin-top:12px}summary{cursor:pointer;color:var(--mut)}
+@media (max-width:640px){.win{inset:0 0 48px 0!important;width:auto!important;height:auto!important;border-radius:0;resize:none}#clock{display:none}}
+</style></head>
+<body>
+<div id="desk"></div>
+<div id="bar">
+  <div class="tools"><button class="p" id="add">＋ Add app</button><button id="theme" title="Theme">◐</button></div>
+  <div id="tasks"></div><div id="clock"></div>
+</div>
+
+<dialog id="dlg">
+  <h3>Add an app</h3>
+  <label>App name</label><input id="name" placeholder="e.g. Expense Tracker" autocomplete="off">
+  <label>Icon <span id="ipv" style="font-size:20px"></span></label>
+  <div class="pick" id="pick"></div>
+  <input id="icon" maxlength="4" placeholder="or type your own emoji" style="margin-top:6px">
+  <label>App source</label>
+  <select id="src"><option value="files">Upload app files / folder</option><option value="url">External URL</option></select>
+  <div id="f-files">
+    <div class="two"><button type="button" id="pf">Choose files</button><button type="button" id="pd">Choose folder</button></div>
+    <input type="file" id="files" multiple hidden><input type="file" id="folder" webkitdirectory hidden>
+    <div class="hint" id="fl">Nothing chosen. Include index.html (or one single .html file).</div>
+  </div>
+  <div id="f-url" hidden><label>URL</label><input id="url" placeholder="https://…"></div>
+  <details id="gh"><summary>GitHub settings</summary>
+    <label>Access token</label><input id="tok" type="password" placeholder="github_pat_…" autocomplete="off">
+    <div class="hint">Fine-grained token for this repo only, with Contents: Read and write. Saved only in this browser.</div>
+    <label>Owner</label><input id="own"><label>Repository</label><input id="rep">
+    <label>AppDesk folder in repo (blank if root)</label><input id="dir"><label>Branch (blank = default)</label><input id="br">
+  </details>
+  <div class="hint" id="st"></div>
+  <div class="row"><button id="cancel">Close</button><button class="p" id="go">Add app</button></div>
+</dialog>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const ICONS=['📦','🧮','📝','📊','🗂️','🧾','🛒','📇','🖨️','📅','🧰','🍦'],COLS=['#ef4444','#f59e0b','#10b981','#06b6d4','#3b82f6','#8b5cf6','#ec4899','#14b8a6'];
+const hash=s=>[...s].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7);
+let apps=[],mem=[],db=null,editing=null;
+const wins=new Map();let z=10;
+
+/* ---------- desktop ---------- */
+function render(){
+  const d=$('#desk');d.innerHTML='';
+  if(!apps.length){d.innerHTML='<div id="empty">No apps yet. Tap “＋ Add app” to see how to add one.</div>';return}
+  apps.forEach(a=>{
+    const b=document.createElement('button');b.className='ic';
+    const g=document.createElement('div');g.className='gl';g.style.background=a.color;g.textContent=a.icon;
+    const l=document.createElement('div');l.className='lb';l.textContent=a.name;l.title=a.name;
+    b.append(g,l);b.onclick=()=>openApp(a);d.append(b)});
+}
+
+/* ---------- windows ---------- */
+function openApp(a){
+  let w=wins.get(a.id);
+  if(w){w.el.classList.remove('min');focus(a.id);return}
+  const el=document.createElement('div');el.className='win';
+  const n=wins.size,W=Math.min(900,innerWidth-80),H=Math.min(600,innerHeight-140);
+  Object.assign(el.style,{left:40+n*28+'px',top:20+n*28+'px',width:W+'px',height:H+'px'});
+  el.innerHTML='<div class="tb"><span>'+esc(a.icon)+'</span><span class="t"></span><button data-a="tab" title="Open in separate tab">↗</button><button data-a="min" title="Minimize">–</button><button data-a="max" title="Maximize">▢</button><button data-a="x" title="Close">✕</button></div>';
+  el.querySelector('.t').textContent=a.name;
+  const f=document.createElement('iframe');
+  f.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-downloads allow-pointer-lock');
+  f.allow='clipboard-read; clipboard-write; geolocation; camera; microphone';
+  if(a.type==='html')f.srcdoc=a.content;else f.src=a.content;
+  el.append(f);$('#desk').after(el);
+  wins.set(a.id,{el,app:a});
+  el.addEventListener('pointerdown',()=>focus(a.id),true);
+  const tb=el.querySelector('.tb');
+  tb.onclick=e=>{const k=e.target.dataset.a;if(!k)return;
+    if(k==='x')closeWin(a.id);if(k==='min'){el.classList.add('min');tasks()}
+    if(k==='max')el.classList.toggle('max');if(k==='tab')inTab(a)};
+  tb.ondblclick=e=>{if(!e.target.dataset.a)el.classList.toggle('max')};
+  drag(tb,el);focus(a.id);
+}
+function drag(h,el){
+  h.addEventListener('pointerdown',e=>{
+    if(e.target.dataset.a||el.classList.contains('max'))return;
+    const sx=e.clientX-el.offsetLeft,sy=e.clientY-el.offsetTop;
+    document.body.classList.add('drag');h.setPointerCapture(e.pointerId);
+    const mv=m=>{el.style.left=Math.max(-el.offsetWidth+80,Math.min(innerWidth-80,m.clientX-sx))+'px';el.style.top=Math.max(0,Math.min(innerHeight-100,m.clientY-sy))+'px'};
+    const up=()=>{document.body.classList.remove('drag');h.removeEventListener('pointermove',mv);h.removeEventListener('pointerup',up)};
+    h.addEventListener('pointermove',mv);h.addEventListener('pointerup',up)});
+}
+function focus(id){wins.forEach((w,k)=>{w.el.style.zIndex=k===id?++z:w.el.style.zIndex;w.focused=k===id});tasks()}
+function closeWin(id){const w=wins.get(id);if(!w)return;w.el.remove();wins.delete(id);tasks()}
+function tasks(){
+  const t=$('#tasks');t.innerHTML='';
+  wins.forEach((w,id)=>{const b=document.createElement('button');b.textContent=w.app.icon+' '+w.app.name;
+    b.className=(!w.el.classList.contains('min')&&w.focused)?'on':'';
+    b.onclick=()=>{if(w.el.classList.contains('min')||!w.focused){w.el.classList.remove('min');focus(id)}else{w.el.classList.add('min');tasks()}};
+    t.append(b)});
+}
+function inTab(a){
+  if(a.type!=='html'){window.open(a.content,'_blank','noopener');return}
+  try{
+    const u=URL.createObjectURL(new Blob([a.content],{type:'text/html'}));
+    const w=window.open(u,'_blank');
+    if(!w){const w2=window.open('','_blank');if(!w2)throw 0;w2.document.open();w2.document.write(a.content);w2.document.close()}
+  }catch(e){alert('Your browser blocked the new tab. Allow pop-ups for this page and try again.')}
+}
+
+/* ---------- add app (saves to GitHub) ---------- */
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const KW=[[/expense|pnl|p&l|profit|loss|finance|money|cash|budget|ledger|\bfds?\b|deposit|bank|loan|invest|mutual|stock|trading/,'💰'],
+[/print|pdf|paper|label/,'🖨️'],[/contact|phone|address|directory/,'📇'],
+[/order|sale|shop|store|cart|purchase|\bpi\b|invoice|bill/,'🛒'],[/family|home|house|personal/,'🏠'],
+[/\bice|cream|glacier|food|menu|restaurant|cafe|kitchen|recipe/,'🍦'],[/inventory|warehouse|item|product|catalog/,'📦'],
+[/note|todo|task|memo|diary|journal/,'📝'],[/calendar|schedule|appointment|booking|event/,'📅'],
+[/report|chart|analytic|dashboard|stat/,'📊'],[/employee|staff|team|user|\bhr\b|attendance|payroll/,'👥'],
+[/photo|image|gallery|camera/,'📷'],[/chat|message|whatsapp|sms/,'💬'],[/school|student|class|course|learn|study|exam/,'🎓'],
+[/travel|trip|tour|flight|hotel/,'✈️'],[/vehicle|\bcars?\b|truck|delivery|transport|fleet/,'🚚'],
+[/health|medical|clinic|hospital|doctor|medicine/,'🏥'],[/calculator|calc|emi|gst|tax/,'🧮'],[/setting|tool|admin|config/,'🧰']];
+function suggestIcon(n){n=(n||'').toLowerCase();for(const [re,ic] of KW)if(re.test(n))return ic;return n?ICONS[hash(n)%ICONS.length]:'📦'}
+const EM=['💰','📊','📈','🧾','🧮','🛒','📦','🖨️','📇','📝','📅','🗂️','🏠','👨‍👩‍👧','🍦','🍽️','🧰','⚙️','📞','💬','✉️','📷','🎵','🎬','📚','🎓','🏥','🚚','✈️','🏦','💳','👥','🔒','📍','🌐','⭐','❤️','🧪','🔔','🕒'];
+let icon='',manual=false,picked=[];
+function setIcon(e,m){icon=e;if(m)manual=true;$('#ipv').textContent=e;$$('#pick button').forEach(b=>b.classList.toggle('sel',b.textContent===e));if(m&&!EM.includes(e))$('#icon').value=e;else if(EM.includes(e))$('#icon').value=''}
+$('#pick').innerHTML=EM.map(e=>'<button type="button">'+e+'</button>').join('');
+$('#pick').onclick=e=>{if(e.target.tagName==='BUTTON')setIcon(e.target.textContent,true)};
+$('#name').oninput=()=>{if(!manual)setIcon(suggestIcon($('#name').value),false)};
+$('#icon').oninput=()=>{const v=$('#icon').value.trim();if(v)setIcon(v,true);else{manual=false;setIcon(suggestIcon($('#name').value),false)}};
+$('#src').onchange=()=>{const u=$('#src').value==='url';$('#f-files').hidden=u;$('#f-url').hidden=!u};
+$('#pf').onclick=()=>$('#files').click();$('#pd').onclick=()=>$('#folder').click();
+const setPicked=a=>{picked=a;$('#fl').textContent=a.length?a.length+' file(s) chosen: '+a.slice(0,3).map(x=>x.rel).join(', ')+(a.length>3?' …':''):'Nothing chosen.'};
+$('#files').onchange=e=>setPicked([...e.target.files].map(f=>({f,rel:f.name})));
+$('#folder').onchange=e=>setPicked([...e.target.files].map(f=>({f,rel:(f.webkitRelativePath||f.name).split('/').slice(1).join('/')||f.name})));
+const GK='appdesk-gh';
+function cfg(){
+  let c={};try{c=JSON.parse(localStorage.getItem(GK)||'{}')}catch(e){}
+  const seg=location.pathname.split('/').filter(x=>x&&!/\.html?$/i.test(x));
+  const owner=c.owner||location.hostname.split('.')[0];
+  const repo=c.repo||seg[0]||owner+'.github.io';
+  const dir=('dir' in c)?c.dir:(c.repo?'':seg.slice(1).join('/'));
+  return{tok:c.tok||'',owner,repo,dir,br:c.br||''};
+}
+function fillCfg(){const c=cfg();$('#tok').value=c.tok;$('#own').value=c.owner;$('#rep').value=c.repo;$('#dir').value=c.dir;$('#br').value=c.br}
+function saveCfg(){const c={tok:$('#tok').value.trim(),owner:$('#own').value.trim(),repo:$('#rep').value.trim(),dir:$('#dir').value.trim().replace(/^\/|\/$/g,''),br:$('#br').value.trim()};try{localStorage.setItem(GK,JSON.stringify(c))}catch(e){}return cfg()}
+async function gh(c,method,path,body){
+  const r=await fetch('https://api.github.com/repos/'+c.owner+'/'+c.repo+'/contents/'+path.split('/').map(encodeURIComponent).join('/')+(method==='GET'&&c.br?'?ref='+encodeURIComponent(c.br):''),
+    {method,headers:{Authorization:'Bearer '+c.tok,Accept:'application/vnd.github+json','Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok){const e=new Error(j.message||('Error '+r.status));e.status=r.status;throw e}return j;
+}
+const b64f=f=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result.split(',')[1]);r.onerror=no;r.readAsDataURL(f)});
+const b64s=s=>{let b='';new TextEncoder().encode(s).forEach(x=>b+=String.fromCharCode(x));return btoa(b)};
+const fromB64=b=>new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\n/g,'')),c=>c.charCodeAt(0)));
+const say=t=>$('#st').textContent=t;
+$('#add').onclick=()=>{fillCfg();$('#name').value='';$('#icon').value='';$('#url').value='';manual=false;setPicked([]);say('');setIcon('📦',false);$('#gh').open=!cfg().tok;$('#dlg').showModal()};
+$('#cancel').onclick=()=>$('#dlg').close();
+$('#go').onclick=async()=>{
+  const c=saveCfg(),name=$('#name').value.trim(),isUrl=$('#src').value==='url',url=$('#url').value.trim();
+  if(!c.tok){$('#gh').open=true;return say('Add your GitHub access token first.')}
+  if(!name)return say('Enter the app name.');
+  const entry={name,icon:icon||suggestIcon(name)};
+  let slug=name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'app',base=(c.dir?c.dir+'/':'');
+  $('#go').disabled=true;
+  try{
+    if(isUrl){if(!/^https?:\/\//i.test(url))throw new Error('Enter a full URL starting with https://');entry.url=url}
+    else{
+      if(!picked.length)throw new Error('Choose the app files or folder.');
+      let main=picked.find(p=>p.rel.toLowerCase()==='index.html');
+      if(!main){const h=picked.filter(p=>!p.rel.includes('/')&&/\.html?$/i.test(p.rel));if(h.length!==1)throw new Error('Include an index.html file (or choose exactly one .html file).');h[0].dest='index.html'}
+      const used=apps.map(a=>a.content);let sl=slug,n=2;while(used.some(u=>u&&u.startsWith('apps/'+sl+'/')))sl=slug+'-'+(n++);slug=sl;
+      for(let i=0;i<picked.length;i++){
+        say('Uploading '+(i+1)+' of '+picked.length+'…');
+        const p=picked[i];
+        await gh(c,'PUT',base+'apps/'+slug+'/'+(p.dest||p.rel),{message:'AppDesk: add '+name,content:await b64f(p.f),...(c.br?{branch:c.br}:{})});
+      }
+      entry.path='apps/'+slug+'/index.html';
+    }
+    say('Updating apps.json…');
+    for(let t=0;t<2;t++){
+      try{
+        const cur=await gh(c,'GET',base+'apps.json');let arr;
+        try{arr=JSON.parse(fromB64(cur.content))}catch(e){throw new Error('apps.json is not valid JSON. Fix it on GitHub first.')}
+        arr.push(entry);
+        await gh(c,'PUT',base+'apps.json',{message:'AppDesk: add '+name+' to apps.json',content:b64s('[\n'+arr.map(o=>'  '+JSON.stringify(o)).join(',\n')+'\n]\n'),sha:cur.sha,...(c.br?{branch:c.br}:{})});
+        break;
+      }catch(e){if(e.status!==409||t)throw e}
+    }
+    apps.push({id:'m'+hash(entry.path||entry.url),name,icon:entry.icon,color:COLS[hash(name)%COLS.length],type:isUrl?'url':'path',content:entry.url||entry.path});
+    render();$('#dlg').close();
+    alert('Added “'+name+'”. Other devices will show it in about a minute, once GitHub Pages updates.');
+  }catch(e){say('Failed: '+e.message+(e.status===401||e.status===403||e.status===404?' (check the token, repo name and folder)':''))}
+  $('#go').disabled=false;
+};
+
+/* ---------- misc ---------- */
+$('#theme').onclick=()=>{const r=document.documentElement,d=matchMedia('(prefers-color-scheme:dark)').matches;const cur=r.dataset.theme||(d?'dark':'light');r.dataset.theme=cur==='dark'?'light':'dark'};
+const tick=()=>$('#clock').textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});tick();setInterval(tick,30000);
+
+async function loadManifest(){
+  try{const r=await fetch('apps.json?v='+Date.now());if(!r.ok)return[];
+    const j=await r.json();return j.map((m,i)=>({id:'m'+hash(m.path||m.url||m.name),name:m.name,icon:m.icon||suggestIcon(m.name),color:m.color||COLS[hash(m.name)%COLS.length],type:m.url?'url':'path',content:m.url||m.path}))}
+  catch(e){return[]}
+}
+loadManifest().then(a=>{apps=a;render()});
+</script>
+</body></html>
