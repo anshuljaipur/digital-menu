@@ -86,8 +86,8 @@ button{user-select:none;touch-action:manipulation}
 #nav button.on{background:var(--brand2);color:var(--brand)}
 #nav #btnOut{margin-top:auto}
 #nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
-.content{overflow-y:auto;display:flex;flex-direction:column;min-width:0}
-main{width:100%}
+.content{overflow:hidden;display:flex;flex-direction:column;min-width:0}
+main{width:100%;flex:1;min-height:0;display:flex;flex-direction:column}
 .top{position:sticky;top:0;z-index:5;gap:10px;padding:calc(12px + env(safe-area-inset-top)) 20px 12px}
 .top select{width:auto}
 .sum>div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;flex:1 1 140px}
@@ -159,10 +159,15 @@ th.asc::after{content:" \25B2";font-size:11px}th.desc::after{content:" \25BC";fo
   .items td:last-child{text-align:right}
   #btnAddItem{width:100%;min-height:46px}
 }
+#vDash{flex:1;min-height:0;overflow-y:auto}
+#vOrders{flex:1;min-height:0;display:flex;flex-direction:column}
+#vOrders .bar{flex:none}
+#vOrders .wrap{flex:1;min-height:0;overflow:auto}
 #toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:6px}
 </style>
 </head>
 <body>
+
 <section id="login"><div class="card">
   <div class="logo">SC</div><h1>Supreme Creation</h1>
   <p class="who">Order management. Sign in with your Google account.</p>
@@ -391,7 +396,7 @@ function baseList(){
 }
 const COLS=[["sno","S.No"],["orderDate","Order Received Date"],["piNumber","PI Number"],["dealer","Dealer Name"],["client","Client Name"],["status","Status"],["dispatchDate","Dispatch Date"],["total","Total Amount"],["received","Amount Received"],["due","Amount Due"]];
 const SK={sno:o=>o.sno,orderDate:o=>o.orderDate,piNumber:o=>o.piNumber,dealer:o=>(o.dealer||"").toLowerCase(),client:o=>(o.client||"").toLowerCase(),status:o=>STATUSES.indexOf(o.status),dispatchDate:o=>o.dispatchDate,total:total,received:o=>+o.received||0,due:due};
-let sortK="sno", sortD=matchMedia("(max-width:760px)").matches?-1:1; // phones start with newest first
+let sortK="sno", sortD=-1; // newest order (highest S.No) first on load
 function cmp(a,b){
   const f=SK[sortK],x=f(a),y=f(b),bl=v=>v==null||v===""||(sortK==="status"&&v<0);
   if(bl(x)||bl(y)) return bl(x)&&bl(y)?0:bl(x)?1:-1; // blanks always last
