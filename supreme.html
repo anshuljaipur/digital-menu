@@ -163,10 +163,13 @@ th.asc::after{content:" \25B2";font-size:11px}th.desc::after{content:" \25BC";fo
 #vOrders{flex:1;min-height:0;display:flex;flex-direction:column}
 #vOrders .bar{flex:none}
 #vOrders .wrap{flex:1;min-height:0;overflow:auto}
+#vUsers{flex:1;min-height:0;overflow-y:auto}
 #toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:6px}
 </style>
 </head>
 <body>
+
+
 
 <section id="login"><div class="card">
   <div class="logo">SC</div><h1>Supreme Creation</h1>
@@ -189,7 +192,7 @@ th.asc::after{content:" \25B2";font-size:11px}th.desc::after{content:" \25BC";fo
       <div class="brand"><span class="logo sm">SC</span><span>Supreme Creation</span></div>
       <button data-v="dash" class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg><span>Dashboard</span></button>
       <button data-v="orders"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><span>Orders</span></button>
-      <button id="btnUsers" class="hide"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M17 11a3 3 0 0 0 0-6M22 21c0-3-2-5-4-5.5"/></svg><span>Users</span></button>
+      <button id="btnUsers" data-v="users" class="hide"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M17 11a3 3 0 0 0 0-6M22 21c0-3-2-5-4-5.5"/></svg><span>Users</span></button>
       <button id="btnInstall" class="hide"><span>Install app</span></button>
       <button id="btnOut"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5V3h4M16 17l5-5-5-5M21 12H9"/></svg><span>Sign out</span></button>
     </nav>
@@ -197,6 +200,7 @@ th.asc::after{content:" \25B2";font-size:11px}th.desc::after{content:" \25BC";fo
       <header class="top"><h1 id="vTitle">Dashboard</h1><select id="fMonth" aria-label="Month"></select><span class="av sm" id="meAv"></span><span class="who" id="me"></span><span class="role" id="myRole"></span></header>
       <main>
         <div id="vDash"><div class="sum" id="sum"></div><div id="dash"></div></div>
+        <div id="vUsers" class="hide"><p class="who" id="uSub" style="margin:0"></p><div id="uGrid"></div></div>
         <div id="vOrders" class="hide">
           <div class="bar">
             <input id="q" type="search" placeholder="Search PI, dealer, client, item">
@@ -258,18 +262,13 @@ th.asc::after{content:" \25B2";font-size:11px}th.desc::after{content:" \25BC";fo
   </div>
 </dialog>
 
-<dialog id="uDlg">
-  <h2 style="margin:0">Users and roles</h2>
-  <p class="who" id="uSub" style="margin:2px 0 0"></p>
-  <div id="uGrid"></div>
-  <div class="foot"><button id="uClose">Close</button></div>
-</dialog>
 <div id="toast" class="hide"></div>
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {getFirestore,collection,doc,getDoc,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,runTransaction,writeBatch,query,where,getDocs} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 
   const FIREBASE_CONFIG = {
   apiKey: "AIzaSyCp1E5repuDJjN--rTUlIoWN0iuafu2rI0",
@@ -279,7 +278,7 @@ import {getFirestore,collection,doc,getDoc,setDoc,addDoc,updateDoc,deleteDoc,onS
   messagingSenderId: "249802682242",
   appId: "1:249802682242:web:e00c514e147adb80e6e99b"
 };
-const ADMIN_EMAILS = ["anshul.jaipur@gmail.com"];
+const ADMIN_EMAILS = ["anshul.jaipur@gmail.com","itsansh@gmail.com"];
 
 const STATUSES=["Awaiting Confirmation","Confirmed","In-Production","Ready For Dispatch","Dispatched","Completed","Cancelled"];
 const ROLES=["pending","viewer","sales","production","accounts","admin"];
@@ -338,6 +337,7 @@ for(const id of ["btnOut","btnOut2"]) $(id).onclick=()=>signOut(auth);
 
 onAuthStateChanged(auth,async u=>{
   if(TRACK) return;
+  stopUsers();
   if(unsubOrders){unsubOrders();unsubOrders=null}
   for(const s of ["login","pending","app"]) $(s).classList.add("hide");
   if(!u){me=null;$("login").classList.remove("hide");return}
@@ -420,9 +420,12 @@ function dash(){
   $("dash").innerHTML=tile("","All orders",bl)+STATUSES.map(x=>tile(x,x,bl.filter(o=>o.status===x))).join("");
 }
 function show(v){
-  $("vDash").classList.toggle("hide",v!=="dash"); $("vOrders").classList.toggle("hide",v!=="orders");
+  if(v==="users"&&role!=="admin") v="dash";
+  for(const [k,id] of [["dash","vDash"],["orders","vOrders"],["users","vUsers"]]) $(id).classList.toggle("hide",v!==k);
   document.querySelectorAll("#nav [data-v]").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
-  $("vTitle").textContent=v==="dash"?"Dashboard":"Orders"; $("btnNew").classList.toggle("hide",!CAN[role]?.create); scrollTo(0,0);
+  $("vTitle").textContent={dash:"Dashboard",orders:"Orders",users:"Users and roles"}[v];
+  $("btnNew").classList.toggle("hide",v==="users"||!CAN[role]?.create); $("fMonth").classList.toggle("hide",v==="users");
+  v==="users"?startUsers():stopUsers();
 }
 $("nav").onclick=e=>{const b=e.target.closest("[data-v]");if(b){if(b.dataset.v==="dash"){stSel.clear();syncDD()}show(b.dataset.v);render()}};
 $("dash").onclick=e=>{const t=e.target.closest(".tile");if(t){stSel.clear();if(t.dataset.s)stSel.add(t.dataset.s);syncDD();show("orders");render()}};
@@ -557,8 +560,9 @@ $("btnLink").onclick=async()=>{
 
 /* ---------- users (admin) ---------- */
 let uSub=null;
-$("btnUsers").onclick=()=>{
-  $("uDlg").showModal(); if(uSub) uSub();
+function stopUsers(){if(uSub){uSub();uSub=null}}
+function startUsers(){
+  if(uSub) return;
   uSub=onSnapshot(collection(db,"users"),s=>{
     const L=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.role==="pending"?0:1)-(b.role==="pending"?0:1)||(a.name||a.email||"").localeCompare(b.name||b.email||""));
     const pc=L.filter(x=>x.role==="pending").length;
@@ -569,13 +573,11 @@ $("btnUsers").onclick=()=>{
       <select data-uid="${u.id}" aria-label="Role" ${self?"disabled":""}>${ROLES.map(r=>`<option ${r===u.role?"selected":""}>${r}</option>`).join("")}</select>
       <small>${esc(ROLE_INFO[u.role]||"")}</small></div>`}).join("");
   },e=>toast("Cannot load users: "+e.code));
-};
+}
 $("uGrid").onchange=async e=>{
   const uid=e.target.dataset.uid; if(!uid)return;
   try{await updateDoc(doc(db,"users",uid),{role:e.target.value});toast("Role updated")}catch(x){toast("Failed: "+x.code)}
 };
-$("uClose").onclick=()=>$("uDlg").close();
-$("uDlg").addEventListener("close",()=>{if(uSub){uSub();uSub=null}});
 
 /* ---------- export (respects current filters) ---------- */
 const HEAD=["S.No","Order Received Date","PI Number","Dealer Name","Client Name","Status","Dispatch Date","Total Amount","Amount Received","Amount Due"];
