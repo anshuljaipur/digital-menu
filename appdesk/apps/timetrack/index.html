@@ -1,59 +1,109 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Staff Time Tracker</title>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Staff Work Time Tracker</title>
 <link rel="stylesheet" href="../../common.css">
 <script src="../../firebase-config.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-</head><body>
-<h1>⏱️ Staff Time Tracker <button class="sm" id="out">Sign out</button></h1>
-<div class="card"><div id="status" style="font-size:17px;margin-bottom:8px"></div>
-  <input id="note" placeholder="Details for the next action (optional)" style="width:100%;margin-bottom:8px">
-  <div class="row" id="btns"></div></div>
-<div class="card"><div class="row"><label>From <input type="date" id="f"></label><label>To <input type="date" id="t"></label></div>
-  <div class="stats"><div>Total working time<b id="sw"></b></div><div>Total break time<b id="sb"></b></div><div>Shift span (work + break)<b id="sg"></b></div></div></div>
-<div class="card" style="overflow-x:auto"><table><thead><tr><th>Type</th><th>Start</th><th>End</th><th>Duration</th><th>Details</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
-<div class="row"><button class="pri" id="pdf">Export PDF</button><button class="pri" id="img">Export image</button></div>
+<style>
+:root{--bg:#f3f5f8;--card:#fff;--tx:#1f2937;--mut:#6b7280;--bd:#e5e7eb;color-scheme:light}
+body{max-width:1040px;padding:20px 12px}
+.wrap{background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.06);padding:24px 28px}
+@media(max-width:600px){.wrap{padding:16px}.panel{grid-template-columns:1fr!important}}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+h2{margin:0;color:#1a7f4b;font-size:26px}
+.sub{display:flex;justify-content:space-between;color:#6b7280;font-size:13px;margin:6px 0 16px}
+.panel{background:#eaf6ee;border-radius:10px;padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:16px;text-align:center}
+.panel b{display:block;margin-bottom:10px}.bs{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.panel button{border:0;color:#fff;border-radius:6px;padding:9px 14px;font-size:14px}
+.panel button.g{background:#28a745}.panel button.r{background:#dc3545}
+.panel button:disabled{opacity:.45;cursor:not-allowed}
+.tw{overflow-x:auto;border:1px solid var(--bd);border-radius:8px;margin-top:12px}
+table{border-collapse:collapse;min-width:640px}
+th{background:#f8f9fa;font-size:13px}th,td{text-align:center;padding:12px 8px;border-bottom:1px solid var(--bd);white-space:normal;font-size:14px}
+tr:last-child td{border-bottom:0}td input{width:100%;min-width:150px;font-size:13px}
+table button.sm{background:#eee;border:0;border-radius:4px;padding:5px 10px;font-size:12px;font-weight:600}
+.cards{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:18px 0}
+.cd{background:#fafafa;border:1px solid #eee;border-radius:8px;padding:12px 18px;min-width:170px}.cd small{color:#6b7280;font-size:12px}.cd div{font-size:18px;margin-top:6px}
+button.ex{display:block;width:100%;border:0;border-radius:6px;color:#fff;padding:14px;font-weight:700;margin-bottom:10px;font-size:15px}
+</style></head><body>
+<div class="wrap">
+  <div class="top"><h2>Staff Work Time Tracker</h2><button class="sm" id="out">Sign out</button></div>
+  <div class="sub"><span id="dt"></span><span id="clk"></span></div>
+  <div class="panel">
+    <div><b>Main Working</b><div class="bs"><button class="g" id="bsw">IN (Start Work)</button><button class="r" id="bew">OUT (End Work)</button></div></div>
+    <div><b>Break Time</b><div class="bs"><button class="r" id="bsb">OUT (Start Break)</button><button class="g" id="beb">IN (End Break)</button></div></div>
+  </div>
+  <div class="row" style="margin:14px 0 0;font-size:13px;color:#6b7280"><label>From <input type="date" id="f"></label><label>To <input type="date" id="t"></label></div>
+  <div class="tw"><table style="width:100%"><thead><tr><th>Type</th><th>Start (date &amp; time)</th><th>End (date &amp; time)</th><th>Duration (HH:MM:SS)</th><th>Description</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div>
+  <div class="cards"><div class="cd"><small>Total Work Time</small><div id="tw"></div></div><div class="cd"><small>Total Break Time</small><div id="tb"></div></div><div class="cd"><small>Net Working Time</small><div id="tn"></div></div></div>
+  <button class="ex" style="background:#2b6be0" id="pdf">Export to PDF / Print</button>
+  <button class="ex" style="background:#3a7bd5" id="img">Export to Image</button>
+  <button class="ex" style="background:#2185c5" id="csv">Export to CSV</button>
+  <button class="ex" style="background:#9b2226" id="clr">Clear Sheet</button>
+</div>
 <div id="rep" style="position:fixed;left:-9999px;top:0"></div>
 <script type="module">
 import {boot,db,collection,doc,addDoc,updateDoc,deleteDoc,onSnapshot,query,orderBy,limit,logout,esc} from '../../common.js';
 const $=s=>document.querySelector(s),pad=n=>String(n).padStart(2,'0');
-let logs=[],col;
-const dur=ms=>{ms=Math.max(0,Math.round(ms/1000));return Math.floor(ms/3600)+'h '+pad(Math.floor(ms%3600/60))+'m '+pad(ms%60)+'s'};
-const loc=ms=>ms?new Date(ms-new Date(ms).getTimezoneOffset()*6e4).toISOString().slice(0,16):'';
-const fmt=ms=>ms?new Date(ms).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hour12:true}):'—';
+let logs=[],col,editing=null;
+const hms=ms=>{ms=Math.max(0,Math.round(ms/1000));return pad(Math.floor(ms/3600))+':'+pad(Math.floor(ms%3600/60))+':'+pad(ms%60)};
+const loc=ms=>ms?new Date(ms-new Date(ms).getTimezoneOffset()*6e4).toISOString().slice(0,19):'';
+const fmt=ms=>ms?new Date(ms).toLocaleString('en-US',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}):'-';
+const T=l=>l.kind==='work'?'Work':'Break';
 $('#f').value=$('#t').value=loc(Date.now()).slice(0,10);
 $('#out').onclick=logout;
 const open=k=>logs.find(l=>l.kind===k&&!l.end);
 const inRange=l=>l.start>=new Date($('#f').value+'T00:00').getTime()&&l.start<=new Date($('#t').value+'T23:59:59.999').getTime();
+const shown=()=>logs.filter(inRange).sort((a,b)=>a.start-b.start);
 boot(u=>{col=collection(db,'timetrack_users',u.uid,'logs');
-  onSnapshot(query(col,orderBy('start','desc'),limit(500)),s=>{logs=s.docs.map(d=>({id:d.id,...d.data()}));draw()})});
+  onSnapshot(query(col,orderBy('start','desc'),limit(1000)),s=>{logs=s.docs.map(d=>({id:d.id,...d.data()}));draw()})});
 async function act(a){
-  const now=Date.now(),note=$('#note').value.trim(),w=open('work'),b=open('break');$('#note').value='';
-  if(a==='sw')await addDoc(col,{kind:'work',start:now,end:null,note});
-  if(a==='sb')await addDoc(col,{kind:'break',start:now,end:null,note});
+  const now=Date.now(),w=open('work'),b=open('break');
+  if(a==='sw')await addDoc(col,{kind:'work',start:now,end:null,note:''});
+  if(a==='sb')await addDoc(col,{kind:'break',start:now,end:null,note:''});
   if(a==='eb'&&b)await updateDoc(doc(col,b.id),{end:now});
   if(a==='ew'){if(b)await updateDoc(doc(col,b.id),{end:now});if(w)await updateDoc(doc(col,w.id),{end:now})}
 }
-$('#btns').onclick=e=>{if(e.target.dataset.a)act(e.target.dataset.a)};
+$('#bsw').onclick=()=>act('sw');$('#bew').onclick=()=>act('ew');$('#bsb').onclick=()=>act('sb');$('#beb').onclick=()=>act('eb');
+function rows(){
+  $('#rows').innerHTML=shown().map(l=>editing===l.id
+    ?`<tr data-id="${l.id}"><td>${T(l)}</td><td><input type="datetime-local" step="1" data-k="start" value="${loc(l.start)}"></td><td><input type="datetime-local" step="1" data-k="end" value="${loc(l.end)}"></td><td>-</td><td><input data-k="note" value="${esc(l.note)}"></td><td><button class="sm" data-a="save">Save</button> <button class="sm" data-a="cancel">Cancel</button></td></tr>`
+    :`<tr data-id="${l.id}"><td>${T(l)}</td><td>${fmt(l.start)}</td><td>${fmt(l.end)}</td><td class="d" data-s="${l.start}" data-e="${l.end||''}">${hms((l.end||Date.now())-l.start)}</td><td>${esc(l.note)}</td><td><button class="sm" data-a="edit">Edit</button> <button class="sm" data-a="del">Delete</button></td></tr>`
+  ).join('')||'<tr><td colspan="6" style="color:#6b7280">No entries</td></tr>';
+}
 function draw(){
   const W=open('work'),B=open('break');
-  $('#btns').innerHTML=!W?'<button class="ok" data-a="sw">▶ Start work</button>':B?'<button class="pri" data-a="eb">☕ End break</button><button class="no" data-a="ew">■ End work</button>':'<button class="pri" data-a="sb">☕ Start break</button><button class="no" data-a="ew">■ End work</button>';
-  $('#rows').innerHTML=logs.filter(inRange).map(l=>`<tr data-id="${l.id}"><td>${l.kind==='work'?'Work':'Break'}</td><td><input type="datetime-local" data-k="start" value="${loc(l.start)}"></td><td><input type="datetime-local" data-k="end" value="${loc(l.end)}"></td><td>${l.end?dur(l.end-l.start):'running'}</td><td><input data-k="note" value="${esc(l.note)}"></td><td><button class="sm" data-del>✕</button></td></tr>`).join('')||'<tr><td colspan="6" class="mut">No entries in this range</td></tr>';
-  tick();
+  $('#bsw').disabled=!!W;$('#bew').disabled=!W;$('#bsb').disabled=!W||!!B;$('#beb').disabled=!B;
+  if(editing===null)rows();tick();
 }
 function tick(){
   const now=Date.now();let w=0,b=0;
   logs.filter(inRange).forEach(l=>{const d=(l.end||now)-l.start;l.kind==='work'?w+=d:b+=d});
-  $('#sw').textContent=dur(w-b);$('#sb').textContent=dur(b);$('#sg').textContent=dur(w);
-  const W=open('work'),B=open('break');
-  $('#status').textContent=B?'🟠 On break since '+fmt(B.start):W?'🟢 Working since '+fmt(W.start):'⚪ Not working';
+  $('#tw').textContent=hms(w);$('#tb').textContent=hms(b);$('#tn').textContent=hms(w-b);
+  $('#dt').textContent=new Date().toDateString();$('#clk').textContent='Local time: '+new Date().toLocaleTimeString('en-GB');
+  document.querySelectorAll('td.d').forEach(td=>{if(!td.dataset.e)td.textContent=hms(now-td.dataset.s)});
 }
-setInterval(tick,1000);
-$('#f').onchange=$('#t').onchange=draw;
-$('#rows').onchange=e=>{const i=e.target,k=i.dataset.k;if(!k)return;const v=k==='note'?i.value:(i.value?new Date(i.value).getTime():null);if(k==='start'&&!v)return;updateDoc(doc(col,i.closest('tr').dataset.id),{[k]:v})};
-$('#rows').onclick=e=>{if(e.target.dataset.del!==undefined&&confirm('Delete this entry?'))deleteDoc(doc(col,e.target.closest('tr').dataset.id))};
+setInterval(tick,1000);tick();
+$('#f').onchange=$('#t').onchange=()=>{editing=null;draw()};
+$('#rows').onclick=async e=>{
+  const a=e.target.dataset.a;if(!a)return;const tr=e.target.closest('tr'),id=tr.dataset.id;
+  if(a==='edit'){editing=id;rows()}
+  else if(a==='cancel'){editing=null;rows()}
+  else if(a==='del'){if(confirm('Delete this entry?'))deleteDoc(doc(col,id))}
+  else if(a==='save'){
+    const g=k=>tr.querySelector('[data-k='+k+']').value,s=new Date(g('start')).getTime(),en=g('end')?new Date(g('end')).getTime():null;
+    if(!s||(en&&en<s))return alert('Please check the start and end time.');
+    await updateDoc(doc(col,id),{start:s,end:en,note:g('note').trim()});editing=null;rows();tick();
+  }
+};
+$('#clr').onclick=()=>{const L=shown();if(L.length&&confirm('Delete all '+L.length+' entries shown? This cannot be undone.'))L.forEach(l=>deleteDoc(doc(col,l.id)))};
+$('#csv').onclick=()=>{
+  const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"',now=Date.now();
+  const t=['Type,Start,End,Duration,Description',...shown().map(l=>[T(l),fmt(l.start),fmt(l.end),hms((l.end||now)-l.start),l.note||''].map(q).join(',')),'',q('Total Work Time')+','+q($('#tw').textContent),q('Total Break Time')+','+q($('#tb').textContent),q('Net Working Time')+','+q($('#tn').textContent)].join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+t],{type:'text/csv'}));a.download='time-sheet.csv';a.click();
+};
 async function snap(){
-  const td=x=>`<td style="border:1px solid #ccc;padding:5px">${x}</td>`,L=logs.filter(inRange).slice().reverse();
-  $('#rep').innerHTML=`<div id="rp" style="background:#fff;color:#111;padding:20px;width:800px;font:14px system-ui,sans-serif"><h2 style="margin:0 0 4px">Staff Time Report</h2><div>${$('#f').value} to ${$('#t').value}</div><p><b>Total working time:</b> ${$('#sw').textContent} &nbsp;&nbsp; <b>Total break time:</b> ${$('#sb').textContent}</p><table style="width:100%;border-collapse:collapse"><tr style="background:#eee">${['Type','Start','End','Duration','Details'].map(h=>`<td style="border:1px solid #ccc;padding:5px"><b>${h}</b></td>`).join('')}</tr>${L.map(l=>`<tr>${td(l.kind==='work'?'Work':'Break')}${td(fmt(l.start))}${td(fmt(l.end))}${td(l.end?dur(l.end-l.start):'running')}${td(esc(l.note))}</tr>`).join('')}</table></div>`;
+  const td=x=>`<td style="border:1px solid #ccc;padding:6px;text-align:center">${x}</td>`,now=Date.now();
+  $('#rep').innerHTML=`<div id="rp" style="background:#fff;color:#111;padding:24px;width:820px;font:14px system-ui,sans-serif"><h2 style="margin:0 0 4px;color:#1a7f4b">Staff Work Time Report</h2><div style="color:#555">${$('#f').value} to ${$('#t').value}</div><table style="width:100%;border-collapse:collapse;margin:14px 0"><tr style="background:#f1f1f1">${['Type','Start','End','Duration','Description'].map(h=>`<td style="border:1px solid #ccc;padding:6px;text-align:center"><b>${h}</b></td>`).join('')}</tr>${shown().map(l=>`<tr>${td(T(l))}${td(fmt(l.start))}${td(fmt(l.end))}${td(hms((l.end||now)-l.start))}${td(esc(l.note))}</tr>`).join('')}</table><p><b>Total Work Time:</b> ${$('#tw').textContent} &nbsp;&nbsp; <b>Total Break Time:</b> ${$('#tb').textContent} &nbsp;&nbsp; <b>Net Working Time:</b> ${$('#tn').textContent}</p></div>`;
   return html2canvas($('#rp'),{scale:2,backgroundColor:'#fff'});
 }
 $('#img').onclick=async()=>{const c=await snap(),a=document.createElement('a');a.download='time-report.png';a.href=c.toDataURL('image/png');a.click()};
