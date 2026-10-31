@@ -2,7 +2,8 @@
   {"name":"Sample App","icon":"🧪","color":"#10b981","path":"apps/sample/index.html"},
   {"name":"Expense Tracker","path":"apps/pnl/index.html"},
   {"name":"Stock Broker Ledger","icon":"👨‍👩‍👧","path":"apps/stock-broker-ledger/index.html"},
-  { "name": "Staff Time", "icon": "⏱️", "path": "apps/timetrack/index.html" },
-   { "name": "Calculator", "icon": "🧮", "path": "apps/calculator/index.html" },
-   { "name": "Cash Flow", "icon": "💵", "path": "apps/cashflow/index.html" }
+  {"name":"Staff Time","icon":"⏱️","path":"apps/timetrack/index.html"},
+  {"name":"Calculator","icon":"🧮","path":"apps/calculator/index.html"},
+  {"name":"Cash Flow","icon":"💵","path":"apps/cashflow/index.html"},
+  {"name":"FD Tracker","icon":"💰","url":"https://anshuljaipur.github.io/iTAX/fds.html"}
 ]
