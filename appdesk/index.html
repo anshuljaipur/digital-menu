@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AppDesk</title>
+<style>
+:root{--bg1:#4f6df5;--bg2:#8b5cf6;--surf:#fff;--text:#1a1c23;--mut:#6b7280;--bd:#e3e5ea;--bar:rgba(255,255,255,.85);--acc:#4f6df5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#1e2a5a;--bg2:#3b2470;--surf:#1f2229;--text:#eceef3;--mut:#9aa1ad;--bd:#343843;--bar:rgba(20,22,28,.85)}}
+:root[data-theme="dark"]{--bg1:#1e2a5a;--bg2:#3b2470;--surf:#1f2229;--text:#eceef3;--mut:#9aa1ad;--bd:#343843;--bar:rgba(20,22,28,.85)}
+html,body{height:100%;margin:0}
+body{position:relative;overflow:hidden;font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--text);background:linear-gradient(135deg,var(--bg1),var(--bg2))}
+button{font:inherit;color:inherit;cursor:pointer}
+#desk{position:absolute;inset:0 0 48px 0;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,86px);grid-auto-rows:100px;gap:8px;align-content:start;overflow:auto}
+.ic{position:relative;background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 2px;border-radius:10px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.ic:hover{background:rgba(255,255,255,.18)}
+.gl{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:28px;box-shadow:0 3px 10px rgba(0,0,0,.3)}
+.lb{font-size:12px;max-width:82px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bd{display:none;position:absolute;top:0;width:22px;height:22px;border-radius:50%;border:0;background:#fff;color:#111;font-size:12px;text-shadow:none;place-items:center;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.bd.e{left:2px}.bd.x{right:2px}
+body.edit .bd{display:grid}
+#empty{color:#fff;opacity:.85;grid-column:1/-1;padding:20px}
+.win{position:absolute;display:flex;flex-direction:column;background:var(--surf);border:1px solid var(--bd);border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,.35);resize:both;overflow:hidden;min-width:280px;min-height:200px}
+.win.max{inset:0 0 48px 0!important;width:auto!important;height:auto!important;border-radius:0;resize:none}
+.win.min{display:none}
+.tb{display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--bar);border-bottom:1px solid var(--bd);cursor:move;user-select:none;touch-action:none}
+.tb .t{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tb button,.tools button{border:0;background:transparent;width:30px;height:28px;border-radius:6px}
+.tb button:hover,.tools button:hover{background:var(--bd)}
+.win iframe{flex:1;border:0;width:100%;background:#fff}
+body.drag iframe{pointer-events:none}
+#bar{position:absolute;left:0;right:0;bottom:0;height:48px;display:flex;align-items:center;gap:6px;padding:0 8px;background:var(--bar);backdrop-filter:blur(12px);border-top:1px solid var(--bd);z-index:99999}
+.tools{display:flex;gap:4px}
+.tools button{width:auto;padding:0 10px;height:34px;border:1px solid var(--bd);background:var(--surf)}
+.tools .p{background:var(--acc);color:#fff;border-color:var(--acc)}
+#tasks{flex:1;display:flex;gap:6px;overflow-x:auto}
+#tasks button{white-space:nowrap;height:34px;padding:0 10px;border:1px solid var(--bd);border-radius:8px;background:var(--surf);max-width:150px;overflow:hidden;text-overflow:ellipsis}
+#tasks button.on{border-color:var(--acc);box-shadow:inset 0 -3px 0 var(--acc)}
+#clock{color:var(--mut);font-variant-numeric:tabular-nums;padding:0 6px}
+dialog{border:1px solid var(--bd);border-radius:14px;background:var(--surf);color:var(--text);width:min(420px,92vw);padding:18px}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+dialog h3{margin:0 0 12px}
+label{display:block;margin:10px 0 4px;color:var(--mut);font-size:12px}
+input,select,textarea{width:100%;box-sizing:border-box;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--surf);color:var(--text);font:inherit}
+textarea{min-height:110px;font-family:ui-monospace,Menlo,monospace;font-size:12px}
+.row{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
+.row button{padding:8px 14px;border-radius:8px;border:1px solid var(--bd);background:var(--surf)}
+.row .p{background:var(--acc);color:#fff;border-color:var(--acc)}
+.hint{font-size:12px;color:var(--mut);margin-top:4px}
+@media (max-width:640px){.win{inset:0 0 48px 0!important;width:auto!important;height:auto!important;border-radius:0;resize:none}#clock{display:none}}
+</style></head>
+<body>
+<div id="desk"></div>
+<div id="bar">
+  <div class="tools"><button class="p" id="add">＋ Add app</button><button id="theme" title="Theme">◐</button></div>
+  <div id="tasks"></div><div id="clock"></div>
+</div>
+
+<dialog id="dlg">
+  <h3>Add an app</h3>
+  <div class="hint">Apps live in your GitHub repo, so every device shows the same apps. Fill this in to get the line for <b>apps.json</b>.</div>
+  <label>App name</label><input id="name" placeholder="My app">
+  <label>Icon (emoji)</label><input id="icon" maxlength="4" placeholder="📦">
+  <label>Folder name (inside apps/)</label><input id="folder" placeholder="my-app">
+  <label>Or external URL (optional)</label><input id="url" placeholder="https://…">
+  <label>Line to add to apps.json</label><textarea id="out" readonly></textarea>
+  <div class="hint">1) Put the app files in apps/&lt;folder&gt;/ with an index.html. 2) Add this line to apps.json (comma between entries). 3) Commit.</div>
+  <div class="row"><button id="cancel">Close</button><button class="p" id="copy">Copy line</button></div>
+</dialog>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const ICONS=['📦','🧮','📝','📊','🗂️','🧾','🛒','📇','🖨️','📅','🧰','🍦'],COLS=['#ef4444','#f59e0b','#10b981','#06b6d4','#3b82f6','#8b5cf6','#ec4899','#14b8a6'];
+const hash=s=>[...s].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7);
+let apps=[],mem=[],db=null,editing=null;
+const wins=new Map();let z=10;
+
+/* ---------- desktop ---------- */
+function render(){
+  const d=$('#desk');d.innerHTML='';
+  if(!apps.length){d.innerHTML='<div id="empty">No apps yet. Tap “＋ Add app” to see how to add one.</div>';return}
+  apps.forEach(a=>{
+    const b=document.createElement('button');b.className='ic';
+    const g=document.createElement('div');g.className='gl';g.style.background=a.color;g.textContent=a.icon;
+    const l=document.createElement('div');l.className='lb';l.textContent=a.name;l.title=a.name;
+    b.append(g,l);b.onclick=()=>openApp(a);d.append(b)});
+}
+
+/* ---------- windows ---------- */
+function openApp(a){
+  let w=wins.get(a.id);
+  if(w){w.el.classList.remove('min');focus(a.id);return}
+  const el=document.createElement('div');el.className='win';
+  const n=wins.size,W=Math.min(900,innerWidth-80),H=Math.min(600,innerHeight-140);
+  Object.assign(el.style,{left:40+n*28+'px',top:20+n*28+'px',width:W+'px',height:H+'px'});
+  el.innerHTML='<div class="tb"><span>'+esc(a.icon)+'</span><span class="t"></span><button data-a="tab" title="Open in separate tab">↗</button><button data-a="min" title="Minimize">–</button><button data-a="max" title="Maximize">▢</button><button data-a="x" title="Close">✕</button></div>';
+  el.querySelector('.t').textContent=a.name;
+  const f=document.createElement('iframe');
+  f.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-downloads allow-pointer-lock');
+  f.allow='clipboard-read; clipboard-write; geolocation; camera; microphone';
+  if(a.type==='html')f.srcdoc=a.content;else f.src=a.content;
+  el.append(f);$('#desk').after(el);
+  wins.set(a.id,{el,app:a});
+  el.addEventListener('pointerdown',()=>focus(a.id),true);
+  const tb=el.querySelector('.tb');
+  tb.onclick=e=>{const k=e.target.dataset.a;if(!k)return;
+    if(k==='x')closeWin(a.id);if(k==='min'){el.classList.add('min');tasks()}
+    if(k==='max')el.classList.toggle('max');if(k==='tab')inTab(a)};
+  tb.ondblclick=e=>{if(!e.target.dataset.a)el.classList.toggle('max')};
+  drag(tb,el);focus(a.id);
+}
+function drag(h,el){
+  h.addEventListener('pointerdown',e=>{
+    if(e.target.dataset.a||el.classList.contains('max'))return;
+    const sx=e.clientX-el.offsetLeft,sy=e.clientY-el.offsetTop;
+    document.body.classList.add('drag');h.setPointerCapture(e.pointerId);
+    const mv=m=>{el.style.left=Math.max(-el.offsetWidth+80,Math.min(innerWidth-80,m.clientX-sx))+'px';el.style.top=Math.max(0,Math.min(innerHeight-100,m.clientY-sy))+'px'};
+    const up=()=>{document.body.classList.remove('drag');h.removeEventListener('pointermove',mv);h.removeEventListener('pointerup',up)};
+    h.addEventListener('pointermove',mv);h.addEventListener('pointerup',up)});
+}
+function focus(id){wins.forEach((w,k)=>{w.el.style.zIndex=k===id?++z:w.el.style.zIndex;w.focused=k===id});tasks()}
+function closeWin(id){const w=wins.get(id);if(!w)return;w.el.remove();wins.delete(id);tasks()}
+function tasks(){
+  const t=$('#tasks');t.innerHTML='';
+  wins.forEach((w,id)=>{const b=document.createElement('button');b.textContent=w.app.icon+' '+w.app.name;
+    b.className=(!w.el.classList.contains('min')&&w.focused)?'on':'';
+    b.onclick=()=>{if(w.el.classList.contains('min')||!w.focused){w.el.classList.remove('min');focus(id)}else{w.el.classList.add('min');tasks()}};
+    t.append(b)});
+}
+function inTab(a){
+  if(a.type!=='html'){window.open(a.content,'_blank','noopener');return}
+  try{
+    const u=URL.createObjectURL(new Blob([a.content],{type:'text/html'}));
+    const w=window.open(u,'_blank');
+    if(!w){const w2=window.open('','_blank');if(!w2)throw 0;w2.document.open();w2.document.write(a.content);w2.document.close()}
+  }catch(e){alert('Your browser blocked the new tab. Allow pop-ups for this page and try again.')}
+}
+
+/* ---------- add-app helper ---------- */
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function gen(){
+  const n=$('#name').value.trim()||'My app',i=$('#icon').value.trim(),u=$('#url').value.trim();
+  const f=($('#folder').value.trim()||n).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'my-app';
+  const o={name:n};if(i)o.icon=i;if(u)o.url=u;else o.path='apps/'+f+'/index.html';
+  $('#out').value=JSON.stringify(o);
+}
+['name','icon','folder','url'].forEach(k=>$('#'+k).oninput=gen);
+$('#add').onclick=()=>{$('#copy').textContent='Copy line';$('#dlg').showModal();gen()};
+$('#cancel').onclick=()=>$('#dlg').close();
+$('#copy').onclick=async()=>{try{await navigator.clipboard.writeText($('#out').value);$('#copy').textContent='Copied ✔'}catch(e){$('#out').select()}};
+
+/* ---------- misc ---------- */
+$('#theme').onclick=()=>{const r=document.documentElement,d=matchMedia('(prefers-color-scheme:dark)').matches;const cur=r.dataset.theme||(d?'dark':'light');r.dataset.theme=cur==='dark'?'light':'dark'};
+const tick=()=>$('#clock').textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});tick();setInterval(tick,30000);
+
+async function loadManifest(){
+  try{const r=await fetch('apps.json?v='+Date.now());if(!r.ok)return[];
+    const j=await r.json();return j.map((m,i)=>({id:'m'+hash(m.path||m.url||m.name),name:m.name,icon:m.icon||ICONS[hash(m.name)%ICONS.length],color:m.color||COLS[hash(m.name)%COLS.length],type:m.url?'url':'path',content:m.url||m.path}))}
+  catch(e){return[]}
+}
+loadManifest().then(a=>{apps=a;render()});
+</script>
+</body></html>
