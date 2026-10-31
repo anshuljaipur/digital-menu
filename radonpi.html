@@ -46,6 +46,7 @@ tr.row{cursor:pointer}tr.row:hover{background:var(--brand2)}
 .st{padding:2px 9px;border-radius:10px;font-size:12px;font-weight:600;background:var(--line)}
 .st.Confirmed{background:#d6e8ff;color:#0b3d7a}.st.In-Production{background:#fff0c2;color:#6b4a00}
 .st.Ready\ For\ Dispatch{background:#e3dcff;color:#3b2a8a}.st.Dispatched{background:#cdeedd;color:#0b5a33}
+.st.Completed{background:#0f5d4f;color:#fff}
 .st.Cancelled{background:#fbd3d0;color:#8a1b14}
 .empty{padding:32px;text-align:center;color:var(--mute)}
 dialog{border:1px solid var(--line);border-radius:10px;padding:20px;width:min(760px,96vw);background:var(--card);color:var(--ink)}
@@ -122,10 +123,20 @@ main{width:100%}
 .av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .av.sm{width:32px;height:32px;font-size:13px}
 .tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--brand2);color:var(--brand)}
+.dd{position:relative}
+.dd summary{list-style:none;cursor:pointer;min-width:170px;padding:8px 28px 8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--card)}
+.dd summary::-webkit-details-marker{display:none}
+.dd summary::after{content:"\25BE";position:absolute;right:10px;top:8px;color:var(--mute)}
+.ddp{position:absolute;z-index:20;top:calc(100% + 4px);left:0;min-width:230px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px;box-shadow:0 8px 24px #0003}
+.ck{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink);padding:7px 6px;margin:0;cursor:pointer}
+.ck input{width:auto;min-width:0;flex:none}
+#stClear{width:100%;margin-top:6px;font-size:13px}
+@media(max-width:760px){.dd{flex:1 1 140px}}
 #toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:6px}
 </style>
 </head>
 <body>
+
 <section id="login"><div class="card">
   <div class="logo">SC</div><h1>Supreme Creation</h1>
   <p class="who">Order management. Sign in with your Google account.</p>
@@ -158,7 +169,7 @@ main{width:100%}
         <div id="vOrders" class="hide">
           <div class="bar">
             <input id="q" type="search" placeholder="Search PI, dealer, client, item">
-            <select id="fStatus"></select>
+            <details id="stDD" class="dd"><summary id="stSum">All statuses</summary><div class="ddp" id="stPanel"></div></details>
             <button id="btnXlsx">Export Excel</button><button id="btnCsv">Export CSV</button>
             <span class="who" id="cnt"></span>
           </div>
@@ -228,21 +239,21 @@ import {getFirestore,collection,doc,getDoc,setDoc,addDoc,updateDoc,deleteDoc,onS
 const ADMIN_EMAILS = ["anshul.jaipur@gmail.com"];
 
 
-const STATUSES=["Awaiting Confirmation","Confirmed","In-Production","Ready For Dispatch","Dispatched","Cancelled"];
+const STATUSES=["Awaiting Confirmation","Confirmed","In-Production","Ready For Dispatch","Dispatched","Completed","Cancelled"];
 const ROLES=["pending","viewer","sales","production","accounts","admin"];
 const CAN={ // which field groups each role may edit
   admin:{sales:1,prod:1,acc:1,create:1,del:1}, sales:{sales:1,create:1,del:0},
-  production:{prod:1}, accounts:{acc:1}, viewer:{}
+  production:{prod:1,create:1}, accounts:{acc:1,create:1}, viewer:{}
 };
 const $=id=>document.getElementById(id);
 const fmt=n=>(+n||0).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const avatar=(name,photo)=>`<span>${esc(String(name||"?").trim().split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase())}</span>${photo?`<img src="${esc(photo)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">`:""}`;
-const ROLE_INFO={admin:"Full access and user management",sales:"Creates and edits orders",production:"Updates status and dispatch",accounts:"Records payments received",viewer:"Read-only access",pending:"Waiting for approval"};
+const ROLE_INFO={admin:"Full access and user management",sales:"Adds and edits orders",production:"Adds orders, updates status and dispatch",accounts:"Adds orders, records payments",viewer:"Read-only access",pending:"Waiting for approval"};
 const toast=m=>{const t=$("toast");t.textContent=m;t.classList.remove("hide");setTimeout(()=>t.classList.add("hide"),2500)};
 
 const app=initializeApp(FIREBASE_CONFIG), auth=getAuth(app), db=getFirestore(app);
-let me=null, role="pending", orders=[], editing=null, unsubOrders=null;
+let eff={}, me=null, role="pending", orders=[], editing=null, unsubOrders=null;
 
 const TRACK=new URLSearchParams(location.search).get("track");
 const newId=()=>crypto.randomUUID().replace(/-/g,"").slice(0,20);
@@ -313,7 +324,7 @@ onAuthStateChanged(auth,async u=>{
 });
 
 /* ---------- list ---------- */
-$("fStatus").innerHTML='<option value="">All statuses</option>'+STATUSES.map(s=>`<option>${s}</option>`).join("");
+const stSel=new Set(); buildDD();
 $("fSt").innerHTML=STATUSES.map(s=>`<option>${s}</option>`).join("");
 const total=o=>+o.total||0, due=o=>total(o)-(+o.received||0);
 function buildMonths(){
@@ -322,15 +333,25 @@ function buildMonths(){
   $("fMonth").innerHTML='<option value="">All months</option>'+ms.map(m=>`<option value="${m}">${new Date(m+"-01").toLocaleString("en-IN",{month:"short",year:"numeric"})}</option>`).join("");
   $("fMonth").value=ms.includes(cur)?cur:"";
 }
+function buildDD(){
+  $("stPanel").innerHTML=STATUSES.map(x=>`<label class="ck"><input type="checkbox" value="${x}"> ${x}</label>`).join("")+'<button type="button" id="stClear">Clear selection</button>';
+}
+function syncDD(){
+  $("stPanel").querySelectorAll("input").forEach(i=>{i.checked=stSel.has(i.value)});
+  $("stSum").textContent=stSel.size?(stSel.size===1?[...stSel][0]:stSel.size+" statuses"):"All statuses";
+}
+$("stPanel").onchange=e=>{const i=e.target;if(i.type!=="checkbox")return;i.checked?stSel.add(i.value):stSel.delete(i.value);syncDD();render()};
+$("stPanel").onclick=e=>{if(e.target.id==="stClear"){stSel.clear();syncDD();render()}};
+document.addEventListener("click",e=>{if(!$("stDD").contains(e.target))$("stDD").open=false});
 function monthList(){const m=$("fMonth").value;return orders.filter(o=>!m||(o.orderDate||"").startsWith(m))}
 function baseList(){
   const q=$("q").value.trim().toLowerCase();
   return monthList().filter(o=>!q||[o.piNumber,o.dealer,o.client,...(o.items||[]).map(i=>i.name)].join(" ").toLowerCase().includes(q));
 }
-function filtered(){const s=$("fStatus").value;return baseList().filter(o=>!s||o.status===s)}
+function filtered(){return baseList().filter(o=>!stSel.size||stSel.has(o.status))}
 function dash(){
-  const bl=monthList(),cur=$("fStatus").value;
-  const tile=(key,label,l)=>`<button class="tile${cur===key?" on":""}${key==="Cancelled"?" cx":""}" data-s="${esc(key)}"><b>${l.length}</b>${esc(label)}<small>${fmt(l.reduce((a,o)=>a+total(o),0))}</small></button>`;
+  const bl=monthList(),on=k=>k===""?!stSel.size:stSel.has(k);
+  const tile=(key,label,l)=>`<button class="tile${on(key)?" on":""}${key==="Cancelled"?" cx":""}" data-s="${esc(key)}"><b>${l.length}</b>${esc(label)}<small>${fmt(l.reduce((a,o)=>a+total(o),0))}</small></button>`;
   $("dash").innerHTML=tile("","All orders",bl)+STATUSES.map(x=>tile(x,x,bl.filter(o=>o.status===x))).join("");
 }
 function show(v){
@@ -338,8 +359,8 @@ function show(v){
   document.querySelectorAll("#nav [data-v]").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
   $("vTitle").textContent=v==="dash"?"Dashboard":"Orders"; $("btnNew").classList.toggle("hide",!CAN[role]?.create); scrollTo(0,0);
 }
-$("nav").onclick=e=>{const b=e.target.closest("[data-v]");if(b){if(b.dataset.v==="dash")$("fStatus").value="";show(b.dataset.v);render()}};
-$("dash").onclick=e=>{const t=e.target.closest(".tile");if(t){$("fStatus").value=t.dataset.s;show("orders");render()}};
+$("nav").onclick=e=>{const b=e.target.closest("[data-v]");if(b){if(b.dataset.v==="dash"){stSel.clear();syncDD()}show(b.dataset.v);render()}};
+$("dash").onclick=e=>{const t=e.target.closest(".tile");if(t){stSel.clear();if(t.dataset.s)stSel.add(t.dataset.s);syncDD();show("orders");render()}};
 function render(){
   const list=filtered(); dash();
   $("rows").innerHTML=list.map(o=>`<tr class="row${o.status==="Cancelled"?" x":""}" data-id="${o.id}">
@@ -352,7 +373,7 @@ function render(){
   $("sum").innerHTML=`<div><b>${live.length}</b>active orders</div><div><b>${fmt(T)}</b>total billed</div><div><b>${fmt(R)}</b>received</div><div><b>${fmt(T-R)}</b>due</div>`;
   $("cnt").textContent=list.length+" shown";
 }
-for(const id of ["q","fStatus","fMonth"]) $(id).oninput=render;
+for(const id of ["q","fMonth"]) $(id).oninput=render;
 $("rows").onclick=e=>{const tr=e.target.closest("tr");if(tr)openOrder(orders.find(o=>o.id===tr.dataset.id))};
 
 /* ---------- order form ---------- */
@@ -361,7 +382,7 @@ function addItemRow(it={}){
   tr.innerHTML=`<td><input class="iN" value="${esc(it.name)}"></td><td><input class="iQ" type="number" min="0" step="any" value="${it.qty??""}"></td>
   <td><input class="iR" type="number" min="0" step="any" value="${it.rate??""}"></td><td class="n iA">0.00</td>
   <td><button class="del iX" type="button" aria-label="Remove item">×</button></td>`;
-  const lock=!CAN[role].sales; tr.querySelectorAll("input,button").forEach(x=>x.disabled=lock);
+  const lock=!eff.sales; tr.querySelectorAll("input,button").forEach(x=>x.disabled=lock);
   $("itemRows").append(tr);
 }
 function itemsFromForm(){
@@ -383,7 +404,7 @@ $("btnAddItem").onclick=()=>addItemRow();
 $("fTotal").oninput=$("fRec").oninput=()=>recalc(false);
 
 function openOrder(o){
-  editing=o||null; const c=CAN[role];
+  editing=o||null; const c=o?CAN[role]:(CAN[role].create?{sales:1,prod:1,acc:1}:{}); eff=c;
   $("dTitle").textContent=o?`PI ${o.piNumber||""}`:"New order";
   const nextSno=orders.reduce((m,x)=>Math.max(m,x.sno||0),0)+1;
   $("fSno").value=o?o.sno:nextSno; $("fDate").value=o?.orderDate||new Date().toISOString().slice(0,10);
@@ -411,7 +432,7 @@ async function loadLog(id){
 }
 const logRef=()=>doc(collection(db,"logs"));
 $("btnSave").onclick=async()=>{
-  const c=CAN[role]; const d={};
+  const c=editing?CAN[role]:{sales:1,prod:1,acc:1}; const d={};
   if(c.sales){
     if(!$("fPi").value.trim()){$("dErr").textContent="PI Number is required.";return}
     const dup=orders.find(o=>String(o.piNumber)===$("fPi").value.trim()&&o.id!==editing?.id);
