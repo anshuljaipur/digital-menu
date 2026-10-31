@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cash Flow</title>
+<link rel="stylesheet" href="../../common.css">
+<script src="../../firebase-config.js"></script>
+<style>
+.dn{display:grid;grid-template-columns:90px 40px 70px 40px 1fr;gap:6px;align-items:center;margin-bottom:6px}
+.dn .big{font-size:17px;font-weight:600;padding:12px 0}.dn input{text-align:center;font-size:17px}.dn span{text-align:right;color:var(--mut)}
+.tg button{flex:1}.tg .on.in{background:var(--ok);color:#fff;border-color:var(--ok)}.tg .on.out{background:var(--no);color:#fff;border-color:var(--no)}
+#tot{font-size:26px;font-weight:700}
+.e{padding:8px 0;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;gap:8px}.e small{color:var(--mut);display:block}
+.pos{color:var(--ok)}.neg{color:var(--no)}
+</style></head><body>
+<h1>💵 Cash Flow <button class="sm" id="out">Sign out</button></h1>
+<div class="card"><div class="row tg"><button id="tin" class="on in">Cash In</button><button id="tout" class="out">Cash Out</button></div>
+  <input id="note" placeholder="Note (optional)" style="width:100%;margin:10px 0"><div id="den"></div>
+  <div class="row" style="justify-content:space-between;margin-top:8px"><div><span class="mut" id="cnt"></span><div id="tot"></div></div>
+  <div class="row"><button id="rst">Reset</button><button class="pri" id="save">Save entry</button></div></div></div>
+<div class="card"><b>Summary</b><div class="stats"><div>Today in<b id="ti"></b></div><div>Today out<b id="to"></b></div><div>Today net<b id="tn"></b></div></div>
+  <div style="margin-top:8px" class="mut">All-time balance: <b id="ab"></b></div></div>
+<div class="card"><b>Entries</b><div id="list"></div></div>
+<script type="module">
+import {boot,db,collection,doc,addDoc,deleteDoc,onSnapshot,query,orderBy,limit,logout,esc} from '../../common.js';
+const $=s=>document.querySelector(s),D=[2000,500,200,100,50,20,10,5,2,1],c={};D.forEach(d=>c[d]=0);
+let type='in',col,rows=[];
+const money=n=>'₹'+n.toLocaleString('en-IN');
+function draw(){
+  $('#den').innerHTML=D.map(d=>`<div class="dn" data-d="${d}"><button class="big" data-a="add">₹${d}</button><button data-a="sub">−</button><input type="number" min="0" data-a="inp" value="${c[d]}"><button data-a="add">+</button><span>${money(d*c[d])}</span></div>`).join('');
+  $('#tot').textContent=money(D.reduce((s,d)=>s+d*c[d],0));$('#cnt').textContent=D.reduce((s,d)=>s+c[d],0)+' notes/coins';
+}
+$('#den').onclick=e=>{const a=e.target.dataset.a;if(!a||a==='inp')return;const d=+e.target.closest('.dn').dataset.d;c[d]=Math.max(0,c[d]+(a==='sub'?-1:1));draw()};
+$('#den').onchange=e=>{if(e.target.dataset.a==='inp'){c[+e.target.closest('.dn').dataset.d]=Math.max(0,parseInt(e.target.value)||0);draw()}};
+const setType=t=>{type=t;$('#tin').className=t==='in'?'on in':'in';$('#tout').className=t==='out'?'on out':'out'};
+$('#tin').onclick=()=>setType('in');$('#tout').onclick=()=>setType('out');
+const reset=()=>{D.forEach(d=>c[d]=0);$('#note').value='';draw()};
+$('#rst').onclick=reset;
+$('#save').onclick=async()=>{
+  const total=D.reduce((s,d)=>s+d*c[d],0);if(!total)return alert('Tap some denominations first.');
+  await addDoc(col,{ts:Date.now(),type,note:$('#note').value.trim(),counts:{...c},total});reset();
+};
+function summary(){
+  const t0=new Date().setHours(0,0,0,0);let ti=0,to=0,ai=0,ao=0;
+  rows.forEach(x=>{if(x.type==='in'){ai+=x.total;if(x.ts>=t0)ti+=x.total}else{ao+=x.total;if(x.ts>=t0)to+=x.total}});
+  $('#ti').textContent=money(ti);$('#to').textContent=money(to);$('#tn').textContent=money(ti-to);$('#ab').textContent=money(ai-ao);
+  $('#list').innerHTML=rows.map(x=>`<div class="e"><div><b class="${x.type==='in'?'pos':'neg'}">${x.type==='in'?'+':'−'}${money(x.total)}</b> ${esc(x.note)}<small>${new Date(x.ts).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hour12:true})} · ${Object.entries(x.counts).filter(([,n])=>n).map(([d,n])=>d+'×'+n).join('  ')}</small></div><button class="sm" data-id="${x.id}">✕</button></div>`).join('')||'<div class="mut">No entries yet</div>';
+}
+$('#list').onclick=e=>{if(e.target.dataset.id&&confirm('Delete this entry?'))deleteDoc(doc(col,e.target.dataset.id))};
+$('#out').onclick=logout;
+draw();
+boot(u=>{col=collection(db,'cash_users',u.uid,'entries');
+  onSnapshot(query(col,orderBy('ts','desc'),limit(300)),s=>{rows=s.docs.map(d=>({id:d.id,...d.data()}));summary()})});
+</script></body></html>
