@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- shared helpers ----------
+    function signedIn() { return request.auth != null; }
+    function hasProfile() {
+      return signedIn() && exists(/databases/$(database)/documents/platform_users/$(request.auth.uid));
+    }
+    function profile() {
+      return get(/databases/$(database)/documents/platform_users/$(request.auth.uid)).data;
+    }
+    function isAdmin() { return hasProfile() && profile().get('admin', false) == true; }
+    function hasAccess(appId) {
+      return hasProfile() && (isAdmin() || profile().get('access', {}).get(appId, false) == true);
+    }
+
+    // ---------- platform: who may use which app ----------
+    // platform_users/{uid} = { admin: true/false, access: { pnl: true, family: true, finance: true } }
+    match /platform_users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    // ---------- PnLTracker: each user sees only their own data ----------
+    // (was: /users/{userId}/...)
+    match /pnl_users/{userId}/{document=**} {
+      allow read, write: if signedIn() && request.auth.uid == userId;
+    }
+
+    // ---------- Staff Time Tracker, Calculator, Cash Flow: each user sees only their own data ----------
+    match /timetrack_users/{userId}/{document=**} { allow read, write: if signedIn() && request.auth.uid == userId; }
+    match /calc_users/{userId}/{document=**}      { allow read, write: if signedIn() && request.auth.uid == userId; }
+    match /cash_users/{userId}/{document=**}      { allow read, write: if signedIn() && request.auth.uid == userId; }
+
+    // ---------- Family FDs ----------
+    // Same path as before. Replace the email below with the real one.
+    function isFamilyMember() {
+      return signedIn() && (
+        request.auth.token.email == "myemail@gmail.com" || hasAccess('family')
+      );
+    }
+    match /shared_workspaces/family_ledger {
+      allow read, write: if isFamilyMember();
+      match /{document=**} {
+        allow read, write: if isFamilyMember();
+      }
+    }
+
+    // ---------- Finance: every collection must start with "finance_" ----------
+    match /{coll}/{document=**} {
+      allow read, write: if coll.matches('finance_.*') && hasAccess('finance');
+    }
+
+    // Everything not matched above is denied by default.
+  }
+}
