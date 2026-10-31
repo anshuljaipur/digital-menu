@@ -1,5 +1,5 @@
 // Your web app's Firebase configuration
-const firebaseConfig = {
+window.FIREBASE_CONFIG = {
   apiKey: "AIzaSyDhFAOItKajS9cp5FX1Ms1Y55taM0SE2fc",
   authDomain: "appdesk-f7c37.firebaseapp.com",
   projectId: "appdesk-f7c37",
