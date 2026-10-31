@@ -1,4 +1,0 @@
-[
-  { "name": "Sample App", "icon": "🧪", "color": "#10b981", "path": "apps/sample/index.html" },
-  { "name": "Expense Tracker", "path": "apps/pnl/index.html" }
-]
