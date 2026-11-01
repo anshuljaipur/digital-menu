@@ -341,6 +341,11 @@ tr.row-inactive td{text-decoration:line-through;text-decoration-color:rgba(38,36
 tr.row-inactive td.no-strike{text-decoration:none;}
 tr.row-inactive td.no-strike .badge{opacity:0.9;}
 tr.row-inactive{background:rgba(38,36,28,0.035);}
+.pay-add{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-top:10px;align-items:center;}
+.pay-add input,.pay-add select{padding:7px 8px;border:1px solid var(--paper-line);border-radius:var(--radius);background:var(--paper);font-size:0.78rem;width:100%;}
+.pay-acct{grid-column:span 3;}
+.pay-other{grid-column:1/-1;}
+@media (max-width:860px){ .pay-add{grid-template-columns:1fr 1fr;} .pay-acct{grid-column:1/-1;} }
 </style>
 </head>
 <body>
@@ -504,6 +509,11 @@ tr.row-inactive{background:rgba(38,36,28,0.035);}
             <label>Held by / location</label>
             <input type="text" id="fdCustody" placeholder="e.g. Father's locker, bank branch, with CA">
           </div>
+          <div class="form-field full">
+            <label>Credit interest / maturity to account</label>
+            <select id="fdPayoutAcct"></select>
+            <div class="form-hint">Any family member's account. Pre-selected when you log a payout below; you can pick a different one each time.</div>
+          </div>
           <div class="form-field">
             <label>Bank / Institution</label>
             <input type="text" id="fdBank" required placeholder="e.g. HDFC Bank">
@@ -630,8 +640,9 @@ tr.row-inactive{background:rgba(38,36,28,0.035);}
         <div class="form-field full"><label>Primary holder</label><select id="acctHolder" required></select></div>
         <div class="form-field full"><label>Joint holders (optional)</label><div class="joint-box" id="acctJointBox"></div></div>
         <div class="form-field"><label>Bank</label><input type="text" id="acctBank" required placeholder="e.g. SBI"></div>
-        <div class="form-field"><label>Account number / label</label><input type="text" id="acctLabel" placeholder="e.g. Savings x4521"></div>
-        <div class="form-field full"><label>Interest rate % p.a. (optional)</label><input type="number" id="acctRate" min="0" step="0.01"></div>
+        <div class="form-field"><label>Account number</label><input type="text" id="acctNo" placeholder="Full number or last 4 digits"></div>
+        <div class="form-field"><label>Label / type (optional)</label><input type="text" id="acctLabel" placeholder="e.g. Salary a/c"></div>
+        <div class="form-field"><label>Interest rate % p.a. (optional)</label><input type="number" id="acctRate" min="0" step="0.01"></div>
       </div></div>
       <div class="modal-footer"><button type="button" class="btn-outline" id="acctCancel">Cancel</button><button type="submit" class="btn btn-brass">Save</button></div>
     </form>
@@ -911,6 +922,20 @@ function smartMatch(hay,q){
   const h=hay.toLowerCase(), h2=h.replace(/,/g,'');
   return toks.every(t=>h.includes(t)||h2.includes(t.replace(/,/g,'')));
 }
+function acctDisplay(ac){ const p=personById(ac.personId); return `${p?p.name:'—'} · ${ac.bank} · A/c ${ac.accNo||ac.label||'—'}`; }
+function payoutAcctText(x){ const ac=x.accountId?state.accounts.find(a=>a.id===x.accountId):null; return ac?acctDisplay(ac):(x.account||''); }
+function acctOptions(selId){
+  return '<option value="">— Not specified —</option>'+state.accounts.map(a=>`<option value="${a.id}" ${a.id===selId?'selected':''}>${escapeHtml(acctDisplay(a))}</option>`).join('')+'<option value="__other">Other / outside account…</option>';
+}
+function creditsHtml(ac){
+  const rows=[];
+  state.deposits.forEach(fd=>(fd.payouts||[]).forEach(x=>{ if(x.accountId===ac.id) rows.push({fd,x}); }));
+  if(!rows.length) return '';
+  rows.sort((a,b)=>b.x.date.localeCompare(a.x.date));
+  const tot=rows.reduce((t,r)=>t+(r.x.amount||0),0);
+  const tr=rows.slice(0,12).map(r=>`<tr><td class="mono">${fmtDate(parseDate(r.x.date))}</td><td>${escapeHtml(r.fd.bank+(r.fd.note?' ('+r.fd.note+')':''))} · ${escapeHtml(holderLabel(r.fd))}</td><td>${r.x.isMaturity?'Maturity':'Interest'}</td><td class="num">${fmtCurrency(r.x.amount)}</td><td class="num">${r.x.tds?fmtCurrency(r.x.tds):'—'}</td></tr>`).join('');
+  return `<div style="margin:14px 0 6px;font-size:0.74rem;color:var(--ink-soft);"><b style="color:var(--ink);">Credits from deposits</b> · ${rows.length} payout${rows.length===1?'':'s'} · ${fmtCurrency(tot)}</div><div class="table-wrap"><table><thead><tr><th>Date</th><th>From deposit</th><th>Type</th><th class="num">Credited</th><th class="num">TDS</th></tr></thead><tbody>${tr}</tbody></table></div>${rows.length>12?`<div class="form-hint">Showing latest 12 of ${rows.length}.</div>`:''}`;
+}
 function holderNames(x){ return [x.personId,...(x.jointIds||[])].map(i=>personById(i)?.name).filter(Boolean); }
 function fdHay(r){
   const fd=r.fd, names=holderNames(fd);
@@ -919,12 +944,13 @@ function fdHay(r){
     formLabel(fd),fd.custody,statusLabel(r.status),fd.maturityInstruction,
     nv(fd.principal),nv(fd.installment),nv(r.invested),nv(r.cv),nv(r.mv),nv(fd.override),nv(fd.amountReceived),
     `${fd.rate} ${Number(fd.rate).toFixed(2)} ${fd.rate}%`,fmtPct(r.eir),fmtPct(r.arr),dv(fd.startDate),dv(fd.maturityDate),dv(fd.breakDate)];
-  (fd.payouts||[]).forEach(x=>parts.push(nv(x.amount),nv(x.tds),dv(x.date),x.account));
+  (fd.payouts||[]).forEach(x=>parts.push(nv(x.amount),nv(x.tds),dv(x.date),payoutAcctText(x)));
+  if(fd.payoutAccountId){ const pa=state.accounts.find(a=>a.id===fd.payoutAccountId); if(pa) parts.push(acctDisplay(pa),pa.accNo); }
   return parts.filter(x=>x!=null&&x!=='').join(' | ');
 }
 function acctHay(ac){
   const names=holderNames(ac);
-  const parts=[ac.bank,ini(ac.bank),ac.label,names.join(' '),names.map(ini).join(' '),names.length>1?'joint':'','savings account',`${ac.rate||''} ${ac.rate?ac.rate+'%':''}`];
+  const parts=[ac.bank,ini(ac.bank),ac.label,ac.accNo,names.join(' '),names.map(ini).join(' '),names.length>1?'joint':'','savings account',`${ac.rate||''} ${ac.rate?ac.rate+'%':''}`];
   (ac.entries||[]).forEach(x=>parts.push(nv(x.amount),nv(x.balance),nv(x.tds),dv(x.date)));
   return parts.filter(x=>x!=null&&x!=='').join(' | ');
 }
@@ -935,8 +961,10 @@ function normalizeDeposit(fd){ if(fd.payments && !fd.payouts) fd.payouts=fd.paym
 function totalReceived(fd){ return intPays(fd).reduce((a,x)=>a+(x.amount||0),0); }
 function totalTdsOf(fd){ return intPays(fd).reduce((a,x)=>a+(x.tds||0),0); }
 function interestCell(fd){
+  const _pa=fd.payoutAccountId?state.accounts.find(a=>a.id===fd.payoutAccountId):null;
+  const _paTxt=_pa?`<br><span style="font-size:0.68rem;color:var(--brass-deep);">→ ${escapeHtml(acctDisplay(_pa))}</span>`:'';
   const n = intPays(fd).length;
-  return interestLabel(fd) + (n ? `<br><span style="font-size:0.68rem;color:var(--ink-soft);">${n} receipt${n===1?'':'s'} logged</span>` : '');
+  return interestLabel(fd) + _paTxt + (n ? `<br><span style="font-size:0.68rem;color:var(--ink-soft);">${n} receipt${n===1?'':'s'} logged</span>` : '');
 }
 function fyOf(d){ return d.getMonth()>=3 ? d.getFullYear() : d.getFullYear()-1; }
 function currentFY(){ return fyOf(new Date()); }
@@ -971,7 +999,7 @@ function buildCert(personId,fy){
     state.deposits.filter(d=>d.personId===p.id).forEach(fd=>{
       const label = fd.bank + (fd.note?` (${fd.note})`:'') + ((fd.jointIds||[]).length?' [joint]':'');
       const pays=intPays(fd).filter(x=>inRange(x.date,a,b));
-      const accts=[...new Set(pays.map(x=>x.account).filter(Boolean))].join(', ');
+      const accts=[...new Set(pays.map(x=>payoutAcctText(x)).filter(Boolean))].join(', ');
       const tds=pays.reduce((t,x)=>t+(x.tds||0),0);
       if(!isCumulative(fd) && intPays(fd).length){
         if(!pays.length) return;
@@ -1018,9 +1046,10 @@ function loadDemo(){
   for(let i=0;i<19;i++){ const d=new Date(2025,3+i,1); bob.payouts.push({id:uid('pay'),date:toDateInputValue(d),amount:2160,account:'SBI Savings x4521',tds:240}); }
   const q=['2025-06-30','2025-09-30','2025-12-31','2026-03-31','2026-06-30','2026-09-30'];
   state.accounts=[
-    {id:uid('ac'),personId:p2.id,bank:'SBI',label:'Savings x4521',rate:2.7,jointIds:[p1.id],entries:q.map((d,i)=>({id:uid('se'),date:d,amount:[1180,1215,1260,1302,1245,1288][i],balance:[172000,181000,186500,193000,184000,191000][i],tds:null}))},
-    {id:uid('ac'),personId:p1.id,bank:'HDFC Bank',label:'Savings x8830',rate:3.0,entries:q.slice(2).map((d,i)=>({id:uid('se'),date:d,amount:[2210,2350,2290,2415][i],balance:[290000,305000,298000,312000][i],tds:null}))}
+    {id:uid('ac'),personId:p2.id,bank:'SBI',label:'Savings',accNo:'XXXXXX4521',rate:2.7,jointIds:[p1.id],entries:q.map((d,i)=>({id:uid('se'),date:d,amount:[1180,1215,1260,1302,1245,1288][i],balance:[172000,181000,186500,193000,184000,191000][i],tds:null}))},
+    {id:uid('ac'),personId:p1.id,bank:'HDFC Bank',label:'Savings',accNo:'XXXXXX8830',rate:3.0,entries:q.slice(2).map((d,i)=>({id:uid('se'),date:d,amount:[2210,2350,2290,2415][i],balance:[290000,305000,298000,312000][i],tds:null}))}
   ];
+  const sbiAc=state.accounts[0]; bob.payouts.forEach(x=>{ x.accountId=sbiAc.id; x.account=acctDisplay(sbiAc); }); bob.payoutAccountId=sbiAc.id;
   state.selected.clear();
   state.activePerson = 'all';
   renderAll();
@@ -1424,20 +1453,25 @@ function renderStatementTotals(agg){
 function renderPaymentsSection(){
   const wrap=document.getElementById('fdPaymentsSection');
   const fd=editingFdId ? state.deposits.find(d=>d.id===editingFdId) : null;
-  if(!fd){ wrap.innerHTML='<div class="form-hint">Save this deposit first, then reopen it to log each interest payment received.</div>'; return; }
+  if(!fd){ wrap.innerHTML='<div class="form-hint">Save this deposit first, then reopen it to log each interest or maturity payout.</div>'; return; }
   fd.payouts=fd.payouts||[];
   const rows=fd.payouts.slice().sort((a,b)=>a.date.localeCompare(b.date));
   const today=new Date(); today.setHours(0,0,0,0);
-  const accts=state.accounts.filter(a=>a.personId===fd.personId).map(a=>`<option value="${escapeHtml(a.bank+' '+(a.label||''))}">`).join('');
-  wrap.innerHTML=`<div class="payment-list">${rows.length?rows.map(x=>`<div class="payment-row"><span class="mono">${fmtDate(parseDate(x.date))}</span><span class="mono">${fmtCurrency(x.amount)}</span><span>${x.isMaturity?'(maturity) ':''}${escapeHtml(x.account||'—')}</span><span class="mono">${x.tds?'TDS '+fmtCurrency(x.tds):'—'}</span><button type="button" class="icon-btn" data-delpay="${x.id}">✕</button></div>`).join(''):'<div class="form-hint">No interest payments logged yet.</div>'}</div>
-    <div class="payment-add-row"><input type="date" id="payDate"><input type="number" id="payAmount" min="0" step="0.01" placeholder="Amount received ₹"><input type="text" id="payAccount" list="payAcctList" placeholder="Credited to account"><input type="number" id="payTds" min="0" step="0.01" placeholder="TDS (optional)"><button type="button" class="btn-outline btn-small" id="btnAddPayment">+ Add</button></div>
-    <datalist id="payAcctList">${accts}</datalist>
-    <div class="form-hint" style="margin-top:8px;">Received: <b>${fmtCurrency(totalReceived(fd))}</b>${totalTdsOf(fd)>0?` · TDS: <b>${fmtCurrency(totalTdsOf(fd))}</b>`:''} · Realised RoR to date: <b style="color:var(--brass-deep);">${fmtPct(arrValue(fd,today))}</b>. Saved instantly.</div>`;
+  const mat=fd.payouts.filter(x=>x.isMaturity).reduce((t,x)=>t+(x.amount||0),0);
+  wrap.innerHTML=`<div class="payment-list">${rows.length?rows.map(x=>`<div class="payment-row"><span class="mono">${fmtDate(parseDate(x.date))}</span><span class="mono">${fmtCurrency(x.amount)}</span><span>${x.isMaturity?'<b>Maturity</b> → ':'Interest → '}${escapeHtml(payoutAcctText(x)||'account not specified')}</span><span class="mono">${x.tds?'TDS '+fmtCurrency(x.tds):'—'}</span><button type="button" class="icon-btn" data-delpay="${x.id}">✕</button></div>`).join(''):'<div class="form-hint">No payouts logged yet.</div>'}</div>
+    <div class="pay-add"><input type="date" id="payDate"><input type="number" id="payAmount" min="0" step="0.01" placeholder="Amount credited ₹"><input type="number" id="payTds" min="0" step="0.01" placeholder="TDS (optional)"><select id="payType"><option value="interest">Interest</option><option value="maturity">Maturity proceeds</option></select>
+      <select id="payAcct" class="pay-acct">${acctOptions(fd.payoutAccountId||'')}</select><button type="button" class="btn-outline btn-small" id="btnAddPayment">+ Add</button>
+      <input type="text" id="payOther" class="pay-other" placeholder="Name, bank and account number" style="display:none;"></div>
+    <div class="form-hint" style="margin-top:8px;">Interest received: <b>${fmtCurrency(totalReceived(fd))}</b>${totalTdsOf(fd)>0?` · TDS: <b>${fmtCurrency(totalTdsOf(fd))}</b>`:''}${mat?` · Maturity credited: <b>${fmtCurrency(mat)}</b>`:''} · ARR to date: <b style="color:var(--brass-deep);">${fmtPct(arrValue(fd,today))}</b>. Saved instantly.</div>`;
+  document.getElementById('payAcct').addEventListener('change',e=>{ document.getElementById('payOther').style.display=e.target.value==='__other'?'':'none'; });
   document.getElementById('btnAddPayment').addEventListener('click',()=>{
     const date=document.getElementById('payDate').value, amount=parseFloat(document.getElementById('payAmount').value);
-    const tds=parseFloat(document.getElementById('payTds').value);
-    if(!date||!(amount>0)){ alert('Enter the date and amount received.'); return; }
-    fd.payouts.push({id:uid('pay'),date,amount,account:document.getElementById('payAccount').value.trim(),tds:tds>0?tds:null,isMaturity:false});
+    const tds=parseFloat(document.getElementById('payTds').value), sel=document.getElementById('payAcct').value;
+    if(!date||!(amount>0)){ alert('Enter the date and amount credited.'); return; }
+    let accountId=null, account='';
+    if(sel==='__other') account=document.getElementById('payOther').value.trim();
+    else if(sel){ const ac=state.accounts.find(a=>a.id===sel); if(ac){ accountId=ac.id; account=acctDisplay(ac); } }
+    fd.payouts.push({id:uid('pay'),date,amount,tds:tds>0?tds:null,isMaturity:document.getElementById('payType').value==='maturity',accountId,account});
     renderPaymentsSection(); renderAll();
   });
   wrap.querySelectorAll('[data-delpay]').forEach(b=>b.addEventListener('click',()=>{
@@ -1458,6 +1492,7 @@ function openAcctModal(id){
   document.getElementById('acctModalTitle').textContent=ac?'Edit Savings Account':'Add Savings Account';
   document.getElementById('acctBank').value=ac?ac.bank:'';
   document.getElementById('acctLabel').value=ac?ac.label:'';
+  document.getElementById('acctNo').value=ac&&ac.accNo?ac.accNo:'';
   document.getElementById('acctRate').value=ac&&ac.rate?ac.rate:'';
   renderJointBox('acctJointBox',sel.value,ac&&ac.jointIds?ac.jointIds:[]);
   document.getElementById('acctModal').style.display='flex';
@@ -1481,11 +1516,12 @@ function renderSavings(){
     const lastBal=es.find(x=>x.balance), person=personById(ac.personId);
     const rows=es.map(x=>`<tr><td class="mono">${fmtDate(parseDate(x.date))}</td><td class="num">${x.balance?fmtCurrency(x.balance):'—'}</td><td class="num">${fmtCurrency(x.amount)}</td><td class="num">${x.tds?fmtCurrency(x.tds):'—'}</td><td class="num">${fmtCurrency((x.amount||0)+(x.tds||0))}</td><td class="no-print"><button class="icon-btn" data-delentry="${x.id}" data-acct="${ac.id}">✕</button></td></tr>`).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--ink-soft);padding:16px;">No interest credits logged yet.</td></tr>';
     return `<div class="acct-card" data-acct="${ac.id}">
-      <div class="acct-head"><div><b>${escapeHtml(ac.bank)}</b> · ${escapeHtml(ac.label||'Savings')}<span style="display:block;font-size:0.72rem;color:var(--ink-soft);">${escapeHtml(holderLabel(ac))}${ac.rate?' · '+ac.rate+'% p.a.':''}</span></div>
+      <div class="acct-head"><div><b>${escapeHtml(ac.bank)}</b> · ${escapeHtml(ac.label||'Savings')}${ac.accNo?' · A/c '+escapeHtml(ac.accNo):''}<span style="display:block;font-size:0.72rem;color:var(--ink-soft);">${escapeHtml(holderLabel(ac))}${ac.rate?' · '+ac.rate+'% p.a.':''}</span></div>
         <div class="acct-tot"><span>Interest credited <b>${fmtCurrency(net)}</b></span><span>TDS <b>${fmtCurrency(tds)}</b></span><span>Last balance <b>${lastBal?fmtCurrency(lastBal.balance):'—'}</b></span>
         <span class="no-print"><button class="icon-btn" data-editacct="${ac.id}" title="Edit">✎</button> <button class="icon-btn" data-delacct="${ac.id}" title="Delete">✕</button></span></div></div>
       <div class="table-wrap"><table><thead><tr><th>Credit date</th><th class="num">Balance</th><th class="num">Interest credited</th><th class="num">TDS</th><th class="num">Gross</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
       <div class="payment-add-row no-print"><input type="date" class="s-date"><input type="number" class="s-bal" min="0" step="0.01" placeholder="Balance (opt.)"><input type="number" class="s-amt" min="0" step="0.01" placeholder="Interest credited ₹"><input type="number" class="s-tds" min="0" step="0.01" placeholder="TDS (opt.)"><button type="button" class="btn-outline btn-small s-add">+ Add</button></div>
+      ${creditsHtml(ac)}
     </div>`;
   }).join('');
   el.querySelectorAll('.s-add').forEach(btn=>btn.addEventListener('click',()=>{
@@ -1587,6 +1623,7 @@ function populateFdExtras(fdId){
   const kind=fd&&fd.depositKind==='rd'?'rd':'fd';
   document.getElementById('fdKind').value=kind;
   if(fd&&kind==='rd') document.getElementById('fdPrincipal').value=fd.installment||'';
+  document.getElementById('fdPayoutAcct').innerHTML=acctOptions(fd&&fd.payoutAccountId?fd.payoutAccountId:'').replace('<option value="__other">Other / outside account…</option>','');
   document.getElementById('fdFormType').value=fd&&fd.formType?fd.formType:'online';
   document.getElementById('fdWithMe').value=fd&&fd.withMe===false?'no':'yes';
   document.getElementById('fdCustody').value=fd&&fd.custody?fd.custody:'';
@@ -2018,6 +2055,7 @@ document.getElementById('fdForm').addEventListener('submit', (e)=>{
   const kind=document.getElementById('fdKind').value;
   record.depositKind=kind;
   record.jointIds=readJoint('fdJointBox');
+  record.payoutAccountId=document.getElementById('fdPayoutAcct').value||null;
   record.formType=document.getElementById('fdFormType').value;
   record.withMe=record.formType==='physical' ? document.getElementById('fdWithMe').value==='yes' : null;
   record.custody=record.formType==='physical' ? document.getElementById('fdCustody').value.trim() : '';
@@ -2051,7 +2089,7 @@ document.getElementById('acctModal').addEventListener('click',e=>{ if(e.target.i
 document.getElementById('acctForm').addEventListener('submit',e=>{
   e.preventDefault();
   const rate=parseFloat(document.getElementById('acctRate').value);
-  const data={jointIds:readJoint('acctJointBox'),personId:document.getElementById('acctHolder').value,bank:document.getElementById('acctBank').value.trim(),label:document.getElementById('acctLabel').value.trim()||'Savings',rate:rate>0?rate:null};
+  const data={jointIds:readJoint('acctJointBox'),accNo:document.getElementById('acctNo').value.trim(),personId:document.getElementById('acctHolder').value,bank:document.getElementById('acctBank').value.trim(),label:document.getElementById('acctLabel').value.trim()||'Savings',rate:rate>0?rate:null};
   if(editingAcctId){ Object.assign(state.accounts.find(a=>a.id===editingAcctId),data); }
   else { state.accounts.push(Object.assign({id:uid('ac'),entries:[]},data)); }
   closeAcctModal(); renderAll();
