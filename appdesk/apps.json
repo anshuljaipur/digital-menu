@@ -6,4 +6,5 @@
   {"name":"Calculator","icon":"🧮","path":"apps/calculator/index.html"},
   {"name":"Cash Flow","icon":"💵","path":"apps/cashflow/index.html"},
   {"name":"FD Tracker","icon":"💰","path":"apps/fd-tracker/index.html"}
+  {"name":"FD Tracker 2","icon":"💰","path":"apps/fd-tracker/index2.html"}
 ]
