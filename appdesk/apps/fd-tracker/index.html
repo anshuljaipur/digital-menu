@@ -2,14 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<!-- Mobile App Optimization Meta Tags -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#0F1729">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="mobile-web-app-capable" content="yes">
-<title>Family FD Ledger</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Family Fixed Deposit Ledger</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -31,7 +25,7 @@
   --navy-text:#E9E6DA;
   --navy-text-soft:#AEB6C9;
   --shadow: 0 8px 24px rgba(15,23,41,0.18);
-  --radius: 4px;
+  --radius: 3px;
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
@@ -40,35 +34,21 @@ body{
   font-family:'Inter',sans-serif;
   color:var(--ink);
   min-height:100vh;
-  overscroll-behavior-y: none;
 }
 .mono{font-family:'IBM Plex Mono',monospace;}
 button{font-family:inherit;cursor:pointer;}
 input,select{font-family:inherit;}
-
-/* ===== LOGIN OVERLAY ===== */
-#loginOverlay {
-  position: fixed; inset: 0; background: var(--cover-navy-deep); z-index: 9999;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  color: var(--navy-text);
-  padding: 20px; text-align: center;
-}
-#loginOverlay .seal { width: 80px; height: 80px; margin-bottom: 24px; }
-#loginOverlay .seal span { font-size: 1.5rem; }
-#loginOverlay h1 { font-family: 'Fraunces', serif; margin: 0 0 10px; font-size: 2.2rem; }
-#loginOverlay p { color: var(--navy-text-soft); margin-bottom: 30px; font-size: 0.95rem; }
-.btn-large { padding: 14px 28px; font-size: 1rem; border-radius: 4px; }
 
 /* ===== COVER HERO ===== */
 .cover{
   background:
     radial-gradient(circle at 85% -10%, rgba(201,162,75,0.14), transparent 45%),
     linear-gradient(180deg, var(--cover-navy) 0%, var(--cover-navy-deep) 100%);
-  padding: max(env(safe-area-inset-top, 38px), 38px) 20px 26px;
+  padding:38px 28px 26px;
   border-bottom:1px solid rgba(201,162,75,0.35);
 }
 .cover-inner{max-width:1180px;margin:0 auto;}
-.cover-top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.cover-top{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap;}
 .cover-title-wrap{display:flex;align-items:center;gap:16px;}
 .seal{
   width:56px;height:56px;border-radius:50%;
@@ -89,40 +69,39 @@ input,select{font-family:inherit;}
 .cover-actions{display:flex;gap:8px;flex-wrap:wrap;}
 .btn{
   border:1px solid rgba(201,162,75,0.55);background:transparent;color:var(--navy-text);
-  padding:10px 16px;border-radius:var(--radius);font-size:0.82rem;letter-spacing:0.03em;
-  text-transform:uppercase;font-weight:600;transition:background 0.15s, color 0.15s, border-color 0.15s, opacity 0.15s;
-  white-space:nowrap; display:inline-flex; align-items:center; justify-content:center;
+  padding:9px 14px;border-radius:var(--radius);font-size:0.78rem;letter-spacing:0.03em;
+  text-transform:uppercase;font-weight:600;transition:background 0.15s, color 0.15s;
+  white-space:nowrap;
 }
-.btn:hover:not(:disabled){background:rgba(201,162,75,0.14);}
-.btn:disabled{cursor:not-allowed !important; opacity:0.4; background:transparent !important; border-color:rgba(201,162,75,0.3) !important;}
+.btn:hover{background:rgba(201,162,75,0.14);}
 .btn-brass{background:var(--brass);border-color:var(--brass);color:#1c1607;}
-.btn-brass:hover:not(:disabled){background:var(--brass-bright);}
+.btn-brass:hover{background:var(--brass-bright);}
 .btn-ghost-light{color:var(--navy-text-soft);border-color:rgba(233,230,218,0.25);}
-.btn-ghost-light:hover:not(:disabled){background:rgba(233,230,218,0.08);}
-.btn-small{padding:8px 12px;font-size:0.75rem;}
+.btn-ghost-light:hover{background:rgba(233,230,218,0.08);}
+.btn-small{padding:6px 10px;font-size:0.7rem;}
 .btn-danger{border-color:rgba(154,59,40,0.7);color:#e8b6a8;}
-.btn-danger:hover:not(:disabled){background:rgba(154,59,40,0.25);}
+.btn-danger:hover{background:rgba(154,59,40,0.25);}
 
 .summary-strip{
-  margin-top:28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  margin-top:28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
   gap:1px;background:rgba(201,162,75,0.25);border:1px solid rgba(201,162,75,0.25);border-radius:var(--radius);overflow:hidden;
 }
 .summary-cell{background:var(--cover-navy);padding:14px 16px;}
 .summary-cell .label{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--navy-text-soft);margin-bottom:6px;}
 .summary-cell .value{font-family:'IBM Plex Mono',monospace;font-size:1.15rem;color:var(--brass-bright);font-weight:600;}
 .summary-cell .value.small{font-size:1rem;color:var(--navy-text);}
-.summary-scope{color:var(--navy-text-soft);font-size:0.75rem;margin-top:12px;letter-spacing:0.02em;}
+.summary-scope{color:var(--navy-text-soft);font-size:0.72rem;margin-top:10px;letter-spacing:0.02em;}
 .summary-scope b{color:var(--brass-bright);font-weight:600;}
 
 /* ===== TAB BAR (people) ===== */
 .tabbar{
-  max-width:1180px;margin:20px auto 0;padding:0 20px;display:flex;gap:6px;
-  overflow-x:auto;overflow-y:hidden; -webkit-overflow-scrolling: touch;
+  max-width:1180px;margin:24px auto 0;padding:0 28px;display:flex;gap:6px;
+  overflow-x:auto;overflow-y:hidden;
 }
 .ptab{
   flex:none;background:var(--cover-navy-light);border:1px solid rgba(201,162,75,0.35);border-bottom:none;
-  padding:12px 18px;border-radius:6px 6px 0 0;cursor:pointer;
-  display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--navy-text-soft);
+  padding:11px 16px;border-radius:6px 6px 0 0;cursor:pointer;
+  display:flex;align-items:center;gap:8px;font-size:0.82rem;color:var(--navy-text-soft);
   transition:background 0.15s, color 0.15s;
 }
 .ptab .dot{width:8px;height:8px;border-radius:50%;flex:none;}
@@ -132,196 +111,129 @@ input,select{font-family:inherit;}
 
 /* ===== PAGE / MAIN PANEL ===== */
 .page{background:var(--paper);max-width:1180px;margin:0 auto;box-shadow:var(--shadow);position:relative;min-height:60vh;}
-.page-inner{padding:24px 20px 50px;}
+.page-inner{padding:30px 28px 50px;}
 
-.view-toggle{display:flex;gap:0;border-bottom:1px solid var(--paper-line);margin-bottom:22px; overflow-x:auto;}
+.view-toggle{display:flex;gap:0;border-bottom:1px solid var(--paper-line);margin-bottom:22px;}
 .view-btn{
-  background:none;border:none;padding:12px 6px;margin-right:24px;font-size:0.88rem;font-weight:600;
-  color:var(--ink-soft);border-bottom:2px solid transparent;text-transform:uppercase;letter-spacing:0.04em; white-space:nowrap;
+  background:none;border:none;padding:10px 4px;margin-right:26px;font-size:0.85rem;font-weight:600;
+  color:var(--ink-soft);border-bottom:2px solid transparent;text-transform:uppercase;letter-spacing:0.04em;
 }
 .view-btn.active{color:var(--ink);border-color:var(--brass);}
 
-/* ===== SINGLE LINE TOOLBAR ===== */
-.toolbar {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 12px;
-  align-items: flex-end;
-  margin-bottom: 18px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:18px;}
+.field-group{display:flex;flex-direction:column;gap:3px;}
+.field-group label{font-size:0.66rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-soft);}
+select.filter, input.filter{
+  border:1px solid var(--paper-line);background:var(--paper-raised);padding:7px 9px;border-radius:var(--radius);
+  font-size:0.82rem;color:var(--ink);min-width:130px;
 }
-.toolbar::-webkit-scrollbar { display: none; }
-.toolbar > * { flex-shrink: 0; }
-.toolbar .spacer { flex: 1 1 auto; min-width: 20px; }
-
-.field-group{display:flex;flex-direction:column;gap:4px;}
-.field-group label{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-soft);}
-
-select.filter, input.filter {
-  border: 1px solid var(--paper-line);
-  background: var(--paper-raised);
-  padding: 0 10px;
-  border-radius: var(--radius);
-  color: var(--ink);
-  font-size: 0.85rem;
-  height: 36px;
-}
-input.filter { min-width: 190px; }
-
-/* Selection Action Bar */
-.selection-bar {
-  background: transparent;
-  padding: 0 12px; 
-  border: 1px dashed var(--paper-line); 
-  border-radius: var(--radius); 
-  display: flex; 
-  gap: 8px; 
-  align-items: center; 
-  height: 36px;
-  white-space: nowrap;
-  transition: border-color 0.2s;
-}
-.selection-bar.active { border-color: var(--brass); }
-.selection-bar a { color: var(--ink); text-decoration: underline; font-size: 0.75rem; }
-
-.toolbar .btn-outline {
-  height: 36px;
-  padding: 0 12px;
-  font-size: 0.75rem;
-  display: inline-flex;
-  align-items: center;
-  white-space: nowrap;
-}
+input.filter{min-width:170px;}
+.toolbar .spacer{flex:1;}
 
 /* empty state */
 .empty-card{
-  border:1px dashed var(--paper-line);background:var(--paper-raised);padding:40px 20px;text-align:center;
+  border:1px dashed var(--paper-line);background:var(--paper-raised);padding:40px 24px;text-align:center;
   border-radius:var(--radius);color:var(--ink-soft);
 }
-.empty-card h3{font-family:'Fraunces',serif;color:var(--ink);margin:0 0 8px;font-weight:600;font-size:1.2rem;}
-.empty-card .btn-brass{margin-top:16px;color:#1c1607;}
+.empty-card h3{font-family:'Fraunces',serif;color:var(--ink);margin:0 0 6px;font-weight:600;}
+.empty-card .btn-brass{margin-top:14px;color:#1c1607;}
 
 /* ===== TABLE ===== */
-.table-wrap{
-  overflow-x:auto; border:1px solid var(--paper-line); background:var(--paper-raised);
-  -webkit-overflow-scrolling: touch;
-}
-table{border-collapse:collapse;width:100%;min-width:980px;}
+.table-wrap{overflow-x:auto;border:1px solid var(--paper-line);background:var(--paper-raised);}
+table{border-collapse:collapse;width:100%;min-width:1080px;}
 thead th{
-  text-align:left;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-soft);
-  padding:12px 14px;border-bottom:1px solid var(--paper-line);background:var(--paper);position:sticky;top:0;
-  cursor:pointer;user-select:none;white-space:nowrap; z-index: 10;
+  text-align:left;font-size:0.66rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-soft);
+  padding:10px 12px;border-bottom:1px solid var(--paper-line);background:var(--paper);position:sticky;top:0;
+  cursor:pointer;user-select:none;white-space:nowrap;
 }
 thead th:hover{color:var(--brass-deep);}
-thead th .arrow{opacity:0.5;margin-left:4px;font-size:0.6rem;}
-tbody td{padding:12px 14px;border-bottom:1px solid var(--paper-line);font-size:0.86rem;vertical-align:middle;white-space:nowrap;}
+thead th .arrow{opacity:0.5;margin-left:3px;font-size:0.6rem;}
+tbody td{padding:11px 12px;border-bottom:1px solid var(--paper-line);font-size:0.83rem;vertical-align:middle;white-space:nowrap;}
 tbody tr:last-child td{border-bottom:none;}
 tbody tr:hover{background:rgba(169,128,61,0.06);}
-
-/* Matured / Inactive Row Styling & STRIKETHROUGH */
-tbody tr.row-inactive { opacity: 0.65; background: rgba(0,0,0,0.015); }
-tbody tr.row-inactive:hover { opacity: 0.95; background: rgba(169,128,61,0.06); }
-tbody tr.row-inactive .bank-name, 
-tbody tr.row-inactive .note, 
-tbody tr.row-inactive .holder-chip,
-tbody tr.row-inactive td.num, 
-tbody tr.row-inactive td.interest-cell, 
-tbody tr.row-inactive td.mono {
-  text-decoration: line-through;
-  color: var(--ink-soft);
-}
-
 td.num, th.num{text-align:right;font-family:'IBM Plex Mono',monospace;}
-
-td.interest-cell { white-space: normal; line-height: 1.35; font-size: 0.8rem; min-width: 115px; max-width: 150px; }
-
-.holder-chip{display:inline-flex;align-items:center;gap:6px;font-size:0.82rem;}
+.holder-chip{display:inline-flex;align-items:center;gap:6px;font-size:0.8rem;}
 .holder-chip .dot{width:7px;height:7px;border-radius:50%;flex:none;}
 .bank-cell .bank-name{font-weight:600;}
-.bank-cell .note{display:block;font-size:0.75rem;color:var(--ink-soft);margin-top:2px;}
+.bank-cell .note{display:block;font-size:0.7rem;color:var(--ink-soft);}
 .gain-pos{color:var(--stamp-green);}
 .gain-neg{color:var(--stamp-rust);}
+.row-actions{display:flex;gap:6px;}
+.icon-btn{
+  border:1px solid var(--paper-line);background:var(--paper);width:26px;height:26px;border-radius:3px;
+  display:inline-flex;align-items:center;justify-content:center;font-size:0.75rem;color:var(--ink-soft);
+}
+.icon-btn:hover{border-color:var(--brass);color:var(--brass-deep);}
 
 .badge{
-  display:inline-flex;align-items:center;justify-content:center;padding:4px 10px;
+  display:inline-flex;align-items:center;justify-content:center;padding:3px 9px;
   border:1.5px solid currentColor;border-radius:999px;font-family:'IBM Plex Mono',monospace;
-  font-size:0.65rem;letter-spacing:0.05em;text-transform:uppercase;transform:rotate(-2deg);font-weight:600;
+  font-size:0.63rem;letter-spacing:0.05em;text-transform:uppercase;transform:rotate(-2deg);font-weight:600;
 }
 .badge.active{color:var(--stamp-green);}
 .badge.soon{color:var(--stamp-rust);}
 .badge.matured{color:var(--brass-deep);}
 .badge.broken{color:#8A5A2B;border-style:dashed;}
-.badge.settled{color:#5A7A3C;border-style:dashed;}
 
-.rowcheck, #selectAllCheck{width:18px;height:18px;cursor:pointer;}
+.selection-bar{display:flex;align-items:center;gap:10px;font-size:0.74rem;color:var(--brass-deep);}
+.selection-bar a{color:var(--ink);text-decoration:underline;cursor:pointer;}
+.rowcheck, #selectAllCheck{width:15px;height:15px;cursor:pointer;}
 
 /* ===== PERSON MINI CARDS ===== */
-.person-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:24px;}
-.person-card{border:1px solid var(--paper-line);background:var(--paper-raised);padding:14px;border-radius:var(--radius);}
-.person-card .pname{display:flex;align-items:center;gap:8px;font-weight:600;font-size:0.9rem;margin-bottom:10px;}
-.person-card .dot{width:10px;height:10px;border-radius:50%;flex:none;}
-.person-card .prow{display:flex;justify-content:space-between;font-size:0.75rem;color:var(--ink-soft);margin-top:4px;}
-.person-card .prow b{color:var(--ink);font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:0.8rem;}
+.person-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-bottom:24px;}
+.person-card{border:1px solid var(--paper-line);background:var(--paper-raised);padding:12px 14px;border-radius:var(--radius);}
+.person-card .pname{display:flex;align-items:center;gap:7px;font-weight:600;font-size:0.85rem;margin-bottom:8px;}
+.person-card .dot{width:9px;height:9px;border-radius:50%;flex:none;}
+.person-card .prow{display:flex;justify-content:space-between;font-size:0.72rem;color:var(--ink-soft);margin-top:3px;}
+.person-card .prow b{color:var(--ink);font-family:'IBM Plex Mono',monospace;font-weight:600;}
 
 /* ===== STATEMENT ===== */
 .statement-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid var(--ink);}
-.statement-head h2{font-family:'Fraunces',serif;margin:0 0 6px;font-size:1.5rem;}
-.statement-head .meta{font-size:0.8rem;color:var(--ink-soft);}
-.statement-actions{display:flex;gap:8px; flex-wrap:wrap;}
-.btn-outline{border:1px solid var(--ink);background:none;color:var(--ink);padding:10px 14px;border-radius:var(--radius);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.04em;font-weight:600; cursor:pointer;}
-.btn-outline:hover:not(:disabled){background:var(--ink);color:var(--paper);}
-.statement-group-title{font-family:'IBM Plex Mono',monospace;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--brass-deep);margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--paper-line);}
-.statement-totals{margin-top:20px;border-top:2px solid var(--ink);padding-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;}
-.statement-totals .t-label{font-size:0.7rem;text-transform:uppercase;color:var(--ink-soft);letter-spacing:0.05em;}
-.statement-totals .t-value{font-family:'IBM Plex Mono',monospace;font-size:1.1rem;font-weight:600;margin-top:4px;}
-.statement-footnote{margin-top:30px;font-size:0.75rem;color:var(--ink-soft);line-height:1.6;border-top:1px dashed var(--paper-line);padding-top:16px;}
+.statement-head h2{font-family:'Fraunces',serif;margin:0 0 4px;font-size:1.4rem;}
+.statement-head .meta{font-size:0.76rem;color:var(--ink-soft);}
+.statement-actions{display:flex;gap:8px;}
+.btn-outline{border:1px solid var(--ink);background:none;color:var(--ink);padding:8px 13px;border-radius:var(--radius);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.04em;font-weight:600;}
+.btn-outline:hover{background:var(--ink);color:var(--paper);}
+.statement-group-title{font-family:'IBM Plex Mono',monospace;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--brass-deep);margin:22px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--paper-line);}
+.statement-totals{margin-top:18px;border-top:2px solid var(--ink);padding-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;}
+.statement-totals .t-label{font-size:0.68rem;text-transform:uppercase;color:var(--ink-soft);letter-spacing:0.05em;}
+.statement-totals .t-value{font-family:'IBM Plex Mono',monospace;font-size:1.05rem;font-weight:600;margin-top:3px;}
+.statement-footnote{margin-top:28px;font-size:0.72rem;color:var(--ink-soft);line-height:1.6;border-top:1px dashed var(--paper-line);padding-top:14px;}
 .statement-footnote b{color:var(--ink);}
 
 /* ===== MODAL ===== */
 .modal-backdrop{
-  position:fixed;inset:0;background:rgba(15,23,41,0.65);display:flex;align-items:flex-end;justify-content:center;
-  z-index:9999; padding:0;
+  position:fixed;inset:0;background:rgba(15,23,41,0.55);display:flex;align-items:center;justify-content:center;
+  z-index:50;padding:20px;
 }
 .modal-backdrop[hidden]{display:none !important;}
 .modal{
-  background:var(--paper-raised);width:100%;max-width:540px;border-radius:12px 12px 0 0;box-shadow:var(--shadow);
-  max-height:90vh;overflow-y:auto; -webkit-overflow-scrolling: touch; display:flex; flex-direction:column;
+  background:var(--paper-raised);width:100%;max-width:540px;border-radius:4px;box-shadow:var(--shadow);
+  max-height:90vh;overflow-y:auto;
 }
-@media (min-width:640px){
-  .modal-backdrop{align-items:center; padding:20px;}
-  .modal{border-radius:6px; max-height:85vh;}
-}
-.modal-header{padding:20px 24px;border-bottom:1px solid var(--paper-line);display:flex;justify-content:space-between;align-items:center; position:sticky; top:0; background:var(--paper-raised); z-index:10; flex:none;}
-.modal-header h3{margin:0;font-family:'Fraunces',serif;font-size:1.2rem;}
-.modal-close{border:none;background:none;font-size:1.5rem;color:var(--ink-soft);line-height:1; padding:0;}
-.modal-body{padding:24px; flex:1; overflow-y:auto;}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.modal-header{padding:18px 22px;border-bottom:1px solid var(--paper-line);display:flex;justify-content:space-between;align-items:center;}
+.modal-header h3{margin:0;font-family:'Fraunces',serif;font-size:1.1rem;}
+.modal-close{border:none;background:none;font-size:1.2rem;color:var(--ink-soft);line-height:1;}
+.modal-body{padding:20px 22px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .form-grid .full{grid-column:1/-1;}
-.form-field label{display:block;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--ink-soft);margin-bottom:6px;}
+.form-field label{display:block;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--ink-soft);margin-bottom:5px;}
 .form-field input, .form-field select{
-  width:100%;padding:11px 12px;border:1px solid var(--paper-line);border-radius:var(--radius);background:var(--paper);
-  color:var(--ink); font-size:16px; 
+  width:100%;padding:9px 10px;border:1px solid var(--paper-line);border-radius:var(--radius);background:var(--paper);
+  font-size:0.86rem;color:var(--ink);
 }
-.form-hint{font-size:0.7rem;color:var(--ink-soft);margin-top:6px;}
-.modal-footer{padding:18px 24px;border-top:1px solid var(--paper-line);display:flex;justify-content:flex-end;gap:12px; position:sticky; bottom:0; background:var(--paper-raised); z-index:10; flex:none;}
+.form-hint{font-size:0.68rem;color:var(--ink-soft);margin-top:4px;}
+.modal-footer{padding:16px 22px;border-top:1px solid var(--paper-line);display:flex;justify-content:flex-end;gap:10px;}
 
-.legend{margin-top:30px;font-size:0.75rem;color:var(--ink-soft);line-height:1.7;border-top:1px dashed var(--paper-line);padding-top:18px;}
+.legend{margin-top:26px;font-size:0.72rem;color:var(--ink-soft);line-height:1.7;border-top:1px dashed var(--paper-line);padding-top:16px;}
 .legend b{color:var(--ink);}
 
-.foot{max-width:1180px;margin:20px auto 40px;padding:0 20px;color:var(--navy-text-soft);font-size:0.75rem;text-align:center;}
-
-.payout-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-.payout-table th { font-size: 0.65rem; color: var(--ink-soft); text-transform: uppercase; border-bottom: 1px solid var(--paper-line); padding: 8px; text-align: left; }
-.payout-table td { font-size: 0.8rem; padding: 10px 8px; border-bottom: 1px solid var(--paper-line); }
-.payout-table th.num, .payout-table td.num { text-align: right; font-family: 'IBM Plex Mono', monospace; }
+.foot{max-width:1180px;margin:16px auto 40px;padding:0 28px;color:var(--navy-text-soft);font-size:0.7rem;text-align:center;}
 
 @media (max-width:640px){
   .form-grid{grid-template-columns:1fr;}
-  .cover-top{flex-direction:column; gap:16px;}
-  .cover-actions{width:100%; justify-content:flex-start;}
-  .summary-strip{grid-template-columns: 1fr 1fr;}
+  .cover-top{flex-direction:column;}
+  table{min-width:920px;}
 }
 
 @media print{
@@ -331,196 +243,221 @@ td.interest-cell { white-space: normal; line-height: 1.35; font-size: 0.8rem; mi
   .no-print{display:none !important;}
   body{background:#fff;}
 }
+
+/* ===== APP SHELL ===== */
+[hidden]{display:none !important;}
+html,body{height:100%;}
+body{overflow:hidden;}
+.app{display:grid;grid-template-columns:272px minmax(0,1fr);height:100vh;height:100dvh;}
+.sidebar{background:linear-gradient(180deg,var(--cover-navy),var(--cover-navy-deep));border-right:1px solid rgba(201,162,75,0.3);overflow-y:auto;padding:20px 14px;display:flex;flex-direction:column;scrollbar-width:thin;scrollbar-color:var(--brass-deep) transparent;}
+.brand{display:flex;align-items:center;gap:12px;padding:2px 6px 16px;border-bottom:1px solid rgba(201,162,75,0.25);margin-bottom:12px;}
+.brand .seal{width:44px;height:44px;}
+.brand-title{font-family:'Fraunces',serif;font-weight:600;color:var(--navy-text);font-size:1.05rem;line-height:1.2;}
+.brand-sub{color:var(--navy-text-soft);font-size:0.68rem;margin-top:3px;}
+.side-nav{display:flex;flex-direction:column;gap:3px;}
+.nav-btn{background:none;border:none;border-left:3px solid transparent;color:var(--navy-text-soft);text-align:left;padding:10px 12px;border-radius:var(--radius);font-size:0.84rem;font-weight:500;}
+.nav-btn:hover{background:rgba(201,162,75,0.1);color:var(--navy-text);}
+.nav-btn.active{background:rgba(201,162,75,0.16);color:var(--brass-bright);border-left-color:var(--brass-bright);font-weight:600;}
+.side-label{font-size:0.64rem;text-transform:uppercase;letter-spacing:0.09em;color:var(--brass);margin:18px 8px 6px;}
+.people-list{display:flex;flex-direction:column;gap:3px;}
+.people-list .ptab{border:none;border-left:3px solid transparent;border-radius:var(--radius);background:none;color:var(--navy-text-soft);padding:9px 12px;box-shadow:none;}
+.people-list .ptab:hover{background:rgba(201,162,75,0.1);color:var(--navy-text);}
+.people-list .ptab.active{background:rgba(201,162,75,0.16);color:var(--brass-bright);border-left-color:var(--brass-bright);box-shadow:none;}
+.people-list .ptab.add-tab{border:1px dashed rgba(201,162,75,0.45);margin-top:4px;}
+.side-actions{display:flex;flex-direction:column;gap:6px;}
+.side-foot{margin-top:auto;padding:18px 6px 0;color:var(--navy-text-soft);font-size:0.66rem;line-height:1.5;}
+.main-col{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--paper);}
+.dash-head{flex:none;background:linear-gradient(180deg,var(--cover-navy),var(--cover-navy-deep));padding:16px 24px 14px;border-bottom:1px solid rgba(201,162,75,0.4);}
+.dash-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.dash-top h1{font-family:'Fraunces',serif;font-weight:600;font-size:1.35rem;color:var(--navy-text);margin:0;}
+.dash-top .summary-scope{margin-top:3px;}
+.dash-actions{margin-left:auto;display:flex;gap:8px;}
+.dash-head .summary-strip{margin-top:12px;}
+.dash-head .summary-cell{padding:10px 14px;}
+.dash-head .summary-cell .value{font-size:1.02rem;}
+.menu-btn{display:none;background:none;border:1px solid rgba(201,162,75,0.5);color:var(--brass-bright);border-radius:3px;font-size:1.1rem;padding:4px 10px;}
+.content{flex:1;min-height:0;overflow-y:scroll;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--brass) var(--paper-line);}
+.content::-webkit-scrollbar,.table-wrap::-webkit-scrollbar{width:11px;height:11px;}
+.content::-webkit-scrollbar-track,.table-wrap::-webkit-scrollbar-track{background:var(--paper-line);}
+.content::-webkit-scrollbar-thumb,.table-wrap::-webkit-scrollbar-thumb{background:var(--brass);border-radius:6px;border:2px solid var(--paper-line);}
+.page-inner{padding:22px 24px 48px;}
+.table-wrap{max-height:60vh;scrollbar-width:thin;scrollbar-color:var(--brass) var(--paper-line);}
+.side-backdrop{display:none;}
+.refresh-stamp{align-self:center;font-size:0.66rem;color:var(--navy-text-soft);}
+.acct-card{border:1px solid var(--paper-line);background:var(--paper-raised);padding:14px;margin-bottom:18px;}
+.acct-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px;font-size:0.92rem;}
+.acct-tot{display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:0.74rem;color:var(--ink-soft);}
+.acct-tot b{color:var(--ink);font-family:'IBM Plex Mono',monospace;}
+.acct-card table{min-width:0;}
+.acct-card .table-wrap{max-height:260px;}
+.payment-list{margin-bottom:4px;}
+.payment-row{display:grid;grid-template-columns:96px 100px 1fr 84px 26px;gap:8px;align-items:center;padding:6px 2px;border-bottom:1px solid var(--paper-line);font-size:0.76rem;}
+.payment-row:last-child{border-bottom:none;}
+.payment-add-row{display:grid;grid-template-columns:1fr 1fr 1.4fr 1fr auto;gap:8px;margin-top:10px;align-items:center;}
+.payment-add-row input{padding:7px 8px;border:1px solid var(--paper-line);border-radius:var(--radius);background:var(--paper);font-size:0.78rem;width:100%;}
+.acct-card .payment-add-row{grid-template-columns:1fr 1fr 1fr 1fr auto;}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;}
+  .sidebar{position:fixed;top:0;bottom:0;left:0;width:280px;z-index:60;transform:translateX(-105%);transition:transform 0.2s;}
+  body.side-open .sidebar{transform:none;}
+  body.side-open .side-backdrop{display:block;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:55;}
+  .menu-btn{display:inline-flex;}
+  .dash-head{padding:12px 14px;}
+  .dash-top h1{font-size:1.1rem;}
+  .dash-actions .btn{padding:7px 9px;font-size:0.68rem;}
+  .summary-strip{display:flex;overflow-x:auto;}
+  .summary-cell{min-width:128px;flex:none;}
+  .page-inner{padding:16px 14px 40px;}
+  .payment-add-row,.acct-card .payment-add-row{grid-template-columns:1fr 1fr;}
+  .payment-row{grid-template-columns:84px 90px 1fr 26px;}
+  .payment-row span:nth-child(4){display:none;}
+}
+@media print{
+  body{overflow:visible;height:auto;}
+  .app,.main-col{display:block;height:auto;}
+  .sidebar,.dash-head,.side-backdrop{display:none !important;}
+  .content{overflow:visible;}
+  .table-wrap{max-height:none;overflow:visible;}
+  #statementView,#statementView *,#certView,#certView *{visibility:visible;}
+  #certView{position:absolute;top:0;left:0;width:100%;padding:20px;}
+}
+#loginOverlay{position:fixed;inset:0;z-index:200;background:radial-gradient(circle at 80% -10%,rgba(201,162,75,0.16),transparent 45%),var(--cover-navy-deep);flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;color:var(--navy-text);}
+#loginOverlay .seal{width:80px;height:80px;margin-bottom:22px;}
+#loginOverlay .seal span{font-size:1.5rem;}
+#loginOverlay h1{font-family:'Fraunces',serif;font-weight:600;margin:0 0 10px;font-size:2rem;}
+#loginOverlay p{color:var(--navy-text-soft);margin:0 0 26px;font-size:0.92rem;max-width:380px;line-height:1.5;}
+.user-box{margin-top:20px;padding:12px 10px;border-top:1px solid rgba(201,162,75,0.25);display:flex;flex-direction:column;gap:8px;}
+.user-email{color:var(--navy-text);font-size:0.74rem;word-break:break-all;}
+.sync-chip{font-size:0.68rem;color:var(--navy-text-soft);}
+.sync-chip.ok{color:#7fd3a3;} .sync-chip.warn{color:#e0c27a;} .sync-chip.err{color:#e08a76;}
+.badge.settled{color:var(--ink-soft);border-style:dotted;}
+.joint-box{display:flex;flex-wrap:wrap;gap:6px 16px;}
+.form-field .joint-box label.chk{display:flex;align-items:center;gap:6px;font-size:0.82rem;text-transform:none;letter-spacing:0;color:var(--ink);margin:0;}
+.form-field .joint-box input{width:auto;}
+.gsearch{flex:1;min-width:200px;max-width:440px;background:rgba(255,255,255,0.08);border:1px solid rgba(201,162,75,0.45);color:var(--navy-text);padding:9px 12px;border-radius:3px;font-size:0.84rem;}
+.gsearch::placeholder{color:var(--navy-text-soft);}
+@media (max-width:860px){ .gsearch{order:5;flex:1 1 100%;max-width:none;} }
 </style>
 </head>
 <body>
 
-<!-- Login Overlay -->
-<div id="loginOverlay">
+<div id="loginOverlay" style="display:none;">
   <div class="seal"><span>FD</span></div>
   <h1>Family FD Ledger</h1>
-  <p>Please sign in to view and manage your data.</p>
-  <button id="btnGoogleLogin" class="btn btn-brass btn-large">Sign in with Google</button>
+  <p>Sign in with an authorised Google account to open the shared family ledger.</p>
+  <button class="btn btn-brass" id="btnGoogleLogin">Sign in with Google</button>
 </div>
-
-<header class="cover">
-  <div class="cover-inner">
-    <div class="cover-top">
-      <div class="cover-title-wrap">
-        <div class="seal"><span>FD</span></div>
-        <div>
-          <h1>Family Fixed Deposit Ledger</h1>
-          <div class="subtitle">Logged in as: <b id="userEmailDisplay" style="color:var(--brass-bright);"></b></div>
+<div class="app" id="app">
+  <aside class="sidebar no-print" id="sidebar">
+    <div class="brand">
+      <div class="seal"><span>FD</span></div>
+      <div><div class="brand-title">Family FD Ledger</div><div class="brand-sub">Deposits · Savings · Certificates</div></div>
+    </div>
+    <nav class="side-nav">
+      <button class="nav-btn active" id="viewBtnLedger" data-view="ledger">▤ &nbsp;FD Ledger</button>
+      <button class="nav-btn" id="viewBtnSavings" data-view="savings">◈ &nbsp;Savings Interest</button>
+      <button class="nav-btn" id="viewBtnStatement" data-view="statement">▦ &nbsp;Statement</button>
+      <button class="nav-btn" id="viewBtnCert" data-view="cert">✎ &nbsp;Interest Certificate</button>
+    </nav>
+    <div class="side-label">Family members</div>
+    <div id="tabbar" class="people-list"></div>
+    <div class="side-label">Data</div>
+    <div class="side-actions">
+      <button class="btn btn-ghost-light" id="btnDemo">Load sample</button>
+      <button class="btn btn-ghost-light" id="btnImport">Import JSON</button>
+      <button class="btn btn-ghost-light" id="btnExport">Export JSON</button>
+    </div>
+    <div class="user-box no-print" id="userBox" style="display:none;">
+      <div class="user-email" id="userEmailDisplay"></div>
+      <div class="sync-chip" id="syncChip"></div>
+      <button class="btn btn-danger btn-small" id="btnLogout">Sign out</button>
+    </div>
+    <div class="side-foot">Data lives only in this browser tab — Export JSON before closing or refreshing.</div>
+  </aside>
+  <div class="main-col">
+    <header class="dash-head">
+      <div class="dash-top">
+        <button class="menu-btn no-print" id="menuBtn">☰</button>
+        <div><h1 id="pageTitle">FD Ledger</h1><div class="summary-scope" id="summaryScope"></div></div>
+        <input type="search" class="gsearch no-print" id="globalSearch" placeholder="Search anything: name, bank, a/c no., rate, amount, date…" autocomplete="off">
+        <div class="dash-actions no-print">
+          <span class="refresh-stamp" id="refreshStamp"></span>
+          <button class="btn btn-ghost-light" id="btnRefresh" title="Recalculate everything as of now">⟳ Refresh</button>
+          <button class="btn btn-brass" id="btnAddFd">+ Deposit</button>
+          <button class="btn btn-brass" id="btnAddAcct">+ Savings a/c</button>
         </div>
       </div>
-      <div class="cover-actions no-print">
-        <button class="btn btn-ghost-light" id="btnInterestCert">Interest Cert</button>
-        <button class="btn btn-ghost-light" id="btnImport">Import JSON</button>
-        <button class="btn btn-ghost-light" id="btnExport">Export JSON</button>
-        <button class="btn btn-brass" id="btnAddFd">+ Add Deposit</button>
-        <button class="btn btn-danger" id="btnLogout">Sign Out</button>
-      </div>
-    </div>
-
-    <div class="summary-strip" id="summaryStrip"></div>
-    <div class="summary-scope" id="summaryScope"></div>
-  </div>
-</header>
-
-<nav class="tabbar no-print" id="tabbar"></nav>
-
-<main class="page">
-  <div class="page-inner">
-
-    <div class="view-toggle no-print">
-      <button class="view-btn active" data-view="ledger" id="viewBtnLedger">Ledger</button>
-      <button class="view-btn" data-view="statement" id="viewBtnStatement">Statement</button>
-    </div>
-
-    <!-- LEDGER VIEW -->
-    <section id="ledgerView">
+      <div class="summary-strip" id="summaryStrip"></div>
+    </header>
+    <main class="content" id="content">
+      <div class="page-inner">
+<section id="ledgerView">
       <div class="person-grid" id="personGrid"></div>
 
-      <!-- INLINE TOOLBAR -->
       <div class="toolbar no-print">
         <div class="field-group">
           <label>Status</label>
           <select class="filter" id="filterStatus">
             <option value="all">All</option>
-            <option value="active">Active (incl. Soon)</option>
-            <option value="matured">Matured (Action needed)</option>
-            <option value="settled">Settled / Renewed</option>
+            <option value="active">Active</option>
+            <option value="soon">Maturing soon (30d)</option>
+            <option value="matured">Matured</option>
             <option value="broken">Broken</option>
+            <option value="settled">Settled / Renewed</option>
           </select>
         </div>
-        <div class="field-group">
-          <label>Search bank or policy</label>
-          <input class="filter" id="filterSearch" placeholder="e.g. HDFC, Policy #...">
-        </div>
-        
         <div class="spacer"></div>
-        
-        <!-- Dynamic Selection Actions -->
-        <div class="selection-bar" id="selectionBar"></div>
-        
-        <!-- Static Export Buttons -->
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-outline" id="btnExportCsv">EXPORT CSV</button>
-          <button class="btn btn-outline" id="btnExportPdf">EXPORT PDF</button>
+        <div class="selection-bar" id="selectionBar" hidden></div>
+        <div class="field-group">
+          <label>&nbsp;</label>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline btn-small" id="btnExportCsv">Export CSV</button>
+            <button class="btn btn-outline btn-small" id="btnExportPdf">Export PDF</button>
+          </div>
         </div>
       </div>
 
       <div id="ledgerTableHolder"></div>
 
       <div class="legend">
-        <b>EIR</b> (Effective Interest Rate) — the annual yield of the deposit once its compounding frequency is applied.
-        <b>PAID OUT</b> — Total cumulative interest payouts recorded in the transaction log for this FD (Excludes final principal returned on maturity).
-        <b>ARR</b> (Annualised Rate of Return) — the actual yield, correctly factoring in all real-world cash withdrawals (interest payouts) over the exact elapsed days.
+        <b>EIR</b> (Effective Interest Rate) — the annual yield of the deposit once its compounding frequency is applied: (1 + r/n)ⁿ − 1. Not applicable when interest is paid out rather than reinvested.
+        <b>ARR</b> (Annualised Rate of Return) — the return actually accrued so far, at maturity, or on premature break, annualised from the real elapsed days: (Value ÷ Principal)^(365/days) − 1.
+        Tick rows to export just those; leave none ticked to export whatever the filters above are currently showing. Click any column heading to sort.
       </div>
     </section>
-
-    <!-- STATEMENT VIEW -->
-    <section id="statementView" hidden>
+        <section id="savingsView" hidden><div id="savingsContent"></div></section>
+<section id="statementView" hidden>
       <div class="toolbar no-print">
         <div class="field-group">
           <label>Statement for</label>
           <select class="filter" id="statementPerson"></select>
         </div>
         <div class="spacer"></div>
-        <div style="display:flex; gap:8px;">
-          <button class="btn-outline" id="btnStatementCsv">EXPORT CSV</button>
-          <button class="btn-outline" id="btnStatementPdf">EXPORT PDF</button>
-          <button class="btn-outline" id="btnStatementPrint">PRINT</button>
+        <div class="statement-actions">
+          <button class="btn-outline" id="btnStatementCsv">Export CSV</button>
+          <button class="btn-outline" id="btnStatementPdf">Export PDF</button>
+          <button class="btn-outline" id="btnStatementPrint">Print</button>
         </div>
       </div>
       <div id="statementContent"></div>
     </section>
-
-  </div>
-</main>
-
-<div class="foot">Data is saved securely and privately to a Shared Cloud Workspace via Firebase.</div>
-
-<!-- Hidden File Input for Import -->
-<input type="file" id="importFile" accept="application/json" hidden>
-
-<!-- INTEREST CERTIFICATE MODAL -->
-<div class="modal-backdrop" id="certModal" style="display:none;">
-  <div class="modal" style="max-width:420px;">
-    <div class="modal-header">
-      <h3>Generate Interest Certificate</h3>
-      <button class="modal-close" id="certModalClose">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-field full">
-          <label>Individual Account Holder</label>
-          <select id="certPerson" required></select>
-        </div>
-        <div class="form-field full">
-          <label>Financial Year (F.Y.)</label>
-          <select id="certFy" required>
-            <option value="2026">F.Y. 2026 – 2027 (Apr 2026 - Mar 2027)</option>
-            <option value="2025" selected>F.Y. 2025 – 2026 (Apr 2025 - Mar 2026)</option>
-            <option value="2024">F.Y. 2024 – 2025 (Apr 2024 - Mar 2025)</option>
-            <option value="2023">F.Y. 2023 – 2024 (Apr 2023 - Mar 2024)</option>
-          </select>
-        </div>
+        <section id="certView" hidden>
+          <div class="toolbar no-print">
+            <div class="field-group"><label>Account holder</label><select class="filter" id="certPerson"></select></div>
+            <div class="field-group"><label>Financial year</label><select class="filter" id="certFY"></select></div>
+            <div class="spacer"></div>
+            <div class="statement-actions">
+              <button class="btn-outline" id="btnCertPdf">Export PDF</button>
+              <button class="btn-outline" id="btnCertPrint">Print</button>
+            </div>
+          </div>
+          <div id="certContent"></div>
+        </section>
       </div>
-      <div class="form-hint" style="margin-top:14px; color:var(--ink-soft); line-height:1.5;">
-        Generates an official Interest Certificate PDF summarizing gross interest accrued/received and TDS deducted during the selected Financial Year for Income Tax (ITR) filing.
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn-outline" id="certCancel">Cancel</button>
-      <button type="button" class="btn btn-brass" id="btnGenerateCertPdf">Download PDF Certificate</button>
-    </div>
+    </main>
   </div>
 </div>
-
-<!-- Payout/Transactions Modal -->
-<div class="modal-backdrop" id="payoutModal" style="display:none;">
-  <div class="modal" style="max-width:500px;">
-    <div class="modal-header">
-      <h3>Transaction Ledger</h3>
-      <button class="modal-close" id="payoutModalClose">&times;</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="payoutFdId">
-      <div id="payoutFdInfo" style="margin-bottom:18px; font-size:0.85rem; color:var(--ink-soft); line-height:1.5;"></div>
-      
-      <div style="max-height: 220px; overflow-y: auto; margin-bottom: 24px; border: 1px solid var(--paper-line); border-radius: var(--radius); background: var(--paper);">
-        <table class="payout-table">
-          <thead style="position: sticky; top: 0; background: var(--paper-raised); z-index: 2;">
-            <tr><th>Date / Note</th><th class="num">Net Received</th><th class="num">TDS</th><th></th></tr>
-          </thead>
-          <tbody id="payoutTableBody"></tbody>
-        </table>
-      </div>
-
-      <form id="payoutForm">
-        <h4 style="margin:0 0 12px; font-family:'Fraunces', serif; font-size:1.05rem;">Log New Interest Payout</h4>
-        <div class="form-grid">
-          <div class="form-field full">
-            <label>Date Received</label>
-            <input type="date" id="payoutDate" required>
-          </div>
-          <div class="form-field">
-            <label>Net Amount Received (₹)</label>
-            <input type="number" id="payoutAmount" min="0" step="0.01" required>
-          </div>
-          <div class="form-field">
-            <label>TDS Deducted (₹)</label>
-            <input type="number" id="payoutTds" min="0" step="0.01" value="0.00">
-          </div>
-        </div>
-        <div style="margin-top:16px; text-align:right;">
-          <button type="submit" class="btn btn-brass" style="width:100%;">+ Add Transaction</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
+<div class="side-backdrop" id="sideBackdrop"></div>
 
 <!-- FD Modal -->
 <div class="modal-backdrop" id="fdModal" style="display:none;">
@@ -534,35 +471,52 @@ td.interest-cell { white-space: normal; line-height: 1.35; font-size: 0.8rem; mi
         <input type="hidden" id="fdId">
         <div class="form-grid">
           <div class="form-field full">
-            <label>Account holder</label>
+            <label>Primary holder</label>
             <select id="fdHolder" required></select>
+          </div>
+          <div class="form-field full">
+            <label>Joint holders (optional)</label>
+            <div class="joint-box" id="fdJointBox"></div>
+          </div>
+          <div class="form-field full">
+            <label>Deposit type</label>
+            <select id="fdKind">
+              <option value="fd">Fixed Deposit (FD) — lump sum</option>
+              <option value="rd">Recurring Deposit (RD) — monthly instalments</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Deposit form</label>
+            <select id="fdFormType">
+              <option value="online">Online (no paper certificate)</option>
+              <option value="physical">Physical certificate</option>
+            </select>
+          </div>
+          <div class="form-field" id="fdWithMeWrap" style="display:none;">
+            <label>Physical copy is with me?</label>
+            <select id="fdWithMe"><option value="yes">Yes, with me</option><option value="no">No, not with me</option></select>
+          </div>
+          <div class="form-field full" id="fdCustodyWrap" style="display:none;">
+            <label>Held by / location</label>
+            <input type="text" id="fdCustody" placeholder="e.g. Father's locker, bank branch, with CA">
           </div>
           <div class="form-field">
             <label>Bank / Institution</label>
             <input type="text" id="fdBank" required placeholder="e.g. HDFC Bank">
           </div>
           <div class="form-field">
-            <label>FD number / note (optional)</label>
+            <label>FD / RD / account number or note</label>
             <input type="text" id="fdNote" placeholder="e.g. FDR-88213">
           </div>
-          <div class="form-field full">
-            <label>Maturity Instruction (What happens at the end?)</label>
-            <select id="fdInstruction" required>
-              <option value="auto_renew">Auto Renewal (Principal + Interest)</option>
-              <option value="payout_reinvest">Reinvest Principal, Payout Interest</option>
-              <option value="close">Close on Maturity</option>
-            </select>
-          </div>
           <div class="form-field">
-            <label>Principal (₹)</label>
+            <label id="fdPrincipalLabel">Principal (₹)</label>
             <input type="number" id="fdPrincipal" min="0" step="0.01" required>
           </div>
           <div class="form-field">
             <label>Nominal annual rate (%)</label>
             <input type="number" id="fdRate" min="0" step="0.01" required>
           </div>
-          <div class="form-field">
-            <label>Interest handling</label>
+          <div class="form-field" id="fdInterestWrap">\1<label>Interest handling</label>
             <select id="fdInterestType">
               <option value="cumulative">Cumulative (added back to FD)</option>
               <option value="payout">Paid out to account</option>
@@ -598,6 +552,7 @@ td.interest-cell { white-space: normal; line-height: 1.35; font-size: 0.8rem; mi
               <input type="number" id="fdTenureM" min="0" max="11" step="1" placeholder="Months">
               <input type="number" id="fdTenureD" min="0" max="30" step="1" placeholder="Days">
             </div>
+            <div class="form-hint">Enter years / months / days and the maturity date fills in automatically — or set the maturity date directly and the tenure updates to match.</div>
           </div>
           <div class="form-field">
             <label>Maturity date</label>
@@ -606,6 +561,7 @@ td.interest-cell { white-space: normal; line-height: 1.35; font-size: 0.8rem; mi
           <div class="form-field full">
             <label>Bank-quoted maturity value (₹, optional)</label>
             <input type="number" id="fdOverride" min="0" step="0.01" placeholder="Leave blank to auto-calculate">
+            <div class="form-hint">If your bank's statement shows an exact maturity value, enter it here — the ledger will use it instead of the formula above, and interpolate the current value in a straight line toward it.</div>
           </div>
           <div class="form-field full" style="border-top:1px dashed var(--paper-line);padding-top:14px;">
             <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:0.85rem;color:var(--ink);">
@@ -620,104 +576,21 @@ td.interest-cell { white-space: normal; line-height: 1.35; font-size: 0.8rem; mi
                 <input type="date" id="fdBreakDate">
               </div>
               <div class="form-field">
-                <label>Total Amount received (₹)</label>
-                <input type="number" id="fdAmountReceived" min="0" step="0.01" placeholder="Net after any penalty/TDS">
+                <label>Amount received (₹)</label>
+                <input type="number" id="fdAmountReceived" min="0" step="0.01" placeholder="After any penalty">
               </div>
             </div>
             <div class="form-hint" id="fdBreakPreview" style="margin-top:8px;color:var(--brass-deep);font-weight:600;"></div>
+          </div>
+          <div class="form-field full" style="border-top:1px dashed var(--paper-line);padding-top:14px;">
+            <label>Interest received log</label>
+            <div id="fdPaymentsSection"></div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn-outline" id="fdCancel">Cancel</button>
-        <button type="submit" class="btn btn-brass" id="btnSaveDeposit">Save Deposit</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- ADVANCED SETTLE MATURITY MODAL -->
-<div class="modal-backdrop" id="settleModal" style="display:none;">
-  <div class="modal" style="max-width:520px;">
-    <div class="modal-header">
-      <h3>Settle Matured Deposit</h3>
-      <button class="modal-close" id="settleModalClose">&times;</button>
-    </div>
-    <form id="settleForm">
-      <div class="modal-body">
-        <input type="hidden" id="settleFdId">
-        <div style="margin-bottom:16px; font-size:0.85rem; color:var(--ink-soft); line-height:1.5;">
-          Settling: <b id="settleBankName" style="color:var(--ink);"></b><br>
-          Calculated Maturity Value: <b id="settleCalcVal" style="color:var(--brass-deep);"></b>
-        </div>
-        
-        <div class="form-grid">
-          <div class="form-field full">
-            <label>Settlement Action</label>
-            <select id="settleActionType" required>
-              <option value="renew">Renew Deposit (Create New FD)</option>
-              <option value="close">Close Deposit (Credited Full Net to Bank)</option>
-            </select>
-          </div>
-
-          <div class="form-field">
-            <label>Amount Received in Bank (₹)</label>
-            <input type="number" id="settleBankAmount" min="0" step="0.01" value="0.00">
-            <div class="form-hint">Interest or payout credited to account</div>
-          </div>
-
-          <div class="form-field">
-            <label>TDS Deducted (₹)</label>
-            <input type="number" id="settleTds" min="0" step="0.01" value="0.00" required>
-          </div>
-
-          <!-- RENEWAL FIELDS -->
-          <div class="form-field full" id="settleRenewFields">
-            <div style="border-top:1px dashed var(--paper-line); margin: 8px 0 16px; padding-top:14px; font-weight:600; font-family:'Fraunces', serif; color:var(--ink);">
-              New Renewed Deposit Details
-            </div>
-            <div class="form-grid">
-              <div class="form-field">
-                <label>Renewed Amount / Principal (₹)</label>
-                <input type="number" id="settleRenewedPrincipal" min="0" step="0.01" required>
-              </div>
-              <div class="form-field">
-                <label>New Interest Rate (%)</label>
-                <input type="number" id="settleRenewalRate" min="0" step="0.01" required>
-              </div>
-              <div class="form-field">
-                <label>New Maturity Date</label>
-                <input type="date" id="settleNewMaturityDate" required>
-              </div>
-              <div class="form-field">
-                <label>Next Instruction Status</label>
-                <select id="settleNewInstruction" required>
-                  <option value="auto_renew">Auto Renewal</option>
-                  <option value="payout_reinvest">Reinvest Principal & Payout Interest</option>
-                  <option value="close">Close on Maturity</option>
-                </select>
-              </div>
-              <div class="form-field full">
-                <label>New Bank Maturity Value (₹, optional)</label>
-                <input type="number" id="settleNewMaturityValue" min="0" step="0.01" placeholder="Leave blank to auto-calculate">
-              </div>
-            </div>
-          </div>
-
-          <!-- CLOSURE FIELDS -->
-          <div class="form-field full" id="settleCloseFields" style="display:none;">
-            <div class="form-field">
-              <label>Final Net Amount Credited to Bank (₹)</label>
-              <input type="number" id="settleCloseNetAmount" min="0" step="0.01">
-              <div class="form-hint">The actual amount deposited into your bank account after TDS.</div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn-outline" id="settleCancel">Cancel</button>
-        <button type="submit" class="btn btn-brass" id="btnSubmitSettle">Confirm Settlement</button>
+        <button type="submit" class="btn btn-brass">Save Deposit</button>
       </div>
     </form>
   </div>
@@ -739,48 +612,39 @@ td.interest-cell { white-space: normal; line-height: 1.35; font-size: 0.8rem; mi
       </div>
       <div class="modal-footer">
         <button type="button" class="btn-outline" id="personCancel">Cancel</button>
-        <button type="submit" class="btn btn-brass" id="btnSavePerson">Add</button>
+        <button type="submit" class="btn btn-brass">Add</button>
       </div>
     </form>
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<div class="modal-backdrop" id="acctModal" style="display:none;">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header"><h3 id="acctModalTitle">Add Savings Account</h3><button class="modal-close" id="acctModalClose">&times;</button></div>
+    <form id="acctForm">
+      <div class="modal-body"><div class="form-grid">
+        <div class="form-field full"><label>Primary holder</label><select id="acctHolder" required></select></div>
+        <div class="form-field full"><label>Joint holders (optional)</label><div class="joint-box" id="acctJointBox"></div></div>
+        <div class="form-field"><label>Bank</label><input type="text" id="acctBank" required placeholder="e.g. SBI"></div>
+        <div class="form-field"><label>Account number / label</label><input type="text" id="acctLabel" placeholder="e.g. Savings x4521"></div>
+        <div class="form-field full"><label>Interest rate % p.a. (optional)</label><input type="number" id="acctRate" min="0" step="0.01"></div>
+      </div></div>
+      <div class="modal-footer"><button type="button" class="btn-outline" id="acctCancel">Cancel</button><button type="submit" class="btn btn-brass">Save</button></div>
+    </form>
+  </div>
+</div>
 
-<!-- Firebase SDKs -->
+<input type="file" id="importFile" accept="application/json" hidden>
+
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
 <script>
 (function(){
 "use strict";
-
-/* ---------------- FIREBASE CONFIGURATION ---------------- */
-const firebaseConfig = {
-  apiKey: "AIzaSyBwZx2OnjqTcqvzqM83Ujrq_FLo6rpXsvQ",
-  authDomain: "family-fds.firebaseapp.com",
-  projectId: "family-fds",
-  storageBucket: "family-fds.firebasestorage.app",
-  messagingSenderId: "298414474623",
-  appId: "1:298414474623:web:34d848f2c5467c5ddc464a"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
-const googleProvider = new firebase.auth.GoogleAuthProvider();
-
-const ALLOWED_EMAILS = [
-  "anshul.jaipur@gmail.com", 
-  "vjgoyaljaipur@gmail.com",
-  "gopalgoyal.2010@gmail.com"
-];
-
-function getDbRef() {
-  return db.collection('shared_workspaces').doc('family_ledger');
-}
 
 /* ---------------- STATE ---------------- */
 const PALETTE = ['#A9803D','#2F6B4A','#3B5BA5','#9A3B28','#6B4A9A','#4A8B8B','#B0653F','#5A7A3C'];
@@ -795,65 +659,18 @@ let state = {
   sortKey: 'maturityDate',
   sortDir: 'asc',
   statementPerson: 'all',
-  selected: new Set()
+  selected: new Set(),
+  accounts: [],
+  certPerson: 'all',
+  certFY: null
 };
 
 let editingFdId = null;
-let currentUser = null;
-
-/* ---------------- AUTHENTICATION LOGIC ---------------- */
-document.getElementById('btnGoogleLogin').addEventListener('click', () => {
-  auth.signInWithPopup(googleProvider).catch(err => alert("Login Error: " + err.message));
-});
-
-document.getElementById('btnLogout').addEventListener('click', () => {
-  auth.signOut();
-});
-
-auth.onAuthStateChanged(user => {
-  if (user) {
-    const isAllowed = ALLOWED_EMAILS.some(e => e.toLowerCase() === user.email.toLowerCase());
-    
-    if (isAllowed) { 
-      currentUser = user;
-      document.getElementById('loginOverlay').style.display = 'none';
-      document.getElementById('userEmailDisplay').textContent = user.email;
-      loadData();
-    } else {
-      alert(`Access Denied: The email ${user.email} is not authorized to view this ledger.`);
-      auth.signOut();
-    }
-  } else {
-    currentUser = null;
-    document.getElementById('loginOverlay').style.display = 'flex';
-    document.getElementById('userEmailDisplay').textContent = '';
-    state.people = [];
-    state.deposits = [];
-    state.selected.clear();
-    renderAll();
-  }
-});
-
-/* ---------------- INITIAL LOAD FROM FIRESTORE ---------------- */
-async function loadData() {
-  if (!currentUser) return;
-  try {
-    const userRef = getDbRef();
-    const peopleSnap = await userRef.collection('people').get();
-    state.people = peopleSnap.docs.map(doc => doc.data());
-    const fdSnap = await userRef.collection('deposits').get();
-    state.deposits = fdSnap.docs.map(doc => doc.data());
-    renderAll();
-  } catch (error) {
-    console.error("Error loading data from Firebase:", error);
-    alert("Could not load data. Ensure your Firestore rules allow access.");
-  }
-}
 
 /* ---------------- HELPERS ---------------- */
 function uid(prefix){ return prefix + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
-function parseDate(s){ 
+function parseDate(s){ // yyyy-mm-dd -> local midnight Date
   if(!s) return null;
   const [y,m,d] = s.split('-').map(Number);
   return new Date(y, m-1, d);
@@ -863,7 +680,7 @@ function yearsBetween(d1,d2){ return (d2-d1)/(86400000*365); }
 
 function fmtCurrency(n){
   if(n===null||n===undefined||isNaN(n)) return '—';
-  return '₹' + Number(n).toLocaleString('en-IN',{minimumFractionDigits: 2, maximumFractionDigits: 2});
+  return '₹' + Number(n).toLocaleString('en-IN',{maximumFractionDigits:0});
 }
 function fmtPct(n){
   if(n===null||n===undefined||isNaN(n)) return '—';
@@ -872,6 +689,15 @@ function fmtPct(n){
 function fmtDate(d){
   if(!d) return '—';
   return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+}
+function tenureLabel(start,maturity){
+  const totalMonths = (maturity.getFullYear()-start.getFullYear())*12 + (maturity.getMonth()-start.getMonth());
+  const y = Math.floor(totalMonths/12), m = totalMonths%12;
+  let parts=[];
+  if(y>0) parts.push(y+'y');
+  if(m>0) parts.push(m+'m');
+  if(parts.length===0) parts.push(daysBetween(start,maturity)+'d');
+  return parts.join(' ');
 }
 function addYMD(date, y, m, d){
   return new Date(date.getFullYear()+(y||0), date.getMonth()+(m||0), date.getDate()+(d||0));
@@ -892,9 +718,9 @@ function toDateInputValue(d){
   const yyyy=d.getFullYear(), mm=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0');
   return `${yyyy}-${mm}-${dd}`;
 }
-function fmtCurrencyPdf(n){
+function fmtCurrencyPdf(n){ // PDF standard fonts can't render ₹, use Rs. instead
   if(n===null||n===undefined||isNaN(n)) return '-';
-  return 'Rs. ' + Number(n).toLocaleString('en-IN',{minimumFractionDigits: 2, maximumFractionDigits: 2});
+  return 'Rs. ' + Number(n).toLocaleString('en-IN',{maximumFractionDigits:0});
 }
 function freqLabel(freq){
   switch(freq){
@@ -908,18 +734,11 @@ function freqLabel(freq){
 }
 function isCumulative(fd){ return fd.interestType !== 'payout'; }
 function interestLabel(fd){
+  if(isRD(fd)) return 'RD · '+freqLabel(fd.compounding);
   return (isCumulative(fd) ? 'Cumulative' : 'Payout') + ' · ' + freqLabel(fd.compounding);
 }
-function effMaturity(fd){ 
-  if(fd.broken) return fd.breakDate;
-  if(fd.settled) return fd.maturityDate;
-  return fd.maturityDate; 
-}
-function effOverrideVal(fd){ 
-  if(fd.broken) return fd.amountReceived;
-  if(fd.settled) return fd.settlementAmount;
-  return fd.override; 
-}
+function effMaturity(fd){ return fd.broken ? fd.breakDate : fd.maturityDate; }
+function effOverrideVal(fd){ return fd.broken ? fd.amountReceived : fd.override; }
 
 function compoundN(freq){
   switch(freq){
@@ -927,13 +746,13 @@ function compoundN(freq){
     case 'halfyearly': return 2;
     case 'quarterly': return 4;
     case 'monthly': return 12;
-    default: return 0;
+    default: return 0; // simple
   }
 }
 
 function effectiveRate(fd){
   const r = fd.rate/100;
-  if(!isCumulative(fd)) return r; 
+  if(!isCumulative(fd)) return r; // paid-out interest doesn't compound within the FD
   const n = compoundN(fd.compounding);
   if(fd.compounding==='simple' || n===0) return r;
   return Math.pow(1+r/n, n) - 1;
@@ -942,6 +761,7 @@ function effectiveRate(fd){
 function maturityValue(fd){
   const ov = effOverrideVal(fd);
   if(ov && ov>0) return ov;
+  if(isRD(fd)) return rdValueAt(fd, parseDate(fd.maturityDate));
   const P = fd.principal;
   const r = fd.rate/100;
   const start = parseDate(fd.startDate), maturity = parseDate(fd.maturityDate);
@@ -956,15 +776,21 @@ function maturityValue(fd){
   return P * Math.pow(1+r/n, n*t);
 }
 
-function currentValue(fd, asOf){
-  if(fd.settled) return fd.settlementAmount;
-  if(fd.broken) return fd.amountReceived;
-
+function currentValue(fd, asOf, noReceipts){
   const start = parseDate(fd.startDate);
   const maturity = parseDate(effMaturity(fd));
   const cap = asOf < maturity ? asOf : maturity;
+  if(isRD(fd)){
+    const base=rdValueAt(fd,cap), ov0=effOverrideVal(fd);
+    if(!(ov0>0)) return base;
+    const nat=rdValueAt(fd,maturity);
+    return nat>0 ? base*ov0/nat : base;
+  }
   if(cap <= start) return fd.principal;
-  
+  if(!noReceipts && !fd.broken && !isCumulative(fd)){
+    const got = intPays(fd).filter(x=>parseDate(x.date) <= cap);
+    if(got.length) return fd.principal + got.reduce((a,x)=>a+(x.amount||0)+(x.tds||0),0);
+  }
   const ov = effOverrideVal(fd);
   if(ov && ov>0){
     const totalDays = daysBetween(start, maturity);
@@ -984,89 +810,207 @@ function currentValue(fd, asOf){
   return fd.principal * Math.pow(1+r/n, n*t);
 }
 
-function getTotalPayouts(fd) {
-  if(!fd.payouts || !Array.isArray(fd.payouts)) return 0;
-  return fd.payouts.reduce((sum, p) => p.isMaturity ? sum : sum + (parseFloat(p.amount) || 0) + (parseFloat(p.tds) || 0), 0);
-}
-
 function arrValue(fd, asOf){
   const start = parseDate(fd.startDate);
   const maturity = parseDate(effMaturity(fd));
-  const cap = (asOf < maturity && !fd.broken && !fd.settled) ? asOf : maturity;
+  const cap = asOf < maturity ? asOf : maturity;
   const days = daysBetween(start, cap);
-  
-  if(days <= 0) return effectiveRate(fd); 
-  
-  const CV = currentValue(fd, cap); 
-  const totalP = getTotalPayouts(fd); 
-  const ratio = (CV + totalP) / fd.principal;
+  if(days<=0) return 0;
+  if(isRD(fd)) return rdArr(fd,cap,currentValue(fd,asOf));
+  const CV = currentValue(fd, asOf);
+  const ratio = CV/fd.principal;
   if(ratio<=0) return 0;
   return Math.pow(ratio, 365/days) - 1;
 }
 
 function statusOf(fd, asOf){
-  if(fd.broken) return 'broken';
   if(fd.settled) return 'settled';
+  if(fd.broken) return 'broken';
   const maturity = parseDate(fd.maturityDate);
   const d = daysBetween(asOf, maturity);
   if(d<0) return 'matured';
   if(d<=30) return 'soon';
   return 'active';
 }
-function statusLabel(s){ 
-  if(s==='matured') return 'Matured';
-  if(s==='soon') return 'Maturing soon';
-  if(s==='broken') return 'Broken';
-  if(s==='settled') return 'Settled';
-  return 'Active';
-}
-
-function getInstructionLabel(val){
-  if(val === 'auto_renew') return 'Auto Renewal';
-  if(val === 'payout_reinvest') return 'Reinvest Principal & Payout Interest';
-  return 'Close on Maturity';
-}
+function statusLabel(s){ return s==='matured'?'Matured':s==='soon'?'Maturing soon':s==='broken'?'Broken':s==='settled'?'Settled':'Active'; }
 
 function personById(id){ return state.people.find(p=>p.id===id); }
 function personColor(idx){ return PALETTE[idx % PALETTE.length]; }
 
-/* ---------------- INTEREST CERTIFICATE F.Y. MATH ---------------- */
-function getInterestAndTdsInFY(fd, fyStart, fyEnd) {
-  const start = parseDate(fd.startDate);
-  const mat = parseDate(effMaturity(fd));
-  let grossInterest = 0;
-  let tdsDeducted = 0;
+/* ---------------- RD / JOINT / FORM / SEARCH HELPERS ---------------- */
+function isRD(fd){ return fd.depositKind==='rd'; }
+function rdMonths(fd){
+  const a=parseDate(fd.startDate), b=parseDate(fd.maturityDate);
+  let n=(b.getFullYear()-a.getFullYear())*12 + b.getMonth()-a.getMonth();
+  if(b.getDate()<a.getDate()) n--;
+  return Math.max(1,n);
+}
+function rdPaid(fd,asOf){
+  const a=parseDate(fd.startDate), end=parseDate(effMaturity(fd)), cap=asOf<end?asOf:end, n=rdMonths(fd);
+  let c=0; for(let k=0;k<n;k++){ if(addYMD(a,0,k,0)<=cap) c++; else break; } return c;
+}
+function rdValueAt(fd,asOf){
+  const a=parseDate(fd.startDate), n=rdMonths(fd), P=fd.installment||0, r=fd.rate/100, nc=compoundN(fd.compounding);
+  let v=0;
+  for(let k=0;k<n;k++){
+    const d=addYMD(a,0,k,0); if(d>asOf) break;
+    const t=yearsBetween(d,asOf);
+    v += (nc===0||fd.compounding==='simple') ? P*(1+r*t) : P*Math.pow(1+r/nc,nc*t);
+  }
+  return v;
+}
+function rdArr(fd,cap,CV){
+  const a=parseDate(fd.startDate), n=rdMonths(fd), P=fd.installment||0, t=[];
+  for(let k=0;k<n;k++){ const d=addYMD(a,0,k,0); if(d>cap) break; t.push(daysBetween(d,cap)/365); }
+  if(!t.length||CV<=0) return 0;
+  let lo=-0.9, hi=5;
+  for(let j=0;j<60;j++){ const mid=(lo+hi)/2; const f=t.reduce((x,y)=>x+P*Math.pow(1+mid,y),0)-CV; if(f>0) hi=mid; else lo=mid; }
+  return (lo+hi)/2;
+}
+function investedToDate(fd,asOf){ return isRD(fd) ? (fd.installment||0)*rdPaid(fd,asOf) : fd.principal; }
+function principalCell(r){
+  const fd=r.fd;
+  if(!isRD(fd)) return fmtCurrency(fd.principal);
+  const t=new Date(); t.setHours(0,0,0,0);
+  return fmtCurrency(r.invested)+`<br><span style="font-size:0.68rem;color:var(--ink-soft);">${fmtCurrency(fd.installment)}/mo · ${rdPaid(fd,t)}/${rdMonths(fd)} paid</span>`;
+}
+function isHolder(x,pid){ return x.personId===pid || (x.jointIds||[]).includes(pid); }
+function holderLabel(x){
+  const p=personById(x.personId), js=(x.jointIds||[]).map(i=>personById(i)).filter(Boolean);
+  if(!js.length) return p?p.name:'—';
+  return (p?p.name:'—')+' (primary) & '+js.map(j=>j.name).join(', ');
+}
+function formLabel(fd){
+  if(fd.formType==='physical') return 'Physical · '+(fd.withMe===false?'not with me':'with me')+(fd.custody?' ('+fd.custody+')':'');
+  return fd.formType==='online' ? 'Online' : '';
+}
+function renderJointBox(boxId,primaryId,selected){
+  const box=document.getElementById(boxId), others=state.people.filter(p=>p.id!==primaryId);
+  box.innerHTML = others.length ? others.map(p=>`<label class="chk"><input type="checkbox" value="${p.id}" ${selected.includes(p.id)?'checked':''}> ${escapeHtml(p.name)}</label>`).join('') : '<span class="form-hint">Add more family members to mark joint holders.</span>';
+}
+function readJoint(boxId){ return [...document.querySelectorAll('#'+boxId+' input:checked')].map(i=>i.value); }
+function nv(n){ if(n==null||n===''||isNaN(n)) return ''; const f=Number(n); return `${f} ${f.toFixed(2)} ${f.toLocaleString('en-IN')} ${f.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})} ${f.toLocaleString('en-US')}`; }
+function dv(str){ if(!str) return ''; const d=parseDate(str); return `${str} ${fmtDate(d)} ${d.toLocaleDateString('en-IN',{month:'long',year:'numeric'})}`; }
+function ini(str){ return String(str||'').split(/[^A-Za-z0-9]+/).filter(Boolean).map(w=>w[0]).join(''); }
+function smartMatch(hay,q){
+  const toks=q.toLowerCase().replace(/₹/g,'').split(/\s+/).filter(Boolean);
+  if(!toks.length) return true;
+  const h=hay.toLowerCase(), h2=h.replace(/,/g,'');
+  return toks.every(t=>h.includes(t)||h2.includes(t.replace(/,/g,'')));
+}
+function holderNames(x){ return [x.personId,...(x.jointIds||[])].map(i=>personById(i)?.name).filter(Boolean); }
+function fdHay(r){
+  const fd=r.fd, names=holderNames(fd);
+  const parts=[fd.bank,ini(fd.bank),fd.note,ini(fd.note),names.join(' '),names.map(ini).join(' '),names.length>1?'joint':'',
+    isRD(fd)?'recurring deposit rd':'fixed deposit fd',interestLabel(fd),freqLabel(fd.compounding),isCumulative(fd)?'cumulative reinvest':'payout paid out',
+    formLabel(fd),fd.custody,statusLabel(r.status),fd.maturityInstruction,
+    nv(fd.principal),nv(fd.installment),nv(r.invested),nv(r.cv),nv(r.mv),nv(fd.override),nv(fd.amountReceived),
+    `${fd.rate} ${Number(fd.rate).toFixed(2)} ${fd.rate}%`,fmtPct(r.eir),fmtPct(r.arr),dv(fd.startDate),dv(fd.maturityDate),dv(fd.breakDate)];
+  (fd.payouts||[]).forEach(x=>parts.push(nv(x.amount),nv(x.tds),dv(x.date),x.account));
+  return parts.filter(x=>x!=null&&x!=='').join(' | ');
+}
+function acctHay(ac){
+  const names=holderNames(ac);
+  const parts=[ac.bank,ini(ac.bank),ac.label,names.join(' '),names.map(ini).join(' '),names.length>1?'joint':'','savings account',`${ac.rate||''} ${ac.rate?ac.rate+'%':''}`];
+  (ac.entries||[]).forEach(x=>parts.push(nv(x.amount),nv(x.balance),nv(x.tds),dv(x.date)));
+  return parts.filter(x=>x!=null&&x!=='').join(' | ');
+}
 
-  if(fd.payouts && Array.isArray(fd.payouts)) {
-    fd.payouts.forEach(p => {
-      if (p.isMaturity) return; 
-      const pDate = parseDate(p.date);
-      if(pDate >= fyStart && pDate <= fyEnd) {
-        grossInterest += (parseFloat(p.amount) || 0) + (parseFloat(p.tds) || 0);
-        tdsDeducted += parseFloat(p.tds) || 0;
+/* ---------------- INTEREST / FY HELPERS ---------------- */
+function intPays(fd){ return (fd.payouts||[]).filter(x=>!x.isMaturity); }
+function normalizeDeposit(fd){ if(fd.payments && !fd.payouts) fd.payouts=fd.payments; delete fd.payments; return fd; }
+function totalReceived(fd){ return intPays(fd).reduce((a,x)=>a+(x.amount||0),0); }
+function totalTdsOf(fd){ return intPays(fd).reduce((a,x)=>a+(x.tds||0),0); }
+function interestCell(fd){
+  const n = intPays(fd).length;
+  return interestLabel(fd) + (n ? `<br><span style="font-size:0.68rem;color:var(--ink-soft);">${n} receipt${n===1?'':'s'} logged</span>` : '');
+}
+function fyOf(d){ return d.getMonth()>=3 ? d.getFullYear() : d.getFullYear()-1; }
+function currentFY(){ return fyOf(new Date()); }
+function fyRange(y){ return [new Date(y,3,1), new Date(y+1,2,31)]; }
+function fyLabel(y){ return `FY ${y}-${String(y+1).slice(2)}`; }
+function inRange(str,a,b){ const d=parseDate(str); return d>=a && d<=b; }
+function accruedBetween(fd,a,b){
+  const start=parseDate(fd.startDate), end=parseDate(effMaturity(fd));
+  const lo = a<start?start:a, hi = b>end?end:b;
+  if(hi<=lo) return 0;
+  return (currentValue(fd,hi,true)-currentValue(fd,lo,true)) - (investedToDate(fd,hi)-investedToDate(fd,lo));
+}
+function fyInterestReceived(personId,fy){
+  const [a,b]=fyRange(fy); let g=0;
+  state.deposits.forEach(fd=>{ if(personId!=='all' && fd.personId!==personId || isCumulative(fd)) return;
+    intPays(fd).forEach(x=>{ if(inRange(x.date,a,b)) g+=(x.amount||0)+(x.tds||0); }); });
+  state.accounts.forEach(ac=>{ if(personId!=='all' && ac.personId!==personId) return;
+    (ac.entries||[]).forEach(x=>{ if(inRange(x.date,a,b)) g+=(x.amount||0)+(x.tds||0); }); });
+  return g;
+}
+function fyOptions(){
+  const set=new Set([currentFY()]);
+  state.deposits.forEach(fd=>{ for(let y=fyOf(parseDate(fd.startDate)); y<=fyOf(parseDate(effMaturity(fd))); y++) set.add(y); });
+  state.accounts.forEach(ac=>(ac.entries||[]).forEach(x=>set.add(fyOf(parseDate(x.date)))));
+  return [...set].sort((x,y)=>y-x);
+}
+function buildCert(personId,fy){
+  const [a,b]=fyRange(fy);
+  const people = personId==='all' ? state.people : [personById(personId)].filter(Boolean);
+  return people.map(p=>{
+    const fdRows=[], acctRows=[];
+    state.deposits.filter(d=>d.personId===p.id).forEach(fd=>{
+      const label = fd.bank + (fd.note?` (${fd.note})`:'') + ((fd.jointIds||[]).length?' [joint]':'');
+      const pays=intPays(fd).filter(x=>inRange(x.date,a,b));
+      const accts=[...new Set(pays.map(x=>x.account).filter(Boolean))].join(', ');
+      const tds=pays.reduce((t,x)=>t+(x.tds||0),0);
+      if(!isCumulative(fd) && intPays(fd).length){
+        if(!pays.length) return;
+        const net=pays.reduce((t,x)=>t+(x.amount||0),0);
+        fdRows.push({label,basis:'Received',gross:net+tds,tds,net,accounts:accts});
+      } else {
+        const acc=accruedBetween(fd,a,b); if(acc<0.5 && !tds) return;
+        fdRows.push({label,basis:'Accrued (est.)',gross:acc,tds,net:acc-tds,accounts:accts});
       }
     });
-  }
+    state.accounts.filter(ac=>ac.personId===p.id).forEach(ac=>{
+      const es=(ac.entries||[]).filter(x=>inRange(x.date,a,b)); if(!es.length) return;
+      const net=es.reduce((t,x)=>t+(x.amount||0),0), tds=es.reduce((t,x)=>t+(x.tds||0),0);
+      acctRows.push({label:ac.bank+' '+(ac.label||'')+((ac.jointIds||[]).length?' [joint]':''),basis:'Credited',gross:net+tds,tds,net,accounts:''});
+    });
+    const all=[...fdRows,...acctRows];
+    const tot={gross:all.reduce((t,r)=>t+r.gross,0),tds:all.reduce((t,r)=>t+r.tds,0),net:all.reduce((t,r)=>t+r.net,0)};
+    return {person:p,fdRows,acctRows,tot};
+  }).filter(g=>g.fdRows.length||g.acctRows.length);
+}
 
-  if (isCumulative(fd) || (!fd.payouts || fd.payouts.length === 0)) {
-    const periodStart = start > fyStart ? start : fyStart;
-    const periodEnd = mat < fyEnd ? mat : fyEnd;
-
-    if (periodStart < periodEnd && start < fyEnd && mat > fyStart) {
-      const valAtStart = currentValue(fd, periodStart);
-      const valAtEnd = currentValue(fd, periodEnd);
-      grossInterest += Math.max(0, valAtEnd - valAtStart);
-    }
-  }
-
-  if (fd.settled && fd.tdsDeducted) {
-    const matDate = parseDate(fd.maturityDate);
-    if (matDate >= fyStart && matDate <= fyEnd) {
-      tdsDeducted += parseFloat(fd.tdsDeducted) || 0;
-    }
-  }
-
-  return { grossInterest, tdsDeducted };
+/* ---------------- SEED / DEMO ---------------- */
+function loadDemo(){
+  state.people = [
+    {id:uid('p'), name:'Father'},
+    {id:uid('p'), name:'Mother'},
+    {id:uid('p'), name:'Self'}
+  ];
+  const [p1,p2,p3] = state.people;
+  state.deposits = [
+    {id:uid('fd'), personId:p1.id, bank:'SBI', note:'FDR-10234', principal:500000, rate:7.1, interestType:'cumulative', compounding:'quarterly', startDate:'2024-04-10', maturityDate:'2027-04-10', override:null, broken:false, breakDate:null, amountReceived:null},
+    {id:uid('fd'), personId:p1.id, bank:'HDFC Bank', note:'', principal:200000, rate:7.4, interestType:'cumulative', compounding:'quarterly', startDate:'2025-01-15', maturityDate:'2026-07-15', override:null, broken:false, breakDate:null, amountReceived:null},
+    {id:uid('fd'), personId:p2.id, bank:'ICICI Bank', note:'Senior citizen rate', principal:350000, rate:7.75, interestType:'cumulative', compounding:'monthly', startDate:'2024-09-01', maturityDate:'2026-09-01', override:null, broken:false, breakDate:null, amountReceived:null},
+    {id:uid('fd'), personId:p2.id, bank:'Bank of Baroda', note:'Monthly income plan', principal:400000, rate:7.2, interestType:'payout', compounding:'monthly', startDate:'2025-03-01', maturityDate:'2028-03-01', override:null, broken:false, breakDate:null, amountReceived:null},
+    {id:uid('fd'), personId:p3.id, bank:'Axis Bank', note:'', principal:150000, rate:7.0, interestType:'cumulative', compounding:'halfyearly', startDate:'2025-06-01', maturityDate:'2026-06-01', override:null, broken:false, breakDate:null, amountReceived:null},
+    {id:uid('fd'), personId:p3.id, bank:'Post Office', note:'NSC-linked FD', principal:100000, rate:7.5, interestType:'cumulative', compounding:'annually', startDate:'2023-05-20', maturityDate:'2026-05-20', override:107850, broken:false, breakDate:null, amountReceived:null},
+    {id:uid('fd'), personId:p3.id, bank:'Kotak Mahindra', note:'Closed early for tuition fees', principal:120000, rate:7.3, interestType:'cumulative', compounding:'quarterly', startDate:'2024-02-10', maturityDate:'2026-02-10', override:null, broken:true, breakDate:'2025-08-10', amountReceived:126400}
+  ];
+  state.deposits.push({id:uid('fd'),personId:p3.id,depositKind:'rd',installment:5000,principal:120000,bank:'Post Office',note:'RD-77120',rate:6.7,interestType:'cumulative',compounding:'quarterly',startDate:'2025-02-05',maturityDate:'2027-02-05',override:null,broken:false,breakDate:null,amountReceived:null,payouts:[],formType:'online',withMe:null,custody:''});
+  state.deposits[0].jointIds=[p2.id]; state.deposits[0].formType='physical'; state.deposits[0].withMe=true; state.deposits[0].custody="Father's locker";
+  state.deposits[1].formType='physical'; state.deposits[1].withMe=false; state.deposits[1].custody='Held at HDFC branch';
+  state.deposits[2].formType='online';
+  const bob=state.deposits.find(d=>d.bank==='Bank of Baroda'); bob.payouts=[];
+  for(let i=0;i<19;i++){ const d=new Date(2025,3+i,1); bob.payouts.push({id:uid('pay'),date:toDateInputValue(d),amount:2160,account:'SBI Savings x4521',tds:240}); }
+  const q=['2025-06-30','2025-09-30','2025-12-31','2026-03-31','2026-06-30','2026-09-30'];
+  state.accounts=[
+    {id:uid('ac'),personId:p2.id,bank:'SBI',label:'Savings x4521',rate:2.7,jointIds:[p1.id],entries:q.map((d,i)=>({id:uid('se'),date:d,amount:[1180,1215,1260,1302,1245,1288][i],balance:[172000,181000,186500,193000,184000,191000][i],tds:null}))},
+    {id:uid('ac'),personId:p1.id,bank:'HDFC Bank',label:'Savings x8830',rate:3.0,entries:q.slice(2).map((d,i)=>({id:uid('se'),date:d,amount:[2210,2350,2290,2415][i],balance:[290000,305000,298000,312000][i],tds:null}))}
+  ];
+  state.selected.clear();
+  state.activePerson = 'all';
+  renderAll();
 }
 
 /* ---------------- FILTER / SORT ---------------- */
@@ -1077,11 +1021,11 @@ function getEnrichedDeposits(){
     return {
       fd, person,
       eir: effectiveRate(fd),
-      payoutsTotal: getTotalPayouts(fd),
       cv: currentValue(fd, today),
       mv: maturityValue(fd),
       arr: arrValue(fd, today),
       status: statusOf(fd, today),
+      invested: investedToDate(fd, today),
       start: parseDate(fd.startDate),
       maturity: parseDate(fd.maturityDate)
     };
@@ -1091,11 +1035,6 @@ function getEnrichedDeposits(){
 function sortList(list){
   const key = state.sortKey, dir = state.sortDir === 'asc' ? 1 : -1;
   list.sort((a,b)=>{
-    const aInactive = (a.status === 'matured' || a.status === 'settled' || a.status === 'broken') ? 1 : 0;
-    const bInactive = (b.status === 'matured' || b.status === 'settled' || b.status === 'broken') ? 1 : 0;
-    
-    if (aInactive !== bInactive) return aInactive - bInactive;
-
     let av, bv;
     switch(key){
       case 'bank': av=a.fd.bank.toLowerCase(); bv=b.fd.bank.toLowerCase(); break;
@@ -1104,7 +1043,6 @@ function sortList(list){
       case 'rate': av=a.fd.rate; bv=b.fd.rate; break;
       case 'interest': av=interestLabel(a.fd); bv=interestLabel(b.fd); break;
       case 'eir': av=a.eir; bv=b.eir; break;
-      case 'payouts': av=a.payoutsTotal; bv=b.payoutsTotal; break;
       case 'cv': av=a.cv; bv=b.cv; break;
       case 'mv': av=a.mv; bv=b.mv; break;
       case 'arr': av=a.arr; bv=b.arr; break;
@@ -1123,22 +1061,13 @@ function sortList(list){
 function getFilteredSorted(){
   let list = getEnrichedDeposits();
   if(state.activePerson !== 'all'){
-    list = list.filter(r => r.fd.personId === state.activePerson);
+    list = list.filter(r => isHolder(r.fd, state.activePerson));
   }
   if(state.filterStatus !== 'all'){
-    if (state.filterStatus === 'active') {
-       list = list.filter(r => r.status === 'active' || r.status === 'soon');
-    } else {
-       list = list.filter(r => r.status === state.filterStatus);
-    }
+    list = list.filter(r => r.status === state.filterStatus);
   }
-  
   if(state.search.trim()){
-    const q = state.search.trim().toLowerCase();
-    list = list.filter(r => 
-      r.fd.bank.toLowerCase().includes(q) || 
-      (r.fd.note && r.fd.note.toLowerCase().includes(q))
-    );
+    list = list.filter(r => smartMatch(fdHay(r), state.search));
   }
   return sortList(list);
 }
@@ -1152,22 +1081,18 @@ function getExportRows(){
 }
 
 function computeAggregates(list){
-  const agg = {count:list.length, totalPrincipal:0, totalCurrent:0, totalMaturity:0, maturingSoon:0, totalPaidOut:0, totalGain:0};
+  const agg = {count:list.length, totalPrincipal:0, totalCurrent:0, totalMaturity:0, maturingSoon:0};
   let wEirNum=0, wArrNum=0;
-  
   list.forEach(r=>{
-    if (r.status === 'active' || r.status === 'soon') {
-        agg.totalPrincipal += r.fd.principal;
-        agg.totalCurrent += r.cv;
-        agg.totalMaturity += r.mv;
-        agg.totalPaidOut += r.payoutsTotal;
-        wEirNum += r.eir * r.fd.principal;
-        wArrNum += r.arr * r.fd.principal;
-    }
+    if(r.status==='settled') return;
+    agg.totalPrincipal += r.invested;
+    agg.totalCurrent += r.cv;
+    agg.totalMaturity += r.mv;
     if(r.status==='soon') agg.maturingSoon++;
+    wEirNum += r.eir * r.invested;
+    wArrNum += r.arr * r.invested;
   });
-  
-  agg.totalGain = (agg.totalCurrent - agg.totalPrincipal) + agg.totalPaidOut;
+  agg.totalGain = agg.totalCurrent - agg.totalPrincipal;
   agg.weightedEir = agg.totalPrincipal>0 ? wEirNum/agg.totalPrincipal : 0;
   agg.weightedArr = agg.totalPrincipal>0 ? wArrNum/agg.totalPrincipal : 0;
   return agg;
@@ -1182,12 +1107,13 @@ function renderHero(){
   document.getElementById('summaryStrip').innerHTML = `
     <div class="summary-cell"><div class="label">Total Principal</div><div class="value">${fmtCurrency(agg.totalPrincipal)}</div></div>
     <div class="summary-cell"><div class="label">Current Value</div><div class="value">${fmtCurrency(agg.totalCurrent)}</div></div>
-    <div class="summary-cell"><div class="label">Gain + Payouts</div><div class="value ${agg.totalGain>=0?'':''}" style="color:${agg.totalGain>=0?'#7fd3a3':'#e08a76'}">${fmtCurrency(agg.totalGain)}</div></div>
+    <div class="summary-cell"><div class="label">Gain to Date</div><div class="value ${agg.totalGain>=0?'':''}" style="color:${agg.totalGain>=0?'#7fd3a3':'#e08a76'}">${fmtCurrency(agg.totalGain)}</div></div>
     <div class="summary-cell"><div class="label">Weighted EIR</div><div class="value small">${fmtPct(agg.weightedEir)}</div></div>
     <div class="summary-cell"><div class="label">Weighted ARR</div><div class="value small">${fmtPct(agg.weightedArr)}</div></div>
     <div class="summary-cell"><div class="label">Deposits</div><div class="value small">${agg.count} ${agg.maturingSoon>0?`<span style="color:#e08a76;font-size:0.7rem;">(${agg.maturingSoon} soon)</span>`:''}</div></div>
+    <div class="summary-cell"><div class="label">Interest Rec'd ${fyLabel(currentFY())}</div><div class="value small">${fmtCurrency(fyInterestReceived(state.activePerson,currentFY()))}</div></div>
   `;
-  document.getElementById('summaryScope').innerHTML = `Showing: <b>${scopeName}</b>${state.filterStatus!=='all' ? ' · Status: <b>'+statusLabel(state.filterStatus)+'</b>' : ''}${state.search? ' · Bank search: <b>"'+state.search+'"</b>':''} · <i>Excludes matured/settled items from totals</i>`;
+  document.getElementById('summaryScope').innerHTML = `Showing: <b>${scopeName}</b>${state.filterStatus!=='all' ? ' · Status: <b>'+statusLabel(state.filterStatus)+'</b>' : ''}${state.search.trim()? ' · Search: <b>"'+escapeHtml(state.search)+'"</b> ('+agg.count+' match'+(agg.count===1?'':'es')+')':''}`;
 }
 
 function renderTabs(){
@@ -1217,10 +1143,8 @@ function renderPersonGrid(){
   const today = new Date(); today.setHours(0,0,0,0);
   let html='';
   state.people.forEach((p,idx)=>{
-    const list = state.deposits.filter(fd=>fd.personId===p.id && statusOf(fd, today) !== 'matured' && statusOf(fd, today) !== 'settled' && statusOf(fd, today) !== 'broken').map(fd=>({
-      fd, cv: currentValue(fd,today)
-    }));
-    const principal = list.reduce((s,r)=>s+r.fd.principal,0);
+    const list = state.deposits.filter(fd=>isHolder(fd,p.id)).map(fd=>({fd, cv: currentValue(fd,today)}));
+    const principal = list.reduce((s,r)=>s+investedToDate(r.fd,today),0);
     const current = list.reduce((s,r)=>s+r.cv,0);
     html += `<div class="person-card">
       <div class="pname"><span class="dot" style="background:${personColor(idx)}"></span>${escapeHtml(p.name)}
@@ -1229,7 +1153,7 @@ function renderPersonGrid(){
           <button class="icon-btn" data-delperson="${p.id}" title="Remove">✕</button>
         </span>
       </div>
-      <div class="prow"><span>Active Deposits</span><b>${list.length}</b></div>
+      <div class="prow"><span>Deposits</span><b>${list.length}</b></div>
       <div class="prow"><span>Principal</span><b>${fmtCurrency(principal)}</b></div>
       <div class="prow"><span>Current value</span><b>${fmtCurrency(current)}</b></div>
     </div>`;
@@ -1237,46 +1161,28 @@ function renderPersonGrid(){
   grid.innerHTML = html;
 
   grid.querySelectorAll('[data-delperson]').forEach(el=>{
-    el.addEventListener('click', async (e)=>{
+    el.addEventListener('click', (e)=>{
       e.stopPropagation();
-      if(!currentUser) return;
       const id = el.getAttribute('data-delperson');
       const p = personById(id);
       if(confirm(`Remove ${p.name} and all ${state.deposits.filter(d=>d.personId===id).length} of their deposits?`)){
-        try {
-          const userRef = getDbRef();
-          await userRef.collection('people').doc(id).delete();
-          const fdIdsToDelete = state.deposits.filter(d => d.personId === id).map(d => d.id);
-          for (let fdId of fdIdsToDelete) {
-             await userRef.collection('deposits').doc(fdId).delete();
-          }
-          state.deposits = state.deposits.filter(d=>d.personId!==id);
-          state.people = state.people.filter(pp=>pp.id!==id);
-          if(state.activePerson===id) state.activePerson='all';
-          renderAll();
-        } catch(err) {
-          alert('Error deleting: ' + err.message);
-        }
+        state.deposits = state.deposits.filter(d=>d.personId!==id);
+        state.accounts = state.accounts.filter(a=>a.personId!==id);
+        state.deposits.forEach(d=>{ if(d.jointIds) d.jointIds=d.jointIds.filter(x=>x!==id); });
+        state.accounts.forEach(a=>{ if(a.jointIds) a.jointIds=a.jointIds.filter(x=>x!==id); });
+        state.people = state.people.filter(pp=>pp.id!==id);
+        if(state.activePerson===id) state.activePerson='all';
+        renderAll();
       }
     });
   });
-  
   grid.querySelectorAll('[data-editperson]').forEach(el=>{
-    el.addEventListener('click', async (e)=>{
+    el.addEventListener('click', (e)=>{
       e.stopPropagation();
-      if(!currentUser) return;
       const id = el.getAttribute('data-editperson');
       const p = personById(id);
       const newName = prompt('Rename family member:', p.name);
-      if(newName && newName.trim()){
-        try {
-          p.name = newName.trim();
-          await getDbRef().collection('people').doc(id).update({ name: p.name });
-          renderAll();
-        } catch (err) {
-          alert("Error renaming: " + err.message);
-        }
-      }
+      if(newName && newName.trim()){ p.name = newName.trim(); renderAll(); }
     });
   });
 }
@@ -1290,13 +1196,13 @@ const COLUMNS = [
   {key:'rate', label:'Nominal %', num:true},
   {key:'interest', label:'Interest'},
   {key:'eir', label:'EIR', num:true},
-  {key:'payouts', label:'Paid Out', num:true},
   {key:'cv', label:'Current Value', num:true},
   {key:'mv', label:'Maturity Value', num:true},
   {key:'arr', label:'ARR', num:true},
   {key:'startDate', label:'Start'},
   {key:'maturityDate', label:'Maturity / Break'},
-  {key:'status', label:'Status'}
+  {key:'status', label:'Status'},
+  {key:'actions', label:''}
 ];
 
 function renderLedgerTable(){
@@ -1304,15 +1210,15 @@ function renderLedgerTable(){
   if(state.people.length===0){
     holder.innerHTML = `<div class="empty-card">
       <h3>The ledger is empty</h3>
-      <p>Add a family member, then record their first fixed deposit.</p>
+      <p>Add a family member, then record their first fixed deposit — or import a previously exported file.</p>
       <button class="btn btn-brass" id="emptyAddPerson">+ Add family member</button>
     </div>`;
     document.getElementById('emptyAddPerson').addEventListener('click', openPersonModal);
-    renderSelectionInfo();
     return;
   }
   const list = getFilteredSorted();
   let head = '<tr>' + COLUMNS.map(c=>{
+    if(c.key==='actions') return `<th></th>`;
     if(c.key==='select') return `<th class="no-print"><input type="checkbox" id="selectAllCheck"></th>`;
     const arrow = state.sortKey===c.key ? `<span class="arrow">${state.sortDir==='asc'?'▲':'▼'}</span>` : '';
     return `<th class="${c.num?'num':''}" data-sort="${c.key}">${c.label}${arrow}</th>`;
@@ -1324,33 +1230,32 @@ function renderLedgerTable(){
   } else {
     list.forEach(r=>{
       const idx = state.people.findIndex(p=>p.id===r.fd.personId);
-      const gainClass = r.cv >= r.fd.principal ? 'gain-pos' : 'gain-neg';
-      
-      let maturityCell = fmtDate(r.maturity);
-      if(r.fd.broken) maturityCell = `<span style="text-decoration:line-through;color:var(--ink-soft);">${fmtDate(parseDate(r.fd.maturityDate))}</span><br><span style="color:var(--stamp-rust);font-size:0.7rem;">Broken ${fmtDate(parseDate(r.fd.breakDate))}</span>`;
-      if(r.fd.settled) maturityCell = `<span style="color:#5A7A3C;font-weight:600;">Settled ${fmtDate(parseDate(r.fd.maturityDate))}</span>`;
-
-      const inactiveClass = (r.status === 'matured' || r.status === 'settled' || r.status === 'broken') ? 'row-inactive' : '';
-
-      body += `<tr class="${inactiveClass}">
+      const gainClass = r.cv >= r.invested ? 'gain-pos' : 'gain-neg';
+      const maturityCell = r.fd.broken
+        ? `<span style="text-decoration:line-through;color:var(--ink-soft);">${fmtDate(r.maturity)}</span><br><span style="color:var(--stamp-rust);font-size:0.7rem;">Broken ${fmtDate(parseDate(r.fd.breakDate))}</span>`
+        : fmtDate(r.maturity);
+      body += `<tr>
         <td class="no-print"><input type="checkbox" class="rowcheck" data-id="${r.fd.id}" ${state.selected.has(r.fd.id)?'checked':''}></td>
         <td class="bank-cell">
           <span class="bank-name">${escapeHtml(r.fd.bank)}</span>
           ${r.fd.note ? `<span class="note">${escapeHtml(r.fd.note)}</span>` : ''}
-          ${r.fd.maturityInstruction ? `<span class="note" style="color:var(--brass-deep)">${getInstructionLabel(r.fd.maturityInstruction)}</span>` : ''}
+          ${formLabel(r.fd) ? `<span class="note" style="color:var(--brass-deep);">${escapeHtml(formLabel(r.fd))}</span>` : ''}
         </td>
-        <td><span class="holder-chip"><span class="dot" style="background:${personColor(idx)}"></span>${escapeHtml(r.person?r.person.name:'—')}</span></td>
-        <td class="num">${fmtCurrency(r.fd.principal)}</td>
+        <td><span class="holder-chip"><span class="dot" style="background:${personColor(idx)}"></span>${escapeHtml(holderLabel(r.fd))}</span></td>
+        <td class="num">${principalCell(r)}</td>
         <td class="num">${r.fd.rate.toFixed(2)}%</td>
-        <td class="interest-cell">${interestLabel(r.fd)}</td>
+        <td>${interestCell(r.fd)}</td>
         <td class="num">${fmtPct(r.eir)}</td>
-        <td class="num" style="color:var(--brass-deep);">${fmtCurrency(r.payoutsTotal)}</td>
         <td class="num ${gainClass}">${fmtCurrency(r.cv)}</td>
         <td class="num">${fmtCurrency(r.mv)}</td>
         <td class="num">${fmtPct(r.arr)}</td>
         <td class="mono">${fmtDate(r.start)}</td>
         <td class="mono">${maturityCell}</td>
         <td><span class="badge ${r.status}">${statusLabel(r.status)}</span></td>
+        <td class="no-print"><div class="row-actions">
+          <button class="icon-btn" data-editfd="${r.fd.id}" title="Edit">✎</button>
+          <button class="icon-btn" data-delfd="${r.fd.id}" title="Delete">✕</button>
+        </div></td>
       </tr>`;
     });
   }
@@ -1363,6 +1268,20 @@ function renderLedgerTable(){
       if(state.sortKey===key){ state.sortDir = state.sortDir==='asc'?'desc':'asc'; }
       else { state.sortKey = key; state.sortDir = 'asc'; }
       renderLedgerTable();
+      renderHero();
+    });
+  });
+  holder.querySelectorAll('[data-editfd]').forEach(el=>{
+    el.addEventListener('click', ()=> openFdModal(el.getAttribute('data-editfd')));
+  });
+  holder.querySelectorAll('[data-delfd]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const id = el.getAttribute('data-delfd');
+      if(confirm('Delete this deposit record?')){
+        state.deposits = state.deposits.filter(d=>d.id!==id);
+        state.selected.delete(id);
+        renderAll();
+      }
     });
   });
 
@@ -1391,70 +1310,13 @@ function renderLedgerTable(){
 
 function renderSelectionInfo(){
   const bar = document.getElementById('selectionBar');
-  const size = state.selected.size;
-  
-  const oneSelected = size === 1;
-  const anySelected = size > 0;
-  
-  if(anySelected) {
-    bar.classList.add('active');
-  } else {
-    bar.classList.remove('active');
-  }
-
-  let html = `<span style="color:var(--ink); font-weight:600; font-size:0.85rem; min-width:75px;">${size} Selected</span> <span style="color:var(--paper-line);">|</span> `;
-  
-  let showSettle = false;
-  let fdId = null;
-  if(oneSelected) {
-    fdId = Array.from(state.selected)[0];
-    const r = getEnrichedDeposits().find(x=>x.fd.id === fdId);
-    if (r && r.status === 'matured' && !r.fd.settled) showSettle = true;
-  }
-  
-  html += `<button class="btn-outline btn-small" id="actionSettle" ${(!oneSelected || !showSettle) ? 'disabled' : ''} style="color:var(--stamp-rust); border-color:var(--stamp-rust);">SETTLE</button>`;
-  
-  html += `<button class="btn-outline btn-small" id="actionPayout" ${!oneSelected ? 'disabled' : ''} style="color:var(--brass-deep); border-color:var(--brass-deep);">₹ PAYOUTS</button>`;
-  
-  html += `<button class="btn-outline btn-small" id="actionEdit" ${!oneSelected ? 'disabled' : ''}>✎ EDIT</button>`;
-  
-  html += `<button class="btn-outline btn-small" id="actionDelete" ${!anySelected ? 'disabled' : ''} style="color:var(--stamp-rust); border-color:rgba(154,59,40,0.3);">✕ DELETE</button>`;
-  
-  html += `<a id="clearSelectionLink" style="margin-left:8px; font-weight:500; opacity:${!anySelected ? '0.4' : '1'}; cursor:${!anySelected ? 'default' : 'pointer'}; text-decoration:${anySelected ? 'underline' : 'none'};">Clear</a>`;
-  
-  bar.innerHTML = html;
-
-  if(oneSelected){
-    if (showSettle) {
-      document.getElementById('actionSettle').addEventListener('click', () => openSettleModal(fdId));
-    }
-    document.getElementById('actionPayout').addEventListener('click', () => openPayoutModal(fdId));
-    document.getElementById('actionEdit').addEventListener('click', () => openFdModal(fdId));
-  }
-  
-  if(anySelected) {
-    document.getElementById('actionDelete').addEventListener('click', async () => {
-      if(!currentUser) return;
-      if(confirm(`Are you sure you want to delete ${state.selected.size} selected deposit(s)?`)){
-        try {
-          const batchIds = Array.from(state.selected);
-          for(let id of batchIds) {
-            await getDbRef().collection('deposits').doc(id).delete();
-            state.deposits = state.deposits.filter(d=>d.id!==id);
-          }
-          state.selected.clear();
-          renderAll();
-        } catch (err) {
-          alert('Error deleting: ' + err.message);
-        }
-      }
-    });
-
-    document.getElementById('clearSelectionLink').addEventListener('click', ()=>{
-      state.selected.clear();
-      renderLedgerTable();
-    });
-  }
+  if(state.selected.size===0){ bar.hidden = true; bar.innerHTML=''; return; }
+  bar.hidden = false;
+  bar.innerHTML = `${state.selected.size} selected · exports will use only these <a id="clearSelectionLink">Clear</a>`;
+  document.getElementById('clearSelectionLink').addEventListener('click', ()=>{
+    state.selected.clear();
+    renderLedgerTable();
+  });
 }
 
 /* ---------------- RENDER: STATEMENT ---------------- */
@@ -1478,23 +1340,19 @@ function renderStatement(){
   const generated = fmtDate(today);
 
   function statementTable(rows, showHolder){
-    let cols = `<tr><th>Bank / Note</th>${showHolder?'<th>Holder</th>':''}<th class="num">Principal</th><th class="num">Rate</th><th>Interest</th><th class="num">EIR</th><th class="num">Paid Out</th><th class="num">Current Value</th><th class="num">Maturity Value</th><th class="num">ARR</th><th>Start</th><th>Maturity / Break</th><th>Status</th></tr>`;
+    let cols = `<tr><th>Bank / Note</th>${showHolder?'<th>Holder</th>':''}<th class="num">Principal</th><th class="num">Rate</th><th>Interest</th><th class="num">EIR</th><th class="num">Current Value</th><th class="num">Maturity Value</th><th class="num">ARR</th><th>Start</th><th>Maturity / Break</th><th>Status</th></tr>`;
     let body='';
     rows.forEach(r=>{
-      let maturityCell = fmtDate(r.maturity);
-      if(r.fd.broken) maturityCell = `<span style="text-decoration:line-through;color:var(--ink-soft);">${fmtDate(parseDate(r.fd.maturityDate))}</span><br><span style="color:var(--stamp-rust);font-size:0.7rem;">Broken ${fmtDate(parseDate(r.fd.breakDate))}</span>`;
-      if(r.fd.settled) maturityCell = `<span style="color:#5A7A3C;font-weight:600;">Settled ${fmtDate(parseDate(r.fd.maturityDate))}</span>`;
-      
-      const inactiveClass = (r.status === 'matured' || r.status === 'settled' || r.status === 'broken') ? 'row-inactive' : '';
-
-      body += `<tr class="${inactiveClass}">
+      const maturityCell = r.fd.broken
+        ? `<span style="text-decoration:line-through;color:var(--ink-soft);">${fmtDate(r.maturity)}</span><br><span style="color:var(--stamp-rust);font-size:0.7rem;">Broken ${fmtDate(parseDate(r.fd.breakDate))}</span>`
+        : fmtDate(r.maturity);
+      body += `<tr>
         <td class="bank-cell"><span class="bank-name">${escapeHtml(r.fd.bank)}</span>${r.fd.note?`<span class="note">${escapeHtml(r.fd.note)}</span>`:''}</td>
         ${showHolder?`<td>${escapeHtml(r.person?r.person.name:'—')}</td>`:''}
-        <td class="num">${fmtCurrency(r.fd.principal)}</td>
+        <td class="num">${principalCell(r)}</td>
         <td class="num">${r.fd.rate.toFixed(2)}%</td>
-        <td class="interest-cell">${interestLabel(r.fd)}</td>
+        <td>${interestCell(r.fd)}</td>
         <td class="num">${fmtPct(r.eir)}</td>
-        <td class="num" style="color:var(--brass-deep);">${fmtCurrency(r.payoutsTotal)}</td>
         <td class="num">${fmtCurrency(r.cv)}</td>
         <td class="num">${fmtCurrency(r.mv)}</td>
         <td class="num">${fmtPct(r.arr)}</td>
@@ -1521,7 +1379,7 @@ function renderStatement(){
     html += renderStatementTotals(agg);
   } else {
     const person = personById(state.statementPerson);
-    const rows = all.filter(r=>r.fd.personId===person.id);
+    const rows = all.filter(r=>isHolder(r.fd,person.id));
     html += `<div class="statement-head">
       <div><h2>${escapeHtml(person.name)} — Fixed Deposit Statement</h2><div class="meta">Generated ${generated} · ${rows.length} deposit${rows.length===1?'':'s'}</div></div>
     </div>`;
@@ -1534,40 +1392,176 @@ function renderStatement(){
     }
   }
 
-  html += `<div class="statement-footnote"><b>Note:</b> Current Value reflects accrued value as of ${generated}, capped at maturity (or break date for broken deposits). Where a bank-quoted maturity value was entered, or a deposit was broken, current value is interpolated in a straight line toward the final figure. For "Paid out" deposits, interest is disbursed to the account rather than reinvested, so EIR equals the nominal rate. EIR and ARR are annualised figures — see the Ledger tab legend for definitions. Top summary totals strictly exclude FDs with 'Matured' or 'Settled' statuses.</div>`;
+  html += `<div class="statement-footnote"><b>Note:</b> Current Value reflects accrued value as of ${generated}, capped at maturity (or break date for broken deposits). Where a bank-quoted maturity value was entered, or a deposit was broken, current value is interpolated in a straight line toward the final figure. For "Paid out" deposits, interest is disbursed to the account rather than reinvested, so EIR equals the nominal rate. EIR and ARR are annualised figures — see the Ledger tab legend for definitions.</div>`;
 
   content.innerHTML = html;
 }
 
 function renderStatementTotals(agg){
   return `<div class="statement-totals">
-    <div><div class="t-label">Active Principal</div><div class="t-value">${fmtCurrency(agg.totalPrincipal)}</div></div>
-    <div><div class="t-label">Active Current Value</div><div class="t-value">${fmtCurrency(agg.totalCurrent)}</div></div>
-    <div><div class="t-label">Active Gain + Payouts</div><div class="t-value">${fmtCurrency(agg.totalGain)}</div></div>
-    <div><div class="t-label">Active Weighted EIR</div><div class="t-value">${fmtPct(agg.weightedEir)}</div></div>
-    <div><div class="t-label">Active Weighted ARR</div><div class="t-value">${fmtPct(agg.weightedArr)}</div></div>
+    <div><div class="t-label">Total Principal</div><div class="t-value">${fmtCurrency(agg.totalPrincipal)}</div></div>
+    <div><div class="t-label">Total Current Value</div><div class="t-value">${fmtCurrency(agg.totalCurrent)}</div></div>
+    <div><div class="t-label">Total Gain</div><div class="t-value">${fmtCurrency(agg.totalGain)}</div></div>
+    <div><div class="t-label">Weighted EIR</div><div class="t-value">${fmtPct(agg.weightedEir)}</div></div>
+    <div><div class="t-label">Weighted ARR</div><div class="t-value">${fmtPct(agg.weightedArr)}</div></div>
   </div>`;
 }
 
+/* ---------------- FD INTEREST RECEIPTS ---------------- */
+function renderPaymentsSection(){
+  const wrap=document.getElementById('fdPaymentsSection');
+  const fd=editingFdId ? state.deposits.find(d=>d.id===editingFdId) : null;
+  if(!fd){ wrap.innerHTML='<div class="form-hint">Save this deposit first, then reopen it to log each interest payment received.</div>'; return; }
+  fd.payouts=fd.payouts||[];
+  const rows=fd.payouts.slice().sort((a,b)=>a.date.localeCompare(b.date));
+  const today=new Date(); today.setHours(0,0,0,0);
+  const accts=state.accounts.filter(a=>a.personId===fd.personId).map(a=>`<option value="${escapeHtml(a.bank+' '+(a.label||''))}">`).join('');
+  wrap.innerHTML=`<div class="payment-list">${rows.length?rows.map(x=>`<div class="payment-row"><span class="mono">${fmtDate(parseDate(x.date))}</span><span class="mono">${fmtCurrency(x.amount)}</span><span>${x.isMaturity?'(maturity) ':''}${escapeHtml(x.account||'—')}</span><span class="mono">${x.tds?'TDS '+fmtCurrency(x.tds):'—'}</span><button type="button" class="icon-btn" data-delpay="${x.id}">✕</button></div>`).join(''):'<div class="form-hint">No interest payments logged yet.</div>'}</div>
+    <div class="payment-add-row"><input type="date" id="payDate"><input type="number" id="payAmount" min="0" step="0.01" placeholder="Amount received ₹"><input type="text" id="payAccount" list="payAcctList" placeholder="Credited to account"><input type="number" id="payTds" min="0" step="0.01" placeholder="TDS (optional)"><button type="button" class="btn-outline btn-small" id="btnAddPayment">+ Add</button></div>
+    <datalist id="payAcctList">${accts}</datalist>
+    <div class="form-hint" style="margin-top:8px;">Received: <b>${fmtCurrency(totalReceived(fd))}</b>${totalTdsOf(fd)>0?` · TDS: <b>${fmtCurrency(totalTdsOf(fd))}</b>`:''} · Realised RoR to date: <b style="color:var(--brass-deep);">${fmtPct(arrValue(fd,today))}</b>. Saved instantly.</div>`;
+  document.getElementById('btnAddPayment').addEventListener('click',()=>{
+    const date=document.getElementById('payDate').value, amount=parseFloat(document.getElementById('payAmount').value);
+    const tds=parseFloat(document.getElementById('payTds').value);
+    if(!date||!(amount>0)){ alert('Enter the date and amount received.'); return; }
+    fd.payouts.push({id:uid('pay'),date,amount,account:document.getElementById('payAccount').value.trim(),tds:tds>0?tds:null,isMaturity:false});
+    renderPaymentsSection(); renderAll();
+  });
+  wrap.querySelectorAll('[data-delpay]').forEach(b=>b.addEventListener('click',()=>{
+    fd.payouts=fd.payouts.filter(x=>x.id!==b.getAttribute('data-delpay'));
+    renderPaymentsSection(); renderAll();
+  }));
+}
+
+/* ---------------- SAVINGS INTEREST ---------------- */
+let editingAcctId=null;
+function openAcctModal(id){
+  if(state.people.length===0){ openPersonModal(); return; }
+  editingAcctId=id||null;
+  const ac=id?state.accounts.find(a=>a.id===id):null;
+  const sel=document.getElementById('acctHolder');
+  sel.innerHTML=state.people.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+  sel.value=ac?ac.personId:(state.activePerson!=='all'?state.activePerson:state.people[0].id);
+  document.getElementById('acctModalTitle').textContent=ac?'Edit Savings Account':'Add Savings Account';
+  document.getElementById('acctBank').value=ac?ac.bank:'';
+  document.getElementById('acctLabel').value=ac?ac.label:'';
+  document.getElementById('acctRate').value=ac&&ac.rate?ac.rate:'';
+  renderJointBox('acctJointBox',sel.value,ac&&ac.jointIds?ac.jointIds:[]);
+  document.getElementById('acctModal').style.display='flex';
+}
+function closeAcctModal(){ document.getElementById('acctModal').style.display='none'; editingAcctId=null; }
+
+function renderSavings(){
+  const el=document.getElementById('savingsContent');
+  if(state.people.length===0){
+    el.innerHTML='<div class="empty-card"><h3>Add a family member first</h3><button class="btn btn-brass" id="emptyAddPerson2">+ Add family member</button></div>';
+    document.getElementById('emptyAddPerson2').addEventListener('click',openPersonModal); return;
+  }
+  const list=state.accounts.filter(a=>(state.activePerson==='all'||isHolder(a,state.activePerson)) && (!state.search.trim()||smartMatch(acctHay(a),state.search)));
+  if(!list.length){
+    el.innerHTML='<div class="empty-card"><h3>'+(state.search.trim()?'No accounts match your search':'No savings accounts yet')+'</h3><p>Add a savings account, then log each interest credit (and any TDS) so the interest certificate is exact.</p><button class="btn btn-brass" id="emptyAddAcct">+ Add savings account</button></div>';
+    document.getElementById('emptyAddAcct').addEventListener('click',()=>openAcctModal(null)); return;
+  }
+  el.innerHTML=list.map(ac=>{
+    const es=(ac.entries||[]).slice().sort((a,b)=>b.date.localeCompare(a.date));
+    const net=es.reduce((t,x)=>t+(x.amount||0),0), tds=es.reduce((t,x)=>t+(x.tds||0),0);
+    const lastBal=es.find(x=>x.balance), person=personById(ac.personId);
+    const rows=es.map(x=>`<tr><td class="mono">${fmtDate(parseDate(x.date))}</td><td class="num">${x.balance?fmtCurrency(x.balance):'—'}</td><td class="num">${fmtCurrency(x.amount)}</td><td class="num">${x.tds?fmtCurrency(x.tds):'—'}</td><td class="num">${fmtCurrency((x.amount||0)+(x.tds||0))}</td><td class="no-print"><button class="icon-btn" data-delentry="${x.id}" data-acct="${ac.id}">✕</button></td></tr>`).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--ink-soft);padding:16px;">No interest credits logged yet.</td></tr>';
+    return `<div class="acct-card" data-acct="${ac.id}">
+      <div class="acct-head"><div><b>${escapeHtml(ac.bank)}</b> · ${escapeHtml(ac.label||'Savings')}<span style="display:block;font-size:0.72rem;color:var(--ink-soft);">${escapeHtml(holderLabel(ac))}${ac.rate?' · '+ac.rate+'% p.a.':''}</span></div>
+        <div class="acct-tot"><span>Interest credited <b>${fmtCurrency(net)}</b></span><span>TDS <b>${fmtCurrency(tds)}</b></span><span>Last balance <b>${lastBal?fmtCurrency(lastBal.balance):'—'}</b></span>
+        <span class="no-print"><button class="icon-btn" data-editacct="${ac.id}" title="Edit">✎</button> <button class="icon-btn" data-delacct="${ac.id}" title="Delete">✕</button></span></div></div>
+      <div class="table-wrap"><table><thead><tr><th>Credit date</th><th class="num">Balance</th><th class="num">Interest credited</th><th class="num">TDS</th><th class="num">Gross</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="payment-add-row no-print"><input type="date" class="s-date"><input type="number" class="s-bal" min="0" step="0.01" placeholder="Balance (opt.)"><input type="number" class="s-amt" min="0" step="0.01" placeholder="Interest credited ₹"><input type="number" class="s-tds" min="0" step="0.01" placeholder="TDS (opt.)"><button type="button" class="btn-outline btn-small s-add">+ Add</button></div>
+    </div>`;
+  }).join('');
+  el.querySelectorAll('.s-add').forEach(btn=>btn.addEventListener('click',()=>{
+    const card=btn.closest('.acct-card'), ac=state.accounts.find(a=>a.id===card.getAttribute('data-acct'));
+    const date=card.querySelector('.s-date').value, amt=parseFloat(card.querySelector('.s-amt').value);
+    const bal=parseFloat(card.querySelector('.s-bal').value), tds=parseFloat(card.querySelector('.s-tds').value);
+    if(!date||!(amt>0)){ alert('Enter the credit date and interest amount.'); return; }
+    (ac.entries=ac.entries||[]).push({id:uid('se'),date,amount:amt,balance:bal>0?bal:null,tds:tds>0?tds:null});
+    renderAll();
+  }));
+  el.querySelectorAll('[data-delentry]').forEach(b=>b.addEventListener('click',()=>{
+    const ac=state.accounts.find(a=>a.id===b.getAttribute('data-acct'));
+    ac.entries=ac.entries.filter(x=>x.id!==b.getAttribute('data-delentry')); renderAll();
+  }));
+  el.querySelectorAll('[data-editacct]').forEach(b=>b.addEventListener('click',()=>openAcctModal(b.getAttribute('data-editacct'))));
+  el.querySelectorAll('[data-delacct]').forEach(b=>b.addEventListener('click',()=>{
+    if(confirm('Delete this savings account and its interest entries?')){ state.accounts=state.accounts.filter(a=>a.id!==b.getAttribute('data-delacct')); renderAll(); }
+  }));
+}
+
+/* ---------------- INTEREST CERTIFICATE ---------------- */
+function renderCert(){
+  if(state.certFY===null) state.certFY=currentFY();
+  const opts=fyOptions(); if(!opts.includes(state.certFY)) state.certFY=opts[0];
+  if(state.certPerson!=='all' && !personById(state.certPerson)) state.certPerson='all';
+  const ps=document.getElementById('certPerson'), fs=document.getElementById('certFY');
+  ps.innerHTML='<option value="all">All family members</option>'+state.people.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+  ps.value=state.certPerson;
+  fs.innerHTML=opts.map(y=>`<option value="${y}">${fyLabel(y)}</option>`).join(''); fs.value=String(state.certFY);
+  const [a,b]=fyRange(state.certFY), groups=buildCert(state.certPerson,state.certFY);
+  let h=`<div class="statement-head"><div><h2>Interest Certificate — ${fyLabel(state.certFY)}</h2><div class="meta">${fmtDate(a)} to ${fmtDate(b)} · Generated ${fmtDate(new Date())}</div></div></div>`;
+  if(!groups.length) h+='<div class="empty-card"><h3>No interest recorded for this period</h3><p>Log FD interest receipts or savings account interest credits, or pick another year.</p></div>';
+  groups.forEach(g=>{
+    const rows=[...g.fdRows.map(r=>['Fixed deposit',r]),...g.acctRows.map(r=>['Savings account',r])].map(([src,r])=>`<tr><td>${src}</td><td>${escapeHtml(r.label)}</td><td>${r.basis}</td><td>${escapeHtml(r.accounts||'—')}</td><td class="num">${fmtCurrency(r.gross)}</td><td class="num">${r.tds?fmtCurrency(r.tds):'—'}</td><td class="num">${fmtCurrency(r.net)}</td></tr>`).join('');
+    const ft='padding:11px 12px;border-top:2px solid var(--ink);font-weight:700;';
+    h+=`<div class="statement-group-title">Account holder: ${escapeHtml(g.person.name)}</div><div class="table-wrap"><table><thead><tr><th>Source</th><th>Details</th><th>Basis</th><th>Credited to</th><th class="num">Gross interest</th><th class="num">TDS</th><th class="num">Net</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td colspan="4" style="${ft}">Total</td><td class="num" style="${ft}">${fmtCurrency(g.tot.gross)}</td><td class="num" style="${ft}">${fmtCurrency(g.tot.tds)}</td><td class="num" style="${ft}">${fmtCurrency(g.tot.net)}</td></tr></tfoot></table></div>`;
+  });
+  h+='<div class="statement-footnote"><b>Note:</b> Compiled from interest records entered in this ledger. "Received" rows use the payments you logged; "Accrued (est.)" rows are calculated from the deposit terms for cumulative or unlogged deposits. Joint holdings are listed under the primary holder. This is a personal summary, not a bank-issued interest or TDS certificate (Form 16A / 26AS).</div>';
+  document.getElementById('certContent').innerHTML=h;
+}
+
+function exportCertPDF(){
+  if(!window.jspdf){ alert('The PDF library did not load — check your internet connection and try again.'); return; }
+  const groups=buildCert(state.certPerson,state.certFY);
+  if(!groups.length){ alert('No interest records for this period.'); return; }
+  const {jsPDF}=window.jspdf, doc=new jsPDF({unit:'pt',format:'a4'}), f=fmtCurrencyPdf;
+  let y=44;
+  doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(20);
+  doc.text('Interest Income Certificate - '+fyLabel(state.certFY),40,y); y+=16;
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(100);
+  doc.text(`1 Apr ${state.certFY} to 31 Mar ${state.certFY+1}  -  Generated ${fmtDate(new Date())}`,40,y); y+=8;
+  groups.forEach(g=>{
+    if(y>680){ doc.addPage(); y=40; }
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(20);
+    doc.text('Account holder: '+g.person.name,40,y+20);
+    const body=[...g.fdRows.map(r=>['Fixed deposit',r]),...g.acctRows.map(r=>['Savings account',r])].map(([src,r])=>[src,r.label,r.basis,r.accounts||'-',f(r.gross),r.tds?f(r.tds):'-',f(r.net)]);
+    doc.autoTable({startY:y+28,head:[['Source','Details','Basis','Credited to','Gross interest','TDS','Net']],body,
+      foot:[['Total','','','',f(g.tot.gross),f(g.tot.tds),f(g.tot.net)]],styles:{fontSize:8,cellPadding:4},
+      headStyles:{fillColor:[22,33,58],textColor:255},footStyles:{fillColor:[246,241,228],textColor:[38,36,28],fontStyle:'bold'},margin:{left:40,right:40}});
+    y=doc.lastAutoTable.finalY+14;
+  });
+  doc.setFont('helvetica','italic'); doc.setFontSize(8); doc.setTextColor(110);
+  doc.text(doc.splitTextToSize('Compiled from interest records entered in the Family FD Ledger. "Accrued (est.)" rows are calculated from deposit terms, not actual bank credits. Joint holdings are listed under the primary holder. This is a personal summary, not a bank-issued interest or TDS certificate (Form 16A / 26AS).',515),40,y+10);
+  const nm=state.certPerson==='all'?'all-family':(personById(state.certPerson)?.name||'holder');
+  doc.save(`interest-certificate-${nm.toLowerCase().replace(/\s+/g,'-')}-${state.certFY}-${String(state.certFY+1).slice(2)}.pdf`);
+}
+
 /* ---------------- MASTER RENDER ---------------- */
+const VIEWS = {
+  ledger:['ledgerView','viewBtnLedger','FD Ledger'],
+  savings:['savingsView','viewBtnSavings','Savings Interest'],
+  statement:['statementView','viewBtnStatement','Statement'],
+  cert:['certView','viewBtnCert','Interest Certificate']
+};
 function renderAll(){
+  queuePersist();
   renderHero();
   renderTabs();
-  if(state.view==='ledger'){
-    document.getElementById('ledgerView').hidden=false;
-    document.getElementById('statementView').hidden=true;
-    document.getElementById('viewBtnLedger').classList.add('active');
-    document.getElementById('viewBtnStatement').classList.remove('active');
-    renderPersonGrid();
-    renderLedgerTable();
-  } else {
-    document.getElementById('ledgerView').hidden=true;
-    document.getElementById('statementView').hidden=false;
-    document.getElementById('viewBtnLedger').classList.remove('active');
-    document.getElementById('viewBtnStatement').classList.add('active');
+  Object.keys(VIEWS).forEach(k=>{
+    document.getElementById(VIEWS[k][0]).hidden = state.view!==k;
+    document.getElementById(VIEWS[k][1]).classList.toggle('active', state.view===k);
+  });
+  document.getElementById('pageTitle').textContent = VIEWS[state.view][2];
+  if(state.view==='ledger'){ renderPersonGrid(); renderLedgerTable(); }
+  else if(state.view==='savings'){ renderSavings(); }
+  else if(state.view==='statement'){
     if(state.statementPerson!=='all' && !personById(state.statementPerson)) state.statementPerson='all';
     renderStatement();
-  }
+  } else { renderCert(); }
 }
 
 function escapeHtml(s){
@@ -1575,6 +1569,29 @@ function escapeHtml(s){
 }
 
 /* ---------------- MODALS ---------------- */
+function populateFdExtras(fdId){
+  const fd=fdId?state.deposits.find(d=>d.id===fdId):null;
+  const kind=fd&&fd.depositKind==='rd'?'rd':'fd';
+  document.getElementById('fdKind').value=kind;
+  if(fd&&kind==='rd') document.getElementById('fdPrincipal').value=fd.installment||'';
+  document.getElementById('fdFormType').value=fd&&fd.formType?fd.formType:'online';
+  document.getElementById('fdWithMe').value=fd&&fd.withMe===false?'no':'yes';
+  document.getElementById('fdCustody').value=fd&&fd.custody?fd.custody:'';
+  renderJointBox('fdJointBox',document.getElementById('fdHolder').value,fd&&fd.jointIds?fd.jointIds:[]);
+  applyKindUI(); applyFormUI();
+}
+function applyKindUI(){
+  const rd=document.getElementById('fdKind').value==='rd';
+  document.getElementById('fdPrincipalLabel').textContent=rd?'Monthly instalment (₹)':'Principal (₹)';
+  document.getElementById('fdInterestWrap').style.display=rd?'none':'';
+  if(rd){ document.getElementById('fdInterestType').value='cumulative'; toggleInterestFields(); }
+  updateBreakPreview();
+}
+function applyFormUI(){
+  const ph=document.getElementById('fdFormType').value==='physical';
+  document.getElementById('fdWithMeWrap').style.display=ph?'':'none';
+  document.getElementById('fdCustodyWrap').style.display=ph?'':'none';
+}
 function toggleInterestFields(){
   const type = document.getElementById('fdInterestType').value;
   document.getElementById('fdCumulativeField').style.display = type==='cumulative' ? '' : 'none';
@@ -1610,6 +1627,7 @@ function toggleBrokenBlock(){
 }
 function updateBreakPreview(){
   const el = document.getElementById('fdBreakPreview');
+  if(document.getElementById('fdKind').value==='rd'){ el.textContent='For an RD, ARR is worked out from each instalment once saved.'; return; }
   const p = parseFloat(document.getElementById('fdPrincipal').value);
   const startVal = document.getElementById('fdStart').value;
   const breakVal = document.getElementById('fdBreakDate').value;
@@ -1629,190 +1647,6 @@ function openPersonModal(){
 }
 function closePersonModal(){ document.getElementById('personModal').style.display='none'; }
 
-// Interest Certificate Modal Logic
-function openCertModal() {
-  const sel = document.getElementById('certPerson');
-  sel.innerHTML = state.people.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
-  if (state.activePerson !== 'all') sel.value = state.activePerson;
-  document.getElementById('certModal').style.display = 'flex';
-}
-function closeCertModal() { document.getElementById('certModal').style.display = 'none'; }
-
-function exportInterestCertificatePDF() {
-  if (!window.jspdf) { alert('PDF library not loaded.'); return; }
-  const personId = document.getElementById('certPerson').value;
-  const person = personById(personId);
-  if (!person) { alert('Select a valid family member.'); return; }
-
-  const fyYear = parseInt(document.getElementById('certFy').value);
-  const fyStart = new Date(fyYear, 3, 1);
-  const fyEnd = new Date(fyYear + 1, 2, 31);
-
-  const personFds = state.deposits.filter(d => d.personId === personId);
-  if (personFds.length === 0) {
-    alert(`${person.name} has no deposits recorded.`);
-    return;
-  }
-
-  const certData = [];
-  let totalGrossInterest = 0;
-  let totalTdsDeducted = 0;
-
-  personFds.forEach(fd => {
-    const { grossInterest, tdsDeducted } = getInterestAndTdsInFY(fd, fyStart, fyEnd);
-    if (grossInterest > 0 || tdsDeducted > 0) {
-      certData.push([
-        fd.bank + (fd.note ? ` (${fd.note})` : ''),
-        fmtCurrencyPdf(fd.principal),
-        fd.rate.toFixed(2) + '%',
-        fmtDate(parseDate(fd.startDate)) + ' - ' + fmtDate(parseDate(fd.maturityDate)),
-        fmtCurrencyPdf(grossInterest),
-        fmtCurrencyPdf(tdsDeducted),
-        fmtCurrencyPdf(grossInterest - tdsDeducted)
-      ]);
-      totalGrossInterest += grossInterest;
-      totalTdsDeducted += tdsDeducted;
-    }
-  });
-
-  if (certData.length === 0) {
-    alert(`No interest was accrued or received for ${person.name} in F.Y. ${fyYear}–${fyYear+1}.`);
-    return;
-  }
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
-
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.setTextColor(22, 33, 58);
-  doc.text('INTEREST CERTIFICATE', 40, 45);
-
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(100);
-  doc.text(`Financial Year: ${fyYear} – ${fyYear + 1} (1st April ${fyYear} to 31st March ${fyYear + 1})`, 40, 62);
-  doc.text(`Generated on: ${fmtDate(new Date())}`, 40, 76);
-
-  doc.setLineWidth(1); doc.setDrawColor(200);
-  doc.line(40, 86, 555, 86);
-
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(20);
-  doc.text(`Account Holder: ${person.name}`, 40, 106);
-
-  doc.autoTable({
-    startY: 120,
-    head: [['Bank / Note', 'Principal', 'Rate', 'Tenure Window', 'Gross Interest', 'TDS Deducted', 'Net Interest']],
-    body: certData,
-    styles: { fontSize: 8, cellPadding: 5 },
-    headStyles: { fillColor: [22, 33, 58], textColor: 255 },
-    foot: [['TOTALS', '', '', '', fmtCurrencyPdf(totalGrossInterest), fmtCurrencyPdf(totalTdsDeducted), fmtCurrencyPdf(totalGrossInterest - totalTdsDeducted)]],
-    footStyles: { fillColor: [246, 241, 228], textColor: [38, 36, 28], fontStyle: 'bold' },
-    margin: { left: 40, right: 40 }
-  });
-
-  let finalY = doc.lastAutoTable.finalY + 25;
-
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(40);
-  doc.text('Summary for Income Tax Filing:', 40, finalY); finalY += 15;
-
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(80);
-  doc.text(`• Total Interest Income (Income from Other Sources): ${fmtCurrencyPdf(totalGrossInterest)}`, 45, finalY); finalY += 13;
-  doc.text(`• Total Tax Deducted at Source (TDS under Sec 194A): ${fmtCurrencyPdf(totalTdsDeducted)}`, 45, finalY); finalY += 13;
-  doc.text(`• Net Amount Credited/Accrued: ${fmtCurrencyPdf(totalGrossInterest - totalTdsDeducted)}`, 45, finalY); finalY += 25;
-
-  doc.setFont('helvetica', 'italic'); doc.setFontSize(7.5); doc.setTextColor(120);
-  doc.text('Note: This document is a computer-generated summary based on user-entered Fixed Deposit records and logged transactions. Please cross-verify with Form 26AS / AIS before final ITR submission.', 40, finalY, { maxWidth: 515 });
-
-  doc.save(`Interest-Certificate-${person.name.replace(/\s+/g, '-')}-FY${fyYear}-${fyYear+1}.pdf`);
-  closeCertModal();
-}
-
-// Payouts Modal Logic
-function openPayoutModal(fdId){
-  const fd = state.deposits.find(d=>d.id===fdId);
-  if(!fd) return;
-  document.getElementById('payoutFdId').value = fd.id;
-  document.getElementById('payoutFdInfo').innerHTML = `<b>${escapeHtml(fd.bank)}</b> ${fd.note?`(${escapeHtml(fd.note)})`:''}<br>Principal: ${fmtCurrency(fd.principal)} · Rate: ${fd.rate.toFixed(2)}%`;
-  
-  document.getElementById('payoutDate').value = toDateInputValue(new Date());
-  document.getElementById('payoutAmount').value = '';
-  document.getElementById('payoutTds').value = '0.00';
-  
-  renderPayoutTable(fd);
-  document.getElementById('payoutModal').style.display='flex';
-}
-function closePayoutModal(){ document.getElementById('payoutModal').style.display='none'; }
-
-function renderPayoutTable(fd) {
-  const tbody = document.getElementById('payoutTableBody');
-  if(!fd.payouts || fd.payouts.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--ink-soft); padding:16px;">No transactions logged yet.</td></tr>`;
-    return;
-  }
-  const sorted = [...fd.payouts].sort((a,b) => parseDate(b.date) - parseDate(a.date));
-  let html = '';
-  sorted.forEach(p => {
-    if (p.isMaturity) {
-       html += `<tr style="background: rgba(201,162,75,0.1);">
-        <td class="mono">${fmtDate(parseDate(p.date))}<br><span style="font-size:0.65rem; color:var(--brass-deep); font-family:'Inter', sans-serif; font-weight:600;">MATURITY PAYOUT</span></td>
-        <td class="num" style="color:var(--ink); font-weight:700;">${fmtCurrency(p.amount)}</td>
-        <td class="num" style="color:var(--stamp-rust);">${fmtCurrency(p.tds)}</td>
-        <td></td>
-      </tr>`;
-    } else {
-      html += `<tr>
-        <td class="mono">${fmtDate(parseDate(p.date))}</td>
-        <td class="num" style="color:var(--stamp-green); font-weight:600;">${fmtCurrency(p.amount)}</td>
-        <td class="num" style="color:var(--stamp-rust);">${fmtCurrency(p.tds)}</td>
-        <td style="text-align:right;"><button class="icon-btn" data-delpayout="${p.id}" style="width:24px;height:24px;font-size:0.7rem;">✕</button></td>
-      </tr>`;
-    }
-  });
-  tbody.innerHTML = html;
-  
-  tbody.querySelectorAll('[data-delpayout]').forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      if(!confirm("Remove this transaction?")) return;
-      const pid = btn.getAttribute('data-delpayout');
-      fd.payouts = fd.payouts.filter(x => x.id !== pid);
-      try {
-        await getDbRef().collection('deposits').doc(fd.id).update({ payouts: fd.payouts });
-        renderPayoutTable(fd);
-        renderAll();
-      } catch(err) {
-        alert("Error deleting payout: " + err.message);
-      }
-    });
-  });
-}
-
-document.getElementById('payoutForm').addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  if(!currentUser) return;
-  const fdId = document.getElementById('payoutFdId').value;
-  const fd = state.deposits.find(d=>d.id===fdId);
-  if(!fd) return;
-  
-  if(!fd.payouts) fd.payouts = [];
-  const newPayout = {
-    id: uid('tx'),
-    date: document.getElementById('payoutDate').value,
-    amount: parseFloat(document.getElementById('payoutAmount').value) || 0,
-    tds: parseFloat(document.getElementById('payoutTds').value) || 0,
-    isMaturity: false
-  };
-  
-  fd.payouts.push(newPayout);
-  
-  try {
-    await getDbRef().collection('deposits').doc(fd.id).update({ payouts: fd.payouts });
-    document.getElementById('payoutAmount').value = '';
-    document.getElementById('payoutTds').value = '0.00';
-    renderPayoutTable(fd);
-    renderAll();
-  } catch(err) {
-    alert("Error logging payout: " + err.message);
-  }
-});
-
 function openFdModal(fdId){
   editingFdId = fdId || null;
   const sel = document.getElementById('fdHolder');
@@ -1825,9 +1659,8 @@ function openFdModal(fdId){
     document.getElementById('fdHolder').value = fd.personId;
     document.getElementById('fdBank').value = fd.bank;
     document.getElementById('fdNote').value = fd.note||'';
-    document.getElementById('fdInstruction').value = fd.maturityInstruction || 'auto_renew';
-    document.getElementById('fdPrincipal').value = fd.principal.toFixed(2);
-    document.getElementById('fdRate').value = fd.rate.toFixed(2);
+    document.getElementById('fdPrincipal').value = fd.principal;
+    document.getElementById('fdRate').value = fd.rate;
     document.getElementById('fdInterestType').value = fd.interestType==='payout' ? 'payout' : 'cumulative';
     if(fd.interestType==='payout'){
       document.getElementById('fdPayoutFreq').value = fd.compounding;
@@ -1841,10 +1674,10 @@ function openFdModal(fdId){
     document.getElementById('fdTenureM').value='';
     document.getElementById('fdTenureD').value='';
     syncTenureFromDates();
-    document.getElementById('fdOverride').value = fd.override ? fd.override.toFixed(2) : '';
+    document.getElementById('fdOverride').value = fd.override || '';
     document.getElementById('fdBroken').checked = !!fd.broken;
     document.getElementById('fdBreakDate').value = fd.breakDate || '';
-    document.getElementById('fdAmountReceived').value = fd.amountReceived ? fd.amountReceived.toFixed(2) : '';
+    document.getElementById('fdAmountReceived').value = fd.amountReceived || '';
     toggleBrokenBlock();
   } else {
     document.getElementById('fdModalTitle').textContent='Add Deposit';
@@ -1852,7 +1685,6 @@ function openFdModal(fdId){
     document.getElementById('fdHolder').value = state.activePerson!=='all' ? state.activePerson : (state.people[0]?state.people[0].id:'');
     document.getElementById('fdBank').value='';
     document.getElementById('fdNote').value='';
-    document.getElementById('fdInstruction').value = 'auto_renew';
     document.getElementById('fdPrincipal').value='';
     document.getElementById('fdRate').value='';
     document.getElementById('fdInterestType').value='cumulative';
@@ -1870,80 +1702,11 @@ function openFdModal(fdId){
     document.getElementById('fdAmountReceived').value='';
     toggleBrokenBlock();
   }
+  populateFdExtras(fdId);
+  renderPaymentsSection();
   document.getElementById('fdModal').style.display='flex';
 }
 function closeFdModal(){ document.getElementById('fdModal').style.display='none'; editingFdId=null; }
-
-/* ---------------- ADVANCED SETTLE MODAL LOGIC ---------------- */
-function openSettleModal(fdId){
-  const fd = state.deposits.find(d=>d.id===fdId);
-  if(!fd) return;
-  document.getElementById('settleFdId').value = fd.id;
-  
-  const calcMv = maturityValue(fd);
-  document.getElementById('settleBankName').textContent = fd.bank + (fd.note ? ` (${fd.note})` : '');
-  document.getElementById('settleCalcVal').textContent = fmtCurrency(calcMv);
-  
-  const instruction = fd.maturityInstruction || 'auto_renew';
-  const actionType = instruction === 'close' ? 'close' : 'renew';
-  document.getElementById('settleActionType').value = actionType;
-
-  // Calculate pre-filled values
-  const startObj = parseDate(fd.startDate);
-  const matObj = parseDate(fd.maturityDate);
-  const { y, m, d } = diffYMD(startObj, matObj);
-  const nextMatObj = addYMD(matObj, y, m, d);
-
-  let initialBankPayout = 0;
-  if (instruction === 'payout_reinvest') {
-    initialBankPayout = Math.max(0, calcMv - fd.principal);
-  }
-  
-  document.getElementById('settleBankAmount').value = initialBankPayout.toFixed(2);
-  document.getElementById('settleTds').value = '0.00';
-
-  const initialRenewedPrincipal = Math.max(0, calcMv - initialBankPayout);
-  document.getElementById('settleRenewedPrincipal').value = initialRenewedPrincipal.toFixed(2);
-  document.getElementById('settleRenewalRate').value = fd.rate.toFixed(2);
-  document.getElementById('settleNewMaturityDate').value = toDateInputValue(nextMatObj);
-  document.getElementById('settleNewInstruction').value = instruction === 'close' ? 'auto_renew' : instruction;
-  document.getElementById('settleNewMaturityValue').value = '';
-  document.getElementById('settleCloseNetAmount').value = calcMv.toFixed(2);
-
-  toggleSettleActionFields();
-  document.getElementById('settleModal').style.display='flex';
-}
-
-function toggleSettleActionFields() {
-  const isRenew = document.getElementById('settleActionType').value === 'renew';
-  document.getElementById('settleRenewFields').style.display = isRenew ? '' : 'none';
-  document.getElementById('settleCloseFields').style.display = isRenew ? 'none' : '';
-  
-  document.getElementById('settleRenewedPrincipal').required = isRenew;
-  document.getElementById('settleRenewalRate').required = isRenew;
-  document.getElementById('settleNewMaturityDate').required = isRenew;
-  document.getElementById('settleCloseNetAmount').required = !isRenew;
-}
-
-function updateSettlementCalculations() {
-  const fdId = document.getElementById('settleFdId').value;
-  const fd = state.deposits.find(d=>d.id===fdId);
-  if(!fd) return;
-
-  const calcMv = maturityValue(fd);
-  const bankAmt = parseFloat(document.getElementById('settleBankAmount').value) || 0;
-  const tds = parseFloat(document.getElementById('settleTds').value) || 0;
-
-  const newPrincipal = Math.max(0, calcMv - bankAmt - tds);
-  document.getElementById('settleRenewedPrincipal').value = newPrincipal.toFixed(2);
-  document.getElementById('settleCloseNetAmount').value = (calcMv - tds).toFixed(2);
-}
-
-document.getElementById('settleActionType').addEventListener('change', toggleSettleActionFields);
-document.getElementById('settleBankAmount').addEventListener('input', updateSettlementCalculations);
-document.getElementById('settleTds').addEventListener('input', updateSettlementCalculations);
-
-function closeSettleModal(){ document.getElementById('settleModal').style.display='none'; }
 
 /* ---------------- EXPORT / IMPORT ---------------- */
 function downloadBlob(content, filename, type){
@@ -1956,48 +1719,8 @@ function downloadBlob(content, filename, type){
 }
 
 function exportJSON(){
-  const data = JSON.stringify({people:state.people, deposits:state.deposits}, null, 2);
+  const data = JSON.stringify({people:state.people, deposits:state.deposits, accounts:state.accounts}, null, 2);
   downloadBlob(data, 'family-fd-data.json', 'application/json');
-}
-
-async function importJSONToFirestore(file) {
-  if(!currentUser) return;
-  const reader = new FileReader();
-  reader.onload = async function(e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      if(!Array.isArray(data.people) || !Array.isArray(data.deposits)) throw new Error('Invalid file structure');
-      const replace = confirm('Click OK to REPLACE all current cloud data with this file.\nClick Cancel to MERGE it with your existing data instead.');
-      const userRef = getDbRef();
-      const btn = document.getElementById('btnImport');
-      const originalText = btn.textContent;
-      btn.textContent = "Importing...";
-      btn.disabled = true;
-
-      if (replace) {
-        const pSnap = await userRef.collection('people').get();
-        for (let doc of pSnap.docs) await doc.ref.delete();
-        const dSnap = await userRef.collection('deposits').get();
-        for (let doc of dSnap.docs) await doc.ref.delete();
-      }
-      for (let p of data.people) await userRef.collection('people').doc(p.id).set(p);
-      for (let d of data.deposits) {
-        if(!d.payouts) d.payouts = [];
-        await userRef.collection('deposits').doc(d.id).set(d);
-      }
-
-      btn.textContent = originalText;
-      btn.disabled = false;
-      alert('Import successful!');
-      loadData();
-    } catch(err) {
-      alert('Could not import this file: ' + err.message);
-      const btn = document.getElementById('btnImport');
-      btn.textContent = "Import JSON";
-      btn.disabled = false;
-    }
-  };
-  reader.readAsText(file);
 }
 
 function csvEscape(v){
@@ -2008,14 +1731,14 @@ function csvEscape(v){
 
 function exportLedgerCSV(){
   const list = getExportRows();
-  const headers = ['Bank','Note','Holder','Principal','Nominal Rate %','Interest Handling','EIR %','Paid Out','Current Value','Maturity Value','ARR %','Start Date','Maturity Date','Broken','Break Date','Amount Received','Status'];
+  const headers = ['Bank','Note','Holder','Principal','Nominal Rate %','Interest Handling','EIR %','Current Value','Maturity Value','ARR %','Start Date','Maturity Date','Broken','Break Date','Amount Received','Interest Received (net)','TDS Deducted','Form / Custody','Status'];
   let rows = [headers.join(',')];
   list.forEach(r=>{
     rows.push([
-      csvEscape(r.fd.bank), csvEscape(r.fd.note), csvEscape(r.person?r.person.name:''),
-      r.fd.principal.toFixed(2), r.fd.rate.toFixed(2), csvEscape(interestLabel(r.fd)), (r.eir*100).toFixed(2), r.payoutsTotal.toFixed(2),
+      csvEscape(r.fd.bank), csvEscape(r.fd.note), csvEscape(holderLabel(r.fd)),
+      r.invested, r.fd.rate, csvEscape(interestLabel(r.fd)), (r.eir*100).toFixed(2),
       r.cv.toFixed(2), r.mv.toFixed(2), (r.arr*100).toFixed(2),
-      r.fd.startDate, r.fd.maturityDate, r.fd.broken?'Yes':'No', r.fd.breakDate||'', r.fd.amountReceived ? r.fd.amountReceived.toFixed(2) : '', statusLabel(r.status)
+      r.fd.startDate, r.fd.maturityDate, r.fd.broken?'Yes':'No', r.fd.breakDate||'', r.fd.amountReceived||'', totalReceived(r.fd), totalTdsOf(r.fd), csvEscape(formLabel(r.fd)), statusLabel(r.status)
     ].join(','));
   });
   downloadBlob(rows.join('\n'), 'fd-ledger.csv', 'text/csv');
@@ -2023,15 +1746,15 @@ function exportLedgerCSV(){
 
 function exportStatementCSV(){
   const all = getEnrichedDeposits();
-  const rows = state.statementPerson==='all' ? all : all.filter(r=>r.fd.personId===state.statementPerson);
-  const headers = ['Holder','Bank','Note','Principal','Nominal Rate %','Interest Handling','EIR %','Paid Out','Current Value','Maturity Value','ARR %','Start Date','Maturity Date','Broken','Break Date','Amount Received','Status'];
+  const rows = state.statementPerson==='all' ? all : all.filter(r=>isHolder(r.fd,state.statementPerson));
+  const headers = ['Holder','Bank','Note','Principal','Nominal Rate %','Interest Handling','EIR %','Current Value','Maturity Value','ARR %','Start Date','Maturity Date','Broken','Break Date','Amount Received','Interest Received (net)','TDS Deducted','Form / Custody','Status'];
   let out = [headers.join(',')];
   rows.forEach(r=>{
     out.push([
-      csvEscape(r.person?r.person.name:''), csvEscape(r.fd.bank), csvEscape(r.fd.note),
-      r.fd.principal.toFixed(2), r.fd.rate.toFixed(2), csvEscape(interestLabel(r.fd)), (r.eir*100).toFixed(2), r.payoutsTotal.toFixed(2),
+      csvEscape(holderLabel(r.fd)), csvEscape(r.fd.bank), csvEscape(r.fd.note),
+      r.invested, r.fd.rate, csvEscape(interestLabel(r.fd)), (r.eir*100).toFixed(2),
       r.cv.toFixed(2), r.mv.toFixed(2), (r.arr*100).toFixed(2),
-      r.fd.startDate, r.fd.maturityDate, r.fd.broken?'Yes':'No', r.fd.breakDate||'', r.fd.amountReceived ? r.fd.amountReceived.toFixed(2) : '', statusLabel(r.status)
+      r.fd.startDate, r.fd.maturityDate, r.fd.broken?'Yes':'No', r.fd.breakDate||'', r.fd.amountReceived||'', totalReceived(r.fd), totalTdsOf(r.fd), csvEscape(formLabel(r.fd)), statusLabel(r.status)
     ].join(','));
   });
   const name = state.statementPerson==='all' ? 'all-family' : (personById(state.statementPerson)?.name||'statement');
@@ -2039,16 +1762,15 @@ function exportStatementCSV(){
 }
 
 /* ---------------- PDF EXPORT ---------------- */
-const PDF_HEAD = ['Bank / Note','Holder','Principal','Rate','Interest','EIR','Paid Out','Current Value','Maturity Value','ARR','Start','Maturity / Break','Status'];
+const PDF_HEAD = ['Bank / Note','Holder','Principal','Rate','Interest','EIR','Current Value','Maturity Value','ARR','Start','Maturity / Break','Status'];
 function pdfRow(r, includeHolder){
   const row = [
     r.fd.bank + (r.fd.note?` (${r.fd.note})`:''),
-    r.person?r.person.name:'',
-    fmtCurrencyPdf(r.fd.principal),
+    holderLabel(r.fd),
+    fmtCurrencyPdf(r.invested),
     r.fd.rate.toFixed(2)+'%',
     interestLabel(r.fd),
     fmtPct(r.eir),
-    fmtCurrencyPdf(r.payoutsTotal),
     fmtCurrencyPdf(r.cv),
     fmtCurrencyPdf(r.mv),
     fmtPct(r.arr),
@@ -2061,10 +1783,10 @@ function pdfRow(r, includeHolder){
 }
 
 function exportLedgerPDF(){
-  if(!window.jspdf){ alert('The PDF library did not load.'); return; }
+  if(!window.jspdf){ alert('The PDF library did not load — check your internet connection and try again.'); return; }
   const { jsPDF } = window.jspdf;
   const list = getExportRows();
-  if(list.length===0){ alert('Nothing to export.'); return; }
+  if(list.length===0){ alert('Nothing to export with the current filters/selection.'); return; }
   const doc = new jsPDF({orientation:'landscape', unit:'pt', format:'a4'});
   const agg = computeAggregates(list);
   const scopeName = state.selected.size>0
@@ -2080,7 +1802,7 @@ function exportLedgerPDF(){
     body: list.map(r=>pdfRow(r,true)),
     styles:{fontSize:8, cellPadding:4},
     headStyles:{fillColor:[22,33,58], textColor:255},
-    foot:[['Totals','', fmtCurrencyPdf(agg.totalPrincipal),'','','', fmtCurrencyPdf(agg.totalPaidOut), fmtCurrencyPdf(agg.totalCurrent), fmtCurrencyPdf(agg.totalMaturity),'','','','']],
+    foot:[['Totals','', fmtCurrencyPdf(agg.totalPrincipal),'','','', fmtCurrencyPdf(agg.totalCurrent), fmtCurrencyPdf(agg.totalMaturity),'','','','']],
     footStyles:{fillColor:[246,241,228], textColor:[38,36,28], fontStyle:'bold'},
     margin:{left:40,right:40}
   });
@@ -2088,7 +1810,7 @@ function exportLedgerPDF(){
 }
 
 function exportStatementPDF(){
-  if(!window.jspdf){ alert('The PDF library did not load.'); return; }
+  if(!window.jspdf){ alert('The PDF library did not load — check your internet connection and try again.'); return; }
   const { jsPDF } = window.jspdf;
   const all = getEnrichedDeposits();
   const doc = new jsPDF({orientation:'landscape', unit:'pt', format:'a4'});
@@ -2116,10 +1838,10 @@ function exportStatementPDF(){
     });
     const agg = computeAggregates(all);
     doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(20);
-    doc.text(`Active Principal: ${fmtCurrencyPdf(agg.totalPrincipal)}   Active Current Value: ${fmtCurrencyPdf(agg.totalCurrent)}   Weighted EIR: ${fmtPct(agg.weightedEir)}   Weighted ARR: ${fmtPct(agg.weightedArr)}`, 40, y);
+    doc.text(`Total Principal: ${fmtCurrencyPdf(agg.totalPrincipal)}   Total Current Value: ${fmtCurrencyPdf(agg.totalCurrent)}   Weighted EIR: ${fmtPct(agg.weightedEir)}   Weighted ARR: ${fmtPct(agg.weightedArr)}`, 40, y);
   } else {
     const person = personById(state.statementPerson);
-    const rows = all.filter(r=>r.fd.personId===person.id);
+    const rows = all.filter(r=>isHolder(r.fd,person.id));
     doc.setFont('helvetica','bold'); doc.setFontSize(15); doc.setTextColor(20);
     doc.text(`${person.name} - Fixed Deposit Statement`, 40, y); y+=18;
     doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(100);
@@ -2135,23 +1857,56 @@ function exportStatementPDF(){
     y = doc.lastAutoTable.finalY + 22;
     const agg = computeAggregates(rows);
     doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(20);
-    doc.text(`Active Principal: ${fmtCurrencyPdf(agg.totalPrincipal)}   Active Current Value: ${fmtCurrencyPdf(agg.totalCurrent)}   Weighted EIR: ${fmtPct(agg.weightedEir)}   Weighted ARR: ${fmtPct(agg.weightedArr)}`, 40, y);
+    doc.text(`Total Principal: ${fmtCurrencyPdf(agg.totalPrincipal)}   Total Current Value: ${fmtCurrencyPdf(agg.totalCurrent)}   Weighted EIR: ${fmtPct(agg.weightedEir)}   Weighted ARR: ${fmtPct(agg.weightedArr)}`, 40, y);
   }
   const name = state.statementPerson==='all' ? 'all-family' : (personById(state.statementPerson)?.name||'statement');
   doc.save(`fd-statement-${name.toLowerCase().replace(/\s+/g,'-')}.pdf`);
 }
 
-/* ---------------- EVENTS ---------------- */
-document.getElementById('btnExport').addEventListener('click', exportJSON);
-document.getElementById('btnInterestCert').addEventListener('click', ()=>{ if(state.people.length===0){ alert('Add a family member first.'); return; } openCertModal(); });
-document.getElementById('btnGenerateCertPdf').addEventListener('click', exportInterestCertificatePDF);
-document.getElementById('certModalClose').addEventListener('click', closeCertModal);
-document.getElementById('certCancel').addEventListener('click', closeCertModal);
-document.getElementById('certModal').addEventListener('click', (e)=>{ if(e.target.id==='certModal') closeCertModal(); });
+function importJSONFile(file){
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const data = JSON.parse(e.target.result);
+      if(!Array.isArray(data.people) || !Array.isArray(data.deposits)) throw new Error('Invalid file structure');
+      data.deposits.forEach(normalizeDeposit);
+      const replace = confirm('Click OK to REPLACE all current data (including the shared cloud copy) with this file.\nClick Cancel to MERGE it with your existing data instead.');
+      if(replace){
+        state.people = data.people;
+        state.deposits = data.deposits;
+        state.accounts = Array.isArray(data.accounts) ? data.accounts : [];
+      } else {
+        const existingPersonIds = new Set(state.people.map(p=>p.id));
+        data.people.forEach(p=>{ if(!existingPersonIds.has(p.id)) state.people.push(p); });
+        const existingFdIds = new Set(state.deposits.map(d=>d.id));
+        data.deposits.forEach(d=>{ if(!existingFdIds.has(d.id)) state.deposits.push(d); });
+        const existingAcIds = new Set(state.accounts.map(a=>a.id));
+        (data.accounts||[]).forEach(a=>{ if(!existingAcIds.has(a.id)) state.accounts.push(a); });
+      }
+      state.activePerson='all';
+      renderAll();
+    }catch(err){
+      alert('Could not import this file: '+err.message);
+    }
+  };
+  reader.readAsText(file);
+}
 
-document.getElementById('btnImport').addEventListener('click', ()=>{ if(!currentUser) return; document.getElementById('importFile').click(); });
-document.getElementById('importFile').addEventListener('change', (e)=>{ if(e.target.files[0]) importJSONToFirestore(e.target.files[0]); e.target.value=''; });
-document.getElementById('btnAddFd').addEventListener('click', ()=>{ if(state.people.length===0){ alert('Add a family member first.'); openPersonModal(); return; } openFdModal(null); });
+/* ---------------- EVENTS ---------------- */
+document.getElementById('btnDemo').addEventListener('click', ()=>{
+  if(state.people.length>0 && !confirm('This replaces current data with sample data. Continue?')) return;
+  loadDemo();
+});
+document.getElementById('btnExport').addEventListener('click', exportJSON);
+document.getElementById('btnImport').addEventListener('click', ()=> document.getElementById('importFile').click());
+document.getElementById('importFile').addEventListener('change', (e)=>{
+  if(e.target.files[0]) importJSONFile(e.target.files[0]);
+  e.target.value='';
+});
+document.getElementById('btnAddFd').addEventListener('click', ()=>{
+  if(state.people.length===0){ alert('Add a family member first.'); openPersonModal(); return; }
+  openFdModal(null);
+});
 document.getElementById('btnExportCsv').addEventListener('click', exportLedgerCSV);
 document.getElementById('btnExportPdf').addEventListener('click', exportLedgerPDF);
 document.getElementById('btnStatementCsv').addEventListener('click', exportStatementCSV);
@@ -2160,79 +1915,78 @@ document.getElementById('btnStatementPrint').addEventListener('click', ()=> wind
 
 document.getElementById('fdInterestType').addEventListener('change', toggleInterestFields);
 document.getElementById('fdBroken').addEventListener('change', toggleBrokenBlock);
-['fdTenureY','fdTenureM','fdTenureD'].forEach(id=>{ document.getElementById(id).addEventListener('input', syncMaturityFromTenure); });
+['fdTenureY','fdTenureM','fdTenureD'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', syncMaturityFromTenure);
+});
 document.getElementById('fdMaturity').addEventListener('change', syncTenureFromDates);
 document.getElementById('fdStart').addEventListener('change', ()=>{
-  const y=parseInt(document.getElementById('fdTenureY').value)||0; const m=parseInt(document.getElementById('fdTenureM').value)||0; const d=parseInt(document.getElementById('fdTenureD').value)||0;
+  const y=parseInt(document.getElementById('fdTenureY').value)||0;
+  const m=parseInt(document.getElementById('fdTenureM').value)||0;
+  const d=parseInt(document.getElementById('fdTenureD').value)||0;
   if(y||m||d) syncMaturityFromTenure(); else syncTenureFromDates();
 });
-['fdPrincipal','fdStart','fdBreakDate','fdAmountReceived'].forEach(id=>{ document.getElementById(id).addEventListener('input', updateBreakPreview); });
+['fdPrincipal','fdStart','fdBreakDate','fdAmountReceived'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', updateBreakPreview);
+});
 
-document.getElementById('viewBtnLedger').addEventListener('click', ()=>{ state.view='ledger'; renderAll(); });
-document.getElementById('viewBtnStatement').addEventListener('click', ()=>{ state.view='statement'; renderAll(); });
+
 document.getElementById('filterStatus').addEventListener('change', (e)=>{ state.filterStatus=e.target.value; renderAll(); });
-document.getElementById('filterSearch').addEventListener('input', (e)=>{ state.search=e.target.value; renderHero(); renderLedgerTable(); });
+document.getElementById('globalSearch').addEventListener('input',e=>{ state.search=e.target.value; if(state.view!=='ledger'&&state.view!=='savings') state.view='ledger'; renderAll(); });
+
 document.getElementById('statementPerson').addEventListener('change', (e)=>{ state.statementPerson=e.target.value; renderStatement(); });
 
 document.getElementById('fdModalClose').addEventListener('click', closeFdModal);
 document.getElementById('fdCancel').addEventListener('click', closeFdModal);
 document.getElementById('fdModal').addEventListener('click', (e)=>{ if(e.target.id==='fdModal') closeFdModal(); });
-document.getElementById('payoutModalClose').addEventListener('click', closePayoutModal);
-document.getElementById('payoutModal').addEventListener('click', (e)=>{ if(e.target.id==='payoutModal') closePayoutModal(); });
-document.getElementById('settleModalClose').addEventListener('click', closeSettleModal);
-document.getElementById('settleCancel').addEventListener('click', closeSettleModal);
-document.getElementById('settleModal').addEventListener('click', (e)=>{ if(e.target.id==='settleModal') closeSettleModal(); });
+
 document.getElementById('personModalClose').addEventListener('click', closePersonModal);
 document.getElementById('personCancel').addEventListener('click', closePersonModal);
 document.getElementById('personModal').addEventListener('click', (e)=>{ if(e.target.id==='personModal') closePersonModal(); });
 
-// Handle Save Person
-document.getElementById('personForm').addEventListener('submit', async (e)=>{
+document.getElementById('personForm').addEventListener('submit', (e)=>{
   e.preventDefault();
-  if(!currentUser) return;
   const name = document.getElementById('personName').value.trim();
   if(!name) return;
   const p = {id:uid('p'), name};
-  try {
-    await getDbRef().collection('people').doc(p.id).set(p);
-    state.people.push(p);
-    state.activePerson = p.id;
-    closePersonModal();
-    renderAll();
-  } catch (err) {
-    alert("Error saving person: " + err.message);
-  }
+  state.people.push(p);
+  state.activePerson = p.id;
+  closePersonModal();
+  renderAll();
 });
 
-// Handle Save Deposit 
-document.getElementById('fdForm').addEventListener('submit', async (e)=>{
+document.getElementById('fdForm').addEventListener('submit', (e)=>{
   e.preventDefault();
-  if(!currentUser) return;
-
   const start = document.getElementById('fdStart').value;
   const maturity = document.getElementById('fdMaturity').value;
-  if(parseDate(maturity) <= parseDate(start)){ alert('Maturity date must be after the start date.'); return; }
-  
+  if(parseDate(maturity) <= parseDate(start)){
+    alert('Maturity date must be after the start date.');
+    return;
+  }
   const interestType = document.getElementById('fdInterestType').value;
   const broken = document.getElementById('fdBroken').checked;
   let breakDate = null, amountReceived = null;
   if(broken){
     breakDate = document.getElementById('fdBreakDate').value;
     const amtStr = document.getElementById('fdAmountReceived').value;
-    if(!breakDate || !amtStr){ alert('Enter break date and amount received.'); return; }
+    if(!breakDate || !amtStr){
+      alert('Enter both the break date and the amount received for a broken deposit.');
+      return;
+    }
     amountReceived = parseFloat(amtStr);
-    if(parseDate(breakDate) <= parseDate(start)){ alert('Break date must be after start date.'); return; }
-    if(parseDate(breakDate) > parseDate(maturity)){ alert('Break date must be before maturity.'); return; }
+    if(parseDate(breakDate) <= parseDate(start)){
+      alert('Break date must be after the start date.');
+      return;
+    }
+    if(parseDate(breakDate) > parseDate(maturity)){
+      alert('Break date should be on or before the maturity date — if it already matured, leave "broken" unchecked.');
+      return;
+    }
   }
-
-  const existingPayouts = editingFdId ? (state.deposits.find(d=>d.id===editingFdId)?.payouts || []) : [];
-
   const record = {
     id: editingFdId || uid('fd'),
     personId: document.getElementById('fdHolder').value,
     bank: document.getElementById('fdBank').value.trim(),
     note: document.getElementById('fdNote').value.trim(),
-    maturityInstruction: document.getElementById('fdInstruction').value,
     principal: parseFloat(document.getElementById('fdPrincipal').value),
     rate: parseFloat(document.getElementById('fdRate').value),
     interestType: interestType,
@@ -2243,115 +1997,166 @@ document.getElementById('fdForm').addEventListener('submit', async (e)=>{
     broken: broken,
     breakDate: breakDate,
     amountReceived: amountReceived,
-    payouts: existingPayouts,
-    settled: false,
-    settlementAmount: null
+    payouts: (state.deposits.find(d=>d.id===editingFdId)||{}).payouts || []
   };
-  
-  try {
-    await getDbRef().collection('deposits').doc(record.id).set(record);
-    if(editingFdId){
-      const idx = state.deposits.findIndex(d=>d.id===editingFdId);
-      state.deposits[idx] = record;
-    } else {
-      state.deposits.push(record);
-    }
-    closeFdModal();
-    state.selected.clear();
-    renderAll();
-  } catch(err) {
-    alert("Error saving deposit: " + err.message);
+  const kind=document.getElementById('fdKind').value;
+  record.depositKind=kind;
+  record.jointIds=readJoint('fdJointBox');
+  record.formType=document.getElementById('fdFormType').value;
+  record.withMe=record.formType==='physical' ? document.getElementById('fdWithMe').value==='yes' : null;
+  record.custody=record.formType==='physical' ? document.getElementById('fdCustody').value.trim() : '';
+  if(kind==='rd'){
+    record.installment=record.principal; record.interestType='cumulative';
+    record.compounding=document.getElementById('fdCompounding').value;
+    record.principal=Math.round(record.installment*rdMonths(record)*100)/100;
+  } else { record.installment=null; }
+  if(editingFdId){
+    const idx = state.deposits.findIndex(d=>d.id===editingFdId);
+    state.deposits[idx] = Object.assign({}, state.deposits[idx], record);
+  } else {
+    state.deposits.push(record);
   }
+  closeFdModal();
+  renderAll();
 });
 
-// Handle Settlement Submit
-document.getElementById('settleForm').addEventListener('submit', async (e)=>{
+document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>{ state.view=b.getAttribute('data-view'); renderAll(); document.getElementById('content').scrollTop=0; }));
+document.getElementById('menuBtn').addEventListener('click',()=>document.body.classList.toggle('side-open'));
+document.getElementById('sideBackdrop').addEventListener('click',()=>document.body.classList.remove('side-open'));
+document.getElementById('sidebar').addEventListener('click',e=>{ if(e.target.closest('.ptab[data-person],.nav-btn')) document.body.classList.remove('side-open'); });
+document.getElementById('btnAddAcct').addEventListener('click',()=>openAcctModal(null));
+document.getElementById('fdKind').addEventListener('change',applyKindUI);
+document.getElementById('fdFormType').addEventListener('change',applyFormUI);
+document.getElementById('fdHolder').addEventListener('change',e=>renderJointBox('fdJointBox',e.target.value,readJoint('fdJointBox')));
+document.getElementById('acctHolder').addEventListener('change',e=>renderJointBox('acctJointBox',e.target.value,readJoint('acctJointBox')));
+document.getElementById('acctModalClose').addEventListener('click',closeAcctModal);
+document.getElementById('acctCancel').addEventListener('click',closeAcctModal);
+document.getElementById('acctModal').addEventListener('click',e=>{ if(e.target.id==='acctModal') closeAcctModal(); });
+document.getElementById('acctForm').addEventListener('submit',e=>{
   e.preventDefault();
-  if(!currentUser) return;
-  
-  const fdId = document.getElementById('settleFdId').value;
-  const fdIndex = state.deposits.findIndex(d=>d.id===fdId);
-  const oldFd = state.deposits[fdIndex];
-  
-  const actionType = document.getElementById('settleActionType').value;
-  const bankAmount = parseFloat(document.getElementById('settleBankAmount').value) || 0;
-  const tds = parseFloat(document.getElementById('settleTds').value) || 0;
-  
-  const calcMv = maturityValue(oldFd);
-  let finalSettlementVal = calcMv - tds;
-
-  if(!oldFd.payouts) oldFd.payouts = [];
-
-  // Log payout if bank received cash during settlement
-  if (bankAmount > 0) {
-    oldFd.payouts.push({
-      id: uid('tx'),
-      date: oldFd.maturityDate,
-      amount: bankAmount,
-      tds: tds,
-      isMaturity: (actionType === 'close')
-    });
-  }
-
-  if (actionType === 'close') {
-    const netClose = parseFloat(document.getElementById('settleCloseNetAmount').value) || (calcMv - tds);
-    finalSettlementVal = netClose;
-  }
-
-  const updatedOldFd = {
-    ...oldFd,
-    settled: true,
-    settlementAmount: finalSettlementVal,
-    tdsDeducted: tds
-  };
-
-  let newFd = null;
-  if (actionType === 'renew') {
-    const newPrincipal = parseFloat(document.getElementById('settleRenewedPrincipal').value);
-    const newRate = parseFloat(document.getElementById('settleRenewalRate').value);
-    const newMaturityDate = document.getElementById('settleNewMaturityDate').value;
-    const newInstruction = document.getElementById('settleNewInstruction').value;
-    const newMvVal = document.getElementById('settleNewMaturityValue').value ? parseFloat(document.getElementById('settleNewMaturityValue').value) : null;
-
-    newFd = {
-      id: uid('fd'),
-      personId: oldFd.personId,
-      bank: oldFd.bank,
-      note: oldFd.note ? oldFd.note + ' (Renewed)' : 'Renewed FD',
-      maturityInstruction: newInstruction,
-      principal: newPrincipal,
-      rate: newRate,
-      interestType: oldFd.interestType,
-      compounding: oldFd.compounding,
-      startDate: oldFd.maturityDate, 
-      maturityDate: newMaturityDate,
-      override: newMvVal,
-      broken: false,
-      breakDate: null,
-      amountReceived: null,
-      payouts: [],
-      settled: false,
-      settlementAmount: null
-    };
-  }
-
-  try {
-    const userRef = getDbRef().collection('deposits');
-    await userRef.doc(updatedOldFd.id).update(updatedOldFd);
-    state.deposits[fdIndex] = updatedOldFd;
-
-    if (newFd) {
-      await userRef.doc(newFd.id).set(newFd);
-      state.deposits.push(newFd);
-    }
-
-    closeSettleModal();
-    state.selected.clear();
-    renderAll();
-  } catch (err) {
-    alert("Error settling deposit: " + err.message);
-  }
+  const rate=parseFloat(document.getElementById('acctRate').value);
+  const data={jointIds:readJoint('acctJointBox'),personId:document.getElementById('acctHolder').value,bank:document.getElementById('acctBank').value.trim(),label:document.getElementById('acctLabel').value.trim()||'Savings',rate:rate>0?rate:null};
+  if(editingAcctId){ Object.assign(state.accounts.find(a=>a.id===editingAcctId),data); }
+  else { state.accounts.push(Object.assign({id:uid('ac'),entries:[]},data)); }
+  closeAcctModal(); renderAll();
 });
+document.getElementById('certPerson').addEventListener('change',e=>{ state.certPerson=e.target.value; renderCert(); });
+document.getElementById('certFY').addEventListener('change',e=>{ state.certFY=parseInt(e.target.value,10); renderCert(); });
+document.getElementById('btnCertPdf').addEventListener('click',exportCertPDF);
+document.getElementById('btnCertPrint').addEventListener('click',()=>window.print());
+
+
+/* ---------------- FIREBASE CLOUD SYNC ---------------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyBwZx2OnjqTcqvzqM83Ujrq_FLo6rpXsvQ",   // <-- paste your real web API key here
+  authDomain: "family-fds.firebaseapp.com",
+  projectId: "family-fds",
+  storageBucket: "family-fds.firebasestorage.app",
+  messagingSenderId: "298414474623",
+  appId: "1:298414474623:web:34d848f2c5467c5ddc464a"
+};
+const ALLOWED_EMAILS = ["anshul.jaipur@gmail.com","vjgoyaljaipur@gmail.com","gopalgoyal.2010@gmail.com"];
+const CLOUD = typeof firebase !== 'undefined' && !/PASTE|X{6,}/.test(firebaseConfig.apiKey);
+const COLS = ['people','deposits','accounts'];
+let db=null, auth=null, cloudReady=false, accountsOff=false, persistTimer=null, persisting=false, persistAgain=false, lastLoad=0, errShown=false;
+let lastSaved={people:{},deposits:{},accounts:{}};
+const wsRef=()=>db.collection('shared_workspaces').doc('family_ledger');
+const timeStr=()=>new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+function setSync(msg,cls,title){ const el=document.getElementById('syncChip'); if(!el) return; el.textContent=msg; el.className='sync-chip '+(cls||''); el.title=title||''; }
+function snapMap(arr){ const m={}; (arr||[]).forEach(x=>{ if(x&&x.id) m[x.id]=JSON.stringify(x); }); return m; }
+
+async function loadCloud(){
+  setSync('Loading…','busy');
+  try{
+    const [pp,dd]=await Promise.all([wsRef().collection('people').get(), wsRef().collection('deposits').get()]);
+    let aDocs=[]; accountsOff=false;
+    try{ aDocs=(await wsRef().collection('accounts').get()).docs; }catch(e){ accountsOff=true; console.warn('accounts not readable',e); }
+    state.people=pp.docs.map(x=>x.data());
+    state.deposits=dd.docs.map(x=>normalizeDeposit(x.data()));
+    state.accounts=aDocs.map(x=>x.data());
+    lastSaved={people:snapMap(state.people),deposits:snapMap(state.deposits),accounts:snapMap(state.accounts)};
+    cloudReady=true; lastLoad=Date.now();
+    if(accountsOff) setSync('☁ Connected · savings not synced (add "accounts" to Firestore rules)','warn');
+    else setSync('☁ Synced '+timeStr(),'ok');
+    renderAll();
+  }catch(err){
+    console.error(err); cloudReady=false; setSync('⚠ Could not load','err',err.message);
+    alert('Could not load data from Firebase: '+err.message+'\nCheck your sign-in and Firestore rules.');
+  }
+}
+function queuePersist(){
+  if(!CLOUD||!cloudReady) return;
+  setSync('Saving…','busy'); clearTimeout(persistTimer); persistTimer=setTimeout(persistNow,600);
+}
+async function persistNow(){
+  clearTimeout(persistTimer);
+  if(!CLOUD||!cloudReady) return;
+  if(persisting){ persistAgain=true; return; }
+  persisting=true;
+  try{
+    const cur={people:state.people,deposits:state.deposits,accounts:state.accounts};
+    const maps={}, ops=[];
+    COLS.forEach(c=>{
+      if(c==='accounts' && accountsOff) return;
+      const now=snapMap(cur[c]), prev=lastSaved[c]||{}; maps[c]=now;
+      Object.keys(now).forEach(id=>{ if(now[id]!==prev[id]) ops.push({c,id,data:JSON.parse(now[id])}); });
+      Object.keys(prev).forEach(id=>{ if(!(id in now)) ops.push({c,id,del:true}); });
+    });
+    const prevTotal=COLS.reduce((t,c)=>t+Object.keys(lastSaved[c]||{}).length,0);
+    const curTotal=COLS.reduce((t,c)=>t+(maps[c]?Object.keys(maps[c]).length:0),0);
+    if(prevTotal>3 && curTotal===0){ setSync('⚠ Save blocked: would erase everything','err'); return; }
+    for(let i=0;i<ops.length;i+=400){
+      const batch=db.batch();
+      ops.slice(i,i+400).forEach(o=>{ const ref=wsRef().collection(o.c).doc(o.id); if(o.del) batch.delete(ref); else batch.set(ref,o.data); });
+      await batch.commit();
+    }
+    Object.keys(maps).forEach(c=>{ lastSaved[c]=maps[c]; });
+    setSync('☁ Synced '+timeStr(),'ok');
+  }catch(err){
+    console.error(err); setSync('⚠ Sync error','err',err.message);
+    if(!errShown){ errShown=true; alert('Could not save to Firebase: '+err.message); }
+  }finally{
+    persisting=false; if(persistAgain){ persistAgain=false; persistNow(); }
+  }
+}
+async function refreshData(){
+  if(CLOUD && cloudReady){ await persistNow(); await loadCloud(); } else { renderAll(); }
+  document.getElementById('refreshStamp').textContent='Updated '+timeStr();
+}
+document.getElementById('btnRefresh').addEventListener('click',refreshData);
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden) return;
+  if(CLOUD){ if(cloudReady && Date.now()-lastLoad>60000) refreshData(); } else renderAll();
+});
+
+if(CLOUD){
+  firebase.initializeApp(firebaseConfig);
+  db=firebase.firestore(); auth=firebase.auth();
+  const gp=new firebase.auth.GoogleAuthProvider();
+  document.getElementById('btnDemo').style.display='none';
+  document.getElementById('userBox').style.display='flex';
+  document.getElementById('loginOverlay').style.display='flex';
+  document.getElementById('btnGoogleLogin').addEventListener('click',()=>{ auth.signInWithPopup(gp).catch(e=>alert('Login error: '+e.message)); });
+  document.getElementById('btnLogout').addEventListener('click',async()=>{ await persistNow(); cloudReady=false; auth.signOut(); });
+  auth.onAuthStateChanged(user=>{
+    if(user){
+      if(ALLOWED_EMAILS.some(e=>e.toLowerCase()===(user.email||'').toLowerCase())){
+        document.getElementById('loginOverlay').style.display='none';
+        document.getElementById('userEmailDisplay').textContent=user.email;
+        loadCloud();
+      } else { alert('Access denied: '+user.email+' is not authorised for this ledger.'); auth.signOut(); }
+    } else {
+      cloudReady=false;
+      document.getElementById('loginOverlay').style.display='flex';
+      document.getElementById('userEmailDisplay').textContent='';
+      state.people=[]; state.deposits=[]; state.accounts=[]; state.selected.clear();
+      renderAll();
+    }
+  });
+}
+
+/* ---------------- INIT ---------------- */
+renderAll();
 
 })();
 </script>
