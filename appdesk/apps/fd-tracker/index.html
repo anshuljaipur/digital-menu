@@ -1122,11 +1122,12 @@ function getExportRows(){
   return getFilteredSorted();
 }
 
-function computeAggregates(list){
-  const agg = {count:list.length, totalPrincipal:0, totalCurrent:0, totalMaturity:0, maturingSoon:0};
+function computeAggregates(list, incl){
+  const agg = {count:0, closed:0, totalPrincipal:0, totalCurrent:0, totalMaturity:0, maturingSoon:0};
   let wEirNum=0, wArrNum=0;
   list.forEach(r=>{
-    if(r.status==='settled') return;
+    if(!incl && INACTIVE.has(r.status)){ agg.closed++; return; }
+    agg.count++;
     agg.totalPrincipal += r.invested;
     agg.totalCurrent += r.cv;
     agg.totalMaturity += r.mv;
@@ -1143,7 +1144,7 @@ function computeAggregates(list){
 /* ---------------- RENDER: HERO / TABS ---------------- */
 function renderHero(){
   const list = getFilteredSorted();
-  const agg = computeAggregates(list);
+  const agg = computeAggregates(list, INACTIVE.has(state.filterStatus));
   const scopeName = state.activePerson==='all' ? 'All family members' : (personById(state.activePerson)?.name || '—');
 
   document.getElementById('summaryStrip').innerHTML = `
@@ -1152,10 +1153,10 @@ function renderHero(){
     <div class="summary-cell"><div class="label">Gain to Date</div><div class="value ${agg.totalGain>=0?'':''}" style="color:${agg.totalGain>=0?'#7fd3a3':'#e08a76'}">${fmtCurrency(agg.totalGain)}</div></div>
     <div class="summary-cell"><div class="label">Weighted EIR</div><div class="value small">${fmtPct(agg.weightedEir)}</div></div>
     <div class="summary-cell"><div class="label">Weighted ARR</div><div class="value small">${fmtPct(agg.weightedArr)}</div></div>
-    <div class="summary-cell"><div class="label">Deposits</div><div class="value small">${agg.count} ${agg.maturingSoon>0?`<span style="color:#e08a76;font-size:0.7rem;">(${agg.maturingSoon} soon)</span>`:''}</div></div>
+    <div class="summary-cell"><div class="label">Active Deposits</div><div class="value small">${agg.count}${agg.closed?` <span style="color:var(--navy-text-soft);font-size:0.68rem;">+${agg.closed} closed</span>`:''} ${agg.maturingSoon>0?`<span style="color:#e08a76;font-size:0.7rem;">(${agg.maturingSoon} soon)</span>`:''}</div></div>
     <div class="summary-cell"><div class="label">Interest Rec'd ${fyLabel(currentFY())}</div><div class="value small">${fmtCurrency(fyInterestReceived(state.activePerson,currentFY()))}</div></div>
   `;
-  document.getElementById('summaryScope').innerHTML = `Showing: <b>${scopeName}</b>${state.filterStatus!=='all' ? ' · Status: <b>'+statusLabel(state.filterStatus)+'</b>' : ''}${state.search.trim()? ' · Search: <b>"'+escapeHtml(state.search)+'"</b> ('+agg.count+' match'+(agg.count===1?'':'es')+')':''}`;
+  document.getElementById('summaryScope').innerHTML = `Showing: <b>${scopeName}</b>${state.filterStatus!=='all' ? ' · Status: <b>'+statusLabel(state.filterStatus)+'</b>' : ''}${state.search.trim()? ' · Search: <b>"'+escapeHtml(state.search)+'"</b> ('+list.length+' match'+(list.length===1?'':'es')+')':''}`;
 }
 
 function renderTabs(){
@@ -1185,7 +1186,7 @@ function renderPersonGrid(){
   const today = new Date(); today.setHours(0,0,0,0);
   let html='';
   state.people.forEach((p,idx)=>{
-    const list = state.deposits.filter(fd=>isHolder(fd,p.id)).map(fd=>({fd, cv: currentValue(fd,today)}));
+    const list = state.deposits.filter(fd=>isHolder(fd,p.id)).map(fd=>({fd, cv: currentValue(fd,today)})).filter(r=>!INACTIVE.has(statusOf(r.fd,today)));
     const principal = list.reduce((s,r)=>s+investedToDate(r.fd,today),0);
     const current = list.reduce((s,r)=>s+r.cv,0);
     html += `<div class="person-card">
@@ -1434,7 +1435,7 @@ function renderStatement(){
     }
   }
 
-  html += `<div class="statement-footnote"><b>Note:</b> Current Value reflects accrued value as of ${generated}, capped at maturity (or break date for broken deposits). Where a bank-quoted maturity value was entered, or a deposit was broken, current value is interpolated in a straight line toward the final figure. For "Paid out" deposits, interest is disbursed to the account rather than reinvested, so EIR equals the nominal rate. EIR and ARR are annualised figures — see the Ledger tab legend for definitions.</div>`;
+  html += `<div class="statement-footnote"><b>Note:</b> Totals exclude matured, closed and settled deposits. Current Value reflects accrued value as of ${generated}, capped at maturity (or break date for broken deposits). Where a bank-quoted maturity value was entered, or a deposit was broken, current value is interpolated in a straight line toward the final figure. For "Paid out" deposits, interest is disbursed to the account rather than reinvested, so EIR equals the nominal rate. EIR and ARR are annualised figures — see the Ledger tab legend for definitions.</div>`;
 
   content.innerHTML = html;
 }
@@ -1853,7 +1854,7 @@ function exportLedgerPDF(){
     ...pdfStrikeHooks(list,doc),
     styles:{fontSize:8, cellPadding:4},
     headStyles:{fillColor:[22,33,58], textColor:255},
-    foot:[['Totals','', fmtCurrencyPdf(agg.totalPrincipal),'','','', fmtCurrencyPdf(agg.totalCurrent), fmtCurrencyPdf(agg.totalMaturity),'','','','']],
+    foot:[['Totals (active)','', fmtCurrencyPdf(agg.totalPrincipal),'','','', fmtCurrencyPdf(agg.totalCurrent), fmtCurrencyPdf(agg.totalMaturity),'','','','']],
     footStyles:{fillColor:[246,241,228], textColor:[38,36,28], fontStyle:'bold'},
     margin:{left:40,right:40}
   });
@@ -2098,7 +2099,6 @@ document.getElementById('certPerson').addEventListener('change',e=>{ state.certP
 document.getElementById('certFY').addEventListener('change',e=>{ state.certFY=parseInt(e.target.value,10); renderCert(); });
 document.getElementById('btnCertPdf').addEventListener('click',exportCertPDF);
 document.getElementById('btnCertPrint').addEventListener('click',()=>window.print());
-
 
 /* ---------------- FIREBASE CLOUD SYNC ---------------- */
 const firebaseConfig = {
