@@ -21,6 +21,8 @@ table{border-collapse:collapse;min-width:640px}
 th{background:#f8f9fa;font-size:13px}th,td{text-align:center;padding:12px 8px;border-bottom:1px solid var(--bd);white-space:normal;font-size:14px}
 tr:last-child td{border-bottom:0}td input{width:100%;min-width:150px;font-size:13px}
 table button.sm{background:#eee;border:0;border-radius:4px;padding:5px 10px;font-size:12px;font-weight:600}
+.cl td{color:#9ca3af;font-style:italic}
+button.ex:disabled{opacity:.45;cursor:not-allowed}
 .cards{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:18px 0}
 .cd{background:#fafafa;border:1px solid #eee;border-radius:8px;padding:12px 18px;min-width:170px}.cd small{color:#6b7280;font-size:12px}.cd div{font-size:18px;margin-top:6px}
 button.ex{display:block;width:100%;border:0;border-radius:6px;color:#fff;padding:14px;font-weight:700;margin-bottom:10px;font-size:15px}
@@ -32,7 +34,7 @@ button.ex{display:block;width:100%;border:0;border-radius:6px;color:#fff;padding
     <div><b>Main Working</b><div class="bs"><button class="g" id="bsw">IN (Start Work)</button><button class="r" id="bew">OUT (End Work)</button></div></div>
     <div><b>Break Time</b><div class="bs"><button class="r" id="bsb">OUT (Start Break)</button><button class="g" id="beb">IN (End Break)</button></div></div>
   </div>
-  <div class="row" style="margin:14px 0 0;font-size:13px;color:#6b7280"><label>From <input type="date" id="f"></label><label>To <input type="date" id="t"></label></div>
+  <div id="warn" style="display:none;margin:12px 0 0;color:#b45309;font-size:13px"></div><div class="row" style="margin:14px 0 0;font-size:13px;color:#6b7280"><button class="sm" id="pv">◀</button><input type="date" id="d"><button class="sm" id="nx">▶</button><button class="sm" id="td">Today</button><label id="scl"><input type="checkbox" id="sc"> Show cleared entries</label></div>
   <div class="tw"><table style="width:100%"><thead><tr><th>Type</th><th>Start (date &amp; time)</th><th>End (date &amp; time)</th><th>Duration (HH:MM:SS)</th><th>Description</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div>
   <div class="cards"><div class="cd"><small>Total Work Time</small><div id="tw"></div></div><div class="cd"><small>Total Break Time</small><div id="tb"></div></div><div class="cd"><small>Net Working Time</small><div id="tn"></div></div></div>
   <button class="ex" style="background:#2b6be0" id="pdf">Export to PDF / Print</button>
@@ -42,48 +44,63 @@ button.ex{display:block;width:100%;border:0;border-radius:6px;color:#fff;padding
 </div>
 <div id="rep" style="position:fixed;left:-9999px;top:0"></div>
 <script type="module">
-import {boot,db,collection,doc,addDoc,updateDoc,deleteDoc,onSnapshot,query,orderBy,limit,logout,esc} from '../../common.js';
+import {boot,db,collection,doc,addDoc,updateDoc,deleteDoc,onSnapshot,query,orderBy,where,logout,esc} from '../../common.js';
 const $=s=>document.querySelector(s),pad=n=>String(n).padStart(2,'0');
-let logs=[],col,editing=null;
+let col,editing=null,unsub=null,sel,follow=true,dayLogs=[],openLogs=[];
 const hms=ms=>{ms=Math.max(0,Math.round(ms/1000));return pad(Math.floor(ms/3600))+':'+pad(Math.floor(ms%3600/60))+':'+pad(ms%60)};
 const loc=ms=>ms?new Date(ms-new Date(ms).getTimezoneOffset()*6e4).toISOString().slice(0,19):'';
 const fmt=ms=>ms?new Date(ms).toLocaleString('en-US',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}):'-';
 const T=l=>l.kind==='work'?'Work':'Break';
-$('#f').value=$('#t').value=loc(Date.now()).slice(0,10);
+const dayOf=ms=>loc(ms).slice(0,10),today=()=>dayOf(Date.now());
+sel=today();$('#d').value=sel;
 $('#out').onclick=logout;
-const open=k=>logs.find(l=>l.kind===k&&!l.end);
-const inRange=l=>l.start>=new Date($('#f').value+'T00:00').getTime()&&l.start<=new Date($('#t').value+'T23:59:59.999').getTime();
-const shown=()=>logs.filter(inRange).sort((a,b)=>a.start-b.start);
-boot(u=>{col=collection(db,'timetrack_users',u.uid,'logs');
-  onSnapshot(query(col,orderBy('start','desc'),limit(1000)),s=>{logs=s.docs.map(d=>({id:d.id,...d.data()}));draw()})});
+const open=k=>openLogs.find(l=>l.kind===k);
+const vis=()=>dayLogs.filter(l=>!l.cleared||sel!==today()||$('#sc').checked);
+function sub(){
+  if(unsub)unsub();editing=null;
+  const a=new Date(sel+'T00:00').getTime(),b=new Date(sel+'T23:59:59.999').getTime();
+  unsub=onSnapshot(query(col,where('start','>=',a),where('start','<=',b),orderBy('start')),s=>{dayLogs=s.docs.map(d=>({id:d.id,...d.data()}));draw()});
+}
+boot(u=>{col=collection(db,'timetrack_users',u.uid,'logs');sub();
+  onSnapshot(query(col,where('end','==',null)),s=>{openLogs=s.docs.map(d=>({id:d.id,...d.data()}));draw()})});
+function setDay(d){sel=d;follow=d===today();$('#d').value=d;sub();draw()}
+const shift=n=>{const x=new Date(sel+'T12:00');x.setDate(x.getDate()+n);setDay(dayOf(x.getTime()))};
+$('#d').onchange=()=>{if($('#d').value)setDay($('#d').value)};
+$('#pv').onclick=()=>shift(-1);$('#nx').onclick=()=>shift(1);$('#td').onclick=()=>setDay(today());
+$('#sc').onchange=draw;
 async function act(a){
-  const now=Date.now(),w=open('work'),b=open('break');
-  if(a==='sw')await addDoc(col,{kind:'work',start:now,end:null,note:''});
-  if(a==='sb')await addDoc(col,{kind:'break',start:now,end:null,note:''});
+  if(sel!==today())setDay(today());
+  const now=Date.now(),w=open('work'),b=open('break'),day=dayOf(now);
+  if(a==='sw')await addDoc(col,{kind:'work',start:now,end:null,note:'',day});
+  if(a==='sb')await addDoc(col,{kind:'break',start:now,end:null,note:'',day});
   if(a==='eb'&&b)await updateDoc(doc(col,b.id),{end:now});
   if(a==='ew'){if(b)await updateDoc(doc(col,b.id),{end:now});if(w)await updateDoc(doc(col,w.id),{end:now})}
 }
 $('#bsw').onclick=()=>act('sw');$('#bew').onclick=()=>act('ew');$('#bsb').onclick=()=>act('sb');$('#beb').onclick=()=>act('eb');
 function rows(){
-  $('#rows').innerHTML=shown().map(l=>editing===l.id
-    ?`<tr data-id="${l.id}"><td>${T(l)}</td><td><input type="datetime-local" step="1" data-k="start" value="${loc(l.start)}"></td><td><input type="datetime-local" step="1" data-k="end" value="${loc(l.end)}"></td><td>-</td><td><input data-k="note" value="${esc(l.note)}"></td><td><button class="sm" data-a="save">Save</button> <button class="sm" data-a="cancel">Cancel</button></td></tr>`
-    :`<tr data-id="${l.id}"><td>${T(l)}</td><td>${fmt(l.start)}</td><td>${fmt(l.end)}</td><td class="d" data-s="${l.start}" data-e="${l.end||''}">${hms((l.end||Date.now())-l.start)}</td><td>${esc(l.note)}</td><td><button class="sm" data-a="edit">Edit</button> <button class="sm" data-a="del">Delete</button></td></tr>`
-  ).join('')||'<tr><td colspan="6" style="color:#6b7280">No entries</td></tr>';
+  $('#rows').innerHTML=vis().map(l=>{const t=T(l)+(l.cleared?' (cleared)':'');return editing===l.id
+    ?`<tr data-id="${l.id}"><td>${t}</td><td><input type="datetime-local" step="1" data-k="start" value="${loc(l.start)}"></td><td><input type="datetime-local" step="1" data-k="end" value="${loc(l.end)}"></td><td>-</td><td><input data-k="note" value="${esc(l.note)}"></td><td><button class="sm" data-a="save">Save</button> <button class="sm" data-a="cancel">Cancel</button></td></tr>`
+    :`<tr data-id="${l.id}" class="${l.cleared?'cl':''}"><td>${t}</td><td>${fmt(l.start)}</td><td>${fmt(l.end)}</td><td class="d" data-s="${l.start}" data-e="${l.end||''}">${hms((l.end||Date.now())-l.start)}</td><td>${esc(l.note)}</td><td><button class="sm" data-a="edit">Edit</button> <button class="sm" data-a="del">Delete</button></td></tr>`}
+  ).join('')||'<tr><td colspan="6" style="color:#6b7280">No entries for this date</td></tr>';
 }
 function draw(){
-  const W=open('work'),B=open('break');
+  const W=open('work'),B=open('break'),t=today();
   $('#bsw').disabled=!!W;$('#bew').disabled=!W;$('#bsb').disabled=!W||!!B;$('#beb').disabled=!B;
+  $('#clr').disabled=sel!==t;$('#scl').style.display=sel===t?'':'none';
+  const old=openLogs.find(l=>dayOf(l.start)<t);
+  $('#warn').style.display=old?'':'none';
+  if(old)$('#warn').textContent='⚠ '+T(old)+' started on '+fmt(old.start)+' is still running. End it with the OUT button, or fix it by editing that day.';
   if(editing===null)rows();tick();
 }
 function tick(){
+  if(follow&&col&&today()!==sel)return setDay(today());
   const now=Date.now();let w=0,b=0;
-  logs.filter(inRange).forEach(l=>{const d=(l.end||now)-l.start;l.kind==='work'?w+=d:b+=d});
+  vis().forEach(l=>{const d=(l.end||now)-l.start;l.kind==='work'?w+=d:b+=d});
   $('#tw').textContent=hms(w);$('#tb').textContent=hms(b);$('#tn').textContent=hms(w-b);
   $('#dt').textContent=new Date().toDateString();$('#clk').textContent='Local time: '+new Date().toLocaleTimeString('en-GB');
   document.querySelectorAll('td.d').forEach(td=>{if(!td.dataset.e)td.textContent=hms(now-td.dataset.s)});
 }
 setInterval(tick,1000);tick();
-$('#f').onchange=$('#t').onchange=()=>{editing=null;draw()};
 $('#rows').onclick=async e=>{
   const a=e.target.dataset.a;if(!a)return;const tr=e.target.closest('tr'),id=tr.dataset.id;
   if(a==='edit'){editing=id;rows()}
@@ -92,24 +109,27 @@ $('#rows').onclick=async e=>{
   else if(a==='save'){
     const g=k=>tr.querySelector('[data-k='+k+']').value,s=new Date(g('start')).getTime(),en=g('end')?new Date(g('end')).getTime():null;
     if(!s||(en&&en<s))return alert('Please check the start and end time.');
-    await updateDoc(doc(col,id),{start:s,end:en,note:g('note').trim()});editing=null;rows();tick();
+    await updateDoc(doc(col,id),{start:s,end:en,note:g('note').trim(),day:dayOf(s)});editing=null;rows();tick();
   }
 };
-$('#clr').onclick=()=>{const L=shown();if(L.length&&confirm('Delete all '+L.length+' entries shown? This cannot be undone.'))L.forEach(l=>deleteDoc(doc(col,l.id)))};
+$('#clr').onclick=()=>{
+  const L=vis().filter(l=>l.end&&!l.cleared);if(!L.length)return alert('Nothing to clear.');
+  if(confirm('Clear today’s sheet? All entries stay saved. Use “Show cleared entries” or pick the date later to see them. Running entries are not cleared.'))L.forEach(l=>updateDoc(doc(col,l.id),{cleared:true}));
+};
 $('#csv').onclick=()=>{
   const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"',now=Date.now();
-  const t=['Type,Start,End,Duration,Description',...shown().map(l=>[T(l),fmt(l.start),fmt(l.end),hms((l.end||now)-l.start),l.note||''].map(q).join(',')),'',q('Total Work Time')+','+q($('#tw').textContent),q('Total Break Time')+','+q($('#tb').textContent),q('Net Working Time')+','+q($('#tn').textContent)].join('\n');
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+t],{type:'text/csv'}));a.download='time-sheet.csv';a.click();
+  const t=['Type,Start,End,Duration,Description',...vis().map(l=>[T(l),fmt(l.start),fmt(l.end),hms((l.end||now)-l.start),l.note||''].map(q).join(',')),'',q('Total Work Time')+','+q($('#tw').textContent),q('Total Break Time')+','+q($('#tb').textContent),q('Net Working Time')+','+q($('#tn').textContent)].join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+t],{type:'text/csv'}));a.download='time-sheet-'+sel+'.csv';a.click();
 };
 async function snap(){
   const td=x=>`<td style="border:1px solid #ccc;padding:6px;text-align:center">${x}</td>`,now=Date.now();
-  $('#rep').innerHTML=`<div id="rp" style="background:#fff;color:#111;padding:24px;width:820px;font:14px system-ui,sans-serif"><h2 style="margin:0 0 4px;color:#1a7f4b">Staff Work Time Report</h2><div style="color:#555">${$('#f').value} to ${$('#t').value}</div><table style="width:100%;border-collapse:collapse;margin:14px 0"><tr style="background:#f1f1f1">${['Type','Start','End','Duration','Description'].map(h=>`<td style="border:1px solid #ccc;padding:6px;text-align:center"><b>${h}</b></td>`).join('')}</tr>${shown().map(l=>`<tr>${td(T(l))}${td(fmt(l.start))}${td(fmt(l.end))}${td(hms((l.end||now)-l.start))}${td(esc(l.note))}</tr>`).join('')}</table><p><b>Total Work Time:</b> ${$('#tw').textContent} &nbsp;&nbsp; <b>Total Break Time:</b> ${$('#tb').textContent} &nbsp;&nbsp; <b>Net Working Time:</b> ${$('#tn').textContent}</p></div>`;
+  $('#rep').innerHTML=`<div id="rp" style="background:#fff;color:#111;padding:24px;width:820px;font:14px system-ui,sans-serif"><h2 style="margin:0 0 4px;color:#1a7f4b">Staff Work Time Report</h2><div style="color:#555">${new Date(sel+'T12:00').toDateString()}</div><table style="width:100%;border-collapse:collapse;margin:14px 0"><tr style="background:#f1f1f1">${['Type','Start','End','Duration','Description'].map(h=>`<td style="border:1px solid #ccc;padding:6px;text-align:center"><b>${h}</b></td>`).join('')}</tr>${vis().map(l=>`<tr>${td(T(l))}${td(fmt(l.start))}${td(fmt(l.end))}${td(hms((l.end||now)-l.start))}${td(esc(l.note))}</tr>`).join('')}</table><p><b>Total Work Time:</b> ${$('#tw').textContent} &nbsp;&nbsp; <b>Total Break Time:</b> ${$('#tb').textContent} &nbsp;&nbsp; <b>Net Working Time:</b> ${$('#tn').textContent}</p></div>`;
   return html2canvas($('#rp'),{scale:2,backgroundColor:'#fff'});
 }
-$('#img').onclick=async()=>{const c=await snap(),a=document.createElement('a');a.download='time-report.png';a.href=c.toDataURL('image/png');a.click()};
+$('#img').onclick=async()=>{const c=await snap(),a=document.createElement('a');a.download='time-report-'+sel+'.png';a.href=c.toDataURL('image/png');a.click()};
 $('#pdf').onclick=async()=>{
   const c=await snap(),img=c.toDataURL('image/png'),p=new window.jspdf.jsPDF('p','mm','a4'),w=190,h=c.height*w/c.width;
   let off=0;p.addImage(img,'PNG',10,0,w,h);while(h-off>297){off+=297;p.addPage();p.addImage(img,'PNG',10,-off,w,h)}
-  p.save('time-report.pdf');
+  p.save('time-report-'+sel+'.pdf');
 };
 </script></body></html>
