@@ -28,10 +28,10 @@ table .fb button.sm.on{background:#2b6be0;color:#fff}
 .cd{background:#fafafa;border:1px solid #eee;border-radius:8px;padding:12px 18px;min-width:170px}.cd small{color:#6b7280;font-size:12px}.cd div{font-size:18px;margin-top:6px}
 button.ex{display:block;width:100%;border:0;border-radius:6px;color:#fff;padding:14px;font-weight:700;margin-bottom:10px;font-size:15px}
 button.ex:disabled{opacity:.45;cursor:not-allowed}
-.wrap{margin-bottom:80px}
-#fl{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:50;display:none;gap:8px;background:rgba(255,255,255,.96);padding:8px 10px;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,.3);flex-wrap:wrap;justify-content:center;max-width:96vw}
+#fl{position:fixed;right:10px;top:50%;transform:translateY(-50%);z-index:50;display:none;flex-direction:column;gap:8px;background:rgba(255,255,255,.96);padding:8px;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,.3)}
 #fl.on{display:flex}
-#fl button{border:0;color:#fff;border-radius:8px;padding:10px 12px;font-size:13px;font-weight:600}
+#fl button{border:0;color:#fff;border-radius:8px;padding:10px 12px;font-size:13px;font-weight:600;width:96px}
+@media(max-width:600px){#fl{right:6px}#fl button{width:76px;padding:9px 4px;font-size:12px}}
 #fl button.g{background:#28a745}#fl button.r{background:#dc3545}#fl button:disabled{opacity:.4;cursor:not-allowed}
 </style></head><body>
 <div class="wrap">
