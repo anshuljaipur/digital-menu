@@ -28,13 +28,18 @@ table .fb button.sm.on{background:#2b6be0;color:#fff}
 .cd{background:#fafafa;border:1px solid #eee;border-radius:8px;padding:12px 18px;min-width:170px}.cd small{color:#6b7280;font-size:12px}.cd div{font-size:18px;margin-top:6px}
 button.ex{display:block;width:100%;border:0;border-radius:6px;color:#fff;padding:14px;font-weight:700;margin-bottom:10px;font-size:15px}
 button.ex:disabled{opacity:.45;cursor:not-allowed}
+.wrap{margin-bottom:80px}
+#fl{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:50;display:none;gap:8px;background:rgba(255,255,255,.96);padding:8px 10px;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,.3);flex-wrap:wrap;justify-content:center;max-width:96vw}
+#fl.on{display:flex}
+#fl button{border:0;color:#fff;border-radius:8px;padding:10px 12px;font-size:13px;font-weight:600}
+#fl button.g{background:#28a745}#fl button.r{background:#dc3545}#fl button:disabled{opacity:.4;cursor:not-allowed}
 </style></head><body>
 <div class="wrap">
   <div class="top"><h2>Staff Work Time Tracker</h2><button class="sm" id="out">Sign out</button></div>
   <div class="sub"><span id="dt"></span><span id="clk"></span></div>
   <div class="panel">
-    <div><b>Main Working</b><div class="bs"><button class="g" id="bsw">IN (Start Work)</button><button class="r" id="bew">OUT (End Work)</button></div></div>
-    <div><b>Break Time</b><div class="bs"><button class="r" id="bsb">OUT (Start Break)</button><button class="g" id="beb">IN (End Break)</button></div></div>
+    <div><b>Main Working</b><div class="bs"><button class="g" id="bsw" data-act="sw">IN (Start Work)</button><button class="r" id="bew" data-act="ew">OUT (End Work)</button></div></div>
+    <div><b>Break Time</b><div class="bs"><button class="r" id="bsb" data-act="sb">OUT (Start Break)</button><button class="g" id="beb" data-act="eb">IN (End Break)</button></div></div>
   </div>
   <div id="warn" style="display:none;margin:12px 0 0;color:#b45309;font-size:13px"></div>
   <div class="row" style="margin:14px 0 0;font-size:13px;color:#6b7280"><button class="sm" id="pv">◀</button><input type="date" id="d"><button class="sm" id="nx">▶</button><button class="sm" id="td">Today</button><label id="scl"><input type="checkbox" id="sc"> Show cleared entries</label></div>
@@ -46,6 +51,7 @@ button.ex:disabled{opacity:.45;cursor:not-allowed}
   <button class="ex" style="background:#9b2226" id="clr">Clear Sheet</button>
 </div>
 <div id="rep" style="position:fixed;left:-9999px;top:0"></div>
+<div id="fl"><button class="g" data-act="sw">IN Work</button><button class="r" data-act="ew">OUT Work</button><button class="r" data-act="sb">OUT Break</button><button class="g" data-act="eb">IN Break</button></div>
 <script type="module">
 import {boot,db,collection,doc,addDoc,updateDoc,deleteDoc,onSnapshot,query,orderBy,where,logout,esc} from '../../common.js';
 const $=s=>document.querySelector(s),pad=n=>String(n).padStart(2,'0');
@@ -91,7 +97,7 @@ async function act(a){
   if(a==='eb'&&b)await updateDoc(doc(col,b.id),{end:now});
   if(a==='ew'){if(b)await updateDoc(doc(col,b.id),{end:now});if(w)await updateDoc(doc(col,w.id),{end:now})}
 }
-$('#bsw').onclick=()=>act('sw');$('#bew').onclick=()=>act('ew');$('#bsb').onclick=()=>act('sb');$('#beb').onclick=()=>act('eb');
+document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(b&&!b.disabled&&!b.closest('table'))act(b.dataset.act)});
 function rows(){
   $('#rows').innerHTML=vis().map(l=>{const t=T(l)+(l.cleared?' (cleared)':'');return editing===l.id
     ?`<tr data-id="${l.id}"><td>${t}</td><td><input type="datetime-local" step="1" data-k="start" value="${loc(l.start)}" style="${esc(css(editFmt.start))}">${bar('start')}</td><td><input type="datetime-local" step="1" data-k="end" value="${loc(l.end)}" style="${esc(css(editFmt.end))}">${bar('end')}</td><td>-</td><td><input data-k="note" value="${esc(l.note)}" style="${esc(css(editFmt.note))}">${bar('note')}</td><td><button class="sm" data-a="save">Save</button> <button class="sm" data-a="cancel">Cancel</button></td></tr>`
@@ -100,7 +106,7 @@ function rows(){
 }
 function draw(){
   const W=open('work'),B=open('break'),t=today();
-  $('#bsw').disabled=!!W;$('#bew').disabled=!W;$('#bsb').disabled=!W||!!B;$('#beb').disabled=!B;
+  const dis=(k,v)=>document.querySelectorAll('[data-act='+k+']').forEach(b=>b.disabled=v);dis('sw',!!W);dis('ew',!W);dis('sb',!W||!!B);dis('eb',!B);
   $('#clr').disabled=sel!==t;$('#scl').style.display=sel===t?'':'none';
   const old=openLogs.find(l=>dayOf(l.start)<t);$('#warn').style.display=old?'':'none';
   if(old)$('#warn').textContent='⚠ '+T(old)+' started on '+fmt(old.start)+' is still running. End it with the OUT button, or fix it by editing that day.';
@@ -115,6 +121,7 @@ function tick(){
   document.querySelectorAll('td.d').forEach(td=>{if(!td.dataset.e)td.textContent=hms(now-td.dataset.s)});
 }
 setInterval(tick,1000);tick();
+new IntersectionObserver(([e])=>$('#fl').classList.toggle('on',!e.isIntersecting),{threshold:0}).observe(document.querySelector('.panel'));
 $('#rows').onclick=async e=>{
   const bt=e.target.closest('button[data-a]');if(!bt)return;const a=bt.dataset.a,tr=bt.closest('tr'),id=tr.dataset.id,fb=bt.closest('.fb');
   if(fb)return setF(tr,fb.dataset.f,a,null,bt);
