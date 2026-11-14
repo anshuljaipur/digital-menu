@@ -51,11 +51,11 @@ svg.x{position:absolute;overflow:visible}
 }
 </style></head>
 <body>
-<header><h1>Cheque Printer</h1><p>India Post – Post Office Savings Bank cheque (CTS-2010, 202 × 92 mm) on a blank A4 sheet</p></header>
+<header><h1>Cheque Printer</h1><p>CTS-2010, 202 × 92 mm</p></header>
 <div class="app">
 <section class="panel" aria-label="Cheque details">
  <h2>Cheque details</h2>
- <label>Payee name<input id="payee" list="recent" autocomplete="off" placeholder="Name of person or company"></label>
+ <label>Payee name<input id="payee" list="recent" autocomplete="on" placeholder="Name of person or company"></label>
  <datalist id="recent"></datalist>
  <div class="row">
   <label>Amount (₹)<input id="amount" inputmode="decimal" placeholder="45000"></label>
@@ -94,7 +94,7 @@ svg.x{position:absolute;overflow:visible}
   <label>Size (pt)<input id="fs" type="number" min="8" max="18" step="0.5" value="12"></label>
  </div>
  <label class="chk"><input id="sg" type="checkbox" checked> Show alignment guides</label>
- <label class="chk"><input id="pf" type="checkbox" checked> Show preview as the paper comes out (turned 180°)</label>
+ <label class="chk"><input id="pf" type="checkbox"> Show preview as the paper comes out (turned 180°)</label>
  <details><summary>Fine-tune each field</summary>
   <label>Field<select id="fsel"><option value="date">Date</option><option value="payee">Payee</option><option value="w1">Words, line 1</option><option value="w2">Words, line 2</option><option value="amt">Amount in figures</option><option value="acno">A/c number</option><option value="cross">Crossing</option></select></label>
   <div class="row"><label>Right (mm)<input id="fx" type="number" step="0.5" value="0"></label><label>Down (mm)<input id="fy" type="number" step="0.5" value="0"></label></div>
