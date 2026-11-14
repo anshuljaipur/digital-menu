@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cheque Printer – Post Office Savings Bank</title>
+<style>
+:root{--bg:#f3f2ee;--fg:#1c1c1a;--card:#fff;--line:#d6d3c9;--ac:#b3261e;--mut:#66655e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#161615;--fg:#ecebe6;--card:#222220;--line:#3b3b37;--ac:#ff8f84;--mut:#a4a39b}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#161615;--fg:#ecebe6;--card:#222220;--line:#3b3b37;--ac:#ff8f84;--mut:#a4a39b}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+header{padding:16px 20px 4px}
+h1{font-size:20px;margin:0}
+header p{margin:2px 0 0;color:var(--mut);font-size:13px}
+.app{display:grid;grid-template-columns:minmax(280px,360px) 1fr;gap:16px;padding:16px 20px 28px;align-items:start}
+@media(max-width:860px){.app{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:10px}
+.panel h2{font-size:14px;margin:6px 0 0;padding-top:10px;border-top:1px solid var(--line)}
+.panel h2:first-child{border:0;padding:0;margin:0}
+label{display:grid;gap:3px;font-size:13px;color:var(--mut)}
+input,select,button{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:8px 10px;min-width:0;width:100%}
+input[type=checkbox]{width:auto}
+.chk{display:flex;gap:8px;align-items:center;color:var(--fg)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{cursor:pointer;font-weight:600}
+button.go{background:var(--ac);border-color:var(--ac);color:#fff;padding:11px}
+:root[data-theme="dark"] button.go{color:#111}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) button.go{color:#111}}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
+.hint{font-size:12px;color:var(--mut);margin:0}
+.warn{color:var(--ac);font-size:12px;min-height:1em;margin:0}
+#stage{position:relative;overflow:hidden;background:var(--line);border-radius:10px;padding:0}
+#sheet{position:absolute;left:0;top:0;background:#fff;transform-origin:0 0;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.15)}
+#chq{position:absolute;width:202mm;height:92mm;transform-origin:0 0}
+.f{position:absolute;display:flex;align-items:flex-end;white-space:nowrap;line-height:1;color:#000;font-family:var(--ff);padding-bottom:.6mm}
+.f.mid{align-items:center;padding:0}
+.f.mid span{flex:1;text-align:center}
+.g{display:none;position:absolute;border:.2mm dashed #d22;box-sizing:border-box;pointer-events:none}
+#sheet.sg .g{display:block}
+#sheet.sg #chq{background:rgba(255,235,190,.35)}
+svg.x{position:absolute;overflow:visible}
+@page{margin:0}
+@media print{
+ html,body{background:#fff;margin:0;padding:0}
+ header,.panel,.hint{display:none!important}
+ .app{display:block;padding:0}
+ #stage{overflow:visible;background:none;border-radius:0;height:auto!important}
+ #sheet{position:relative;transform:none!important;box-shadow:none;height:calc(var(--ph) - .6mm)!important}
+ #sheet.sg #chq{background:none}
+ #sheet.sg .g{display:none}
+ body.pg #sheet.sg .g{display:block}
+}
+</style></head>
+<body>
+<header><h1>Cheque Printer</h1><p>India Post – Post Office Savings Bank cheque (CTS-2010, 202 × 92 mm) on a blank A4 sheet</p></header>
+<div class="app">
+<section class="panel" aria-label="Cheque details">
+ <h2>Cheque details</h2>
+ <label>Payee name<input id="payee" list="recent" autocomplete="off" placeholder="Name of person or company"></label>
+ <datalist id="recent"></datalist>
+ <div class="row">
+  <label>Amount (₹)<input id="amount" inputmode="decimal" placeholder="45000"></label>
+  <label>Date<input id="date" type="date"></label>
+ </div>
+ <label>Account number (optional)<input id="acno" inputmode="numeric" placeholder="Prints in the A/c No. box"></label>
+ <label class="chk"><input id="cross" type="checkbox" checked> Cross the cheque (A/c Payee)</label>
+ <label class="chk"><input id="up" type="checkbox" checked> Payee in capitals</label>
+ <p class="warn" id="msg"></p>
+ <button class="go" id="print">Print cheque</button>
+
+ <h2>Paper placement</h2>
+ <label>Paper and how the cheque is fed
+  <select id="preset">
+   <option value="a">Portrait sheet, cheque at bottom, upside down</option>
+   <option value="b">Landscape sheet, cheque turned right</option>
+   <option value="c">Landscape A4 sheet, cheque upright, centred</option>
+   <option value="d">Cheque only (202 × 92 mm paper), upright</option>
+   <option value="e">Cheque only (202 × 92 mm paper), upside down</option>
+   <option value="j" selected>Cheque only, fed long edge first (92 × 202 mm paper), turned right</option>
+   <option value="k">Cheque only, fed long edge first (92 × 202 mm paper), turned left</option>
+   <option value="f">A4 portrait, cheque at the bottom end, turned right</option>
+   <option value="g">A4 portrait, cheque at the top end, turned right</option>
+  </select></label>
+ <div class="row">
+  <label>Shift right (mm)<input id="dx" type="number" step="0.5" value="0"></label>
+  <label>Shift down (mm)<input id="dy" type="number" step="0.5" value="0"></label>
+ </div>
+ <div class="row">
+  <label>Font
+   <select id="ff">
+    <option value="Arial, Helvetica, sans-serif">Arial</option>
+    <option value="'Courier New', Courier, monospace">Courier</option>
+    <option value="Georgia, 'Times New Roman', serif">Georgia</option>
+   </select></label>
+  <label>Size (pt)<input id="fs" type="number" min="8" max="18" step="0.5" value="12"></label>
+ </div>
+ <label class="chk"><input id="sg" type="checkbox" checked> Show alignment guides</label>
+ <label class="chk"><input id="pf" type="checkbox" checked> Show preview as the paper comes out (turned 180°)</label>
+ <details><summary>Fine-tune each field</summary>
+  <label>Field<select id="fsel"><option value="date">Date</option><option value="payee">Payee</option><option value="w1">Words, line 1</option><option value="w2">Words, line 2</option><option value="amt">Amount in figures</option><option value="acno">A/c number</option><option value="cross">Crossing</option></select></label>
+  <div class="row"><label>Right (mm)<input id="fx" type="number" step="0.5" value="0"></label><label>Down (mm)<input id="fy" type="number" step="0.5" value="0"></label></div>
+ </details>
+ <button id="test">Test print on plain paper</button>
+ <p class="hint">For cheque-only printing, add a custom paper size of 92 × 202 mm (width × length) in the printer settings and feed the cheque long edge first. If the printer still feeds blank paper before the data, try "turned left" or the A4 option with the cheque at the other end. Test first on a plain paper cut to the same size. If the text lands upside down or on the wrong end, switch between the two cheque-only options. The test sheet prints dashed guides and sample text. Lay your cheque on it, or hold both to the light, then adjust the shifts until every guide sits on its line or box. Settings are remembered on this device.</p>
+</section>
+<section>
+ <div id="stage"><div id="sheet"><div id="chq"></div></div></div>
+ <p class="hint" id="ph" style="margin-top:8px">Preview of the A4 sheet. Dashed outlines show where the cheque lies and where each field prints.</p>
+</section>
+</div>
+<script>
+const $=id=>document.getElementById(id), MM=96/25.4;
+const PRE={a:{o:'p',r:180,x:206,y:297},b:{o:'l',r:90,x:297,y:4},c:{o:'l',r:0,x:47.5,y:59},d:{o:'c',r:0,x:0,y:0},e:{o:'c',r:180,x:202,y:92},f:{o:'p',r:90,x:210,y:95},g:{o:'p',r:90,x:210,y:0},j:{o:'k',r:90,x:92,y:0},k:{o:'k',r:270,x:0,y:202}};
+const DIM=p=>p.o==='c'?[202,92]:p.o==='k'?[92,202]:p.o==='l'?[297,210]:[210,297];
+// field boxes in cheque coordinates (mm from top-left of the upright cheque)
+const F={date:{x:149.8,y:4.4,w:44.8,h:8},payee:{x:14,y:15.3,w:150,h:6.5},w1:{x:28,y:23.7,w:108,h:6.5},
+ w2:{x:8,y:32.5,w:128,h:6.5},amt:{x:156,y:31.2,w:38,h:9},acno:{x:26,y:39.8,w:36,h:8.5},cross:{x:4,y:2,w:23,h:14}};
+const KEEP=['cross','up','ff','fs','preset','dx','dy','sg','acno','pf'];
+const A='One Two Three Four Five Six Seven Eight Nine Ten Eleven Twelve Thirteen Fourteen Fifteen Sixteen Seventeen Eighteen Nineteen'.split(' ');
+const T='Twenty Thirty Forty Fifty Sixty Seventy Eighty Ninety'.split(' ');
+const two=n=>n<20?(A[n-1]||''):T[Math.floor(n/10)-2]+(n%10?' '+A[n%10-1]:'');
+const three=n=>[n>99?A[Math.floor(n/100)-1]+' Hundred':'',n%100?two(n%100):''].filter(Boolean).join(' ');
+function words(n){if(!n)return 'Zero';const p=[];
+ [[1e7,'Crore'],[1e5,'Lakh'],[1e3,'Thousand']].forEach(([d,l])=>{const q=Math.floor(n/d);if(q){p.push(words(q)+' '+l);n%=d}});
+ if(n)p.push(three(n));return p.join(' ')}
+const cv=document.createElement('canvas').getContext('2d');
+function split(t,fs,ff,w1,w2){cv.font=fs*96/72+'px '+ff;const mm=s=>cv.measureText(s).width/MM;
+ const ws=t.split(' ');let l1='',i=0;
+ for(;i<ws.length;i++){const c=l1?l1+' '+ws[i]:ws[i];if(mm(c)>w1&&l1)break;l1=c}
+ const l2=ws.slice(i).join(' ');return[l1,l2,mm(l2)>w2]}
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const box=(k,h,c='')=>{const f=F[k],a=ADJ[k]||{x:0,y:0};return `<div class="f ${c}" style="left:${f.x+a.x}mm;top:${f.y+a.y}mm;width:${f.w}mm;height:${f.h}mm">${h}</div>`};
+const guide=(x,y,w,h)=>`<div class="g" style="left:${x}mm;top:${y}mm;width:${w}mm;height:${h}mm"></div>`;
+let sample=false,ADJ={},lastSel='date';
+
+function render(){
+ ADJ[lastSel]={x:+$('fx').value||0,y:+$('fy').value||0};store('chq-adj2',JSON.stringify(ADJ));
+ const p=PRE[$('preset').value], [W,H]=DIM(p);
+ const dx=+$('dx').value||0, dy=+$('dy').value||0, fs=+$('fs').value||12, ff=$('ff').value;
+ const sh=$('sheet'), ch=$('chq');
+ sh.style.cssText=`width:${W}mm;height:${H}mm;--ph:${H}mm`;
+ sh.classList.toggle('sg',$('sg').checked);
+ ch.style.cssText=`left:${p.x+dx}mm;top:${p.y+dy}mm;transform:rotate(${p.r}deg);--ff:${ff};font-size:${fs}pt`;
+ let name=sample&&!$('payee').value?'Sample Payee Name':$('payee').value.trim();
+ if($('up').checked)name=name.toUpperCase();
+ const raw=sample&&!$('amount').value?'123456.50':$('amount').value;
+ const v=parseFloat(String(raw).replace(/,/g,''));
+ let amt='',l1='',l2='',bad=false;
+ if(v>0){const r=Math.floor(v),ps=Math.round((v-r)*100);
+  amt=v.toLocaleString('en-IN',{minimumFractionDigits:ps?2:0,maximumFractionDigits:2})+'/-';
+  const t=(r?words(r):'')+(ps?(r?' and ':'')+words(ps)+' Paise':'')+' Only';
+  [l1,l2,bad]=split(t,fs,ff,F.w1.w,F.w2.w)}
+ const d=($('date').value||'').split('-');
+ const ds=d.length===3?d[2]+d[1]+d[0]:'';
+ let h=box('date',[...ds.padEnd(8,' ')].map(c=>`<span>${c.trim()}</span>`).join(''),'mid');
+ h+=box('payee',esc(name))+box('w1',esc(l1))+box('w2',esc(l2))+box('amt',esc(amt),'mid');
+ h=h.replace(/(<div class="f mid"[^>]*>)(<span>.*?<\/span>)?/,'$1$2');
+ h+=box('acno',esc($('acno').value.trim()));
+ if($('cross').checked){const c=F.cross,a=ADJ.cross||{x:0,y:0};
+  h+=`<svg class="x" style="left:${c.x+a.x}mm;top:${c.y+a.y}mm" width="${c.w}mm" height="${c.h}mm" viewBox="0 0 23 14"><g stroke="#000" stroke-width=".35" fill="none"><line x1="1" y1="13" x2="12" y2="1"/><line x1="8" y1="13" x2="19" y2="1"/></g><text x="10" y="7.6" font-size="2.6" font-family="Arial,sans-serif" font-weight="700" text-anchor="middle" transform="rotate(-48 10 7.6)">A/c Payee</text></svg>`}
+ // guides
+ h+=guide(0,0,202,92)+guide(149.8,5.2,44.8,6.5)+guide(14,16.7,150,6.5)+guide(28,24.3,108,6.5)+guide(8,33.1,128,6.5)+guide(149,32,45,11)+guide(23,42,39,8);
+ for(let i=1;i<8;i++)h+=guide(149.8+i*44.8/8,5.2,0,6.5);
+ ch.innerHTML=h;
+ $('msg').textContent=bad?'Amount in words is too long for the cheque. Reduce the font size.':'';
+ fit();
+}
+function fit(){
+ const p=PRE[$('preset').value],[w0,h0]=DIM(p),W=w0*MM,H=h0*MM;
+ const s=Math.min(1,$('stage').clientWidth/W);
+ $('sheet').style.transform=$('pf').checked?`translate(${W*s}px,${H*s}px) rotate(180deg) scale(${s})`:`scale(${s})`;
+ $('ph').textContent=$('pf').checked?'Preview shows the paper as it comes out of your printer. The paper is fed from the bottom edge shown here. Dashed outlines show where the cheque lies and where each field prints.':'Preview shows the layout as sent to the printer. Dashed outlines show where the cheque lies and where each field prints.';$('stage').style.height=H*s+'px';
+ document.getElementById('pg')||document.head.appendChild(Object.assign(document.createElement('style'),{id:'pg'}));
+ $('pg').textContent=`@media print{@page{size:${p.o==='c'?'202mm 92mm':p.o==='k'?'92mm 202mm':'A4 '+(p.o==='l'?'landscape':'portrait')};margin:0}}`;
+}
+function store(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function load(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function saveSettings(){const o={};KEEP.forEach(k=>o[k]=$(k).type==='checkbox'?$(k).checked:$(k).value);store('chq-settings',JSON.stringify(o))}
+function loadSettings(){try{const o=JSON.parse(load('chq-settings')||'{}');KEEP.forEach(k=>{if(k in o){$(k).type==='checkbox'?$(k).checked=o[k]:$(k).value=o[k]}})}catch(e){}}
+function recents(){let r=[];try{r=JSON.parse(load('chq-recent')||'[]')}catch(e){}return r}
+function drawRecents(){$('recent').innerHTML=recents().map(n=>`<option value="${esc(n)}">`).join('')}
+function doPrint(){window.print()}
+function syncAdj(){const k=$('fsel').value,a=ADJ[k]||{x:0,y:0};lastSel=k;$('fx').value=a.x;$('fy').value=a.y}
+
+const today=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+$('date').value=today();
+loadSettings();try{ADJ=JSON.parse(load('chq-adj2')||'{}')}catch(e){ADJ={}}drawRecents();syncAdj();render();
+document.querySelectorAll('input,select').forEach(e=>e.addEventListener('input',()=>{sample=false;saveSettings();render()}));
+window.addEventListener('resize',fit);
+$('fsel').addEventListener('input',syncAdj);
+$('print').onclick=()=>{
+ 
+ const n=$('payee').value.trim();
+ 
+ if(n){const r=[n,...recents().filter(x=>x!==n)].slice(0,8);store('chq-recent',JSON.stringify(r));drawRecents()}
+ sample=false;render();doPrint()};
+$('test').onclick=()=>{sample=true;$('sg').checked=true;document.body.classList.add('pg');render();doPrint()};
+window.addEventListener('afterprint',()=>{document.body.classList.remove('pg');sample=false;render()});
+</script>
+</body></html>
