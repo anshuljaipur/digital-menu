@@ -21,13 +21,18 @@ body.edit .bd{display:grid}
 .win{position:absolute;display:flex;flex-direction:column;background:var(--surf);border:1px solid var(--bd);border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,.35);resize:both;overflow:hidden;min-width:280px;min-height:200px}
 .win.max{inset:0 0 48px 0!important;width:auto!important;height:auto!important;border-radius:0;resize:none}
 .win.min{display:none}
-.tb{display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--bar);border-bottom:1px solid var(--bd);cursor:move;user-select:none;touch-action:none}
+.tb{display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--bar);border-bottom:1px solid var(--bd);cursor:move;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.tb .t,.tb>span{touch-action:none}
+.tb button{position:relative;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.tb button::after{content:'';position:absolute;inset:-3px}
+@media (pointer:coarse){.tb button::after{inset:-5px}}
+@media (max-width:640px){.tb [data-a=max]{display:none}}
 .tb .t{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tb button,.tools button{border:0;background:transparent;width:30px;height:28px;border-radius:6px}
 .tb button:hover,.tools button:hover{background:var(--bd)}
 .win iframe{flex:1;border:0;width:100%;background:#fff}
 body.drag iframe{pointer-events:none}
-#bar{position:absolute;left:0;right:0;bottom:0;height:48px;display:flex;align-items:center;gap:6px;padding:0 8px;background:var(--bar);backdrop-filter:blur(12px);border-top:1px solid var(--bd);z-index:99999}
+#bar{position:absolute;left:0;right:0;bottom:0;height:48px;display:flex;align-items:center;gap:6px;padding:0 8px;background:var(--bar);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-top:1px solid var(--bd);z-index:99999}
 .tools{display:flex;gap:4px}
 .tools button{width:auto;padding:0 10px;height:34px;border:1px solid var(--bd);background:var(--surf)}
 .tools .p{background:var(--acc);color:#fff;border-color:var(--acc)}
@@ -67,7 +72,7 @@ html[data-skin=mac] .tb>span:first-child{display:none}
 html[data-skin=mac] .tb button{font-size:0;width:13px;height:13px;padding:0;border-radius:50%}
 html[data-skin=mac] .tb [data-a=x]{background:#ff5f57;order:-3}html[data-skin=mac] .tb [data-a=min]{background:#febc2e;order:-2}html[data-skin=mac] .tb [data-a=max]{background:#28c840;order:-1}
 html[data-skin=mac] .tb [data-a=tab]{font-size:14px;width:22px;height:22px;color:#444}
-html[data-skin=mac] #bar{left:50%;right:auto;transform:translateX(-50%);bottom:8px;width:max-content;min-width:280px;max-width:94vw;border-radius:20px;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.28);backdrop-filter:blur(22px)}
+html[data-skin=mac] #bar{left:50%;right:auto;transform:translateX(-50%);bottom:8px;width:max-content;min-width:280px;max-width:94vw;border-radius:20px;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.28);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px)}
 html[data-skin=mac] #clock{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4)}
 /* Windows 11 */
 html[data-skin=win11] body{background:radial-gradient(at 30% 20%,#7cc4ff,transparent 55%),radial-gradient(at 80% 75%,#2d5bd6,transparent 60%),#0b3b8f;font-family:"Segoe UI Variable","Segoe UI",system-ui,sans-serif}
@@ -75,7 +80,7 @@ html[data-skin=win11] .win{border-radius:8px;border:1px solid rgba(0,0,0,.3)}
 html[data-skin=win11] .tb{background:#f3f3f3;color:#1b1b1b;border-bottom:1px solid #e0e0e0;padding:3px 4px 3px 12px}
 html[data-skin=win11] .tb button{width:40px;height:30px;border-radius:4px;color:#1b1b1b}
 html[data-skin=win11] .tb button:hover{background:#e3e3e3}html[data-skin=win11] .tb [data-a=x]:hover{background:#c42b1c;color:#fff}
-html[data-skin=win11] #bar{background:rgba(243,243,243,.86);backdrop-filter:blur(30px);border-top:1px solid rgba(0,0,0,.08);color:#1b1b1b}
+html[data-skin=win11] #bar{background:rgba(243,243,243,.86);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);border-top:1px solid rgba(0,0,0,.08);color:#1b1b1b}
 html[data-skin=win11] #tasks button,html[data-skin=win11] .tools button{background:rgba(255,255,255,.7);border-color:transparent;border-radius:6px;color:#1b1b1b}
 html[data-skin=win11] .tools .p{background:#0067c0;color:#fff}
 /* Classic Macintosh */
@@ -188,9 +193,13 @@ function openApp(a){
   wins.set(a.id,{el,app:a});
   el.addEventListener('pointerdown',()=>focus(a.id),true);
   const tb=el.querySelector('.tb');
-  tb.onclick=e=>{const k=e.target.dataset.a;if(!k)return;
-    if(k==='x')closeWin(a.id);if(k==='min'){el.classList.add('min');tasks()}
+  const run=k=>{if(k==='x')closeWin(a.id);if(k==='min'){el.classList.add('min');tasks()}
     if(k==='max')el.classList.toggle('max');if(k==='tab')inTab(a)};
+  let last=0;
+  const hit=e=>{const b=e.target.closest&&e.target.closest('button[data-a]');if(!b)return;
+    if(e.type==='pointerup'&&b.dataset.a==='tab')return;
+    const t=Date.now();if(t-last<500)return;last=t;e.preventDefault();run(b.dataset.a)};
+  tb.addEventListener('pointerup',hit);tb.addEventListener('click',hit);
   tb.ondblclick=e=>{if(!e.target.dataset.a)el.classList.toggle('max')};
   drag(tb,el);focus(a.id);
 }
