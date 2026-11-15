@@ -2,11 +2,18 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>AppDesk</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#4f6df5">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="AppDesk">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
 :root{--bg1:#4f6df5;--bg2:#8b5cf6;--surf:#fff;--text:#1a1c23;--mut:#6b7280;--bd:#e3e5ea;--bar:rgba(255,255,255,.85);--acc:#4f6df5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#1e2a5a;--bg2:#3b2470;--surf:#1f2229;--text:#eceef3;--mut:#9aa1ad;--bd:#343843;--bar:rgba(20,22,28,.85)}}
 :root[data-theme="dark"]{--bg1:#1e2a5a;--bg2:#3b2470;--surf:#1f2229;--text:#eceef3;--mut:#9aa1ad;--bd:#343843;--bar:rgba(20,22,28,.85)}
-html,body{height:100%;margin:0}
+html,body{height:100%;margin:0;overscroll-behavior:none;-webkit-text-size-adjust:100%}
 body{position:relative;overflow:hidden;font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--text);background:linear-gradient(135deg,var(--bg1),var(--bg2))}
 button{font:inherit;color:inherit;cursor:pointer}
 #desk{position:absolute;inset:0 0 48px 0;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,86px);grid-auto-rows:100px;gap:8px;align-content:start;overflow:auto}
@@ -71,7 +78,7 @@ html[data-skin=mac] .tb .t{text-align:center;font-weight:500;font-size:13px}
 html[data-skin=mac] .tb>span:first-child{display:none}
 html[data-skin=mac] .tb button{font-size:0;width:13px;height:13px;padding:0;border-radius:50%}
 html[data-skin=mac] .tb [data-a=x]{background:#ff5f57;order:-3}html[data-skin=mac] .tb [data-a=min]{background:#febc2e;order:-2}html[data-skin=mac] .tb [data-a=max]{background:#28c840;order:-1}
-html[data-skin=mac] .tb [data-a=tab]{font-size:14px;width:22px;height:22px;color:#444}
+html[data-skin=mac] .tb [data-a=rl],html[data-skin=mac] .tb [data-a=tab]{font-size:14px;width:22px;height:22px;color:#444}
 html[data-skin=mac] #bar{left:50%;right:auto;transform:translateX(-50%);bottom:8px;width:max-content;min-width:280px;max-width:94vw;border-radius:20px;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.28);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px)}
 html[data-skin=mac] #clock{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4)}
 /* Windows 11 */
@@ -90,7 +97,7 @@ html[data-skin=classic] .tb{background:repeating-linear-gradient(#fff 0 2px,#000
 html[data-skin=classic] .tb>span:first-child{display:none}
 html[data-skin=classic] .tb .t{flex:0 1 auto;margin:0 auto;background:#fff;padding:0 10px;text-align:center}
 html[data-skin=classic] .tb button{width:14px;height:14px;padding:0;border:2px solid #000;border-radius:0;background:#fff;font-size:0}
-html[data-skin=classic] .tb [data-a=x]{order:-1}html[data-skin=classic] .tb [data-a=tab]{font-size:11px;width:auto;padding:0 3px;color:#000}
+html[data-skin=classic] .tb [data-a=x]{order:-1}html[data-skin=classic] .tb [data-a=rl],html[data-skin=classic] .tb [data-a=tab]{font-size:11px;width:auto;padding:0 3px;color:#000}
 html[data-skin=classic] .ic{color:#000;text-shadow:none}
 html[data-skin=classic] .gl{border-radius:0;border:2px solid #000;background:#fff!important;box-shadow:none}
 html[data-skin=classic] .lb{background:#fff;color:#000;padding:0 3px}
@@ -130,7 +137,7 @@ html[data-skin=ubuntu] .tools .p{background:#e95420}html[data-skin=ubuntu] #cloc
 <div id="desk"></div>
 <div id="skins" hidden></div>
 <div id="bar">
-  <div class="tools"><button class="p" id="add">＋ Add app</button><button id="theme" title="Light / dark">◐</button><button id="skinbtn" title="Themes">🎨</button></div>
+  <div class="tools"><button class="p" id="add">＋ Add app</button><button id="theme" title="Light / dark">◐</button><button id="skinbtn" title="Themes">🎨</button><button id="reload" title="Refresh AppDesk">⟳</button></div>
   <div id="tasks"></div><div id="clock"></div>
 </div>
 
@@ -183,7 +190,7 @@ function openApp(a){
   const el=document.createElement('div');el.className='win';
   const n=wins.size,W=Math.min(900,innerWidth-80),H=Math.min(600,innerHeight-140);
   Object.assign(el.style,{left:40+n*28+'px',top:20+n*28+'px',width:W+'px',height:H+'px'});
-  el.innerHTML='<div class="tb"><span>'+esc(a.icon)+'</span><span class="t"></span><button data-a="tab" title="Open in separate tab">↗</button><button data-a="min" title="Minimize">–</button><button data-a="max" title="Maximize">▢</button><button data-a="x" title="Close">✕</button></div>';
+  el.innerHTML='<div class="tb"><span>'+esc(a.icon)+'</span><span class="t"></span><button data-a="rl" title="Reload this app">⟳</button><button data-a="tab" title="Open in separate tab">↗</button><button data-a="min" title="Minimize">–</button><button data-a="max" title="Maximize">▢</button><button data-a="x" title="Close">✕</button></div>';
   el.querySelector('.t').textContent=a.name;
   const f=document.createElement('iframe');
   f.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-downloads allow-pointer-lock');
@@ -193,7 +200,8 @@ function openApp(a){
   wins.set(a.id,{el,app:a});
   el.addEventListener('pointerdown',()=>focus(a.id),true);
   const tb=el.querySelector('.tb');
-  const run=k=>{if(k==='x')closeWin(a.id);if(k==='min'){el.classList.add('min');tasks()}
+  const rl=()=>{if(a.type==='html')f.srcdoc=a.content;else{try{f.contentWindow.location.reload()}catch(e){f.src=f.src}}};
+  const run=k=>{if(k==='rl')rl();if(k==='x')closeWin(a.id);if(k==='min'){el.classList.add('min');tasks()}
     if(k==='max')el.classList.toggle('max');if(k==='tab')inTab(a)};
   let last=0;
   const hit=e=>{const b=e.target.closest&&e.target.closest('button[data-a]');if(!b)return;
@@ -322,6 +330,8 @@ $('#skins').innerHTML=SKINS.map(([k,n])=>'<button data-k="'+k+'">'+n+'</button>'
 $('#skinbtn').onclick=e=>{e.stopPropagation();$('#skins').hidden=!$('#skins').hidden};
 $('#skins').onclick=e=>{const k=e.target.dataset.k;if(k){skin(k);$('#skins').hidden=true}};
 document.addEventListener('click',()=>{$('#skins').hidden=true});
+$('#reload').onclick=()=>location.reload();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 {let k='default';try{k=localStorage.getItem('appdesk-skin')||'default'}catch(e){}skin(k)}
 $('#theme').onclick=()=>{const r=document.documentElement,d=matchMedia('(prefers-color-scheme:dark)').matches;const cur=r.dataset.theme||(d?'dark':'light');r.dataset.theme=cur==='dark'?'light':'dark'};
 const tick=()=>$('#clock').textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});tick();setInterval(tick,30000);
