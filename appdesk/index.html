@@ -17,11 +17,11 @@ html,body{height:100%;margin:0;overscroll-behavior:none;-webkit-text-size-adjust
 body{position:relative;overflow:hidden;font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--text);background:transparent}
 html{background:linear-gradient(135deg,var(--bg1),var(--bg2)) center/cover no-repeat}
 button{font:inherit;color:inherit;cursor:pointer}
-#desk{position:absolute;inset:0 0 var(--bh) 0;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));grid-auto-rows:minmax(98px,auto);gap:10px 6px;justify-items:center;align-content:start;overflow:auto}
+#desk{position:absolute;inset:0 0 var(--bh) 0;padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--icol,84px),1fr));grid-auto-rows:minmax(98px,auto);gap:10px 6px;justify-items:center;align-content:start;overflow:auto}
 .ic{position:relative;background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 2px;border-radius:10px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6)}
 .ic:hover{background:rgba(255,255,255,.18)}
-.gl{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:28px;box-shadow:0 3px 10px rgba(0,0,0,.3)}
-.lb{font-size:12px;max-width:84px;line-height:1.2;text-align:center;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word}
+.gl{width:var(--isz,52px);height:var(--isz,52px);border-radius:calc(var(--isz,52px)*.27);display:grid;place-items:center;font-size:calc(var(--isz,52px)*.54);box-shadow:0 3px 10px rgba(0,0,0,.3)}
+.lb{font-size:12px;max-width:var(--icol,84px);line-height:1.2;text-align:center;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word}
 .bd{display:none;position:absolute;top:0;width:22px;height:22px;border-radius:50%;border:0;background:#fff;color:#111;font-size:12px;text-shadow:none;place-items:center;box-shadow:0 1px 4px rgba(0,0,0,.4)}
 .bd.e{left:2px}.bd.x{right:2px}
 body.edit .bd{display:grid}
@@ -64,13 +64,18 @@ dialog{max-height:90vh;overflow:auto}
 .pick button.sel{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
 .two{display:flex;gap:8px;margin-top:8px}.two button{flex:1;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--surf)}
 details{margin-top:12px}summary{cursor:pointer;color:var(--mut)}
-@media (max-width:640px){.win{inset:0 0 var(--bh) 0!important;width:auto!important;height:auto!important;border-radius:0;resize:none}#clock{display:none}}
+@media (max-width:640px){.win{inset:0 0 var(--bh) 0!important;width:auto!important;height:auto!important;border-radius:0;resize:none}#clock{font-size:13px;padding:0 4px;white-space:nowrap}}
 
 /* ---------- skins (themes) ---------- */
 #skins{position:fixed;left:8px;bottom:calc(56px + env(safe-area-inset-bottom,0px));z-index:100000;background:var(--surf);color:var(--text);border:1px solid var(--bd);border-radius:12px;padding:6px;box-shadow:0 8px 30px rgba(0,0,0,.35);min-width:190px}
 #skins[hidden]{display:none}
 #skins button{display:block;width:100%;text-align:left;border:0;background:transparent;padding:9px 12px;border-radius:8px}
 #skins button:hover{background:var(--bd)}#skins button.on{font-weight:700;color:var(--acc)}
+#set{position:fixed;left:8px;bottom:calc(var(--bh) + 8px);z-index:100000;background:var(--surf);color:var(--text);border:1px solid var(--bd);border-radius:12px;padding:6px 12px 12px;box-shadow:0 8px 30px rgba(0,0,0,.35);width:min(300px,calc(100vw - 16px))}
+#set[hidden]{display:none}#set label{display:block;margin:10px 0 4px;font-size:12px;color:var(--mut)}#set label.chk{display:flex;gap:6px;align-items:center;color:var(--text);font-size:13px}
+#set input[type=checkbox]{width:auto;padding:0}
+.seg{display:flex;gap:4px}.seg button{flex:1;padding:6px 4px;border:1px solid var(--bd);border-radius:8px;background:var(--surf);font-size:13px;color:var(--text)}.seg button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+body.edit .ic::after{content:'✎';position:absolute;top:0;right:8px;width:22px;height:22px;border-radius:50%;background:#fff;color:#111;display:grid;place-items:center;font-size:12px;text-shadow:none}
 /* macOS */
 html[data-skin=mac]{background:url("wallpapers/mac.jpg"),radial-gradient(at 20% 10%,#ff9a9e,transparent 50%),radial-gradient(at 80% 20%,#a18cd1,transparent 55%),radial-gradient(at 50% 95%,#5ee7df,transparent 55%),#3a4a8a;background-size:cover;background-repeat:no-repeat;background-position:center}
 html[data-skin=mac] body{font-family:-apple-system,"SF Pro Text","Helvetica Neue",system-ui,sans-serif}
@@ -142,9 +147,10 @@ html[data-skin=ubuntu] .tools .p{background:#e95420}html[data-skin=ubuntu] #cloc
 </style></head>
 <body>
 <div id="desk"></div>
-<div id="skins" hidden></div>
+<dialog id="edlg"><h3>Edit app</h3><label>Name</label><input id="en" autocomplete="off"><label>Icon <span id="eipv" style="font-size:20px"></span></label><div class="pick" id="epick"></div><input id="eic" maxlength="4" placeholder="or type your own emoji" style="margin-top:6px"><div class="hint" id="est"></div><div class="row"><button id="ecancel">Cancel</button><button class="p" id="esave">Save</button></div></dialog>
+<div id="set" hidden></div>
 <div id="bar">
-  <div class="tools"><button class="p" id="add">＋ Add app</button><button id="theme" title="Light / dark">◐</button><button id="skinbtn" title="Themes">🎨</button><button id="reload" title="Refresh AppDesk">⟳</button></div>
+  <div class="tools"><button class="p" id="add">＋ Add app</button><button id="edit" title="Edit apps">✎</button><button id="setbtn" title="Settings">⚙</button><button id="reload" title="Refresh AppDesk">⟳</button></div>
   <div id="tasks"></div><div id="clock"></div>
 </div>
 
@@ -183,15 +189,16 @@ const wins=new Map();let z=10;
 function render(){
   const d=$('#desk');d.innerHTML='';
   if(!apps.length){d.innerHTML='<div id="empty">No apps yet. Tap “＋ Add app” to see how to add one.</div>';return}
-  apps.forEach(a=>{
+  sorted().forEach(a=>{
     const b=document.createElement('button');b.className='ic';
     const g=document.createElement('div');g.className='gl';g.style.background=a.color;g.textContent=a.icon;
     const l=document.createElement('div');l.className='lb';l.textContent=a.name;l.title=a.name;
-    b.append(g,l);b.onclick=()=>openApp(a);d.append(b)});
+    b.append(g,l);b.onclick=()=>document.body.classList.contains('edit')?editApp(a):openApp(a);d.append(b)});
 }
 
 /* ---------- windows ---------- */
 function openApp(a){
+  bump(a.id);
   let w=wins.get(a.id);
   if(w){w.el.classList.remove('min');focus(a.id);return}
   const el=document.createElement('div');el.className='win';
@@ -331,17 +338,81 @@ $('#go').onclick=async()=>{
 };
 
 /* ---------- misc ---------- */
+/* ---------- settings (saved on this device) ---------- */
 const SKINS=[['default','Default'],['mac','macOS'],['win11','Windows 11'],['classic','Classic Macintosh'],['xp','Windows XP'],['win95','Windows 95'],['ubuntu','Ubuntu']];
-function skin(k){document.documentElement.dataset.skin=k;try{localStorage.setItem('appdesk-skin',k)}catch(e){}$$('#skins button').forEach(b=>b.classList.toggle('on',b.dataset.k===k))}
-$('#skins').innerHTML=SKINS.map(([k,n])=>'<button data-k="'+k+'">'+n+'</button>').join('');
-$('#skinbtn').onclick=e=>{e.stopPropagation();$('#skins').hidden=!$('#skins').hidden};
-$('#skins').onclick=e=>{const k=e.target.dataset.k;if(k){skin(k);$('#skins').hidden=true}};
-document.addEventListener('click',()=>{$('#skins').hidden=true});
+const SIZES={s:[40,70],m:[52,84],l:[68,100],xl:[84,124]},PK='appdesk-prefs';
+let prefs={size:'m',sort:'default',h12:true,sec:false,dark:'',over:{},use:{}};
+try{Object.assign(prefs,JSON.parse(localStorage.getItem(PK)||'{}'))}catch(e){}
+const savePrefs=()=>{try{localStorage.setItem(PK,JSON.stringify(prefs))}catch(e){}};
+function skin(k){document.documentElement.dataset.skin=k;try{localStorage.setItem('appdesk-skin',k)}catch(e){}}
+function applyPrefs(){
+  const [i,c]=SIZES[prefs.size]||SIZES.m,r=document.documentElement;
+  r.style.setProperty('--isz',i+'px');r.style.setProperty('--icol',c+'px');
+  if(prefs.dark)r.dataset.theme=prefs.dark;else delete r.dataset.theme;
+  let k='default';try{k=localStorage.getItem('appdesk-skin')||'default'}catch(e){}skin(k);
+  if(apps.length)render();tick();
+}
+function sorted(){
+  const L=apps.map(a=>({...a,...(prefs.over[a.id]||{})})),u=id=>prefs.use[id]||{n:0,t:0};
+  const f={az:(a,b)=>a.name.localeCompare(b.name),za:(a,b)=>b.name.localeCompare(a.name),used:(a,b)=>u(b.id).n-u(a.id).n||a.name.localeCompare(b.name),recent:(a,b)=>u(b.id).t-u(a.id).t||a.name.localeCompare(b.name)}[prefs.sort];
+  return f?L.sort(f):L;
+}
+function bump(id){const u=prefs.use[id]=prefs.use[id]||{n:0,t:0};u.n++;u.t=Date.now();savePrefs();if(prefs.sort==='used'||prefs.sort==='recent')render()}
+function buildSet(){
+  const sel=(id,o,v)=>'<select id="'+id+'">'+o.map(([k,n])=>'<option value="'+k+'"'+(k===v?' selected':'')+'>'+n+'</option>').join('')+'</select>';
+  const seg=(id,o,v)=>'<div class="seg" id="'+id+'">'+o.map(([k,n])=>'<button data-v="'+k+'"'+(k===v?' class="on"':'')+'>'+n+'</button>').join('')+'</div>';
+  $('#set').innerHTML='<label>Theme</label>'+sel('s-skin',SKINS,document.documentElement.dataset.skin||'default')
+   +'<label>Appearance</label>'+seg('s-dark',[['','Auto'],['light','Light'],['dark','Dark']],prefs.dark)
+   +'<label>Icon size</label>'+seg('s-size',[['s','S'],['m','M'],['l','L'],['xl','XL']],prefs.size)
+   +'<label>Sort by</label>'+sel('s-sort',[['default','Default order'],['az','Name A → Z'],['za','Name Z → A'],['used','Most used'],['recent','Recently used']],prefs.sort)
+   +'<label>Clock</label>'+seg('s-h',[['12','12-hour'],['24','24-hour']],prefs.h12?'12':'24')
+   +'<label class="chk"><input type="checkbox" id="s-sec"'+(prefs.sec?' checked':'')+'> Show seconds</label>';
+}
+$('#set').onclick=e=>{e.stopPropagation();const b=e.target.closest('.seg button');if(!b)return;const id=b.parentNode.id,v=b.dataset.v;
+  if(id==='s-dark')prefs.dark=v;if(id==='s-size')prefs.size=v;if(id==='s-h')prefs.h12=v==='12';
+  savePrefs();applyPrefs();buildSet()};
+$('#set').onchange=e=>{const t=e.target;
+  if(t.id==='s-skin')skin(t.value);
+  if(t.id==='s-sort'){prefs.sort=t.value;savePrefs();render()}
+  if(t.id==='s-sec'){prefs.sec=t.checked;savePrefs();tick()}};
+$('#setbtn').onclick=e=>{e.stopPropagation();buildSet();$('#set').hidden=!$('#set').hidden};
+document.addEventListener('click',()=>{$('#set').hidden=true});
+$('#edit').onclick=()=>{const on=document.body.classList.toggle('edit');$('#edit').textContent=on?'✔ Done':'✎'};
+/* ---------- edit app (name + icon) ---------- */
+let eApp=null,eIcon='';
+function eSet(v){eIcon=v;$('#eipv').textContent=v;$$('#epick button').forEach(b=>b.classList.toggle('sel',b.textContent===v));$('#eic').value=EM.includes(v)?'':v}
+$('#epick').innerHTML=EM.map(e=>'<button type="button">'+e+'</button>').join('');
+$('#epick').onclick=e=>{if(e.target.tagName==='BUTTON')eSet(e.target.textContent)};
+$('#eic').oninput=()=>{const v=$('#eic').value.trim();if(v){eIcon=v;$('#eipv').textContent=v;$$('#epick button').forEach(b=>b.classList.remove('sel'))}};
+function editApp(a){eApp=a;$('#en').value=a.name;eSet(a.icon);$('#est').textContent='';$('#edlg').showModal()}
+$('#ecancel').onclick=()=>$('#edlg').close();
+$('#esave').onclick=async()=>{
+  const name=$('#en').value.trim()||eApp.name,ic=eIcon||eApp.icon,id=eApp.id,c=cfg();
+  $('#esave').disabled=true;
+  try{
+    if(!c.tok){prefs.over[id]={name,icon:ic};savePrefs();$('#edlg').close();render();alert('Saved on this device only. To save for every device, add your GitHub token (＋ Add app → GitHub settings).');return}
+    const base=c.dir?c.dir+'/':'';
+    for(let t=0;t<2;t++){try{
+      const cur=await gh(c,'GET',base+'apps.json'),arr=JSON.parse(fromB64(cur.content));
+      const m=arr.find(x=>(x.path||x.url)===eApp.content);if(!m)throw new Error('App not found in apps.json');
+      m.name=name;m.icon=ic;
+      await gh(c,'PUT',base+'apps.json',{message:'AppDesk: update '+name,content:b64s('[\n'+arr.map(o=>'  '+JSON.stringify(o)).join(',\n')+'\n]\n'),sha:cur.sha,...(c.br?{branch:c.br}:{})});
+      break;
+    }catch(e){if(e.status!==409||t)throw e}}
+    const x=apps.find(z=>z.id===id);if(x){x.name=name;x.icon=ic}
+    delete prefs.over[id];savePrefs();$('#edlg').close();render();
+  }catch(e){$('#est').textContent='Failed: '+e.message}
+  finally{$('#esave').disabled=false}
+};
 $('#reload').onclick=()=>location.reload();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
-{let k='default';try{k=localStorage.getItem('appdesk-skin')||'default'}catch(e){}skin(k)}
-$('#theme').onclick=()=>{const r=document.documentElement,d=matchMedia('(prefers-color-scheme:dark)').matches;const cur=r.dataset.theme||(d?'dark':'light');r.dataset.theme=cur==='dark'?'light':'dark'};
-const tick=()=>$('#clock').textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});tick();setInterval(tick,30000);
+applyPrefs();
+function tick(){
+  const o=prefs.h12?{hour:'numeric',minute:'2-digit',hour12:true}:{hour:'2-digit',minute:'2-digit',hourCycle:'h23'};
+  if(prefs.sec)o.second='2-digit';
+  $('#clock').textContent=new Date().toLocaleTimeString(prefs.h12?'en-US':'en-GB',o);
+}
+tick();setInterval(tick,1000);
 
 async function loadManifest(){
   try{const r=await fetch('apps.json?v='+Date.now());if(!r.ok)return[];
