@@ -1,5 +1,5 @@
 [
-  {"name":"Bills","icon":"🖨️","path":"apps/bills/index.html"},
+  {"name":"Bills","icon":"📝","path":"apps/bills/index.html"},
   {"name":"Expense Tracker","path":"apps/pnl/index.html","icon":"💸"},
   {"name":"Stock Broker Ledger","icon":"👨‍👩‍👧","path":"apps/stock-broker-ledger/index.html"},
   {"name":"Staff Time","icon":"⏱️","path":"apps/timetrack/index.html"},
