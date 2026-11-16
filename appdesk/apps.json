@@ -3,7 +3,7 @@
   {"name":"Expense Tracker","path":"apps/pnl/index.html","icon":"💸"},
   {"name":"Stock Broker Ledger","icon":"👨‍👩‍👧","path":"apps/stock-broker-ledger/index.html"},
   {"name":"Staff Time","icon":"⏱️","path":"apps/timetrack/index.html"},
-  {"name":"Calculator","icon":"🧮","path":"apps/calculator/index.html"},
+  {"name":"Calculator","icon":"🟰","path":"apps/calculator/index.html"},
   {"name":"Cash Flow","icon":"💵","path":"apps/cashflow/index.html"},
   {"name":"FD Tracker","icon":"💹","path":"apps/fd-tracker/index.html"},
   {"name":"Cheque Printer","icon":"🖨️","path":"apps/Cheque_Print/index.html"},
