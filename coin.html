@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Old Coin Cabinet – Collection &amp; Bids</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--felt:#1f3a33;--bg:#e9ede9;--card:#f8faf7;--ink:#1b2622;--mute:#5d6b65;--line:#cdd6d0;--brass:#a97b2b;--brassl:#c99a43;--bad:#b3261e;--ok:#1f6b45;--serif:"Spectral",Georgia,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+@media(prefers-color-scheme:dark){:root{--felt:#10201c;--bg:#15231f;--card:#1d2f2a;--ink:#e8eee9;--mute:#9fb0a8;--line:#2f453e;--brass:#d6a64e;--brassl:#e2b862;--bad:#ff8a80;--ok:#6fd1a0}}
+*{box-sizing:border-box}html{scroll-padding-top:70px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans)}
+header{background:var(--felt);color:#f1ead8;padding:28px 20px 22px}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font:700 clamp(26px,5vw,40px)/1.1 var(--serif);margin:0 0 6px;letter-spacing:.2px}
+header p{margin:0;color:#c9d3cc;max-width:60ch}
+.bar{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line);padding:10px 20px}
+.bar .wrap{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input,select,textarea,button{font:inherit;color:inherit}
+input,select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+input:focus,select:focus,textarea:focus,button:focus-visible,.coin:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
+#q{flex:1 1 260px}
+.yr{width:84px}
+button{cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--card);padding:8px 12px}
+button.pri{background:var(--brass);border-color:var(--brass);color:#fff;font-weight:600}
+button.pri:hover{background:var(--brassl)}
+.meta{padding:12px 20px 0;color:var(--mute)}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px;padding:14px 20px 40px;max-width:1180px;margin:0 auto}
+.coin{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column}
+.coin:hover{border-color:var(--brass)}
+.coin .im{background:var(--felt);padding:14px;position:relative}
+.coin img{width:100%;aspect-ratio:1;object-fit:contain;display:block}
+.coin .im img+img{position:absolute;inset:14px;width:calc(100% - 28px);opacity:0;transition:opacity .25s}
+.coin:hover .im img+img{opacity:1}
+.coin .tx{padding:10px 12px 12px}
+.coin .yrn{font:700 22px var(--serif);color:var(--brass)}
+.coin h3{font:600 15px/1.3 var(--sans);margin:2px 0 4px}
+.coin small{color:var(--mute)}
+.tag{display:inline-block;font-size:12px;border:1px solid var(--line);border-radius:99px;padding:1px 8px;margin:4px 4px 0 0;color:var(--mute)}
+.empty{grid-column:1/-1;text-align:center;color:var(--mute);padding:50px 10px}
+#modal{position:fixed;inset:0;background:rgba(8,16,13,.78);display:none;z-index:10;overflow:auto;padding:16px}
+#modal.on{display:block}
+.sheet{background:var(--card);max-width:980px;margin:0 auto;border-radius:14px;overflow:hidden}
+.sh-top{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);gap:8px}
+.sh-top h2{font:700 22px var(--serif);margin:0}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:0}
+@media(max-width:760px){.cols{grid-template-columns:1fr}}
+.view{background:var(--felt);padding:18px;text-align:center}
+.view img{width:100%;max-width:420px;aspect-ratio:1;object-fit:contain;cursor:pointer}
+.tabs{display:inline-flex;margin-top:10px;border:1px solid #476258;border-radius:8px;overflow:hidden}
+.tabs button{border:0;border-radius:0;background:transparent;color:#d9e2dc;padding:6px 16px}
+.tabs button.on{background:var(--brass);color:#fff}
+.nav{display:flex;justify-content:center;gap:8px;margin-top:10px}
+.nav button{background:transparent;color:#d9e2dc;border-color:#476258}
+.info{padding:16px}
+table.d{width:100%;border-collapse:collapse;margin-bottom:10px}
+.d td{padding:5px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.d td:first-child{color:var(--mute);width:38%}
+.desc{color:var(--mute);margin:8px 0 12px}
+.bid{border-top:1px solid var(--line);padding:16px}
+.bid h3{font:700 19px var(--serif);margin:0 0 4px}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:10px 0}
+label{display:block;font-size:13px;color:var(--mute)}
+label input,label select,label textarea{display:block;width:100%;margin-top:3px;color:var(--ink)}
+.err{color:var(--bad);font-size:13px;min-height:18px}
+.ok{color:var(--ok)}
+.chk{display:flex;gap:8px;align-items:flex-start;color:var(--ink);font-size:13px}
+.chk input{width:auto;margin-top:3px}
+footer{padding:20px;text-align:center;color:var(--mute);font-size:13px}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<h1 id="title">Old Coin Cabinet</h1>
+<p id="tag">Browse the collection, look at both faces, and place a bid. No account needed — bids reach the owner by email.</p>
+</div></header>
+
+<div class="bar"><div class="wrap">
+<input id="q" type="search" placeholder='Search: "1947 silver india", "victoria penny", "gold"…' aria-label="Search coins">
+<select id="fc" aria-label="Country"></select>
+<select id="fm" aria-label="Metal"></select>
+<select id="fe" aria-label="Era"></select>
+<select id="fg" aria-label="Grade"></select>
+<input id="y1" class="yr" type="number" placeholder="From yr" aria-label="From year">
+<input id="y2" class="yr" type="number" placeholder="To yr" aria-label="To year">
+<select id="sort" aria-label="Sort">
+<option value="yasc">Year: oldest first</option>
+<option value="ydesc">Year: newest first</option>
+<option value="rel">Best match</option>
+<option value="name">Name A–Z</option>
+<option value="country">Country A–Z</option>
+<option value="pasc">Starting bid: low–high</option>
+<option value="pdesc">Starting bid: high–low</option>
+<option value="rare">Rarity: highest</option>
+<option value="wt">Weight: heaviest</option>
+<option value="grade">Grade: best first</option>
+</select>
+<button id="reset">Reset</button>
+</div></div>
+<div class="meta" id="count"></div>
+<main id="grid"></main>
+<footer id="foot"></footer>
+
+<div id="modal" role="dialog" aria-modal="true" aria-label="Coin details"><div class="sheet" id="sheet"></div></div>
+
+<script>
+/* ============ 1. SETTINGS — edit these ============ */
+const CONFIG = {
+  siteName: "Old Coin Cabinet",
+  ownerEmail: "you@example.com",      // bids are sent to this address
+  currency: "₹",
+  sendMode: "mailto",                  // "mailto" = opens bidder's mail app | "formsubmit" = sends silently via formsubmit.co
+  minIncrement: 1,                     // bid must be at least start price + this
+  apiUrl: "",                          // paste your Apps Script web app URL (ends with /exec) to use the admin backend
+  minAge: 18                           // applies only if bidder enters date of birth
+};
+
+/* ============ 2. COINS — add/edit here ============
+   front / back: image URL or file in your repo (e.g. "img/1913-front.jpg").
+   Leave empty to show an auto-drawn placeholder.
+   rarity: 1 (common) to 5 (very rare). start: starting bid. */
+let COINS = [
+ {id:"C001",name:"One Rupee – George V",country:"India (British)",year:1913,denom:"1 Rupee",metal:"Silver",purity:".917",weight:11.66,diameter:30.6,grade:"VF",mint:"Calcutta",ruler:"George V",category:"Colonial",rarity:2,start:1800,front:"",back:"",desc:"King-Emperor bust on obverse, crowned value in wreath on reverse. Sample entry — replace with your real details."},
+ {id:"C002",name:"Quarter Anna",country:"India (British)",year:1935,denom:"1/4 Anna",metal:"Copper-Nickel",purity:"",weight:3.2,diameter:21,grade:"XF",mint:"Bombay",ruler:"George V",category:"Colonial",rarity:1,start:250,front:"",back:"",desc:"Square-ish scalloped small change coin of the late colonial period."},
+ {id:"C003",name:"Morgan Dollar",country:"USA",year:1881,denom:"1 Dollar",metal:"Silver",purity:".900",weight:26.73,diameter:38.1,grade:"AU",mint:"San Francisco",ruler:"",category:"Republic",rarity:3,start:6500,front:"",back:"",desc:"Liberty head obverse with eagle reverse. A classic collector piece."},
+ {id:"C004",name:"Victoria Bun Penny",country:"United Kingdom",year:1887,denom:"1 Penny",metal:"Bronze",purity:"",weight:9.4,diameter:30.8,grade:"F",mint:"Royal Mint",ruler:"Victoria",category:"Victorian",rarity:1,start:900,front:"",back:"",desc:"Veiled-head portrait of Queen Victoria with seated Britannia reverse."},
+ {id:"C005",name:"Akbar Rupee",country:"India (Mughal)",year:1605,denom:"1 Rupee",metal:"Silver",purity:"",weight:11.4,diameter:21,grade:"VF",mint:"Agra",ruler:"Akbar",category:"Mughal",rarity:5,start:18000,front:"",back:"",desc:"Hand-struck Mughal rupee with calligraphic legends. Date approximate."},
+ {id:"C006",name:"Independence-Era One Rupee",country:"India",year:1947,denom:"1 Rupee",metal:"Silver",purity:".500",weight:11.66,diameter:30.6,grade:"XF",mint:"Bombay",ruler:"George VI",category:"Transition",rarity:3,start:2200,front:"",back:"",desc:"Struck in the year of independence, last of the British-portrait rupees."},
+ {id:"C007",name:"Gold Sovereign",country:"United Kingdom",year:1911,denom:"1 Sovereign",metal:"Gold",purity:".917",weight:7.99,diameter:22.05,grade:"AU",mint:"London",ruler:"George V",category:"Bullion",rarity:4,start:52000,front:"",back:"",desc:"St George and the dragon reverse by Benedetto Pistrucci."},
+ {id:"C008",name:"East India Company Half Anna",country:"India (EIC)",year:1835,denom:"1/2 Anna",metal:"Copper",purity:"",weight:10.5,diameter:28,grade:"G",mint:"Calcutta",ruler:"William IV",category:"Company",rarity:3,start:700,front:"",back:"",desc:"Company-era copper coinage with the EIC crest."}
+];
+
+/* ============ 3. APP ============ */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const GR = ["P","G","VG","F","VF","XF","AU","UNC"];  // grade order, worst → best
+const gv = g => GR.indexOf(g);
+const era = y => y < 1700 ? "Before 1700" : y < 1800 ? "1700s" : y < 1900 ? "1800s" : y < 1950 ? "1900–1949" : "1950 onwards";
+const ERAS = ["Before 1700","1700s","1800s","1900–1949","1950 onwards"];
+const money = n => CONFIG.currency + Number(n).toLocaleString("en-IN");
+const norm = s => String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+
+/* placeholder art when no photo is given */
+function art(c, side){
+  const m = {Gold:["#f3d77a","#b98a1c"],Silver:["#eef1f2","#8e979c"],Copper:["#e2995f","#8a4a22"],Bronze:["#c58a52","#6e4220"]}[c.metal] || ["#d7d3c8","#82796a"];
+  const t = side==="front"
+    ? `<text x="100" y="92" text-anchor="middle" font-family="Georgia,serif" font-size="46" font-weight="700" fill="${m[1]}">${esc(c.year)}</text><text x="100" y="124" text-anchor="middle" font-family="Georgia,serif" font-size="15" fill="${m[1]}">${esc(c.denom)}</text><text x="100" y="152" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="${m[1]}">${esc((c.ruler||c.country).toUpperCase())}</text>`
+    : `<text x="100" y="104" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="${m[1]}">${esc(c.country)}</text><text x="100" y="124" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="${m[1]}">${esc(c.mint||"")}</text>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><radialGradient id="g" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="${m[0]}"/><stop offset="1" stop-color="${m[1]}"/></radialGradient></defs><circle cx="100" cy="100" r="96" fill="url(#g)"/><circle cx="100" cy="100" r="86" fill="none" stroke="${m[1]}" stroke-width="3" opacity=".6"/><circle cx="100" cy="100" r="70" fill="rgba(0,0,0,.45)"/>${t}</svg>`;
+  return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+}
+const img = (c, side) => (side==="front" ? c.front : c.back) || art(c, side);
+const alt = (c, side) => `${c.name} ${c.year} – ${side} face`;
+
+/* smart search: every word must match (AND), prefix/substring, tolerates 1 typo, ranks by field weight */
+let hay = [];
+function index(){ hay = COINS.map(c => ({
+  c,
+  strong: norm([c.name,c.denom,c.ruler,c.year].join(" ")),
+  all: norm(Object.values(c).filter(v => typeof v !== "object").join(" ")).replace(/[^a-z0-9. ]/g," ")
+}));
+hay.forEach(h => h.words = [...new Set(h.all.split(/\s+/).filter(Boolean))]); }
+index();
+function lev1(a,b){ if(Math.abs(a.length-b.length)>1) return false; let i=0,j=0,e=0; while(i<a.length&&j<b.length){ if(a[i]===b[j]){i++;j++;continue} if(++e>1) return false; if(a.length>b.length) i++; else if(a.length<b.length) j++; else {i++;j++} } return e+(a.length-i)+(b.length-j) <= 1; }
+function score(h, toks){
+  let s = 0;
+  for(const t of toks){
+    let p = 0;
+    if(h.strong.includes(t)) p = 3;
+    else if(h.all.includes(t)) p = 2;
+    else if(t.length>=4 && h.words.some(w => lev1(t,w))) p = 1;
+    if(!p) return 0;
+    s += p;
+  }
+  return s;
+}
+
+const S = {sel:null, side:"front", list:[]};
+function fill(sel, label, vals){ sel.innerHTML = `<option value="">${label}</option>` + vals.map(v => `<option>${esc(v)}</option>`).join(""); }
+function uniq(f){ return [...new Set(COINS.map(f))].sort(); }
+function filters(){
+fill($("#fc"),"All countries",uniq(c=>c.country));
+fill($("#fm"),"All metals",uniq(c=>c.metal));
+fill($("#fe"),"All eras",ERAS.filter(e=>COINS.some(c=>era(c.year)===e)));
+fill($("#fg"),"All grades",GR.filter(g=>COINS.some(c=>c.grade===g)));
+}
+filters();
+
+function run(){
+  const toks = norm($("#q").value).split(/[\s,]+/).filter(Boolean);
+  const f = {c:$("#fc").value,m:$("#fm").value,e:$("#fe").value,g:$("#fg").value,a:+$("#y1").value||-1e9,b:+$("#y2").value||1e9};
+  let rows = hay.map(h => ({c:h.c, s: toks.length ? score(h,toks) : 1}))
+    .filter(r => r.s && (!f.c||r.c.country===f.c) && (!f.m||r.c.metal===f.m) && (!f.e||era(r.c.year)===f.e) && (!f.g||r.c.grade===f.g) && r.c.year>=f.a && r.c.year<=f.b);
+  const so = $("#sort").value;
+  const cmp = {
+    yasc:(a,b)=>a.c.year-b.c.year, ydesc:(a,b)=>b.c.year-a.c.year,
+    rel:(a,b)=>b.s-a.s || a.c.year-b.c.year,
+    name:(a,b)=>a.c.name.localeCompare(b.c.name), country:(a,b)=>a.c.country.localeCompare(b.c.country)||a.c.year-b.c.year,
+    pasc:(a,b)=>a.c.start-b.c.start, pdesc:(a,b)=>b.c.start-a.c.start,
+    rare:(a,b)=>b.c.rarity-a.c.rarity, wt:(a,b)=>b.c.weight-a.c.weight, grade:(a,b)=>gv(b.c.grade)-gv(a.c.grade)
+  }[so];
+  rows.sort(cmp);
+  S.list = rows.map(r => r.c);
+  $("#count").textContent = `${S.list.length} of ${COINS.length} coins`;
+  $("#grid").innerHTML = S.list.length ? S.list.map(c => `
+    <article class="coin" tabindex="0" data-id="${esc(c.id)}" aria-label="${esc(c.name)} ${esc(c.year)}">
+      <div class="im"><img src="${img(c,"front")}" alt="${esc(alt(c,"front"))}" loading="lazy"><img src="${img(c,"back")}" alt="" loading="lazy"></div>
+      <div class="tx"><div class="yrn">${esc(c.year)}</div><h3>${esc(c.name)}</h3><small>${esc(c.country)}</small><br>
+      <span class="tag">${esc(c.metal)}</span><span class="tag">${esc(c.grade)}</span><span class="tag">from ${money(c.start)}</span></div>
+    </article>`).join("") : `<div class="empty">No coins match. Try fewer words or press Reset.</div>`;
+}
+["q","fc","fm","fe","fg","y1","y2","sort"].forEach(i => $("#"+i).addEventListener(i==="q"||i[0]==="y"?"input":"change", () => { if(i==="q" && $("#q").value && $("#sort").value!=="rel") $("#sort").value="rel"; run(); }));
+$("#reset").onclick = () => { ["q","y1","y2"].forEach(i=>$("#"+i).value=""); ["fc","fm","fe","fg"].forEach(i=>$("#"+i).selectedIndex=0); $("#sort").value="yasc"; run(); };
+$("#grid").addEventListener("click", e => { const a = e.target.closest(".coin"); if(a) open(a.dataset.id); });
+$("#grid").addEventListener("keydown", e => { if(e.key==="Enter"){ const a = e.target.closest(".coin"); if(a) open(a.dataset.id); }});
+
+/* viewer */
+function open(id){ S.sel = COINS.find(c=>c.id===id); S.side = "front"; draw(); $("#modal").classList.add("on"); document.body.style.overflow="hidden"; }
+function close(){ $("#modal").classList.remove("on"); document.body.style.overflow=""; history.replaceState(null,"","#"); }
+function step(d){ const i = S.list.findIndex(c=>c.id===S.sel.id); const n = S.list[(i+d+S.list.length)%S.list.length]; if(n){ S.sel=n; S.side="front"; draw(); } }
+function saved(){ try{ return JSON.parse(localStorage.getItem("bidder")||"{}"); }catch(e){ return {}; } }
+function draw(){
+  const c = S.sel, v = saved();
+  const rows = [["Year",c.year],["Country",c.country],["Denomination",c.denom],["Metal",c.metal+(c.purity?" ("+c.purity+")":"")],["Weight",c.weight+" g"],["Diameter",c.diameter+" mm"],["Grade",c.grade],["Mint",c.mint],["Ruler / Authority",c.ruler],["Category",c.category],["Era",era(c.year)],["Rarity","★".repeat(c.rarity)+"☆".repeat(5-c.rarity)],["Catalogue ID",c.id],["Starting bid",money(c.start)],["Highest bid so far",c.highBid?money(c.highBid)+" ("+c.bidCount+" bid"+(c.bidCount>1?"s":"")+")":""]].filter(r=>r[1]!==""&&r[1]!=null);
+  $("#sheet").innerHTML = `
+  <div class="sh-top"><h2>${esc(c.name)} · ${esc(c.year)}</h2><button id="x" aria-label="Close">Close</button></div>
+  <div class="cols">
+    <div class="view">
+      <img id="big" src="${img(c,S.side)}" alt="${esc(alt(c,S.side))}" title="Click to flip">
+      <div class="tabs"><button data-s="front" class="${S.side==="front"?"on":""}">Front face</button><button data-s="back" class="${S.side==="back"?"on":""}">Back face</button></div>
+      <div class="nav"><button id="pv">Previous</button><button id="nx">Next</button></div>
+    </div>
+    <div class="info"><table class="d">${rows.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join("")}</table><p class="desc">${esc(c.desc)}</p></div>
+  </div>
+  <form class="bid" id="bf" novalidate>
+    <h3>Place a bid</h3><div>Starting bid ${money(c.start)}. Your bid is emailed to the owner, who will contact you.</div>
+    <div class="fg">
+      <label>Full name *<input name="name" autocomplete="name" value="${esc(v.name)}" required></label>
+      <label>Email *<input name="email" type="email" autocomplete="email" value="${esc(v.email)}" required></label>
+      <label>Mobile * (with country code)<input name="mobile" type="tel" autocomplete="tel" value="${esc(v.mobile)}" required></label>
+      <label>Your bid (${esc(CONFIG.currency)}) *<input name="amount" type="number" min="${Math.max(c.start,c.highBid||0)+CONFIG.minIncrement}" step="1" placeholder="${Math.max(c.start,c.highBid||0)+CONFIG.minIncrement}" required></label>
+      <label>Date of birth<input name="dob" type="date" value="${esc(v.dob)}"></label>
+      <label>Sex<select name="sex"><option value="">Prefer not to say</option><option>Male</option><option>Female</option><option>Other</option></select></label>
+      <label>City / State<input name="city" autocomplete="address-level2" value="${esc(v.city)}"></label>
+      <label>Message<input name="msg" placeholder="Optional note"></label>
+    </div>
+    <label class="chk"><input type="checkbox" name="ok"> I confirm these details are correct and I am a serious bidder.</label>
+    <div class="err" id="er" role="alert"></div>
+    <button class="pri" type="submit">Send bid by email</button>
+  </form>`;
+  $("#x").onclick = close; $("#pv").onclick = () => step(-1); $("#nx").onclick = () => step(1);
+  $("#big").onclick = () => { S.side = S.side==="front"?"back":"front"; draw(); };
+  $("#sheet").querySelectorAll(".tabs button").forEach(b => b.onclick = () => { S.side = b.dataset.s; draw(); });
+  $("#bf").onsubmit = submit;
+  if(v.sex) $("#bf").sex.value = v.sex;
+  history.replaceState(null,"","#"+c.id);
+}
+$("#modal").addEventListener("click", e => { if(e.target.id==="modal") close(); });
+document.addEventListener("keydown", e => {
+  if(!$("#modal").classList.contains("on")) return;
+  const t = e.target.tagName; if(t==="INPUT"||t==="TEXTAREA"||t==="SELECT") { if(e.key==="Escape") close(); return; }
+  if(e.key==="Escape") close(); else if(e.key==="ArrowRight") step(1); else if(e.key==="ArrowLeft") step(-1); else if(e.key===" "){ e.preventDefault(); S.side = S.side==="front"?"back":"front"; draw(); }
+});
+
+/* bidding by email */
+function submit(e){
+  e.preventDefault();
+  const f = e.target, c = S.sel, er = $("#er"), val = n => f[n].value.trim();
+  const fail = m => { er.className="err"; er.textContent = m; };
+  if(val("name").length<2) return fail("Enter your full name.");
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val("email"))) return fail("Enter a valid email address.");
+  const digits = val("mobile").replace(/\D/g,"");
+  if(digits.length<7 || digits.length>15) return fail("Enter a valid mobile number (7–15 digits).");
+  const amt = Number(val("amount"));
+  if(!amt || amt < Math.max(c.start,c.highBid||0) + CONFIG.minIncrement) return fail(`Your bid must be at least ${money(Math.max(c.start,c.highBid||0)+CONFIG.minIncrement)}.`);
+  if(val("dob")){ const d = new Date(val("dob")), now = new Date(); let age = now.getFullYear()-d.getFullYear(); if(now < new Date(now.getFullYear(), d.getMonth(), d.getDate())) age--; if(isNaN(age) || age<0 || age>120) return fail("Check the date of birth."); if(age < CONFIG.minAge) return fail(`Bidders must be ${CONFIG.minAge} or older.`); }
+  if(!f.ok.checked) return fail("Tick the confirmation box to continue.");
+  try{ localStorage.setItem("bidder", JSON.stringify({name:val("name"),email:val("email"),mobile:val("mobile"),dob:val("dob"),sex:f.sex.value,city:val("city")})); }catch(x){}
+  const lines = [`BID FOR: ${c.name} (${c.id}), ${c.year}`,`Starting bid: ${money(c.start)}`,`BID AMOUNT: ${money(amt)}`,"",`Name: ${val("name")}`,`Email: ${val("email")}`,`Mobile: ${val("mobile")}`,`Date of birth: ${val("dob")||"-"}`,`Sex: ${f.sex.value||"-"}`,`City/State: ${val("city")||"-"}`,`Message: ${val("msg")||"-"}`,"",`Sent: ${new Date().toLocaleString()}`,`Page: ${location.href.split("#")[0]}`];
+  const subject = `Coin bid: ${c.id} ${c.name} ${c.year} – ${money(amt)}`, body = lines.join("\n");
+  if(CONFIG.apiUrl){
+    er.className="err"; er.textContent="Sending…";
+    fetch(CONFIG.apiUrl,{method:"POST",body:JSON.stringify({action:"bid",coinId:c.id,amount:amt,name:val("name"),email:val("email"),mobile:val("mobile"),dob:val("dob"),sex:f.sex.value,city:val("city"),msg:val("msg")})})
+      .then(r=>r.json()).then(d=>{ if(d.ok){ c.highBid=d.high; c.bidCount=d.count; er.className="err ok"; er.textContent="Bid received. A confirmation was emailed to you."; } else fail(d.error||"Could not place bid."); })
+      .catch(()=>fail("Could not reach the server. Please try again."));
+    return;
+  }
+  if(CONFIG.sendMode === "formsubmit"){
+    er.className="err"; er.textContent="Sending…";
+    fetch("https://formsubmit.co/ajax/"+encodeURIComponent(CONFIG.ownerEmail),{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({_subject:subject,_replyto:val("email"),message:body,name:val("name"),email:val("email"),mobile:val("mobile")})})
+      .then(r => r.ok ? (er.className="err ok", er.textContent="Bid sent. The owner will contact you by email or phone.") : Promise.reject())
+      .catch(() => fail("Could not send. Please try again or email the owner directly."));
+  } else {
+    location.href = `mailto:${CONFIG.ownerEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    er.className="err ok"; er.textContent = "Your email app should open with the bid filled in. Press Send there to finish.";
+  }
+}
+
+document.title = CONFIG.siteName + " – Collection & Bids";
+$("#title").textContent = CONFIG.siteName;
+$("#foot").textContent = `${COINS.length} coins · Bids are offers only and are confirmed by the owner by email.`;
+function start(){
+run();
+if(location.hash.length>1){ const id = decodeURIComponent(location.hash.slice(1)); if(COINS.some(c=>c.id===id)) open(id); }
+}
+if(CONFIG.apiUrl){ COINS = []; index(); filters(); }
+start();
+if(CONFIG.apiUrl){
+  $("#count").textContent = "Loading collection…";
+  fetch(CONFIG.apiUrl+"?action=coins").then(r=>r.json()).then(d=>{ if(d.coins){ COINS = d.coins; index(); filters(); $("#foot").textContent = COINS.length+" coins · Bids are offers only and are confirmed by the owner by email."; start(); } })
+    .catch(()=>{ $("#count").textContent = "Could not load the collection."; });
+}
+</script>
+</body>
+</html>
