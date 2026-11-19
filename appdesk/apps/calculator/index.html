@@ -1,5 +1,7 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Calculator</title>
+<script src="../../theme.js"></script>
 <link rel="stylesheet" href="../../common.css">
+<link rel="stylesheet" href="../../theme.css">
 <script src="../../firebase-config.js"></script>
 <style>
 #keys{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}#keys button{padding:16px 0;font-size:18px}#keys .eq{grid-column:span 2}
@@ -7,6 +9,9 @@
 #mem{height:18px;font-size:12px;color:var(--ac)}#ex{min-height:24px;color:var(--mut);text-align:right;word-break:break-all}#res{font-size:34px;text-align:right;min-height:44px;word-break:break-all}
 .h{padding:6px 0;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;gap:8px}.h span{padding:2px 6px;border-radius:6px;cursor:pointer;word-break:break-all}.h span:hover{background:var(--bg)}
 @media(min-width:700px){.calc{display:grid;grid-template-columns:340px 1fr;gap:12px;align-items:start}}
+html{touch-action:manipulation}
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+#keys button{transition:transform .06s,filter .06s}#keys button.pr{transform:scale(.93);filter:brightness(.9)}
 </style></head><body>
 <h1>🧮 Calculator <button class="sm" id="out">Sign out</button></h1>
 <div class="calc"><div class="card"><div id="mem"></div><div id="ex"></div><div id="res"></div><div id="keys"></div></div>
@@ -59,7 +64,12 @@ function press(k){
 }
 const KEYS=[['MC','m'],['MR','m'],['M+','m'],['M−','m'],['(',''],[')',''],['^',''],['√','o'],['C','f'],['⌫','f'],['%','o'],['÷','o'],['7',''],['8',''],['9',''],['×','o'],['4',''],['5',''],['6',''],['−','o'],['1',''],['2',''],['3',''],['+','o'],['0',''],['.',''],['=','pri eq']];
 $('#keys').innerHTML=KEYS.map(k=>`<button class="${k[1]}" data-k="${k[0]}">${k[0]}</button>`).join('');
-$('#keys').onclick=e=>{if(e.target.dataset.k)press(e.target.dataset.k)};
+let cur=null;
+const keyOf=e=>{const b=e.target.closest('button[data-k]');return b&&b.dataset.k?b:null};
+$('#keys').addEventListener('pointerdown',e=>{const b=keyOf(e);if(!b)return;e.preventDefault();cur=b;b._d=1;b.classList.add('pr');setTimeout(()=>b.classList.remove('pr'),90);press(b.dataset.k)});
+const rel=()=>{if(cur){const c=cur;cur=null;setTimeout(()=>{c._d=0},400)}};
+addEventListener('pointerup',rel);addEventListener('pointercancel',rel);
+$('#keys').addEventListener('click',e=>{const b=keyOf(e);if(!b)return;if(b._d)return;press(b.dataset.k)});
 const MAP={'*':'×','/':'÷','-':'−','Enter':'=','=':'=','Backspace':'⌫','Escape':'C','Delete':'C','r':'√','m':'MR'};
 document.addEventListener('keydown',e=>{
   if(e.ctrlKey||e.metaKey||e.altKey)return;
