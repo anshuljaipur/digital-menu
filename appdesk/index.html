@@ -64,7 +64,8 @@ dialog{max-height:90vh;overflow:auto}
 .pick button.sel{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
 .two{display:flex;gap:8px;margin-top:8px}.two button{flex:1;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--surf)}
 details{margin-top:12px}summary{cursor:pointer;color:var(--mut)}
-@media (max-width:640px){.win{inset:0 0 var(--bh) 0!important;width:auto!important;height:auto!important;border-radius:0;resize:none}#clock{font-size:13px;padding:0 4px;white-space:nowrap}}
+#clock2{display:none;position:absolute;top:0;left:0;right:0;height:24px;align-items:center;justify-content:center;font-size:13px;font-variant-numeric:tabular-nums;background:rgba(0,0,0,.28);color:#fff;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);z-index:99998;pointer-events:none}
+@media (max-width:640px){.win{inset:24px 0 var(--bh) 0!important;width:auto!important;height:auto!important;border-radius:0;resize:none}#clock{display:none!important}#clock2{display:flex}#desk{top:24px}}
 
 /* ---------- skins (themes) ---------- */
 #skins{position:fixed;left:8px;bottom:calc(56px + env(safe-area-inset-bottom,0px));z-index:100000;background:var(--surf);color:var(--text);border:1px solid var(--bd);border-radius:12px;padding:6px;box-shadow:0 8px 30px rgba(0,0,0,.35);min-width:190px}
@@ -144,10 +145,13 @@ html[data-skin=ubuntu] .tb [data-a=x]{background:#e95420}
 html[data-skin=ubuntu] #bar{background:rgba(48,10,36,.92);border-top:0;color:#fff}
 html[data-skin=ubuntu] #tasks button,html[data-skin=ubuntu] .tools button{background:#4a2b45;color:#fff;border-color:transparent}
 html[data-skin=ubuntu] .tools .p{background:#e95420}html[data-skin=ubuntu] #clock{color:#f0d9e8}
+html[data-skin=classic] #clock2{background:#fff;color:#000;border-bottom:2px solid #000;-webkit-backdrop-filter:none;backdrop-filter:none}
+html[data-skin=win95] #clock2{background:#c0c0c0;color:#000;-webkit-backdrop-filter:none;backdrop-filter:none}
 </style></head>
 <body>
 <div id="desk"></div>
 <dialog id="edlg"><h3>Edit app</h3><label>Name</label><input id="en" autocomplete="off"><label>Icon <span id="eipv" style="font-size:20px"></span></label><div class="pick" id="epick"></div><input id="eic" maxlength="4" placeholder="or type your own emoji" style="margin-top:6px"><div class="hint" id="est"></div><div class="row"><button id="ecancel">Cancel</button><button class="p" id="esave">Save</button></div></dialog>
+<div id="clock2"></div>
 <div id="set" hidden></div>
 <div id="bar">
   <div class="tools"><button class="p" id="add">＋ Add app</button><button id="edit" title="Edit apps">✎</button><button id="setbtn" title="Settings">⚙</button><button id="reload" title="Refresh AppDesk">⟳</button></div>
@@ -350,8 +354,18 @@ function applyPrefs(){
   r.style.setProperty('--isz',i+'px');r.style.setProperty('--icol',c+'px');
   if(prefs.dark)r.dataset.theme=prefs.dark;else delete r.dataset.theme;
   let k='default';try{k=localStorage.getItem('appdesk-skin')||'default'}catch(e){}skin(k);
-  if(apps.length)render();tick();
+  if(apps.length)render();tick();fitScreen();
 }
+function fitScreen(){
+  const r=document.documentElement;let h=0;
+  const st=navigator.standalone||matchMedia('(display-mode: standalone)').matches;
+  if(st&&prefs.fit!==false){
+    const L=Math.max(screen.width,screen.height),S=Math.min(screen.width,screen.height),full=innerHeight>innerWidth?L:S,gap=full-innerHeight;
+    if(gap>20&&gap<120)h=full;
+  }
+  r.style.height=h?h+'px':'';
+}
+addEventListener('resize',fitScreen);addEventListener('orientationchange',()=>setTimeout(fitScreen,300));addEventListener('load',()=>setTimeout(fitScreen,300));
 function sorted(){
   const L=apps.map(a=>({...a,...(prefs.over[a.id]||{})})),u=id=>prefs.use[id]||{n:0,t:0};
   const f={az:(a,b)=>a.name.localeCompare(b.name),za:(a,b)=>b.name.localeCompare(a.name),used:(a,b)=>u(b.id).n-u(a.id).n||a.name.localeCompare(b.name),recent:(a,b)=>u(b.id).t-u(a.id).t||a.name.localeCompare(b.name)}[prefs.sort];
@@ -366,7 +380,8 @@ function buildSet(){
    +'<label>Icon size</label>'+seg('s-size',[['s','S'],['m','M'],['l','L'],['xl','XL']],prefs.size)
    +'<label>Sort by</label>'+sel('s-sort',[['default','Default order'],['az','Name A → Z'],['za','Name Z → A'],['used','Most used'],['recent','Recently used']],prefs.sort)
    +'<label>Clock</label>'+seg('s-h',[['12','12-hour'],['24','24-hour']],prefs.h12?'12':'24')
-   +'<label class="chk"><input type="checkbox" id="s-sec"'+(prefs.sec?' checked':'')+'> Show seconds</label>';
+   +'<label class="chk"><input type="checkbox" id="s-sec"'+(prefs.sec?' checked':'')+'> Show seconds</label>'
+   +'<label class="chk"><input type="checkbox" id="s-fit"'+(prefs.fit!==false?' checked':'')+'> Fill bottom gap (iPhone app)</label>';
 }
 $('#set').onclick=e=>{e.stopPropagation();const b=e.target.closest('.seg button');if(!b)return;const id=b.parentNode.id,v=b.dataset.v;
   if(id==='s-dark')prefs.dark=v;if(id==='s-size')prefs.size=v;if(id==='s-h')prefs.h12=v==='12';
@@ -374,7 +389,8 @@ $('#set').onclick=e=>{e.stopPropagation();const b=e.target.closest('.seg button'
 $('#set').onchange=e=>{const t=e.target;
   if(t.id==='s-skin')skin(t.value);
   if(t.id==='s-sort'){prefs.sort=t.value;savePrefs();render()}
-  if(t.id==='s-sec'){prefs.sec=t.checked;savePrefs();tick()}};
+  if(t.id==='s-sec'){prefs.sec=t.checked;savePrefs();tick()}
+  if(t.id==='s-fit'){prefs.fit=t.checked;savePrefs();fitScreen()}};
 $('#setbtn').onclick=e=>{e.stopPropagation();buildSet();$('#set').hidden=!$('#set').hidden};
 document.addEventListener('click',()=>{$('#set').hidden=true});
 $('#edit').onclick=()=>{const on=document.body.classList.toggle('edit');$('#edit').textContent=on?'✔ Done':'✎'};
@@ -410,7 +426,8 @@ applyPrefs();
 function tick(){
   const o=prefs.h12?{hour:'numeric',minute:'2-digit',hour12:true}:{hour:'2-digit',minute:'2-digit',hourCycle:'h23'};
   if(prefs.sec)o.second='2-digit';
-  $('#clock').textContent=new Date().toLocaleTimeString(prefs.h12?'en-US':'en-GB',o);
+  const t=new Date().toLocaleTimeString(prefs.h12?'en-US':'en-GB',o);
+  $('#clock').textContent=t;$('#clock2').textContent=t;
 }
 tick();setInterval(tick,1000);
 
