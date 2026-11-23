@@ -201,6 +201,22 @@ function render(){
 }
 
 /* ---------- windows ---------- */
+/* iPhone: re-focus a text box that was already focused (e.g. autofocus) so the keyboard opens */
+function kb(f){
+  try{
+    const d=f.contentDocument;if(!d)return;let pre=null;
+    const SKIP='input[type=checkbox],input[type=radio],input[type=button],input[type=submit],input[type=file],input[type=range],input[type=color],input[type=date],input[type=time],input[type=datetime-local]';
+    const mark=()=>{pre=d.activeElement};
+    d.addEventListener('touchstart',mark,true);d.addEventListener('pointerdown',mark,true);
+    d.addEventListener('click',e=>{
+      const t=e.target.closest&&e.target.closest('input,textarea');
+      if(!t||t.matches(SKIP)||pre!==t||d.activeElement!==t)return;
+      if(window.visualViewport&&innerHeight-visualViewport.height>120)return;
+      let a=null,b=null;try{a=t.selectionStart;b=t.selectionEnd}catch(_){}
+      t.blur();t.focus();try{if(a!=null)t.setSelectionRange(a,b)}catch(_){}
+    },true);
+  }catch(e){}
+}
 function openApp(a){
   bump(a.id);
   let w=wins.get(a.id);
@@ -213,6 +229,7 @@ function openApp(a){
   const f=document.createElement('iframe');
   f.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-downloads allow-pointer-lock');
   f.allow='clipboard-read; clipboard-write; geolocation; camera; microphone';
+  f.addEventListener('load',()=>kb(f));
   if(a.type==='html')f.srcdoc=a.content;else f.src=a.content;
   el.append(f);$('#desk').after(el);
   wins.set(a.id,{el,app:a});
@@ -357,6 +374,7 @@ function applyPrefs(){
   if(apps.length)render();tick();fitScreen();
 }
 function fitScreen(){
+  if(window.visualViewport&&innerHeight-visualViewport.height>120)return;
   const r=document.documentElement;let h=0;
   const st=navigator.standalone||matchMedia('(display-mode: standalone)').matches;
   if(st&&prefs.fit!==false){
