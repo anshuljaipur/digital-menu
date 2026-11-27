@@ -7,5 +7,6 @@
   {"name":"Cash Flow","icon":"💵","path":"apps/cashflow/index.html"},
   {"name":"FD Tracker","icon":"💹","path":"apps/fd-tracker/index.html"},
   {"name":"Cheque Printer","icon":"🖨️","path":"apps/Cheque_Print/index.html"},
+  {"name":"Insurance_Tracker","icon":"🖨️","path":"apps/insurance/index.html"},
   {"name":"NewsPaper Tracker","icon":"🗞️","path":"apps/newspaper/index.html"}
 ]
