@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1e4fd6">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Policies">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<title>Policies — Insurance Portfolio Manager Pro</title>
+<link rel="stylesheet" href="assets/css/theme.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/cards.css">
+<link rel="stylesheet" href="assets/css/tables.css">
+<link rel="stylesheet" href="assets/css/forms.css">
+<link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body>
+<div class="scrim"></div>
+<div class="app-shell">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">IP</div>
+      <div><div class="brand-name">Insurance Portfolio</div><div class="brand-sub">Manager Pro</div></div>
+    </div>
+    <div class="nav-section-label">Overview</div>
+    <a href="dashboard.html" class="nav-link"><span class="nav-icon">🏠</span>Dashboard</a>
+    <a href="policies.html" class="nav-link"><span class="nav-icon">📄</span>Policies</a>
+    <a href="companies.html" class="nav-link"><span class="nav-icon">🏢</span>Companies</a>
+    <div class="nav-section-label">Premiums</div>
+    <a href="payment-tracker.html" class="nav-link"><span class="nav-icon">💳</span>Premium Tracker</a>
+    <a href="payment-tracker.html" class="nav-link"><span class="nav-icon">⏰</span>Upcoming Due</a>
+    <a href="policies.html" class="nav-link"><span class="nav-icon">⛔</span>Lapsed Policies</a>
+    <a href="policies.html" class="nav-link"><span class="nav-icon">🟠</span>Grace Period</a>
+    <div class="nav-section-label">Insights</div>
+    <a href="calendar.html" class="nav-link"><span class="nav-icon">📅</span>Calendar</a>
+    <a href="reports.html" class="nav-link"><span class="nav-icon">📊</span>Reports</a>
+    <div class="nav-section-label">Data</div>
+    <a href="import-export.html" class="nav-link"><span class="nav-icon">⇅</span>Import / Export</a>
+    <a href="settings.html" class="nav-link"><span class="nav-icon">⚙️</span>Settings</a>
+  </aside>
+
+  <div class="main-col">
+    <header class="topbar">
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">☰</button>
+      <div>
+        <h1 class="page-title">Policies</h1>
+        <p class="page-sub"><span id="policyCount">0</span> policies in your portfolio</p>
+      </div>
+      <div class="topbar-spacer"></div>
+      <a href="add-policy.html" class="btn btn-primary">+ Add Policy</a>
+    </header>
+
+    <main class="content">
+      <div id="filterChip" class="alert-item alert-info" style="display:none;margin-bottom:12px;align-items:center;justify-content:space-between;flex-direction:row">
+        <span><b>Filtered:</b> <span id="filterChipText"></span></span>
+        <a href="policies.html" class="btn btn-ghost btn-sm">Clear</a>
+      </div>
+      <div class="table-toolbar">
+        <div class="search-box"><span>🔎</span><input id="searchInput" placeholder="Search by number, customer, company…"></div>
+        <select id="filterCompany" class="filter-select"><option value="">All Companies</option></select>
+        <select id="filterCategory" class="filter-select"><option value="">All Types</option></select>
+        <select id="filterStatus" class="filter-select"><option value="">All Statuses</option></select>
+        <button id="clearFilters" class="btn btn-ghost btn-sm">Clear</button>
+        <div class="topbar-spacer"></div>
+        <button id="viewToggle" class="btn btn-ghost btn-sm">Table view</button>
+      </div>
+
+      <div id="cardView" class="policy-grid"></div>
+      <div id="tableView" class="table-wrap" style="display:none">
+        <table id="policyTable">
+          <thead><tr>
+            <th data-key="policyNumber">Policy No.</th>
+            <th data-key="customerName">Customer</th>
+            <th data-key="company">Company</th>
+            <th data-key="category">Type</th>
+            <th data-key="premiumAmount">Premium</th>
+            <th data-key="maturityDate">Maturity</th>
+            <th data-key="status">Status</th>
+            <th></th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+<a href="add-policy.html" class="fab" title="Add new policy">+</a>
+
+<script src="config/constants.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config/firebase-config.js"></script>
+<script src="assets/js/utilities.js"></script>
+<script src="assets/js/firebase-store.js"></script>
+<script src="assets/js/storage.js"></script>
+<script src="assets/js/notification.js"></script>
+<script src="assets/js/validation.js"></script>
+<script src="assets/js/search.js"></script>
+<script src="assets/js/policy.js"></script>
+<script src="assets/js/payment.js"></script>
+<script src="assets/js/payouts.js"></script>
+<script src="assets/js/calendar.js"></script>
+<script src="assets/js/reports.js"></script>
+<script src="assets/js/charts.js"></script>
+<script src="assets/js/alerts.js"></script>
+<script src="assets/js/export.js"></script>
+<script src="assets/js/import.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const { listPolicies, deletePolicy, derivedStatus, searchRecords, filterRecords, sortRecords, fmtMoney, fmtDate, qs, qsa, escapeHtml, debounce, getParam, getSettings, toast, confirmDialog, daysBetween, STATUS_COLORS, POLICY_CATEGORIES } = IPM;
+let allPolicies = [];
+let settings;
+let sortKey = 'policyNumber', sortDir = 'asc';
+let isTable = false;
+let typeParam = null, expiringParam = null;
+
+async function init() {
+  settings = await getSettings();
+  allPolicies = await listPolicies();
+  populateFilterOptions();
+  const q = getParam('q'); if (q) qs('#searchInput').value = q;
+  const status = getParam('status'); if (status) qs('#filterStatus').value = status;
+  typeParam = getParam('type');
+  expiringParam = getParam('expiring');
+  const sortParam = getParam('sort'); if (sortParam) { sortKey = sortParam; sortDir = 'desc'; }
+  showFilterChip(status, typeParam, expiringParam, sortParam);
+  render();
+
+  qs('#searchInput').addEventListener('input', debounce(render, 200));
+  ['filterCompany', 'filterCategory', 'filterStatus'].forEach((id) => qs('#' + id).addEventListener('change', render));
+  qs('#clearFilters').addEventListener('click', () => {
+    qs('#searchInput').value = '';
+    qs('#filterCompany').value = ''; qs('#filterCategory').value = ''; qs('#filterStatus').value = '';
+    typeParam = null; expiringParam = null;
+    qs('#filterChip').style.display = 'none';
+    render();
+  });
+  qs('#viewToggle').addEventListener('click', () => {
+    isTable = !isTable;
+    qs('#viewToggle').textContent = isTable ? 'Card view' : 'Table view';
+    qs('#cardView').style.display = isTable ? 'none' : 'grid';
+    qs('#tableView').style.display = isTable ? 'block' : 'none';
+  });
+  qsa('#policyTable thead th[data-key]').forEach((th) => th.addEventListener('click', () => {
+    const key = th.dataset.key;
+    sortDir = (sortKey === key && sortDir === 'asc') ? 'desc' : 'asc';
+    sortKey = key;
+    render();
+  }));
+}
+
+function showFilterChip(status, type, expiring, sort) {
+  const labels = { health: 'Health Coverage', term: 'Term Coverage', ulip: 'Investment (ULIP)' };
+  let text = null;
+  if (status) text = `Status = ${status}`;
+  else if (type) text = labels[type] || type;
+  else if (expiring) text = `Expiring within ${expiring} days`;
+  else if (sort) text = `Sorted by ${sort === 'sumAssured' ? 'Sum Assured' : 'Premium'} (highest first)`;
+  if (text) { qs('#filterChipText').textContent = text; qs('#filterChip').style.display = 'flex'; }
+}
+
+function matchesType(category, type) {
+  category = category || '';
+  if (type === 'health') return category.includes('Health') || category.includes('Critical');
+  if (type === 'term') return category.includes('Term') || category.includes('Life');
+  if (type === 'ulip') return category.includes('ULIP');
+  return true;
+}
+
+function populateFilterOptions() {
+  const companies = [...new Set(allPolicies.map((p) => p.company))].sort();
+  companies.forEach((c) => qs('#filterCompany').insertAdjacentHTML('beforeend', `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`));
+  POLICY_CATEGORIES.forEach((c) => qs('#filterCategory').insertAdjacentHTML('beforeend', `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`));
+}
+
+function getFiltered() {
+  let list = searchRecords(allPolicies, qs('#searchInput').value);
+  list = filterRecords(list, {
+    company: qs('#filterCompany').value,
+    category: qs('#filterCategory').value,
+    status: qs('#filterStatus').value
+  });
+  if (typeParam) list = list.filter((p) => matchesType(p.category, typeParam));
+  if (expiringParam) list = list.filter((p) => p.maturityDate && daysBetween(new Date().toISOString(), p.maturityDate) >= 0 && daysBetween(new Date().toISOString(), p.maturityDate) <= Number(expiringParam));
+  return sortRecords(list, sortKey, sortDir);
+}
+
+function render() {
+  const list = getFiltered();
+  qs('#policyCount').textContent = list.length;
+  renderCards(list);
+  renderTable(list);
+}
+
+function renderCards(list) {
+  const el = qs('#cardView');
+  el.innerHTML = list.map((p) => {
+    const status = derivedStatus(p);
+    return `<div class="policy-card" onclick="location.href='policy-details.html?id=${p.id}'">
+      <div class="policy-card-top">
+        <div><div class="policy-card-name">${escapeHtml(p.policyName)}</div><div class="policy-card-num">${escapeHtml(p.policyNumber)}</div></div>
+        <span class="status-pill" style="--pill-color:${STATUS_COLORS[status] || '#999'}">${status}</span>
+      </div>
+      <div class="policy-card-row"><span>Customer</span><b>${escapeHtml(p.customerName)}</b></div>
+      <div class="policy-card-row"><span>Company</span><b>${escapeHtml(p.company)}</b></div>
+      <div class="policy-card-row"><span>Sum Assured</span><b>${fmtMoney(p.sumAssured, settings.currency)}</b></div>
+      <div class="policy-card-row"><span>Premium</span><b>${fmtMoney(p.premiumAmount, settings.currency)} / ${escapeHtml(p.premiumFrequency || '')}</b></div>
+      <div class="policy-card-row"><span>Maturity</span><b>${fmtDate(p.maturityDate, settings.dateFormat)}</b></div>
+    </div>`;
+  }).join('') || `<div class="empty-row">No policies match your filters.</div>`;
+}
+
+function renderTable(list) {
+  const tbody = qs('#policyTable tbody');
+  tbody.innerHTML = list.map((p) => {
+    const status = derivedStatus(p);
+    return `<tr>
+      <td>${escapeHtml(p.policyNumber)}</td>
+      <td>${escapeHtml(p.customerName)}</td>
+      <td>${escapeHtml(p.company)}</td>
+      <td>${escapeHtml(p.category || '')}</td>
+      <td class="num">${fmtMoney(p.premiumAmount, settings.currency)}</td>
+      <td>${fmtDate(p.maturityDate, settings.dateFormat)}</td>
+      <td><span class="status-pill" style="--pill-color:${STATUS_COLORS[status] || '#999'}">${status}</span></td>
+      <td class="row-actions">
+        <a class="btn btn-ghost btn-sm" href="policy-details.html?id=${p.id}">View</a>
+        <a class="btn btn-ghost btn-sm" href="add-policy.html?id=${p.id}">Edit</a>
+        <button class="btn btn-ghost btn-sm delete-btn" data-id="${p.id}">Delete</button>
+      </td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="8" class="empty-row">No policies match your filters.</td></tr>`;
+
+  qsa('.delete-btn', tbody).forEach((btn) => btn.addEventListener('click', async () => {
+    const policy = allPolicies.find((p) => p.id === btn.dataset.id);
+    if (await confirmDialog(`Delete policy ${policy.policyNumber}? It will be moved to the recycle bin.`)) {
+      await deletePolicy(policy);
+      allPolicies = await listPolicies();
+      toast('Policy moved to recycle bin', 'success');
+      render();
+    }
+  }));
+}
+
+init();
+</script>
+</body>
+</html>

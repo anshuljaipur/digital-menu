@@ -1,0 +1,59 @@
+/* theme.css — design tokens, color themes, and dark/light mode.
+   No external font/CDN calls, so the app renders fully offline. */
+
+:root {
+  /* Base palette (light) */
+  --bg-app: #f3f5fa;
+  --bg-surface: #ffffff;
+  --bg-surface-2: #f7f8fc;
+  --bg-sidebar: #10152b;
+  --bg-sidebar-active: rgba(255,255,255,0.08);
+  --border-color: #e6e8f0;
+  --text-primary: #171a2b;
+  --text-secondary: #666b80;
+  --text-inverse: #f5f6fb;
+  --shadow-sm: 0 1px 2px rgba(16,21,43,0.06), 0 1px 1px rgba(16,21,43,0.04);
+  --shadow-md: 0 8px 24px rgba(16,21,43,0.08);
+  --shadow-lg: 0 20px 48px rgba(16,21,43,0.16);
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+
+  /* Semantic status colors */
+  --status-green: #1a9c6b;
+  --status-orange: #e8952c;
+  --status-red: #d9483f;
+  --status-blue: #2f6fed;
+  --status-purple: #7b5fe0;
+  --status-gray: #8a8f9c;
+
+  /* Theme-driven (overwritten by app.js) */
+  --color-primary: #1e4fd6;
+  --color-primary-dark: #13337f;
+  --color-accent: #2f6fed;
+
+  --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+:root[data-mode="dark"] {
+  --bg-app: #0d1020;
+  --bg-surface: #161a2e;
+  --bg-surface-2: #1c2138;
+  --bg-sidebar: #0a0d1c;
+  --bg-sidebar-active: rgba(255,255,255,0.08);
+  --border-color: #262c48;
+  --text-primary: #eef0fb;
+  --text-secondary: #9aa0bd;
+  --text-inverse: #10152b;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 8px 24px rgba(0,0,0,0.35);
+  --shadow-lg: 0 20px 48px rgba(0,0,0,0.5);
+}
+
+/* Utility text-color classes used by dynamic status pills */
+.text-green { color: var(--status-green); }
+.text-orange { color: var(--status-orange); }
+.text-red { color: var(--status-red); }
+.text-blue { color: var(--status-blue); }

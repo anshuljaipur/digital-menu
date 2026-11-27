@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1e4fd6">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Policies">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<title>Calendar — Insurance Portfolio Manager Pro</title>
+<link rel="stylesheet" href="assets/css/theme.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/cards.css">
+<link rel="stylesheet" href="assets/css/responsive.css">
+<style>
+  .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .cal-title { font-size: 16px; font-weight: 700; }
+  .cal-nav { display: flex; gap: 8px; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+  .cal-dow { text-align: center; font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; padding-bottom: 4px; }
+  .cal-cell {
+    background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 10px;
+    min-height: 92px; padding: 8px; display: flex; flex-direction: column; gap: 4px; overflow: hidden;
+  }
+  .cal-cell.empty { background: transparent; border: none; }
+  .cal-cell.today { border-color: var(--color-primary); box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 20%, transparent); }
+  .cal-daynum { font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+  .cal-cell.today .cal-daynum { color: var(--color-primary); }
+  .cal-event {
+    font-size: 10px; padding: 2px 6px; border-radius: 6px; background: color-mix(in srgb, var(--pill-color) 16%, transparent);
+    color: var(--pill-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .cal-more { font-size: 10px; color: var(--text-secondary); }
+  @media (max-width: 700px) { .cal-cell { min-height: 60px; } .cal-event { display: none; } .cal-cell.has-event::after { content: "•"; color: var(--color-accent); } }
+</style>
+</head>
+<body>
+<div class="scrim"></div>
+<div class="app-shell">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">IP</div>
+      <div><div class="brand-name">Insurance Portfolio</div><div class="brand-sub">Manager Pro</div></div>
+    </div>
+    <div class="nav-section-label">Overview</div>
+    <a href="dashboard.html" class="nav-link"><span class="nav-icon">🏠</span>Dashboard</a>
+    <a href="policies.html" class="nav-link"><span class="nav-icon">📄</span>Policies</a>
+    <a href="companies.html" class="nav-link"><span class="nav-icon">🏢</span>Companies</a>
+    <div class="nav-section-label">Premiums</div>
+    <a href="payment-tracker.html" class="nav-link"><span class="nav-icon">💳</span>Premium Tracker</a>
+    <div class="nav-section-label">Insights</div>
+    <a href="calendar.html" class="nav-link active"><span class="nav-icon">📅</span>Calendar</a>
+    <a href="reports.html" class="nav-link"><span class="nav-icon">📊</span>Reports</a>
+    <div class="nav-section-label">Data</div>
+    <a href="import-export.html" class="nav-link"><span class="nav-icon">⇅</span>Import / Export</a>
+    <a href="settings.html" class="nav-link"><span class="nav-icon">⚙️</span>Settings</a>
+  </aside>
+
+  <div class="main-col">
+    <header class="topbar">
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">☰</button>
+      <div>
+        <h1 class="page-title">Calendar</h1>
+        <p class="page-sub">Premium due dates, maturities, and reminders</p>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="panel">
+        <div class="cal-header">
+          <div class="cal-nav"><button id="prevMonth" class="btn btn-ghost btn-sm">← Prev</button><button id="todayBtn" class="btn btn-ghost btn-sm">Today</button></div>
+          <div id="calTitle" class="cal-title"></div>
+          <div class="cal-nav"><button id="nextMonth" class="btn btn-ghost btn-sm">Next →</button></div>
+        </div>
+        <div class="cal-grid" id="dowRow">
+          <div class="cal-dow">Sun</div><div class="cal-dow">Mon</div><div class="cal-dow">Tue</div><div class="cal-dow">Wed</div>
+          <div class="cal-dow">Thu</div><div class="cal-dow">Fri</div><div class="cal-dow">Sat</div>
+        </div>
+        <div class="cal-grid" id="calGrid" style="margin-top:8px"></div>
+      </div>
+
+      <div class="panel" style="margin-top:16px">
+        <div class="panel-header"><h3>Selected Day</h3></div>
+        <div id="dayDetail" class="alert-list"><div class="empty-row">Click a date to see its events</div></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="config/constants.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config/firebase-config.js"></script>
+<script src="assets/js/utilities.js"></script>
+<script src="assets/js/firebase-store.js"></script>
+<script src="assets/js/storage.js"></script>
+<script src="assets/js/notification.js"></script>
+<script src="assets/js/validation.js"></script>
+<script src="assets/js/search.js"></script>
+<script src="assets/js/policy.js"></script>
+<script src="assets/js/payment.js"></script>
+<script src="assets/js/payouts.js"></script>
+<script src="assets/js/calendar.js"></script>
+<script src="assets/js/reports.js"></script>
+<script src="assets/js/charts.js"></script>
+<script src="assets/js/alerts.js"></script>
+<script src="assets/js/export.js"></script>
+<script src="assets/js/import.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const { buildMonthEvents, monthGrid, qs, escapeHtml, STATUS_COLORS } = IPM;
+let viewDate = new Date();
+let events = {};
+
+async function render() {
+  const year = viewDate.getFullYear(), month = viewDate.getMonth();
+  qs('#calTitle').textContent = viewDate.toLocaleString('en-IN', { month: 'long', year: 'numeric' });
+  events = await buildMonthEvents(year, month);
+  const cells = monthGrid(year, month);
+  const today = new Date();
+
+  qs('#calGrid').innerHTML = cells.map((day) => {
+    if (!day) return `<div class="cal-cell empty"></div>`;
+    const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
+    const dayEvents = events[day] || [];
+    const shown = dayEvents.slice(0, 2).map((e) => `<div class="cal-event" style="--pill-color:${STATUS_COLORS[e.status] || '#2f6fed'}">${escapeHtml(e.label)}</div>`).join('');
+    const more = dayEvents.length > 2 ? `<div class="cal-more">+${dayEvents.length - 2} more</div>` : '';
+    return `<div class="cal-cell ${isToday ? 'today' : ''} ${dayEvents.length ? 'has-event' : ''}" data-day="${day}">
+      <span class="cal-daynum">${day}</span>${shown}${more}
+    </div>`;
+  }).join('');
+
+  qs('#calGrid').querySelectorAll('.cal-cell[data-day]').forEach((cell) => {
+    cell.addEventListener('click', () => showDay(Number(cell.dataset.day)));
+  });
+}
+
+function showDay(day) {
+  const dayEvents = events[day] || [];
+  qs('#dayDetail').innerHTML = dayEvents.length
+    ? dayEvents.map((e) => `<div class="alert-item alert-info"><span class="alert-type">${e.kind === 'maturity' ? 'Maturity' : 'Premium Due'}</span><span class="alert-text">${escapeHtml(e.label)}</span></div>`).join('')
+    : `<div class="empty-row">No events on this day</div>`;
+}
+
+qs('#prevMonth').addEventListener('click', () => { viewDate.setMonth(viewDate.getMonth() - 1); render(); });
+qs('#nextMonth').addEventListener('click', () => { viewDate.setMonth(viewDate.getMonth() + 1); render(); });
+qs('#todayBtn').addEventListener('click', () => { viewDate = new Date(); render(); });
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+/* dashboard.css — dashboard-only layout details */
+
+.hero-banner {
+  background: linear-gradient(120deg, var(--color-primary-dark), var(--color-primary) 60%, var(--color-accent));
+  border-radius: var(--radius-lg);
+  padding: 22px 26px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 22px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-banner::before {
+  content: "";
+  position: absolute; right: -40px; top: -60px; width: 220px; height: 220px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.16), transparent 70%);
+}
+.hero-banner h2 { font-size: 20px; }
+.hero-banner p { font-size: 13px; color: rgba(255,255,255,0.82); margin-top: 4px; }
+.hero-meta { display: flex; gap: 22px; }
+.hero-meta div { text-align: right; }
+.hero-meta span:first-child { display: block; font-size: 18px; font-weight: 800; }
+.hero-meta span:last-child { font-size: 11px; color: rgba(255,255,255,0.72); }
+
+.panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.panel-header h3 { font-size: 14px; }
+.panel-header .btn-sm { flex-shrink: 0; }

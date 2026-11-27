@@ -1,0 +1,67 @@
+/* responsive.css — tablet & mobile breakpoints */
+
+@media (max-width: 1080px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr; }
+  .field-grid { grid-template-columns: repeat(2, 1fr); }
+  .field.span-3 { grid-column: span 2; }
+}
+
+@media (max-width: 860px) {
+  .app-shell { grid-template-columns: 1fr; }
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: 260px;
+    transform: translateX(-100%); transition: transform .22s ease; box-shadow: var(--shadow-lg);
+  }
+  .sidebar.open { transform: translateX(0); }
+  .menu-toggle { display: flex; align-items: center; justify-content: center; }
+  .search-box { display: none; }
+  .settings-grid { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .content { padding: 16px 14px 70px; }
+  .topbar { padding: 12px 14px; }
+  .field-grid { grid-template-columns: 1fr; }
+  .field.span-2, .field.span-3 { grid-column: span 1; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .page-title { font-size: 16.5px; }
+  .fab { right: 16px; bottom: 16px; width: 48px; height: 48px; font-size: 20px; }
+  table { min-width: 480px; }
+}
+
+/* ---------- Mobile app feel (phones & small tablets) ---------- */
+@media (max-width: 860px) {
+  .bottom-nav {
+    display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 28;
+    background: color-mix(in srgb, var(--bg-surface) 94%, transparent); backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border-color); padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .bottom-nav a, .bottom-nav button {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 8px 2px 6px; font-size: 10.5px; font-weight: 600; color: var(--text-secondary);
+    background: none; border: none; min-height: 52px;
+  }
+  .bottom-nav .bn-icon { font-size: 18px; line-height: 1.1; }
+  .bottom-nav a.active { color: var(--color-primary); }
+  .content { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+  .fab { bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+  .toast-stack { left: 12px; right: 12px; bottom: calc(68px + env(safe-area-inset-bottom, 0px)); }
+  .toast { max-width: none; }
+  .sidebar { padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+  .page-sub { display: none; }
+  input, select, textarea { font-size: 16px; }        /* stops iOS zooming into fields */
+  .btn { min-height: 40px; }
+  .btn-sm { min-height: 34px; }
+  .confirm-box { width: calc(100vw - 32px) !important; max-width: 420px; max-height: 88vh; overflow-y: auto; }
+  .form-tab { padding: 12px 14px; }
+  .table-toolbar > * { flex: 1 1 140px; }
+  .table-toolbar .search-box { display: flex; width: auto; flex: 1 1 100%; }
+  .hero-banner { flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 600px) {
+  .topbar { padding: calc(12px + env(safe-area-inset-top, 0px)) 14px 12px; }
+  .stat-value { font-size: 16px; }
+  .row-actions { flex-wrap: wrap; }
+}

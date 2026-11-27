@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1e4fd6">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Policies">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<title>Import / Export — Insurance Portfolio Manager Pro</title>
+<link rel="stylesheet" href="assets/css/theme.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/cards.css">
+<link rel="stylesheet" href="assets/css/tables.css">
+<link rel="stylesheet" href="assets/css/forms.css">
+<link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body>
+<div class="scrim"></div>
+<div class="app-shell">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">IP</div>
+      <div><div class="brand-name">Insurance Portfolio</div><div class="brand-sub">Manager Pro</div></div>
+    </div>
+    <div class="nav-section-label">Overview</div>
+    <a href="dashboard.html" class="nav-link"><span class="nav-icon">🏠</span>Dashboard</a>
+    <a href="policies.html" class="nav-link"><span class="nav-icon">📄</span>Policies</a>
+    <a href="companies.html" class="nav-link"><span class="nav-icon">🏢</span>Companies</a>
+    <div class="nav-section-label">Premiums</div>
+    <a href="payment-tracker.html" class="nav-link"><span class="nav-icon">💳</span>Premium Tracker</a>
+    <div class="nav-section-label">Insights</div>
+    <a href="calendar.html" class="nav-link"><span class="nav-icon">📅</span>Calendar</a>
+    <a href="reports.html" class="nav-link"><span class="nav-icon">📊</span>Reports</a>
+    <div class="nav-section-label">Data</div>
+    <a href="import-export.html" class="nav-link active"><span class="nav-icon">⇅</span>Import / Export</a>
+    <a href="settings.html" class="nav-link"><span class="nav-icon">⚙️</span>Settings</a>
+  </aside>
+
+  <div class="main-col">
+    <header class="topbar">
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">☰</button>
+      <div>
+        <h1 class="page-title">Import / Export</h1>
+        <p class="page-sub">Bring data in, or take it with you — everything stays on this device</p>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="grid-2">
+        <div class="panel">
+          <div class="section-title">Import Policies</div>
+          <div class="section-sub">Upload a CSV or JSON file exported from this app or a spreadsheet</div>
+          <div id="dropzone" class="dropzone">
+            <div style="font-size:26px;margin-bottom:8px">📥</div>
+            Drag a .csv or .json file here, or click to browse
+            <input id="fileInput" type="file" accept=".csv,.json" style="display:none">
+          </div>
+          <div id="importSummary" style="margin-top:12px;font-size:12.5px;color:var(--text-secondary)"></div>
+          <div id="importPreviewWrap" class="table-wrap" style="display:none;margin-top:12px;max-height:260px">
+            <table><thead><tr><th>Policy No.</th><th>Customer</th><th>Company</th><th>Status</th></tr></thead><tbody id="importPreviewBody"></tbody></table>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px" id="importActions" style="display:none">
+            <label class="checkbox-row"><input type="checkbox" id="mergeDupes"> Merge duplicates instead of skipping</label>
+          </div>
+          <button id="commitImportBtn" class="btn btn-primary" style="margin-top:10px;display:none">Import Records</button>
+        </div>
+
+        <div class="panel">
+          <div class="section-title">Export Data</div>
+          <div class="section-sub">Download your portfolio in the format you need</div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px">
+            <button id="expPoliciesCsv" class="btn btn-ghost" style="justify-content:flex-start">📄 Export Policies — CSV</button>
+            <button id="expPoliciesJson" class="btn btn-ghost" style="justify-content:flex-start">🧾 Export Policies — JSON</button>
+            <button id="expPaymentsCsv" class="btn btn-ghost" style="justify-content:flex-start">💳 Export Payment History — CSV</button>
+            <button id="expBackup" class="btn btn-primary" style="justify-content:flex-start">🗄 Full Backup (policies, payments, payouts, settings) — JSON</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:16px">
+        <div class="section-title">Restore Full Backup</div>
+        <div class="section-sub">Use this for a file downloaded from "Full Backup" above — it brings back <b>everything</b>: policies, premium payments, payout plans and receipts, companies. The "Import Policies" box above only reads policies, so it can't restore payment history — use this instead.</div>
+        <div id="restoreDropzone" class="dropzone" style="margin-top:10px">
+          <div style="font-size:26px;margin-bottom:8px">🗄</div>
+          Drag a full backup .json file here, or click to browse
+          <input id="restoreFileInput" type="file" accept=".json" style="display:none">
+        </div>
+        <label class="checkbox-row" style="margin-top:10px"><input type="checkbox" id="replaceOnRestore"> Replace existing data instead of merging (clears each store first)</label>
+        <div id="restoreSummary" style="margin-top:10px;font-size:12.5px;color:var(--text-secondary)"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="config/constants.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config/firebase-config.js"></script>
+<script src="assets/js/utilities.js"></script>
+<script src="assets/js/firebase-store.js"></script>
+<script src="assets/js/storage.js"></script>
+<script src="assets/js/notification.js"></script>
+<script src="assets/js/validation.js"></script>
+<script src="assets/js/search.js"></script>
+<script src="assets/js/policy.js"></script>
+<script src="assets/js/payment.js"></script>
+<script src="assets/js/payouts.js"></script>
+<script src="assets/js/calendar.js"></script>
+<script src="assets/js/reports.js"></script>
+<script src="assets/js/charts.js"></script>
+<script src="assets/js/alerts.js"></script>
+<script src="assets/js/export.js"></script>
+<script src="assets/js/import.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const { Storage, parseCSV, parseJSON, isFullBackup, restoreFullBackup, previewImport, commitImport, exportCSV, exportJSON, exportFullBackup, qs, qsa, escapeHtml, toast, confirmDialog } = IPM;
+let pendingRecords = [];
+
+const dropzone = qs('#dropzone');
+const fileInput = qs('#fileInput');
+dropzone.addEventListener('click', () => fileInput.click());
+dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+dropzone.addEventListener('drop', (e) => {
+  e.preventDefault(); dropzone.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) handleFile(fileInput.files[0]); });
+
+async function handleFile(file) {
+  const text = await file.text();
+  if (file.name.endsWith('.json') && isFullBackup(text)) {
+    const useRestore = await confirmDialog('This looks like a full backup file (it has payments/companies data). "Import Policies" only reads the policies list and would skip your payment history. Use the "Restore Full Backup" box below instead?', 'Go to restore', false);
+    if (useRestore) { qs('#restoreDropzone').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+  }
+  let records;
+  try {
+    records = file.name.endsWith('.json') ? parseJSON(text) : parseCSV(text);
+  } catch (e) {
+    toast('Could not parse file: ' + e.message, 'error');
+    return;
+  }
+  pendingRecords = await previewImport(records);
+  renderPreview();
+}
+
+function renderPreview() {
+  const dupes = pendingRecords.filter((r) => r.__isDuplicate).length;
+  qs('#importSummary').textContent = `${pendingRecords.length} records found — ${dupes} look like duplicates of existing policy numbers.`;
+  qs('#importPreviewWrap').style.display = 'block';
+  qs('#importActions').style.display = 'flex';
+  qs('#commitImportBtn').style.display = 'inline-flex';
+  qs('#importPreviewBody').innerHTML = pendingRecords.slice(0, 25).map((r) => `
+    <tr style="${r.__isDuplicate ? 'opacity:.55' : ''}">
+      <td>${escapeHtml(r.policyNumber || '—')}</td>
+      <td>${escapeHtml(r.customerName || '—')}</td>
+      <td>${escapeHtml(r.company || '—')}</td>
+      <td>${r.__isDuplicate ? 'Duplicate' : 'New'}</td>
+    </tr>`).join('');
+}
+
+qs('#commitImportBtn').addEventListener('click', async () => {
+  const result = await commitImport(pendingRecords, { mergeDuplicates: qs('#mergeDupes').checked });
+  toast(`Imported ${result.imported}, merged ${result.merged}, skipped ${result.skipped}`, 'success', 4000);
+  pendingRecords = [];
+  qs('#importPreviewWrap').style.display = 'none';
+  qs('#commitImportBtn').style.display = 'none';
+  qs('#importSummary').textContent = '';
+});
+
+qs('#expPoliciesCsv').addEventListener('click', async () => exportCSV(await Storage.getAll('policies'), 'policies.csv'));
+qs('#expPoliciesJson').addEventListener('click', async () => exportJSON(await Storage.getAll('policies'), 'policies.json'));
+qs('#expPaymentsCsv').addEventListener('click', async () => exportCSV(await Storage.getAll('payments'), 'payments.csv'));
+qs('#expBackup').addEventListener('click', async () => { await exportFullBackup(); toast('Backup downloaded', 'success'); });
+
+// ---------- Restore full backup ----------
+const restoreDropzone = qs('#restoreDropzone');
+const restoreFileInput = qs('#restoreFileInput');
+restoreDropzone.addEventListener('click', () => restoreFileInput.click());
+restoreDropzone.addEventListener('dragover', (e) => { e.preventDefault(); restoreDropzone.classList.add('drag-over'); });
+restoreDropzone.addEventListener('dragleave', () => restoreDropzone.classList.remove('drag-over'));
+restoreDropzone.addEventListener('drop', (e) => {
+  e.preventDefault(); restoreDropzone.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) handleRestoreFile(e.dataTransfer.files[0]);
+});
+restoreFileInput.addEventListener('change', () => { if (restoreFileInput.files[0]) handleRestoreFile(restoreFileInput.files[0]); });
+
+async function handleRestoreFile(file) {
+  const text = await file.text();
+  if (!isFullBackup(text)) {
+    toast('This does not look like a full backup file — use "Import Policies" above for a plain policies list instead.', 'error', 5000);
+    return;
+  }
+  const replace = qs('#replaceOnRestore').checked;
+  const warning = replace
+    ? 'This will CLEAR each store (policies, payments, payouts, companies) before restoring — anything not in this backup file will be lost. Continue?'
+    : 'This will merge the backup into your current data (matching records by ID will be overwritten). Continue?';
+  if (!(await confirmDialog(warning, 'Restore', replace))) return;
+  try {
+    const counts = await restoreFullBackup(text, { replace });
+    const summary = Object.entries(counts).filter(([, n]) => n > 0).map(([s, n]) => `${n} ${s}`).join(', ') || 'no records found';
+    qs('#restoreSummary').textContent = `Restored: ${summary}.`;
+    toast('Backup restored', 'success');
+  } catch (e) {
+    toast('Could not restore backup: ' + e.message, 'error');
+  }
+}
+</script>
+</body>
+</html>

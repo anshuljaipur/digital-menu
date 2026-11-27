@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1e4fd6">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Policies">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<title>Reports — Insurance Portfolio Manager Pro</title>
+<link rel="stylesheet" href="assets/css/theme.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/cards.css">
+<link rel="stylesheet" href="assets/css/tables.css">
+<link rel="stylesheet" href="assets/css/forms.css">
+<link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body>
+<div class="scrim"></div>
+<div class="app-shell">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">IP</div>
+      <div><div class="brand-name">Insurance Portfolio</div><div class="brand-sub">Manager Pro</div></div>
+    </div>
+    <div class="nav-section-label">Overview</div>
+    <a href="dashboard.html" class="nav-link"><span class="nav-icon">🏠</span>Dashboard</a>
+    <a href="policies.html" class="nav-link"><span class="nav-icon">📄</span>Policies</a>
+    <a href="companies.html" class="nav-link"><span class="nav-icon">🏢</span>Companies</a>
+    <div class="nav-section-label">Premiums</div>
+    <a href="payment-tracker.html" class="nav-link"><span class="nav-icon">💳</span>Premium Tracker</a>
+    <div class="nav-section-label">Insights</div>
+    <a href="calendar.html" class="nav-link"><span class="nav-icon">📅</span>Calendar</a>
+    <a href="reports.html" class="nav-link active"><span class="nav-icon">📊</span>Reports</a>
+    <div class="nav-section-label">Data</div>
+    <a href="import-export.html" class="nav-link"><span class="nav-icon">⇅</span>Import / Export</a>
+    <a href="settings.html" class="nav-link"><span class="nav-icon">⚙️</span>Settings</a>
+  </aside>
+
+  <div class="main-col">
+    <header class="topbar">
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">☰</button>
+      <div>
+        <h1 class="page-title">Reports</h1>
+        <p class="page-sub">Portfolio insights, ready to export</p>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="form-tabs">
+        <div class="form-tab active" data-report="companyWise">Company Wise</div>
+        <div class="form-tab" data-report="policyType">Policy Type</div>
+        <div class="form-tab" data-report="agentWise">Agent Wise</div>
+        <div class="form-tab" data-report="pending">Pending Premium</div>
+        <div class="form-tab" data-report="upcoming">Upcoming Premium</div>
+        <div class="form-tab" data-report="lapsed">Lapsed Policies</div>
+        <div class="form-tab" data-report="grace">Grace Policies</div>
+        <div class="form-tab" data-report="maturity">Maturity Report</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h3 id="reportTitle">Company Wise Premium Report</h3>
+          <button id="exportBtn" class="btn btn-ghost btn-sm">⬇ Export CSV</button>
+        </div>
+        <div class="table-wrap">
+          <table id="reportTable">
+            <thead id="reportHead"></thead>
+            <tbody id="reportBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="config/constants.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config/firebase-config.js"></script>
+<script src="assets/js/utilities.js"></script>
+<script src="assets/js/firebase-store.js"></script>
+<script src="assets/js/storage.js"></script>
+<script src="assets/js/notification.js"></script>
+<script src="assets/js/validation.js"></script>
+<script src="assets/js/search.js"></script>
+<script src="assets/js/policy.js"></script>
+<script src="assets/js/payment.js"></script>
+<script src="assets/js/payouts.js"></script>
+<script src="assets/js/calendar.js"></script>
+<script src="assets/js/reports.js"></script>
+<script src="assets/js/charts.js"></script>
+<script src="assets/js/alerts.js"></script>
+<script src="assets/js/export.js"></script>
+<script src="assets/js/import.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const { getSettings, fmtMoney, fmtDate, qs, qsa, escapeHtml, exportCSV, STATUS_COLORS } = IPM;
+const Reports = IPM;
+const CONFIG = {
+  companyWise: { title: 'Company Wise Premium Report', fetch: Reports.companyWiseReport,
+    cols: [['company', 'Company'], ['policies', 'Policies'], ['sumAssured', 'Sum Assured', 'money'], ['annualPremium', 'Annual Premium', 'money']] },
+  policyType: { title: 'Policy Type Distribution', fetch: Reports.policyTypeReport,
+    cols: [['category', 'Category'], ['policies', 'Policies'], ['sumAssured', 'Sum Assured', 'money']] },
+  agentWise: { title: 'Agent Wise Report', fetch: Reports.agentWiseReport,
+    cols: [['agent', 'Agent'], ['policies', 'Policies'], ['annualPremium', 'Annual Premium', 'money']] },
+  pending: { title: 'Pending Premium Report', fetch: Reports.pendingPremiumReport,
+    cols: [['policyNumber', 'Policy No.'], ['customerName', 'Customer'], ['dueDate', 'Due Date', 'date'], ['dueAmount', 'Amount', 'money'], ['status', 'Status', 'pill']] },
+  upcoming: { title: 'Upcoming Premium (30 days)', fetch: () => Reports.upcomingPremiumReport(30),
+    cols: [['policyNumber', 'Policy No.'], ['customerName', 'Customer'], ['dueDate', 'Due Date', 'date'], ['dueAmount', 'Amount', 'money']] },
+  lapsed: { title: 'Lapsed Policies', fetch: Reports.lapsedReport,
+    cols: [['policyNumber', 'Policy No.'], ['customerName', 'Customer'], ['company', 'Company'], ['premiumAmount', 'Premium', 'money']] },
+  grace: { title: 'Grace Period Policies', fetch: Reports.gracePolicyReport,
+    cols: [['policyNumber', 'Policy No.'], ['customerName', 'Customer'], ['company', 'Company'], ['gracePeriodDays', 'Grace Days']] },
+  maturity: { title: 'Maturity Report', fetch: Reports.maturityReport,
+    cols: [['policyNumber', 'Policy No.'], ['customerName', 'Customer'], ['maturityDate', 'Maturity Date', 'date'], ['sumAssured', 'Sum Assured', 'money']] }
+};
+
+let settings, currentKey = 'companyWise', currentRows = [];
+
+async function init() {
+  settings = await getSettings();
+  qsa('.form-tab').forEach((tab) => tab.addEventListener('click', () => {
+    qsa('.form-tab').forEach((t) => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentKey = tab.dataset.report;
+    load();
+  }));
+  qs('#exportBtn').addEventListener('click', () => exportCSV(currentRows, `${currentKey}-report.csv`));
+  load();
+}
+
+async function load() {
+  const cfg = CONFIG[currentKey];
+  qs('#reportTitle').textContent = cfg.title;
+  currentRows = await cfg.fetch();
+  qs('#reportHead').innerHTML = `<tr>${cfg.cols.map(([, label]) => `<th>${label}</th>`).join('')}</tr>`;
+  qs('#reportBody').innerHTML = currentRows.map((r) => `<tr>${cfg.cols.map(([key, , type]) => `<td>${formatCell(r[key], type)}</td>`).join('')}</tr>`).join('')
+    || `<tr><td colspan="${cfg.cols.length}" class="empty-row">No records for this report.</td></tr>`;
+}
+
+function formatCell(val, type) {
+  if (type === 'money') return fmtMoney(val, settings.currency);
+  if (type === 'date') return fmtDate(val, settings.dateFormat);
+  if (type === 'pill') return `<span class="status-pill" style="--pill-color:${STATUS_COLORS[val] || '#999'}">${val}</span>`;
+  return escapeHtml(val ?? '—');
+}
+
+init();
+</script>
+</body>
+</html>

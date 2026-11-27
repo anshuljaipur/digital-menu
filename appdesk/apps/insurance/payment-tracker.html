@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1e4fd6">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Policies">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<title>Premium Tracker — Insurance Portfolio Manager Pro</title>
+<link rel="stylesheet" href="assets/css/theme.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/cards.css">
+<link rel="stylesheet" href="assets/css/tables.css">
+<link rel="stylesheet" href="assets/css/forms.css">
+<link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body>
+<div class="scrim"></div>
+<div class="app-shell">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">IP</div>
+      <div><div class="brand-name">Insurance Portfolio</div><div class="brand-sub">Manager Pro</div></div>
+    </div>
+    <div class="nav-section-label">Overview</div>
+    <a href="dashboard.html" class="nav-link"><span class="nav-icon">🏠</span>Dashboard</a>
+    <a href="policies.html" class="nav-link"><span class="nav-icon">📄</span>Policies</a>
+    <a href="companies.html" class="nav-link"><span class="nav-icon">🏢</span>Companies</a>
+    <div class="nav-section-label">Premiums</div>
+    <a href="payment-tracker.html" class="nav-link active"><span class="nav-icon">💳</span>Premium Tracker</a>
+    <div class="nav-section-label">Insights</div>
+    <a href="calendar.html" class="nav-link"><span class="nav-icon">📅</span>Calendar</a>
+    <a href="reports.html" class="nav-link"><span class="nav-icon">📊</span>Reports</a>
+    <div class="nav-section-label">Data</div>
+    <a href="import-export.html" class="nav-link"><span class="nav-icon">⇅</span>Import / Export</a>
+    <a href="settings.html" class="nav-link"><span class="nav-icon">⚙️</span>Settings</a>
+  </aside>
+
+  <div class="main-col">
+    <header class="topbar">
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">☰</button>
+      <div>
+        <h1 class="page-title">Premium Tracker</h1>
+        <p class="page-sub">Every installment, automatically generated and status-tracked</p>
+      </div>
+    </header>
+
+    <main class="content">
+      <div id="kpiStrip" class="kpi-strip"></div>
+
+      <div id="filterChip" class="alert-item alert-info" style="display:none;margin-bottom:12px;align-items:center;justify-content:space-between;flex-direction:row">
+        <span><b>Filtered:</b> <span id="filterChipText"></span></span>
+        <a href="payment-tracker.html" class="btn btn-ghost btn-sm">Clear</a>
+      </div>
+
+      <div class="table-toolbar">
+        <div class="search-box"><span>🔎</span><input id="searchInput" placeholder="Search policy, customer…"></div>
+        <select id="filterStatus" class="filter-select">
+          <option value="">All Statuses</option>
+          <option>Paid</option><option>Pending</option><option>Future</option><option>Grace</option><option>Overdue</option><option>Late</option>
+        </select>
+        <button id="clearFilters" class="btn btn-ghost btn-sm">Clear</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th data-key="policyNumber">Policy No.</th>
+            <th data-key="customerName">Customer</th>
+            <th data-key="installmentNo">#</th>
+            <th data-key="dueDate">Due Date</th>
+            <th data-key="dueAmount">Amount</th>
+            <th data-key="status">Status</th>
+            <th>Paid On</th>
+            <th>Total Paid</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="trackerBody"></tbody>
+        </table>
+      </div>
+      <div class="table-pagination">
+        <span id="pageInfo"></span>
+        <div>
+          <button id="prevPage" class="btn btn-ghost">← Prev</button>
+          <button id="nextPage" class="btn btn-ghost">Next →</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="payOverlay" class="confirm-overlay">
+  <div class="confirm-box" style="width:340px">
+    <h3 style="margin-bottom:12px">Record Payment</h3>
+    <div class="field" style="margin-bottom:10px"><label>Premium Amount Paid</label><input id="payAmount" type="number"></div>
+    <div class="field" style="margin-bottom:10px"><label>Late Fee Paid</label><input id="payLateFee" type="number" placeholder="0"></div>
+    <div class="field" style="margin-bottom:10px"><label>Other Charges / Tax Paid</label><input id="payOtherCharges" type="number" placeholder="0"></div>
+    <div class="field" style="margin-bottom:10px"><label>Payment Date</label><input id="payDate" type="date"></div>
+    <div class="field" style="margin-bottom:10px"><label>Payment Mode</label>
+      <select id="payMode"><option>UPI</option><option>Cheque</option><option>Bank Transfer</option><option>Cash</option><option>Card</option><option>Auto Debit</option></select>
+    </div>
+    <div class="field" style="margin-bottom:14px"><label>Transaction ID</label><input id="payTxn"></div>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" data-action="cancel">Cancel</button>
+      <button class="btn btn-primary" data-action="ok">Save Payment</button>
+    </div>
+  </div>
+</div>
+
+<script src="config/constants.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config/firebase-config.js"></script>
+<script src="assets/js/utilities.js"></script>
+<script src="assets/js/firebase-store.js"></script>
+<script src="assets/js/storage.js"></script>
+<script src="assets/js/notification.js"></script>
+<script src="assets/js/validation.js"></script>
+<script src="assets/js/search.js"></script>
+<script src="assets/js/policy.js"></script>
+<script src="assets/js/payment.js"></script>
+<script src="assets/js/payouts.js"></script>
+<script src="assets/js/calendar.js"></script>
+<script src="assets/js/reports.js"></script>
+<script src="assets/js/charts.js"></script>
+<script src="assets/js/alerts.js"></script>
+<script src="assets/js/export.js"></script>
+<script src="assets/js/import.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const { buildPremiumRows, recordPayment, deletePayment, isPaidLike, getSettings, searchRecords, sortRecords, fmtMoney, fmtDate, qs, qsa, escapeHtml, debounce, getParam, toast, confirmDialog, printPaymentReceipt, STATUS_COLORS } = IPM;
+let rows = [], settings;
+let sortKey = 'dueDate', sortDir = 'asc';
+let page = 1;
+let specialFilter = null;
+const PAGE_SIZE = 15;
+
+async function init() {
+  settings = await getSettings();
+  rows = await buildPremiumRows();
+  specialFilter = getParam('filter');
+  if (specialFilter === 'overdue') qs('#filterStatus').value = 'Overdue';
+  if (specialFilter === 'upcoming') qs('#filterStatus').value = 'Pending';
+  if (specialFilter === 'paid') qs('#filterStatus').value = 'Paid';
+  showFilterChip(specialFilter);
+  renderKpis();
+  render();
+
+  qs('#searchInput').addEventListener('input', debounce(() => { page = 1; render(); }, 200));
+  qs('#filterStatus').addEventListener('change', () => { page = 1; render(); });
+  qs('#clearFilters').addEventListener('click', () => { qs('#searchInput').value = ''; qs('#filterStatus').value = ''; specialFilter = null; qs('#filterChip').style.display = 'none'; page = 1; render(); });
+  qs('#prevPage').addEventListener('click', () => { if (page > 1) { page--; render(); } });
+  qs('#nextPage').addEventListener('click', () => { page++; render(); });
+  qsa('thead th[data-key]').forEach((th) => th.addEventListener('click', () => {
+    const key = th.dataset.key;
+    sortDir = (sortKey === key && sortDir === 'asc') ? 'desc' : 'asc';
+    sortKey = key; render();
+  }));
+}
+
+function showFilterChip(filter) {
+  const labels = { overdue: 'Overdue', upcoming: 'Upcoming', paid: 'Paid', dueThisMonth: 'Due This Month', pendingAll: 'Pending / Grace / Overdue' };
+  if (filter && labels[filter]) {
+    qs('#filterChipText').textContent = labels[filter];
+    qs('#filterChip').style.display = 'flex';
+  }
+}
+
+function renderKpis() {
+  const pending = rows.filter((r) => ['Pending', 'Grace', 'Overdue'].includes(r.status));
+  const paid = rows.filter((r) => isPaidLike(r.status));
+  const overdue = rows.filter((r) => r.status === 'Overdue');
+  qs('#kpiStrip').innerHTML = `
+    <div class="kpi-chip"><span>${rows.length}</span><span>Total Installments</span></div>
+    <div class="kpi-chip"><span>${paid.length}</span><span>Premiums Paid</span></div>
+    <div class="kpi-chip"><span>${rows.length - paid.length}</span><span>Premiums Due</span></div>
+    <div class="kpi-chip"><span>${fmtMoney(pending.reduce((s, r) => s + r.dueAmount, 0), settings.currency)}</span><span>Pending Amount</span></div>
+    <div class="kpi-chip"><span>${fmtMoney(paid.reduce((s, r) => s + r.totalPaid, 0), settings.currency)}</span><span>Total Paid (incl. fees)</span></div>
+    <div class="kpi-chip"><span>${overdue.length}</span><span>Overdue Installments</span></div>`;
+}
+
+function getFiltered() {
+  let list = searchRecords(rows, qs('#searchInput').value);
+  const status = qs('#filterStatus').value;
+  if (status) list = list.filter((r) => r.status === status);
+  if (specialFilter === 'dueThisMonth') {
+    const n = new Date();
+    list = list.filter((r) => { const d = new Date(r.dueDate); return d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear(); });
+  } else if (specialFilter === 'pendingAll') {
+    list = list.filter((r) => ['Pending', 'Overdue', 'Grace'].includes(r.status));
+  }
+  return sortRecords(list, sortKey, sortDir);
+}
+
+function render() {
+  const list = getFiltered();
+  const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+  page = Math.min(page, totalPages);
+  const pageRows = list.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  qs('#trackerBody').innerHTML = pageRows.map((r) => {
+    const hasPayment = isPaidLike(r.status);
+    return `
+    <tr>
+      <td>${escapeHtml(r.policyNumber)}</td>
+      <td>${escapeHtml(r.customerName)}</td>
+      <td>${r.installmentNo}</td>
+      <td>${fmtDate(r.dueDate, settings.dateFormat)}</td>
+      <td class="num">${fmtMoney(r.dueAmount, settings.currency)}</td>
+      <td><span class="status-pill" style="--pill-color:${STATUS_COLORS[r.status] || '#999'}">${r.status}</span></td>
+      <td>${r.paymentDate ? fmtDate(r.paymentDate, settings.dateFormat) : '—'}</td>
+      <td class="num">${hasPayment ? fmtMoney(r.totalPaid, settings.currency) : '—'}</td>
+      <td class="row-actions">${hasPayment
+        ? `<button class="btn btn-ghost btn-sm edit-pay-btn" data-policy="${r.policyId}" data-inst="${r.installmentNo}">Edit</button><button class="btn btn-ghost btn-sm print-pay-btn" data-policy="${r.policyId}" data-inst="${r.installmentNo}">🖨 Receipt</button><button class="btn btn-ghost btn-sm del-pay-btn" data-policy="${r.policyId}" data-inst="${r.installmentNo}">Delete</button>`
+        : `<button class="btn btn-ghost btn-sm pay-btn" data-policy="${r.policyId}" data-inst="${r.installmentNo}" data-amount="${r.dueAmount}">Record</button>`}</td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="9" class="empty-row">No installments match your filters.</td></tr>`;
+
+  qs('#pageInfo').textContent = `Page ${page} of ${totalPages} • ${list.length} installments`;
+  qsa('.pay-btn').forEach((btn) => btn.addEventListener('click', () => openPayModal(btn.dataset.policy, Number(btn.dataset.inst), Number(btn.dataset.amount))));
+  qsa('.edit-pay-btn').forEach((btn) => btn.addEventListener('click', () => {
+    const r = pageRows.find((row) => row.policyId === btn.dataset.policy && row.installmentNo === Number(btn.dataset.inst));
+    openPayModal(btn.dataset.policy, Number(btn.dataset.inst), null, r);
+  }));
+  qsa('.print-pay-btn').forEach((btn) => btn.addEventListener('click', () => {
+    const r = pageRows.find((row) => row.policyId === btn.dataset.policy && row.installmentNo === Number(btn.dataset.inst));
+    printPaymentReceipt(r, settings);
+  }));
+  qsa('.del-pay-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    if (await confirmDialog('Delete this recorded payment? The installment will go back to its normal due/overdue status.')) {
+      await deletePayment(btn.dataset.policy, Number(btn.dataset.inst));
+      toast('Payment deleted', 'success');
+      rows = await buildPremiumRows();
+      renderKpis();
+      render();
+    }
+  }));
+}
+
+function openPayModal(policyId, installmentNo, amount, existingRow) {
+  const overlay = qs('#payOverlay');
+  qs('#payAmount').value = existingRow ? existingRow.paidAmount : amount;
+  qs('#payLateFee').value = existingRow ? existingRow.lateFeePaid || '' : '';
+  qs('#payOtherCharges').value = existingRow ? existingRow.otherChargesPaid || '' : '';
+  qs('#payDate').value = existingRow ? existingRow.paymentDate : new Date().toISOString().slice(0, 10);
+  qs('#payMode').value = existingRow?.paymentMode || 'UPI';
+  qs('#payTxn').value = existingRow?.transactionId || '';
+  overlay.classList.add('show');
+  overlay.onclick = async (e) => {
+    const action = e.target.dataset.action;
+    if (!action) { if (e.target === overlay) overlay.classList.remove('show'); return; }
+    if (action === 'ok') {
+      await recordPayment(policyId, installmentNo, {
+        paidAmount: Number(qs('#payAmount').value) || 0,
+        lateFeePaid: Number(qs('#payLateFee').value) || 0,
+        otherChargesPaid: Number(qs('#payOtherCharges').value) || 0,
+        paymentDate: qs('#payDate').value,
+        paymentMode: qs('#payMode').value,
+        transactionId: qs('#payTxn').value
+      });
+      toast('Payment recorded', 'success');
+      rows = await buildPremiumRows();
+      renderKpis();
+      render();
+    }
+    overlay.classList.remove('show');
+  };
+}
+
+init();
+</script>
+</body>
+</html>

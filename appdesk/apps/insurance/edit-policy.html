@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Edit Policy — Insurance Portfolio Manager Pro</title>
+<script>
+  // The add and edit forms share one implementation — this page simply
+  // forwards to it with the record id so the URL a user bookmarks still works.
+  const id = new URLSearchParams(window.location.search).get('id');
+  window.location.replace(id ? `add-policy.html?id=${encodeURIComponent(id)}` : 'add-policy.html');
+</script>
+</head>
+<body></body>
+</html>

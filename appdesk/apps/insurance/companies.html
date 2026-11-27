@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1e4fd6">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Policies">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<title>Companies — Insurance Portfolio Manager Pro</title>
+<link rel="stylesheet" href="assets/css/theme.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/cards.css">
+<link rel="stylesheet" href="assets/css/tables.css">
+<link rel="stylesheet" href="assets/css/forms.css">
+<link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body>
+<div class="scrim"></div>
+<div class="app-shell">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">IP</div>
+      <div><div class="brand-name">Insurance Portfolio</div><div class="brand-sub">Manager Pro</div></div>
+    </div>
+    <div class="nav-section-label">Overview</div>
+    <a href="dashboard.html" class="nav-link"><span class="nav-icon">🏠</span>Dashboard</a>
+    <a href="policies.html" class="nav-link"><span class="nav-icon">📄</span>Policies</a>
+    <a href="companies.html" class="nav-link active"><span class="nav-icon">🏢</span>Companies</a>
+    <div class="nav-section-label">Premiums</div>
+    <a href="payment-tracker.html" class="nav-link"><span class="nav-icon">💳</span>Premium Tracker</a>
+    <div class="nav-section-label">Insights</div>
+    <a href="calendar.html" class="nav-link"><span class="nav-icon">📅</span>Calendar</a>
+    <a href="reports.html" class="nav-link"><span class="nav-icon">📊</span>Reports</a>
+    <div class="nav-section-label">Data</div>
+    <a href="import-export.html" class="nav-link"><span class="nav-icon">⇅</span>Import / Export</a>
+    <a href="settings.html" class="nav-link"><span class="nav-icon">⚙️</span>Settings</a>
+  </aside>
+
+  <div class="main-col">
+    <header class="topbar">
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">☰</button>
+      <div>
+        <h1 class="page-title">Companies</h1>
+        <p class="page-sub">Insurance company master list</p>
+      </div>
+      <div class="topbar-spacer"></div>
+      <button id="addBtn" class="btn btn-primary">+ Add Company</button>
+    </header>
+
+    <main class="content">
+      <div class="policy-grid" id="companyGrid"></div>
+    </main>
+  </div>
+</div>
+
+<div id="companyOverlay" class="confirm-overlay">
+  <div class="confirm-box" style="width:340px">
+    <h3 id="modalTitle" style="margin-bottom:12px">Add Company</h3>
+    <div class="field" style="margin-bottom:10px"><label>Company Name</label><input id="fName"></div>
+    <div class="field" style="margin-bottom:10px"><label>Short Name</label><input id="fShort"></div>
+    <div class="field" style="margin-bottom:10px"><label>Default Grace Period (days)</label><input id="fGrace" type="number"></div>
+    <div class="field" style="margin-bottom:14px"><label>Contact / Notes</label><input id="fNotes"></div>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" data-action="cancel">Cancel</button>
+      <button class="btn btn-primary" data-action="ok">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="config/constants.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config/firebase-config.js"></script>
+<script src="assets/js/utilities.js"></script>
+<script src="assets/js/firebase-store.js"></script>
+<script src="assets/js/storage.js"></script>
+<script src="assets/js/notification.js"></script>
+<script src="assets/js/validation.js"></script>
+<script src="assets/js/search.js"></script>
+<script src="assets/js/policy.js"></script>
+<script src="assets/js/payment.js"></script>
+<script src="assets/js/payouts.js"></script>
+<script src="assets/js/calendar.js"></script>
+<script src="assets/js/reports.js"></script>
+<script src="assets/js/charts.js"></script>
+<script src="assets/js/alerts.js"></script>
+<script src="assets/js/export.js"></script>
+<script src="assets/js/import.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const { Storage, qs, qsa, escapeHtml, uid, toast, confirmDialog } = IPM;
+let companies = [], policies = [], editId = null;
+
+async function init() {
+  companies = await Storage.getAll('companies');
+  policies = await Storage.getAll('policies');
+  render();
+  qs('#addBtn').addEventListener('click', () => openModal());
+}
+
+function policyCount(companyName) { return policies.filter((p) => p.company === companyName).length; }
+
+function render() {
+  qs('#companyGrid').innerHTML = companies.map((c) => `
+    <div class="policy-card" style="cursor:default">
+      <div class="policy-card-top">
+        <div><div class="policy-card-name">${escapeHtml(c.name)}</div><div class="policy-card-num">${escapeHtml(c.short || '')}</div></div>
+      </div>
+      <div class="policy-card-row"><span>Active Policies</span><b>${policyCount(c.name)}</b></div>
+      <div class="policy-card-row"><span>Default Grace</span><b>${c.grace ?? 15} days</b></div>
+      <div class="row-actions" style="margin-top:6px">
+        <button class="btn btn-ghost btn-sm edit-btn" data-id="${c.id}">Edit</button>
+        <button class="btn btn-ghost btn-sm del-btn" data-id="${c.id}">Delete</button>
+      </div>
+    </div>`).join('') || `<div class="empty-row">No companies yet — add your first one.</div>`;
+
+  qsa('.edit-btn').forEach((b) => b.addEventListener('click', () => openModal(companies.find((c) => c.id === b.dataset.id))));
+  qsa('.del-btn').forEach((b) => b.addEventListener('click', async () => {
+    if (await confirmDialog('Remove this company from the master list?')) {
+      await Storage.remove('companies', b.dataset.id);
+      companies = await Storage.getAll('companies');
+      toast('Company removed', 'success');
+      render();
+    }
+  }));
+}
+
+function openModal(company = null) {
+  editId = company?.id || null;
+  qs('#modalTitle').textContent = company ? 'Edit Company' : 'Add Company';
+  qs('#fName').value = company?.name || '';
+  qs('#fShort').value = company?.short || '';
+  qs('#fGrace').value = company?.grace ?? 15;
+  qs('#fNotes').value = company?.notes || '';
+  const overlay = qs('#companyOverlay');
+  overlay.classList.add('show');
+  overlay.onclick = async (e) => {
+    const action = e.target.dataset.action;
+    if (!action) { if (e.target === overlay) overlay.classList.remove('show'); return; }
+    if (action === 'ok') {
+      const name = qs('#fName').value.trim();
+      if (!name) { toast('Company name is required', 'error'); return; }
+      await Storage.put('companies', {
+        id: editId, name, short: qs('#fShort').value.trim(),
+        grace: Number(qs('#fGrace').value) || 15, notes: qs('#fNotes').value.trim()
+      });
+      companies = await Storage.getAll('companies');
+      toast('Company saved', 'success');
+      render();
+    }
+    overlay.classList.remove('show');
+  };
+}
+
+init();
+</script>
+</body>
+</html>

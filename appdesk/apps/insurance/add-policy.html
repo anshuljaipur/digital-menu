@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1e4fd6">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Policies">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<title id="pageTitleTag">Add Policy — Insurance Portfolio Manager Pro</title>
+<link rel="stylesheet" href="assets/css/theme.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/forms.css">
+<link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body>
+<div class="scrim"></div>
+<div class="app-shell">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">IP</div>
+      <div><div class="brand-name">Insurance Portfolio</div><div class="brand-sub">Manager Pro</div></div>
+    </div>
+    <div class="nav-section-label">Overview</div>
+    <a href="dashboard.html" class="nav-link"><span class="nav-icon">🏠</span>Dashboard</a>
+    <a href="policies.html" class="nav-link active"><span class="nav-icon">📄</span>Policies</a>
+    <a href="companies.html" class="nav-link"><span class="nav-icon">🏢</span>Companies</a>
+    <div class="nav-section-label">Premiums</div>
+    <a href="payment-tracker.html" class="nav-link"><span class="nav-icon">💳</span>Premium Tracker</a>
+    <div class="nav-section-label">Insights</div>
+    <a href="calendar.html" class="nav-link"><span class="nav-icon">📅</span>Calendar</a>
+    <a href="reports.html" class="nav-link"><span class="nav-icon">📊</span>Reports</a>
+    <div class="nav-section-label">Data</div>
+    <a href="import-export.html" class="nav-link"><span class="nav-icon">⇅</span>Import / Export</a>
+    <a href="settings.html" class="nav-link"><span class="nav-icon">⚙️</span>Settings</a>
+  </aside>
+
+  <div class="main-col">
+    <header class="topbar">
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">☰</button>
+      <div>
+        <h1 id="pageTitle" class="page-title">Add Policy</h1>
+        <p class="page-sub">Fill in every section that applies — you can always edit later</p>
+      </div>
+      <div class="topbar-spacer"></div>
+      <a href="policies.html" class="btn btn-ghost">Cancel</a>
+    </header>
+
+    <main class="content">
+      <form id="policyForm" class="panel" novalidate>
+        <div class="form-tabs">
+          <div class="form-tab active" data-tab="basic">Basic Info</div>
+          <div class="form-tab" data-tab="people">People</div>
+          <div class="form-tab" data-tab="dates">Dates &amp; Term</div>
+          <div class="form-tab" data-tab="premium">Premium</div>
+          <div class="form-tab" data-tab="coverage">Coverage &amp; Benefits</div>
+          <div class="form-tab" data-tab="bonus">Bonus &amp; Riders</div>
+          <div class="form-tab" data-tab="continuation">Maturity &amp; Continuation</div>
+          <div class="form-tab" data-tab="notes">Status &amp; Notes</div>
+        </div>
+
+        <!-- BASIC -->
+        <section class="form-section active" data-section="basic">
+          <div class="field-grid">
+            <div class="field span-2"><label>Policy Name *</label><input name="policyName" placeholder="e.g. LIC Jeevan Anand"></div>
+            <div class="field"><label>Policy Number *</label><input name="policyNumber" placeholder="Unique policy number"></div>
+            <div class="field"><label>Insurance Company *</label><input name="company" list="companyList"></div>
+            <datalist id="companyList"></datalist>
+            <div class="field"><label>Branch</label><input name="branch"></div>
+            <div class="field"><label>Policy Category *</label>
+              <select name="category"></select>
+            </div>
+            <div class="field"><label>Policy Type</label><input name="policyType" placeholder="Same as category, or a custom label"></div>
+          </div>
+        </section>
+
+        <!-- PEOPLE -->
+        <section class="form-section" data-section="people">
+          <div class="field-grid">
+            <div class="field"><label>Customer Name *</label><input name="customerName"></div>
+            <div class="field"><label>Date of Birth</label><input type="date" name="dob"></div>
+            <div class="field"><label>Gender</label>
+              <select name="gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select>
+            </div>
+            <div class="field span-2"><label>Address</label><input name="address"></div>
+            <div class="field"><label>PAN</label><input name="pan" placeholder="ABCDE1234F" style="text-transform:uppercase"></div>
+            <div class="field"><label>Aadhaar</label><input name="aadhaar" placeholder="12-digit number"></div>
+            <div class="field"><label>Nominee</label><input name="nominee"></div>
+            <div class="field"><label>Relationship</label><input name="relationship" placeholder="e.g. Spouse"></div>
+            <div class="field"><label>Advisor</label><input name="advisor"></div>
+            <div class="field"><label>Agent Name</label><input name="agentName"></div>
+            <div class="field"><label>Agent Mobile</label><input name="agentMobile"></div>
+            <div class="field"><label>Agent Email</label><input type="email" name="agentEmail"></div>
+          </div>
+        </section>
+
+        <!-- DATES -->
+        <section class="form-section" data-section="dates">
+          <div class="field-grid">
+            <div class="field"><label>Issue Date</label><input type="date" name="issueDate"></div>
+            <div class="field"><label>Commencement Date *</label><input type="date" name="commencementDate"></div>
+            <div class="field"><label>Risk Start Date</label><input type="date" name="riskStartDate"></div>
+            <div class="field"><label>Maturity Date</label><input type="date" name="maturityDate"></div>
+            <div class="field"><label>Policy Term (years)</label><input type="number" min="0" name="policyTerm"></div>
+            <div class="field"><label>Premium Paying Term (years)</label><input type="number" min="0" name="premiumPayingTerm"></div>
+          </div>
+        </section>
+
+        <!-- PREMIUM -->
+        <section class="form-section" data-section="premium">
+          <div class="field-grid">
+            <div class="field"><label>Premium Frequency *</label>
+              <select name="premiumFrequency"></select>
+            </div>
+            <div class="field"><label>Premium Amount *</label><input type="number" min="0" name="premiumAmount"></div>
+            <div class="field"><label>GST</label><input type="number" min="0" name="gst"></div>
+            <div class="field"><label>Other Taxes</label><input type="number" min="0" name="taxes"></div>
+            <div class="field"><label>Late Fee</label><input type="number" min="0" name="lateFee"></div>
+            <div class="field"><label>Service Charges</label><input type="number" min="0" name="serviceCharges"></div>
+            <div class="field"><label>Grace Period (days)</label><input type="number" min="0" name="gracePeriodDays" placeholder="15"></div>
+          </div>
+        </section>
+
+        <!-- COVERAGE -->
+        <section class="form-section" data-section="coverage">
+          <div class="field-grid">
+            <div class="field"><label>Sum Assured *</label><input type="number" min="0" name="sumAssured"></div>
+            <div class="field"><label>Death Benefit</label><input type="number" min="0" name="deathBenefit"></div>
+            <div class="field"><label>Accidental Benefit</label><input type="number" min="0" name="accidentalBenefit"></div>
+            <div class="field"><label>Critical Illness Benefit</label><input type="number" min="0" name="criticalIllnessBenefit"></div>
+            <div class="field"><label>Hospital Cash Benefit</label><input type="number" min="0" name="hospitalCashBenefit"></div>
+            <div class="field"><label>Disability Benefit</label><input type="number" min="0" name="disabilityBenefit"></div>
+            <div class="field"><label>Surrender Value</label><input type="number" min="0" name="surrenderValue"></div>
+            <div class="field"><label>Paid-up Value</label><input type="number" min="0" name="paidUpValue"></div>
+            <div class="field"><label>Current Fund Value (ULIP)</label><input type="number" min="0" name="currentFundValue"></div>
+            <div class="field"><label>NAV</label><input type="number" min="0" step="0.01" name="nav"></div>
+            <div class="field checkbox-row" style="align-self:flex-end"><input type="checkbox" name="loanAvailable" id="loanAvailable"><label for="loanAvailable">Loan Available</label></div>
+          </div>
+        </section>
+
+        <!-- BONUS & RIDERS -->
+        <section class="form-section" data-section="bonus">
+          <div class="field-grid">
+            <div class="field"><label>Bonus Type</label>
+              <select name="bonusType"></select>
+            </div>
+            <div class="field"><label>Bonus Rate (%)</label><input type="number" min="0" step="0.01" name="bonusRate"></div>
+            <div class="field"><label>Projected Maturity Value</label><input type="number" min="0" name="projectedMaturityValue"></div>
+            <div class="field span-3"><label>Riders (comma separated)</label><input name="riders" placeholder="Accidental Rider, Critical Rider, Waiver Rider"></div>
+          </div>
+        </section>
+
+        <!-- MATURITY & CONTINUATION -->
+        <section class="form-section" data-section="continuation">
+          <div class="section-sub" style="margin-bottom:14px">What happens at maturity, or if you stop paying premiums early — track survival benefits separately from the payment schedule on the policy's detail page.</div>
+          <div class="field-grid">
+            <div class="field"><label>Maturity Outcome</label>
+              <select name="maturityOutcome"></select>
+              <span class="hint">What happened (or will happen) when this policy matures</span>
+            </div>
+            <div class="field"><label>Last Premium Paid Date</label><input type="date" name="lastPremiumPaidDate"></div>
+            <div class="field"><label>Discontinuation Handling</label>
+              <select name="discontinuationType"></select>
+              <span class="hint">If you stopped paying premiums early, what happened to the policy's value</span>
+            </div>
+            <div class="field"><label>Fixed Return Rate (% per year)</label><input type="number" min="0" step="0.01" name="fixedReturnRate">
+              <span class="hint">Only applies if moved to a fixed return instrument above</span>
+            </div>
+            <div class="field"><label>Fixed Return Start Date</label><input type="date" name="fixedReturnStartDate"></div>
+          </div>
+        </section>
+
+        <!-- STATUS & NOTES -->
+        <section class="form-section" data-section="notes">
+          <div class="field-grid">
+            <div class="field"><label>Policy Status</label>
+              <select name="status"></select>
+            </div>
+            <div class="field span-2"><label>Notes</label><textarea name="notes" placeholder="Any additional notes about this policy…"></textarea></div>
+          </div>
+        </section>
+
+        <div class="form-actions">
+          <button type="button" id="prevTab" class="btn btn-ghost">← Previous</button>
+          <button type="button" id="nextTab" class="btn btn-ghost">Next →</button>
+          <button type="submit" class="btn btn-primary">Save Policy</button>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>
+
+<script src="config/constants.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config/firebase-config.js"></script>
+<script src="assets/js/utilities.js"></script>
+<script src="assets/js/firebase-store.js"></script>
+<script src="assets/js/storage.js"></script>
+<script src="assets/js/notification.js"></script>
+<script src="assets/js/validation.js"></script>
+<script src="assets/js/search.js"></script>
+<script src="assets/js/policy.js"></script>
+<script src="assets/js/payment.js"></script>
+<script src="assets/js/payouts.js"></script>
+<script src="assets/js/calendar.js"></script>
+<script src="assets/js/reports.js"></script>
+<script src="assets/js/charts.js"></script>
+<script src="assets/js/alerts.js"></script>
+<script src="assets/js/export.js"></script>
+<script src="assets/js/import.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const { getPolicy, savePolicy, Storage, qs, qsa, getParam, uid, toast, runChecks, required, isValidDateOrder, isPositiveNumber, isValidPAN, isValidAadhaar, isValidMobile, POLICY_CATEGORIES, PREMIUM_FREQUENCIES, POLICY_STATUSES, BONUS_TYPES, DEFAULT_COMPANIES } = IPM;
+const form = qs('#policyForm');
+const editId = getParam('id');
+const tabs = qsa('.form-tab');
+const sections = qsa('.form-section');
+let currentTab = 0;
+
+function fillSelect(name, options) {
+  const el = form.querySelector(`[name="${name}"]`);
+  el.innerHTML = options.map((o) => `<option value="${o}">${o}</option>`).join('');
+}
+fillSelect('category', POLICY_CATEGORIES);
+fillSelect('premiumFrequency', PREMIUM_FREQUENCIES);
+fillSelect('bonusType', BONUS_TYPES);
+fillSelect('status', POLICY_STATUSES);
+fillSelect('maturityOutcome', IPM.MATURITY_OUTCOMES);
+fillSelect('discontinuationType', IPM.DISCONTINUATION_TYPES);
+
+async function populateCompanyList() {
+  const companies = await Storage.getAll('companies');
+  const names = companies.length ? companies.map((c) => c.name) : DEFAULT_COMPANIES.map((c) => c.name);
+  qs('#companyList').innerHTML = names.map((n) => `<option value="${n}">`).join('');
+}
+populateCompanyList();
+
+function showTab(i) {
+  currentTab = Math.max(0, Math.min(tabs.length - 1, i));
+  tabs.forEach((t, idx) => t.classList.toggle('active', idx === currentTab));
+  sections.forEach((s, idx) => s.classList.toggle('active', idx === currentTab));
+  qs('#prevTab').style.visibility = currentTab === 0 ? 'hidden' : 'visible';
+  qs('#nextTab').style.display = currentTab === tabs.length - 1 ? 'none' : 'inline-flex';
+}
+tabs.forEach((t, idx) => t.addEventListener('click', () => showTab(idx)));
+qs('#prevTab').addEventListener('click', () => showTab(currentTab - 1));
+qs('#nextTab').addEventListener('click', () => showTab(currentTab + 1));
+showTab(0);
+
+async function loadForEdit() {
+  if (!editId) return;
+  const policy = await getPolicy(editId);
+  if (!policy) { toast('Policy not found', 'error'); return; }
+  qs('#pageTitle').textContent = 'Edit Policy';
+  qs('#pageTitleTag').textContent = 'Edit Policy — Insurance Portfolio Manager Pro';
+  Object.entries(policy).forEach(([key, val]) => {
+    const el = form.querySelector(`[name="${key}"]`);
+    if (!el) return;
+    if (el.type === 'checkbox') el.checked = !!val;
+    else el.value = val ?? '';
+  });
+}
+loadForEdit();
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(form).entries());
+  data.loanAvailable = form.querySelector('[name="loanAvailable"]').checked;
+  if (editId) data.id = editId;
+
+  const err = runChecks([
+    [required, data.policyName, 'Policy name'],
+    [required, data.policyNumber, 'Policy number'],
+    [required, data.company, 'Insurance company'],
+    [required, data.customerName, 'Customer name'],
+    [required, data.commencementDate, 'Commencement date'],
+    [required, data.premiumAmount, 'Premium amount'],
+    [required, data.sumAssured, 'Sum assured'],
+    [isValidDateOrder, data.commencementDate, data.maturityDate, 'Commencement date', 'Maturity date'],
+    [isPositiveNumber, data.premiumAmount, 'Premium amount'],
+    [isPositiveNumber, data.sumAssured, 'Sum assured'],
+    [isValidPAN, data.pan],
+    [isValidAadhaar, data.aadhaar],
+    [isValidMobile, data.agentMobile]
+  ]);
+  if (err) {
+    toast(err, 'error', 6000);
+    // Jump to whichever tab holds the field that failed, so the error is never hidden off-screen.
+    const fieldMap = { 'Policy name': 0, 'Policy number': 0, 'Insurance company': 0, 'Customer name': 1, 'Commencement date': 2, 'Premium amount': 3, 'Sum assured': 4 };
+    const failedField = Object.keys(fieldMap).find((label) => err.includes(label));
+    if (failedField !== undefined) showTab(fieldMap[failedField]);
+    return;
+  }
+
+  try {
+    await savePolicy(data);
+    toast(editId ? 'Policy updated' : 'Policy added', 'success');
+    setTimeout(() => window.location.href = 'policies.html', 500);
+  } catch (ex) {
+    toast(ex.message, 'error');
+  }
+});
+</script>
+</body>
+</html>

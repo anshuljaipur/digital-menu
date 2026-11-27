@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1e4fd6">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Policies">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<title>Policy Details — Insurance Portfolio Manager Pro</title>
+<link rel="stylesheet" href="assets/css/theme.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/cards.css">
+<link rel="stylesheet" href="assets/css/tables.css">
+<link rel="stylesheet" href="assets/css/forms.css">
+<link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body>
+<div class="scrim"></div>
+<div class="app-shell">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">IP</div>
+      <div><div class="brand-name">Insurance Portfolio</div><div class="brand-sub">Manager Pro</div></div>
+    </div>
+    <div class="nav-section-label">Overview</div>
+    <a href="dashboard.html" class="nav-link"><span class="nav-icon">🏠</span>Dashboard</a>
+    <a href="policies.html" class="nav-link active"><span class="nav-icon">📄</span>Policies</a>
+    <a href="companies.html" class="nav-link"><span class="nav-icon">🏢</span>Companies</a>
+    <div class="nav-section-label">Premiums</div>
+    <a href="payment-tracker.html" class="nav-link"><span class="nav-icon">💳</span>Premium Tracker</a>
+    <div class="nav-section-label">Insights</div>
+    <a href="calendar.html" class="nav-link"><span class="nav-icon">📅</span>Calendar</a>
+    <a href="reports.html" class="nav-link"><span class="nav-icon">📊</span>Reports</a>
+    <div class="nav-section-label">Data</div>
+    <a href="import-export.html" class="nav-link"><span class="nav-icon">⇅</span>Import / Export</a>
+    <a href="settings.html" class="nav-link"><span class="nav-icon">⚙️</span>Settings</a>
+  </aside>
+
+  <div class="main-col">
+    <header class="topbar">
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">☰</button>
+      <div>
+        <h1 id="policyTitle" class="page-title">Policy Details</h1>
+        <p id="policySub" class="page-sub">—</p>
+      </div>
+      <div class="topbar-spacer"></div>
+      <button id="printBtn" class="btn btn-ghost">🖨 Print</button>
+      <a id="editLink" href="#" class="btn btn-primary">Edit Policy</a>
+    </header>
+
+    <main class="content">
+      <div id="statusRow" class="kpi-strip"></div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="section-title">Policy & Customer Information</div>
+          <div class="section-sub">Core identification and party details</div>
+          <div id="infoGrid" class="field-grid" style="row-gap:10px"></div>
+        </div>
+        <div class="panel">
+          <div class="section-title">Coverage & Bonus</div>
+          <div class="section-sub">Sum assured, benefits, and declared bonus</div>
+          <div id="coverageGrid" class="field-grid" style="row-gap:10px"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h3>Premium Schedule</h3>
+          <span id="premiumSummary" class="section-sub" style="margin-bottom:0"></span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Due Date</th><th>Amount</th><th>Status</th><th>Paid On</th><th>Total Paid</th><th>Action</th></tr></thead>
+            <tbody id="scheduleBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="section-title">Maturity &amp; Continuation</div>
+        <div class="section-sub">What happens at maturity, or if premiums stopped early</div>
+        <div id="continuationGrid" class="field-grid" style="row-gap:10px"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h3>Payout Schedule — Survival Benefits &amp; Maturity Payouts</h3>
+          <button id="addPlanBtn" class="btn btn-ghost btn-sm">+ Add Payout Plan</button>
+        </div>
+        <div class="section-sub">Define a rule once (e.g. "₹90,000 every anniversary, year 7 to 2031") and every occurrence is generated automatically below.</div>
+        <div id="plansList" style="display:flex;flex-wrap:wrap;gap:8px;margin:10px 0"></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Plan</th><th>Expected Date</th><th>Expected Amount</th><th>Status</th><th>Received</th><th>Reference</th><th>Action</th></tr></thead>
+            <tbody id="payoutsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Add/edit payout plan modal -->
+<div id="planOverlay" class="confirm-overlay">
+  <div class="confirm-box" style="width:380px">
+    <h3 id="planModalTitle" style="margin-bottom:12px">Add Payout Plan</h3>
+    <div class="field" style="margin-bottom:10px"><label>Label</label><input id="plLabel" placeholder="e.g. Survival Benefit Tier 1"></div>
+    <div class="field" style="margin-bottom:10px"><label>Type</label>
+      <select id="plType"><option value="Recurring">Recurring — every policy anniversary</option><option value="OneTime">One-time — specific date</option></select>
+    </div>
+    <div id="plRecurringFields">
+      <div class="field-grid" style="grid-template-columns:1fr 1fr;margin-bottom:10px">
+        <div class="field"><label>Starting Policy Year</label><input id="plStartYear" type="number" min="1" placeholder="e.g. 7"></div>
+        <div class="field"><label>Ends</label>
+          <select id="plEndCondition"><option value="Year">Specific policy year</option><option value="Maturity">At maturity date</option><option value="Ongoing">Ongoing (no defined end)</option></select>
+        </div>
+      </div>
+      <div class="field" id="plEndYearField" style="margin-bottom:10px"><label>Ending Policy Year</label><input id="plEndYear" type="number" min="1" placeholder="e.g. 12"></div>
+    </div>
+    <div id="plOneTimeFields" style="display:none">
+      <div class="field" style="margin-bottom:10px"><label>Payout Date</label><input id="plOneTimeDate" type="date"></div>
+    </div>
+    <div class="field" style="margin-bottom:10px"><label>Amount per Occurrence</label><input id="plAmount" type="number" min="0"></div>
+    <div class="field" style="margin-bottom:14px"><label>Notes</label><input id="plNotes"></div>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" data-action="cancel">Cancel</button>
+      <button class="btn btn-primary" data-action="ok">Save Plan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Record receipt modal -->
+<div id="receiptOverlay" class="confirm-overlay">
+  <div class="confirm-box" style="width:340px">
+    <h3 style="margin-bottom:12px">Record Receipt</h3>
+    <div class="field" style="margin-bottom:10px"><label>Amount Received</label><input id="rcAmount" type="number"></div>
+    <div class="field" style="margin-bottom:10px"><label>Date Received</label><input id="rcDate" type="date"></div>
+    <div class="field" style="margin-bottom:10px"><label>Mode</label>
+      <select id="rcMode"><option>Bank Transfer</option><option>Cheque</option><option>UPI</option><option>Cash</option></select>
+    </div>
+    <div class="field" style="margin-bottom:10px"><label>Reference / Receipt Number</label><input id="rcRef"></div>
+    <div class="field" style="margin-bottom:14px"><label>Remarks</label><input id="rcRemarks"></div>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" data-action="cancel">Cancel</button>
+      <button class="btn btn-primary" data-action="ok">Save Receipt</button>
+    </div>
+  </div>
+</div>
+
+<!-- Record payment modal -->
+<div id="payOverlay" class="confirm-overlay">
+  <div class="confirm-box" style="width:340px">
+    <h3 style="margin-bottom:12px">Record Payment</h3>
+    <div class="field" style="margin-bottom:10px"><label>Premium Amount Paid</label><input id="payAmount" type="number"></div>
+    <div class="field" style="margin-bottom:10px"><label>Late Fee Paid</label><input id="payLateFee" type="number" placeholder="0"></div>
+    <div class="field" style="margin-bottom:10px"><label>Other Charges / Tax Paid</label><input id="payOtherCharges" type="number" placeholder="0"></div>
+    <div class="field" style="margin-bottom:10px"><label>Payment Date</label><input id="payDate" type="date"></div>
+    <div class="field" style="margin-bottom:10px"><label>Payment Mode</label>
+      <select id="payMode"><option>UPI</option><option>Cheque</option><option>Bank Transfer</option><option>Cash</option><option>Card</option><option>Auto Debit</option></select>
+    </div>
+    <div class="field" style="margin-bottom:14px"><label>Transaction ID</label><input id="payTxn"></div>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" data-action="cancel">Cancel</button>
+      <button class="btn btn-primary" data-action="ok">Save Payment</button>
+
+    </div>
+  </div>
+</div>
+
+
+<script src="config/constants.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config/firebase-config.js"></script>
+<script src="assets/js/utilities.js"></script>
+<script src="assets/js/firebase-store.js"></script>
+<script src="assets/js/storage.js"></script>
+<script src="assets/js/notification.js"></script>
+<script src="assets/js/validation.js"></script>
+<script src="assets/js/search.js"></script>
+<script src="assets/js/policy.js"></script>
+<script src="assets/js/payment.js"></script>
+<script src="assets/js/payouts.js"></script>
+<script src="assets/js/calendar.js"></script>
+<script src="assets/js/reports.js"></script>
+<script src="assets/js/charts.js"></script>
+<script src="assets/js/alerts.js"></script>
+<script src="assets/js/export.js"></script>
+<script src="assets/js/import.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const { getPolicy, derivedStatus, deletePolicy, buildPremiumRows, recordPayment, deletePayment, isPaidLike, getSettings, fmtMoney, fmtDate, qs, qsa, getParam, escapeHtml, toast, confirmDialog, printablePolicy, printPaymentReceipt, printPayoutReceipt, STATUS_COLORS, countByStatus, listPayoutPlans, savePayoutPlan, deletePayoutPlan, buildPayoutRows, recordReceipt, deleteReceipt, projectedFixedValue, PAYOUT_END_CONDITIONS } = IPM;
+const id = getParam('id');
+let settings, policy;
+
+async function init() {
+  settings = await getSettings();
+  policy = await getPolicy(id);
+  if (!policy) { qs('.content').innerHTML = '<div class="panel">Policy not found.</div>'; return; }
+
+  qs('#policyTitle').textContent = policy.policyName;
+  qs('#policySub').textContent = `${policy.policyNumber} • ${policy.company}`;
+  qs('#editLink').href = `add-policy.html?id=${policy.id}`;
+  qs('#printBtn').addEventListener('click', () => printablePolicy(policy));
+  qs('#addPlanBtn').addEventListener('click', () => openPlanModal());
+  qs('#plType').addEventListener('change', togglePlanFields);
+  qs('#plEndCondition').addEventListener('change', toggleEndYearField);
+
+  renderStatusRow();
+  renderInfo();
+  renderCoverage();
+  renderContinuation();
+  await renderSchedule();
+  await renderPlansAndPayouts();
+}
+
+function renderStatusRow() {
+  const status = derivedStatus(policy);
+  qs('#statusRow').innerHTML = `
+    <div class="kpi-chip"><span class="status-pill" style="--pill-color:${STATUS_COLORS[status] || '#999'}">${status}</span><span>Current Status</span></div>
+    <div class="kpi-chip"><span>${fmtMoney(policy.sumAssured, settings.currency)}</span><span>Sum Assured</span></div>
+    <div class="kpi-chip"><span>${fmtMoney(policy.premiumAmount, settings.currency)}</span><span>${escapeHtml(policy.premiumFrequency || '')} Premium</span></div>
+    <div class="kpi-chip"><span>${fmtDate(policy.maturityDate, settings.dateFormat)}</span><span>Maturity Date</span></div>
+    <div class="kpi-chip"><span>${policy.gracePeriodDays ?? 0} days</span><span>Grace Period</span></div>`;
+}
+
+function row(label, value) {
+  return `<div class="field"><label>${label}</label><div style="font-size:13.5px;font-weight:600">${value ?? '—'}</div></div>`;
+}
+
+function renderInfo() {
+  qs('#infoGrid').innerHTML = [
+    row('Customer Name', escapeHtml(policy.customerName)),
+    row('Nominee', escapeHtml(policy.nominee)),
+    row('Relationship', escapeHtml(policy.relationship)),
+    row('Agent', escapeHtml(policy.agentName)),
+    row('Agent Mobile', escapeHtml(policy.agentMobile)),
+    row('Branch', escapeHtml(policy.branch)),
+    row('Category', escapeHtml(policy.category)),
+    row('Issue Date', fmtDate(policy.issueDate, settings.dateFormat)),
+    row('Commencement Date', fmtDate(policy.commencementDate, settings.dateFormat)),
+    row('Policy Term', policy.policyTerm ? `${policy.policyTerm} years` : '—'),
+  ].join('');
+}
+
+function renderCoverage() {
+  qs('#coverageGrid').innerHTML = [
+    row('Death Benefit', policy.deathBenefit ? fmtMoney(policy.deathBenefit, settings.currency) : '—'),
+    row('Critical Illness Benefit', policy.criticalIllnessBenefit ? fmtMoney(policy.criticalIllnessBenefit, settings.currency) : '—'),
+    row('Surrender Value', policy.surrenderValue ? fmtMoney(policy.surrenderValue, settings.currency) : '—'),
+    row('Current Fund Value', policy.currentFundValue ? fmtMoney(policy.currentFundValue, settings.currency) : '—'),
+    row('Bonus Type', escapeHtml(policy.bonusType)),
+    row('Bonus Rate', policy.bonusRate ? `${policy.bonusRate}%` : '—'),
+    row('Riders', escapeHtml(policy.riders) || '—'),
+    row('Notes', escapeHtml(policy.notes) || '—'),
+  ].join('');
+}
+
+async function renderSchedule() {
+  const rows = await buildPremiumRows(policy.id);
+  const counts = countByStatus(rows);
+  const totalPaid = rows.reduce((s, r) => s + r.totalPaid, 0);
+  qs('#premiumSummary').textContent = `${counts.paid} of ${counts.total} paid • ${counts.due} due • ${fmtMoney(totalPaid, settings.currency)} paid to date (incl. fees)`;
+
+  qs('#scheduleBody').innerHTML = rows.map((r) => {
+    const hasPayment = isPaidLike(r.status);
+    return `
+    <tr>
+      <td>${r.installmentNo}</td>
+      <td>${fmtDate(r.dueDate, settings.dateFormat)}</td>
+      <td class="num">${fmtMoney(r.dueAmount, settings.currency)}</td>
+      <td><span class="status-pill" style="--pill-color:${STATUS_COLORS[r.status] || '#999'}">${r.status}</span></td>
+      <td>${r.paymentDate ? fmtDate(r.paymentDate, settings.dateFormat) : '—'}</td>
+      <td class="num">${hasPayment ? fmtMoney(r.totalPaid, settings.currency) : '—'}</td>
+      <td class="row-actions">${hasPayment
+        ? `<button class="btn btn-ghost btn-sm edit-pay-btn" data-inst="${r.installmentNo}">Edit</button><button class="btn btn-ghost btn-sm print-pay-btn" data-inst="${r.installmentNo}">🖨 Receipt</button><button class="btn btn-ghost btn-sm del-pay-btn" data-inst="${r.installmentNo}">Delete</button>`
+        : `<button class="btn btn-ghost btn-sm pay-btn" data-inst="${r.installmentNo}" data-amount="${r.dueAmount}">Record</button>`}</td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="7" class="empty-row">No schedule generated — check commencement date.</td></tr>`;
+
+  qsa('.pay-btn').forEach((btn) => btn.addEventListener('click', () => openPayModal(Number(btn.dataset.inst), Number(btn.dataset.amount))));
+  qsa('.edit-pay-btn').forEach((btn) => btn.addEventListener('click', () => openPayModal(Number(btn.dataset.inst), null, rows.find((r) => r.installmentNo === Number(btn.dataset.inst)))));
+  qsa('.print-pay-btn').forEach((btn) => btn.addEventListener('click', () => printPaymentReceipt(rows.find((r) => r.installmentNo === Number(btn.dataset.inst)), settings)));
+  qsa('.del-pay-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    if (await confirmDialog('Delete this recorded payment? The installment will go back to its normal due/overdue status.')) {
+      await deletePayment(policy.id, Number(btn.dataset.inst));
+      toast('Payment deleted', 'success');
+      await renderSchedule();
+    }
+  }));
+}
+
+function renderContinuation() {
+  const rows = [
+    row('Maturity Outcome', escapeHtml(policy.maturityOutcome) || 'Not Yet Matured'),
+    row('Last Premium Paid', fmtDate(policy.lastPremiumPaidDate, settings.dateFormat)),
+    row('Discontinuation Handling', escapeHtml(policy.discontinuationType) || 'None'),
+  ];
+  if (policy.discontinuationType === 'Moved to Fixed Return Instrument' && policy.fixedReturnRate && policy.fixedReturnStartDate) {
+    const base = Number(policy.surrenderValue) || Number(policy.paidUpValue) || Number(policy.currentFundValue) || 0;
+    const projected = projectedFixedValue(base, policy.fixedReturnRate, policy.fixedReturnStartDate);
+    rows.push(row('Fixed Return Rate', `${policy.fixedReturnRate}% / year since ${fmtDate(policy.fixedReturnStartDate, settings.dateFormat)}`));
+    if (projected) rows.push(row('Estimated Value Today', fmtMoney(Math.round(projected), settings.currency)));
+  }
+  qs('#continuationGrid').innerHTML = rows.join('');
+}
+
+// ---------- Payout plans + generated occurrences ----------
+async function renderPlansAndPayouts() {
+  const plans = await listPayoutPlans(policy.id);
+  qs('#plansList').innerHTML = plans.map((p) => {
+    const desc = p.type === 'OneTime'
+      ? `One-time on ${fmtDate(p.oneTimeDate, settings.dateFormat)}`
+      : `Year ${p.startYear} → ${p.endCondition === 'Year' ? `Year ${p.endYear}` : p.endCondition === 'Maturity' ? 'Maturity' : 'Ongoing'}`;
+    return `<div class="kpi-chip" style="cursor:default">
+      <span style="font-size:13px">${escapeHtml(p.label)} — ${fmtMoney(p.amount, settings.currency)}</span>
+      <span>${desc} · <button class="btn btn-ghost btn-sm del-plan-btn" data-id="${p.id}" style="padding:2px 8px;font-size:10.5px">Delete Plan</button></span>
+    </div>`;
+  }).join('') || `<div class="empty-row">No payout plans defined yet — add one to auto-generate expected payouts.</div>`;
+
+  qsa('.del-plan-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    if (await confirmDialog('Delete this payout plan and all its generated occurrences?')) {
+      await deletePayoutPlan(btn.dataset.id);
+      toast('Payout plan deleted', 'success');
+      await renderPlansAndPayouts();
+    }
+  }));
+
+  const rows = await buildPayoutRows(policy.id);
+  qs('#payoutsBody').innerHTML = rows.map((r) => `
+    <tr>
+      <td>${escapeHtml(r.label)}${r.policyYear ? ` (Yr ${r.policyYear})` : ''}</td>
+      <td>${fmtDate(r.date, settings.dateFormat)}</td>
+      <td class="num">${fmtMoney(r.expectedAmount, settings.currency)}</td>
+      <td><span class="status-pill" style="--pill-color:${r.status === 'Received' ? STATUS_COLORS['Paid'] : r.status === 'Due' ? STATUS_COLORS['Overdue'] : STATUS_COLORS['Future']}">${r.status}</span></td>
+      <td>${r.status === 'Received' ? fmtMoney(r.receivedAmount, settings.currency) + ' on ' + fmtDate(r.receivedDate, settings.dateFormat) : '—'}</td>
+      <td>${escapeHtml(r.referenceNumber) || '—'}</td>
+      <td class="row-actions">
+        <button class="btn btn-ghost btn-sm receipt-btn" data-key="${r.occurrenceKey}" data-amount="${r.expectedAmount}">${r.status === 'Received' ? 'Edit' : 'Record'}</button>
+        ${r.status === 'Received' ? `<button class="btn btn-ghost btn-sm print-receipt-btn" data-key="${r.occurrenceKey}">🖨 Receipt</button><button class="btn btn-ghost btn-sm del-receipt-btn" data-key="${r.occurrenceKey}">Delete</button>` : ''}
+      </td>
+    </tr>`).join('') || `<tr><td colspan="7" class="empty-row">No occurrences yet — add a payout plan above.</td></tr>`;
+
+  qsa('.receipt-btn').forEach((btn) => btn.addEventListener('click', () => openReceiptModal(btn.dataset.key, Number(btn.dataset.amount), rows.find((r) => r.occurrenceKey === btn.dataset.key))));
+  qsa('.print-receipt-btn').forEach((btn) => btn.addEventListener('click', () => printPayoutReceipt(rows.find((r) => r.occurrenceKey === btn.dataset.key), policy, settings)));
+  qsa('.del-receipt-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    if (await confirmDialog('Delete this recorded receipt? The occurrence will go back to Due/Upcoming.')) {
+      await deleteReceipt(btn.dataset.key);
+      toast('Receipt deleted', 'success');
+      await renderPlansAndPayouts();
+    }
+  }));
+}
+
+function togglePlanFields() {
+  const isRecurring = qs('#plType').value === 'Recurring';
+  qs('#plRecurringFields').style.display = isRecurring ? 'block' : 'none';
+  qs('#plOneTimeFields').style.display = isRecurring ? 'none' : 'block';
+}
+function toggleEndYearField() {
+  qs('#plEndYearField').style.display = qs('#plEndCondition').value === 'Year' ? 'block' : 'none';
+}
+
+function openPlanModal() {
+  qs('#plLabel').value = ''; qs('#plType').value = 'Recurring'; qs('#plStartYear').value = '';
+  qs('#plEndCondition').value = 'Year'; qs('#plEndYear').value = ''; qs('#plOneTimeDate').value = '';
+  qs('#plAmount').value = ''; qs('#plNotes').value = '';
+  togglePlanFields(); toggleEndYearField();
+  const overlay = qs('#planOverlay');
+  overlay.classList.add('show');
+  overlay.onclick = async (e) => {
+    const action = e.target.dataset.action;
+    if (!action) { if (e.target === overlay) overlay.classList.remove('show'); return; }
+    if (action === 'ok') {
+      const label = qs('#plLabel').value.trim() || 'Payout';
+      const type = qs('#plType').value;
+      const plan = { policyId: policy.id, label, type, amount: Number(qs('#plAmount').value) || 0, notes: qs('#plNotes').value };
+      if (type === 'Recurring') {
+        plan.startYear = Number(qs('#plStartYear').value) || 1;
+        plan.endCondition = qs('#plEndCondition').value;
+        if (plan.endCondition === 'Year') plan.endYear = Number(qs('#plEndYear').value) || plan.startYear;
+      } else {
+        plan.oneTimeDate = qs('#plOneTimeDate').value;
+      }
+      await savePayoutPlan(plan);
+      toast('Payout plan saved', 'success');
+      await renderPlansAndPayouts();
+    }
+    overlay.classList.remove('show');
+  };
+}
+
+function openReceiptModal(occurrenceKey, expectedAmount, existingRow) {
+  qs('#rcAmount').value = existingRow?.status === 'Received' ? existingRow.receivedAmount : expectedAmount;
+  qs('#rcDate').value = existingRow?.receivedDate || new Date().toISOString().slice(0, 10);
+  qs('#rcMode').value = existingRow?.mode || 'Bank Transfer';
+  qs('#rcRef').value = existingRow?.referenceNumber || '';
+  qs('#rcRemarks').value = existingRow?.remarks || '';
+  const overlay = qs('#receiptOverlay');
+  overlay.classList.add('show');
+  overlay.onclick = async (e) => {
+    const action = e.target.dataset.action;
+    if (!action) { if (e.target === overlay) overlay.classList.remove('show'); return; }
+    if (action === 'ok') {
+      await recordReceipt(policy.id, occurrenceKey, {
+        receivedAmount: Number(qs('#rcAmount').value) || 0,
+        receivedDate: qs('#rcDate').value,
+        mode: qs('#rcMode').value,
+        referenceNumber: qs('#rcRef').value,
+        remarks: qs('#rcRemarks').value
+      });
+      toast('Receipt recorded', 'success');
+      await renderPlansAndPayouts();
+    }
+    overlay.classList.remove('show');
+  };
+}
+
+function openPayModal(installmentNo, amount, existingRow) {
+  const overlay = qs('#payOverlay');
+  qs('#payAmount').value = existingRow ? existingRow.paidAmount : amount;
+  qs('#payLateFee').value = existingRow ? existingRow.lateFeePaid || '' : '';
+  qs('#payOtherCharges').value = existingRow ? existingRow.otherChargesPaid || '' : '';
+  qs('#payDate').value = existingRow ? existingRow.paymentDate : new Date().toISOString().slice(0, 10);
+  qs('#payMode').value = existingRow?.paymentMode || 'UPI';
+  qs('#payTxn').value = existingRow?.transactionId || '';
+  overlay.classList.add('show');
+  overlay.onclick = async (e) => {
+    const action = e.target.dataset.action;
+    if (!action) { if (e.target === overlay) overlay.classList.remove('show'); return; }
+    if (action === 'ok') {
+      await recordPayment(policy.id, installmentNo, {
+        paidAmount: Number(qs('#payAmount').value) || 0,
+        lateFeePaid: Number(qs('#payLateFee').value) || 0,
+        otherChargesPaid: Number(qs('#payOtherCharges').value) || 0,
+        paymentDate: qs('#payDate').value,
+        paymentMode: qs('#payMode').value,
+        transactionId: qs('#payTxn').value
+      });
+      toast('Payment recorded', 'success');
+      await renderSchedule();
+    }
+    overlay.classList.remove('show');
+  };
+}
+
+init();
+</script>
+</body>
+</html>
