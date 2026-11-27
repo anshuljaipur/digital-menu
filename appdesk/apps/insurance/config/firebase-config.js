@@ -14,9 +14,10 @@ window.IPM_FIREBASE_CONFIG = null;
 /* Example — replace with your own:
 window.IPM_FIREBASE_CONFIG = {
     apiKey: "AIzaSyBxfdJRbcWixhvVdvZOFy6aJvNGXh9Ioxs",
-    authDomain: "insurancetracker-a3548.firebaseapp.com",
-    projectId: "insurancetracker-a3548",
-    storageBucket: "insurancetracker-a3548.firebasestorage.app",
-    messagingSenderId: "807854384364",
-    appId: "1:807854384364:web:52b3e4b8ae2c13331fb1c9"
-  };
+  authDomain: "insurancetracker-a3548.firebaseapp.com",
+  projectId: "insurancetracker-a3548",
+  storageBucket: "insurancetracker-a3548.firebasestorage.app",
+  messagingSenderId: "807854384364",
+  appId: "1:807854384364:web:52b3e4b8ae2c13331fb1c9"
+};
+*/
